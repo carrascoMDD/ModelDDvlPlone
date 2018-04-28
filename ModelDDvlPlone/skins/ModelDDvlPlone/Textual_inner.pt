@@ -1,0 +1,115 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tTextualInner" >
+
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+
+        <tal:block tal:define=" global pTrue            python: True;
+                                global pFalse           python: False" />
+
+        <tal:block tal:define="global pPagina string:Textual" />
+        <tal:block tal:define="global pShowTrees python:False" />
+        
+        
+        <tal:block tal:condition="python: request.cookies.has_key('ShowTrees')" >
+            <tal:block tal:condition="python: request.cookies[ 'ShowTrees'].lower() == 'yes'">
+                <tal:block tal:define="global pShowTrees python: True" />
+            </tal:block>     
+            <tal:block tal:condition="python: not( request.cookies[ 'ShowTrees'].lower() == 'yes')">
+                <tal:block tal:define="global pShowTrees python: False" />
+            </tal:block>     
+        </tal:block>     
+        <tal:block tal:condition="python: request.form.has_key('ShowTrees')">
+            <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes');
+                                   global pShowTrees python: True" />            
+        </tal:block>     
+        <tal:block tal:condition="python: request.form.has_key('HideTrees')">
+            <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no');
+                                   global pShowTrees python: False" />            
+        </tal:block> 
+        <tal:block tal:condition="python: not( request.cookies.has_key('ShowTrees') and  (request.cookies[ 'ShowTrees'].lower() == 'yes') == pShowTrees)" >
+            <tal:block tal:condition="python: pShowTrees" >
+                <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes', path='/')" />
+            </tal:block> 
+            <tal:block tal:condition="python: pShowTrees" >
+                <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no', path='/')" />
+            </tal:block> 
+        </tal:block>         
+        <tal:block tal:define="
+            pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+            pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+            unosArgs python: { 
+                'theTimeProfilingResults'     :pProfilingResults,
+                'theElement'                  :here, 
+                'theParent'                   :None,
+                'theParentTraversalName'      :'',
+                'theTypeConfig'               :None, 
+                'theAllTypeConfigs'           :None, 
+                'theViewName'                 :'Textual', 
+                'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ],
+                'theWritePermissions'         :[ 'object', ],
+                'theFeatureFilters'           :{ 'attrs': ['title', 'description',], 'aggregations': [], 'relations': [],}, 
+                'theInstanceFilters'          :None,
+                'theTranslationsCaches'       :None,
+                'theCheckedPermissionsCache'  :None,
+                'theAdditionalParams'         :None};
+            SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+            pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+            pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
+            pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
+            pShowOrHideTrees pTrue; 
+            pMostrarAnteriorPosterior pTrue;
+            pAllowTextualAndTabular pTrue" > 
+<tal:block tal:replace="nothing">  
+            <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />
+
+            <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ SRES  , ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+</tal:block>
+
+
+            <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+
+            <tal:block tal:define="pRelationCursorName      request/theRelationCursorName  | python: None"> 
+                <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+            </tal:block>
+        
+        </tal:block>
+        
+        <div tal:replace="structure python: here.CookedBody()" />   
+   
+        <br/>       
+    </div>
+    
+</body>
+</html>
+    

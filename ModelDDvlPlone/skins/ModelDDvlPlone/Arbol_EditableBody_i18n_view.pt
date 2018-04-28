@@ -1,0 +1,185 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+
+
+<div metal:define-macro="tArbol_EditableBody_i18n" >
+   
+<tal:block tal:define="
+    pTrue    python: True;
+    pFalse   python: False;
+    pSiempre pSiempre | pFalse;
+    pArbolColeccionesYElementos python: here.getArbolColeccionesYContenidos( pNombresTiposColeccion);
+    global pNombreTipoColeccion python: pNombresTiposColeccion[ 0];
+    global pHayAlgunContenido pFalse" >
+
+    <tal:block tal:repeat="pUnaColeccionYElementos python: pArbolColeccionesYElementos">
+        <tal:block tal:condition="python: pUnaColeccionYElementos[1] and len( pUnaColeccionYElementos[1]) > 0 ">
+            <tal:block tal:define="global pHayAlgunContenido python: True" />
+        </tal:block>
+    </tal:block>
+        
+    <tal:block tal:condition="python: pSiempre or pHayAlgunContenido">
+
+|
+|
+    
+**<tal:block tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  '', pNombreTipoColeccion, '')" />**
+
+    <tal:block tal:repeat="pUnaColeccionYElementos python: pArbolColeccionesYElementos"><tal:block 
+        tal:define="
+            pUnaColeccion python: pUnaColeccionYElementos[ 0];  
+            pUnosContenidosColeccion python: pUnaColeccionYElementos[1];
+            pNombresTiposContenido python: pUnaColeccion.allowed_content_types" ><tal:block 
+                tal:condition="python: not( pUnaColeccion == pArbolColeccionesYElementos[0][0])">
+**<tal:block tal:content="python: here.fAsUnicode( pUnaColeccion.getAttributesMetaAndValues( ['title'])[0][1])" />**
+
+</tal:block><tal:block
+                tal:repeat="pArbolElemento python: pUnosContenidosColeccion"><metal:block
+                metal:use-macro="here/Arbol_EditableBody_i18n_view/macros/tArbolElementoEnTabla_i18n" /></tal:block>
+</tal:block>  
+</tal:block>  
+</tal:block> 
+</tal:block> 
+
+</div>
+
+
+
+
+<div metal:define-macro="tArbolSolo_EditableBody_i18n" >
+   
+<tal:block tal:define="
+    pTrue    python: True;
+    pFalse   python: False;
+    pSiempre pSiempre | pTrue;
+    pUnosContenidosColeccion python: here.getArbolesColeccion( pNombresTiposContenido, pNombresTiposColeccion);
+    pUnaColeccion python: here" >
+        
+    <tal:block tal:condition="python: pSiempre or len( pUnosContenidosColeccion) > 0">
+
+|
+|
+    
+        <tal:block tal:repeat="pArbolElemento python: pUnosContenidosColeccion"><metal:block
+                metal:use-macro="here/Arbol_EditableBody_i18n_view/macros/tArbolElementoEnTabla_i18n" /></tal:block>
+</tal:block>  
+</tal:block>  
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div metal:define-macro="tArbolElementoEnTabla_i18n" ><tal:block 
+    tal:define="unElemento python: pArbolElemento[ 0]; unNivelElemento python: pArbolElemento[ 1]; unasSubColeccionesYElementos python: pArbolElemento[ 2]" ><tal:block 
+        tal:define="pSubArbolElemento python: pArbolElemento" ><metal:block 
+            metal:use-macro="here/Arbol_EditableBody_i18n_view/macros/tFilaElementoArbolEnTabla_i18n" /></tal:block><tal:block 
+            tal:repeat="pSubColeccionYElementos python: unasSubColeccionesYElementos"><tal:block 
+                tal:condition="python: len( unasSubColeccionesYElementos) > 1"><metal:block
+                    metal:use-macro="here/Arbol_EditableBody_i18n_view/macros/tFilaColecionArbolEnTabla_i18n" /></tal:block><tal:block 
+                        tal:define="unaColeccion python: pSubColeccionYElementos[ 0]; unNivelColeccion python: pSubColeccionYElementos[ 1]; unosSubArbolesElementos python: pSubColeccionYElementos[ 2]" ><tal:block 
+                            tal:repeat="pArbolElemento  python: unosSubArbolesElementos"><metal:block 
+                                metal:use-macro="here/Arbol_EditableBody_i18n_view/macros/tArbolElementoEnTabla_i18n" /></tal:block></tal:block></tal:block></tal:block></div>
+
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+<div metal:define-macro="tFilaColecionArbolEnTabla_i18n" ><tal:block 
+    tal:define="unaColeccion python: pSubColeccionYElementos[ 0]; unNivelColeccion python: pSubColeccionYElementos[ 1]; unosSubArbolesElementos python: pSubColeccionYElementos[ 2]" ><tal:block 
+        tal:define="pMetaAndValues python: unaColeccion.getAttributesMetaAndValues( [ 'title', 'description'])" >        
+<tal:block tal:define="unIndent python: '  ' * (unNivelColeccion - 1)"><tal:block tal:content="structure python: unIndent" /></tal:block>* <tal:block tal:content="structure python: u'**%s**' %  ( here.fAsUnicode( pMetaAndValues[0][1]) )"/> (*<tal:block 
+        tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  '', unaColeccion.meta_type, '')" />*) .  <tal:block tal:repeat="unaLineaTexto python:  here.fAsUnicode( pMetaAndValues[1][1]).strip().splitlines()"><tal:block 
+    tal:content="python: here.fAsUnicode( unaLineaTexto.strip())" /></tal:block>
+</tal:block></tal:block></div>
+
+    
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+<div metal:define-macro="tFilaElementoArbolEnTabla_i18n" ><tal:block 
+    tal:define="unElemento python: pSubArbolElemento[ 0]; unNivelElemento python: pSubArbolElemento[ 1]; unasSubColeccionesYElementos python: pSubArbolElemento[ 2]" ><tal:block 
+        tal:define="pMetaAndValues python: unElemento.getAttributesMetaAndValues( [ 'title', 'description'])" ><tal:block 
+            tal:define="pMetaAndValues python: unElemento.getAttributesMetaAndValues( [ 'title', 'description'])" ><tal:block 
+                 tal:define="unIndent python: '  ' * (unNivelElemento - 1)">
+<tal:block tal:content="structure python: unIndent" /></tal:block>* <tal:block tal:content="structure python: u'`%s %c%s%c`__' %  ( here.fAsUnicode( pMetaAndValues[0][1]) , 60, unElemento.absolute_url(), 62)"/> (*<tal:block 
+             tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  '', unElemento.meta_type, '')" />*) . <tal:block tal:repeat="unaLineaTexto python:  here.fAsUnicode( pMetaAndValues[1][1]).strip().splitlines()"><tal:block 
+    tal:content="python: here.fAsUnicode( unaLineaTexto.strip())" /></tal:block>
+</tal:block></tal:block></tal:block></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+</body>
+</html>
+

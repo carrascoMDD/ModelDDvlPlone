@@ -1,0 +1,857 @@
+# ModelDDvlPlone generated POT File
+# Antonio Carrasco Valero
+msgid ""
+msgstr ""
+"Project-Id-Version: ModelDDvlPlone\n"
+"POT-Creation-Date: Wed Jun 04 16:45:54 2008\n"
+"PO-Revision-Date: Wed Jun 04 16:45:54 2008\n"
+"Last-Translator: Antonio Carrasco Valero <carrasco@ModelDD.org>\n"
+"Language-Team: Spanish <spanish@gvsig.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: es\n"
+"Language-Name: Spanish\n"
+"Preferred-Encodings: latin1 utf-8\n"
+"Domain: ModelDDvlPlone\n"
+"X-Is-Fallback-For: es-ar es-bo es-co es-cr es-cl es-do es-ec es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-es es-uy es-ve\n"
+
+#. Default: "Titulo"
+#: ElementoGeneral_I18N.py
+msgid "ModelDDvlPlone_titulo_label"
+msgstr  "Titulo"
+
+#. Default: "Titulo que identifica el elemento."
+#: ElementoGeneral_I18N.py
+msgid "ModelDDvlPlone_titulo_help"
+msgstr  "Titulo que identifica el elemento."
+
+
+#. Default: "Descripcion"
+#: ElementoGeneral_I18N.py
+msgid  "ModelDDvlPlone_descripcion_label"
+msgstr  "Descripcion"
+
+#. Default: "Descripcion corta acerca del elemento."
+#: ElementoGeneral_I18N.py
+msgid  "ModelDDvlPlone_descripcion_help"
+msgstr  "Descripcion corta acerca del elemento."
+
+
+#. Default: "Texto"
+#: ElementoGeneral_I18N.py
+msgid "ModelDDvlPlone_text_label"
+msgstr "Texto"
+
+#. Default: "Texto descriptivo. Una descripcion textual extensa del elemento."
+#: ElementoGeneral_I18N.py
+msgid "ModelDDvlPlone_text_help"
+msgstr "Texto descriptivo. Una descripcion textual extensa del elemento."
+
+
+
+#. Default: "Is"
+#: Anywhere
+msgid "ModelDDvlPlone_predicado_Es"
+msgstr "Es"
+
+
+#. Default: "No"
+#: Anywhere
+msgid "ModelDDvlPlone_predicado_No"
+msgstr "No"
+
+
+#. Default: "Es"
+#: ModelDDvlPloneTool_Retrieval_I18N.py
+msgid "ModelDDvlPlone_prefijoAttributoBoolean_es"
+msgstr "Es"
+
+#. Default: "No es"
+#: ModelDDvlPloneTool_Retrieval_I18N.py
+msgid "ModelDDvlPlone_prefijoAttributoBoolean_noes"
+msgstr "No es"
+
+
+#. Default: "True"
+#: Anywhere
+msgid "ModelDDvlPlone_True"
+msgstr "Verdadero"
+
+#. Default: "False"
+#: Anywhere
+msgid "ModelDDvlPlone_False"
+msgstr "Falso"
+
+
+#. Default: "Codigo unico"
+#: ArquetipoConAdopcion.py
+msgid "ModelDDvlPlone_help_codigo"
+msgstr  "Codigo unico"
+
+
+
+#. Default: "Indica si la pagina sera excluida del arbol de navegacion."
+#: ExcluidoDeNavegacion.py
+msgid "ModelDDvlPlone_help_excludeFromNav"
+msgstr  "Indica si la pagina sera excluida del arbol de navegacion."
+
+
+
+
+#. Default: "Codigo"
+#: ArquetipoConAdopcion.py
+msgid "ModelDDvlPlone_label_codigo"
+msgstr  "Codigo"
+
+
+#. Default: "Excludefromnav"
+#: ExcluidoDeNavegacion.py
+msgid "ModelDDvlPlone_label_excludeFromNav"
+msgstr  "Excludefromnav"
+
+
+
+
+
+#. Default: "Version"
+#: ArquetipoConAdopcion.py
+msgid "ModelDDvlPlone_label_version"
+msgstr  "Version"
+
+
+
+
+
+
+
+
+
+
+
+#. Default: "Enlazar"
+#: CandidatosEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_enlazar_action_label"
+msgstr  "Enlazar"
+
+
+#. Default: "Editar"
+#: Editar_inner.pt
+msgid "ModelDDvlPlone_editar_action_label"
+msgstr  "Editar"
+
+
+
+#. Default: "Puede modificar los datos. Pulse el boton Guardar situado al final de la pagina."
+#: Editar_inner.pt
+msgid "ModelDDvlPlone_editar_action_help"
+msgstr  "Puede modificar los datos. Pulse el boton Guardar cuando haya terminado."
+
+
+
+#. Default: "(de) Seleccionar referencia"
+#: ReferenciaEnTabla_view.pt
+msgid "ModelDDvlPlone_seleccionar_referencia_action_label"
+msgstr  "(de) Seleccionar referencia" 
+
+#. Default: "Referencias"
+#: ReferenciaEnTabla_view.pt
+#: ReferenciasEnTabla_view.pt
+msgid "ModelDDvlPlone_referencias_label"
+msgstr  "Referencias"
+
+
+#. Default: "Titulo"
+#: ReferenciaEnTabla_view.pt
+#: ReferenciasEnTabla_view.pt
+msgid "ModelDDvlPlone_titulo_label"
+msgstr  "Titulo"
+
+#. Default: "Descripcion"
+#: ReferenciaEnTabla_view.pt
+#: ReferenciasEnTabla_view.pt
+msgid  "ModelDDvlPlone_descripcion_label"
+msgstr  "Descripcion"
+
+
+#. Default: "Cambiar referencias"
+#: ReferenciaEnTabla_view.pt
+msgid "ModelDDvlPlone_cambiar_referencias_action_label"
+msgstr  "Cambiar referencias" 
+
+
+#. Default: "Cambiar referencia"
+#: ReferenciaEnTabla_view.pt
+msgid "ModelDDvlPlone_cambiar_referencia_action_label"
+msgstr  "Cambiar referencia" 
+
+#. Default: "Volver a"
+#: CabeceraEnTabla_view.pt
+msgid "ModelDDvlPlone_volver_action_label"
+msgstr  "Volver a" 
+
+
+
+
+
+
+#. Default: "Documentos Adjuntos"
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_documentos_adjuntos_label"
+msgstr  "Documentos Adjuntos" 
+
+#. Default: "Imagenes, ficheros, documentos y noticias al respecto del elemento"
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_documentos_adjuntos_description"
+msgstr  "Imagenes, ficheros, documentos y noticias al respecto del elemento" 
+
+
+
+#. Default: "Hiper-enlaces"
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_hiper_enlaces_label"
+msgstr  "Hiper-enlaces" 
+
+#. Default: "Enlaces a paginas Web relevantes para este elemento."
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_hiper_enlaces_description"
+msgstr  "Enlaces a paginas Web relevantes para este elemento." 
+
+
+#. Default: "Crear"
+#: ColeccionEnTabla_view.pt
+msgid "ModelDDvlPlone_crear_action_label"
+msgstr  "Crear" 
+
+
+
+#. Default: "Crear coleccion"
+#: ColeccionEnTabla_view.pt
+msgid "ModelDDvlPlone_crearcoleccion_action_label"
+msgstr  "Crear coleccion" 
+
+
+
+
+
+
+
+#. Default: "Caracteristicas"
+#: ValoresEnTabla_view.pt
+msgid "ModelDDvlPlone_caracteristicas_tabletitle"
+msgstr  "Caracteristicas" 
+
+#. Default: "Values"
+#: ValoresEnTabla_view.pt
+msgid "ModelDDvlPlone_valores_tabletitle"
+msgstr  "Valores" 
+
+
+
+
+
+
+
+
+
+
+
+
+#. Default: "Otras Referencias"
+#: ReferenciasEnTabla.pt
+msgid "ModelDDvlPlone_referenciasplone_section_msgid"
+msgstr  "Otras Referencias" 
+
+#. Default: "Referencias arbitrarias a paginas y otros contenidos de Plone. Para establecer referencias edite esta pagina."
+#: ReferenciasEnTabla.pt
+msgid "ModelDDvlPlone_referenciasplone_section_description_msgid"
+msgstr  "Referencias arbitrarias a paginas y otros contenidos de Plone. Para establecer referencias edite esta pagina." 
+
+
+
+
+#. Default: "Tipo de elemento"
+#: ColeccionEnTabla.pt
+msgid "ModelDDvlPlone_tipo_label"
+msgstr  "Tipo de elemento" 
+
+
+
+
+
+
+
+
+
+
+#. Default: "Elementos actualmente relacionados como "
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_enlacesexistentes_section_msgid"
+msgstr  "Elementos actualmente relacionados como "
+
+#. Default: "No hay elementos disponibles para ser relacionados como "
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_nohaycandidatosaenlazar_section_msgid"
+msgstr  "No hay elementos disponibles para ser relacionados como "
+
+#. Default: "Elementos disponibles para ser relacionados como "
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_candidatosaenlazar_section_msgid"
+msgstr  "Elementos disponibles para ser relacionados como "
+  
+#. Default: "Puede enlazar elementos adicionales de entre los candidatos mostrados para formar parte de los "
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_youmayaddfromthecandidates_info_msgid"
+msgstr  "Puede enlazar elementos adicionales de entre los candidatos mostrados para formar parte de los "
+
+#. Default: "Por favor, pulse sobre el signo +mas+ junto al candidato que desee enlazar para formar parte de los "
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_clickoncandidatetobeadded_info_msgid"
+msgstr  "Por favor, pulse sobre el signo +mas+ junto al candidato que desee enlazar para formar parte de los "
+
+#. Default: "Ya hay enlazado el maximo de elementos admisibles."
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_maxmultiplicityreached_info_msgid"
+msgstr  "Ya hay enlazado el maximo de elementos admisibles."        
+ 
+
+#. Default: "No puede enlazar mas elementos, a menos que desenlaze (alguno de los) existente(s)."
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_cannotadd_info_msgid"
+msgstr  "No puede enlazar mas elementos, a menos que desenlaze (alguno de los) existente(s)."         
+   
+
+
+#. Default: "El elemento ha sido enlazado exitosamente."
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_hasidoenlazado_section_title"
+msgstr  "El elemento ha sido enlazado exitosamente como " 
+
+
+#. Default: "El elemento ha sido DES-enlazado exitosamente."
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_hasidodesenlazado_section_title"
+msgstr  "El elemento ha sido DES-enlazado exitosamente como " 
+
+
+#. Default: "Desenlazar"
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_desenlazar_action_label"
+msgstr  "Desenlazar" 
+
+
+
+#. Default: "Abandonar Edicion"
+#: Editar_inner.pt
+msgid "ModelDDvlPlone_abandonaredicion_action_label"
+msgstr  "Abandonar editar" 
+
+#. Default: "Abandonar Enlazar"
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_abandonarenlazar_action_label"
+msgstr  "Abandon enlazar" 
+
+#. Default: "Abandonar eliminar"
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_abandonareliminar_action_label"
+msgstr  "Abandonar eliminar" 
+
+#. Default: "Abandonar Creacion
+#: Crear_inner.pt
+msgid "ModelDDvlPlone_abandonarcreacion_action_label"
+msgstr  "Abandonar crear" 
+
+
+
+#. Default: "Eliminar"
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_eliminar_action_label"
+msgstr  "Eliminar" 
+
+#. Default: "Va a eliminar este elemento. Por favor, asegurese que realmente desea eliminarlo."
+#: EliminarPlone_inner.pt
+msgid "ModelDDvlPlone_eliminar_action_help"
+msgstr  "Va a eliminar este elemento. Por favor, asegurese que realmente desea eliminarlo. Puede examinar las listas mostrando todos los elementos que van a ser eliminados, y los relacionados que van a ser afectados." 
+
+
+
+#. Default: "Eliminar elemento Plone"
+#: EliminarPlone_inner.pt
+msgid "ModelDDvlPlone_eliminarplone_action_label"
+msgstr  "Eliminar elemento Plone" 
+
+
+#. Default: "Va a eliminar un elemento Plone contenido en este elemento. Por favor, asegurese que realmente desea eliminarlo."
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_eliminarplone_action_help"
+msgstr  "Va a eliminar un elemento Plone contenido en este elemento. Por favor, asegurese que realmente desea eliminarlo." 
+
+
+#. Default: "Confirme la eliminacion del elemento pulsando en el enlace el final de la pagina."
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_instruccionesconfirmacioneliminar_help"
+msgstr  "Confirme la eliminacion del elemento pulsando en el enlace el final de la pagina." 
+
+#. Default: "Debe confirmar antes de 30 segundos. Si necesita mas tiempo para revisar el impacto, vuelva a solicitar la eliminacion del elemento."
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_tiempoconfirmacioneliminar_help"
+msgstr  "Debe confirmar antes de 30 segundos. Si necesita mas tiempo para revisar el impacto, vuelva a solicitar la eliminacion del elemento." 
+
+
+#. Default: "Elementos que van a ser eliminados"
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_elementosaeliminar_title_msgid"
+msgstr  "Elementos que van a ser eliminados" 
+
+#. Default: "Elemento que van a ser eliminados"
+#: EliminarPlone_inner.pt
+msgid "ModelDDvlPlone_elementoaeliminar_title_msgid"
+msgstr  "Elemento que van a ser eliminados" 
+
+
+
+#. Default: "Los siguientes elementos van a ser eliminados, e incluyen el elemento que ha solicitado eliminar, y todos sus contenidos, recursivamente."
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_elementosaeliminar_help_msgid"
+msgstr  "Los siguientes elementos van a ser eliminados, e incluyen el elemento que ha solicitado eliminar, y todos sus contenidos, recursivamente." 
+
+
+#. Default: "Elementos relacionados afectados"
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_elementosafectados_title_msgid"
+msgstr  "Elementos relacionados afectados" 
+
+#. Default: "Elementos que estan relacionados con los que van a ser eliminados, y por lo tanto son afectados de alguna manera por la eliminacion"
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_elementosafectados_help_msgid"
+msgstr  "Elementos que estan relacionados con los que van a ser eliminados, y por lo tanto son afectados de alguna manera por la eliminacion" 
+
+
+
+
+#. Default: "Confirmar eliminacion de"
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_confirmareliminacion_action_label"
+msgstr  "Confirmar eliminacion de" 
+
+
+
+#. Default: "Error: es necesario el tipo del elemento a crear."
+#: Crear_inner.pt
+msgid "ModelDDvlPlone_noseespecificatipo_info_msgid"
+msgstr  "Error: es necesario el tipo del elemento a crear." 
+
+#. Default: "en"
+#: Crear_inner.pt
+msgid "ModelDDvlPlone_ensiguecontenedorcuandocreando"
+msgstr  "en" 
+
+#. Default: "de"
+#: Crear_inner.pt
+msgid "ModelDDvlPlone_colecciondesiguecontenedorcuandocreando"
+msgstr  "de" 
+
+
+
+#. Default: "El Titulo es requerido para crear el nuevo elemento."
+#: Crear_inner.pt
+msgid "ModelDDvlPlone_tituloesrequerido_info_msgid"
+msgstr  "El Titulo es requerido para crear el nuevo elemento." 
+
+
+
+
+#. Default: "Ya existe un elemento con el mismo titulo."
+#: CrearSimple_i18n_view.pt
+msgid "ModelDDvlPlone_tituloduplicado_error_msgid"
+msgstr  "Ya existe un elemento con el mismo titulo" 
+
+
+#. Default: "No se ha podido crear el nuevo elemento."
+#: Crear_inner.pt
+msgid "ModelDDvlPlone_nosehacreadoelemento_info_msgid"
+msgstr  "No se ha podido crear el nuevo elemento." 
+
+
+
+#. Default: "REFERENCIAS"
+#: Crear_inner.pt
+msgid "ModelDDvlPlone_annex_section_title"
+msgstr  "REFERENCIAS" 
+
+
+
+
+
+#. Default: "Ordenar"
+#: Dumper.py
+msgid "ModelDDvlPlone_ordenar_action_label"
+msgstr  "Ordenar"
+
+
+
+
+
+
+
+
+
+
+
+
+#. Default: "Anexos"
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_anexos_section_msgid"
+msgstr  "Anexos"
+
+
+#. Default: "Referencias y contenidos adicionales."
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_anexos_section_description_msgid"
+msgstr  "Referencias y contenidos adicionales."
+
+
+
+#. Default: "Adjuntos"
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_adjuntos_section_msgid"
+msgstr  "Adjuntos"
+
+
+#. Default: "Contenidos Plone adicionales como paginas, imagenes, archivos, noticias y enlaces"
+#: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+msgid "ModelDDvlPlone_adjuntos_section_description_msgid"
+msgstr  "Contenidos Plone adicionales como paginas, imagenes, archivos, noticias y enlaces."
+
+
+
+
+#. Default: "Elementos referidos"
+#: Arquetipo.py
+msgid "ModelDDvlPlone_label_referidos"
+msgstr  "Elementos referidos"
+
+#. Default: "Otros elementos de la aplicacion  referidos desde este elemento, quiza para incluirlos por referencia en la deficion del elemento actual."
+#: Arquetipo.py
+msgid "ModelDDvlPlone_help_referidos"
+msgstr  "Otros elementos de la aplicacion  referidos desde este elemento, quiza para incluirlos por refrencia en la deficion del elemento actual."
+
+
+
+#. Default: "Elementos que refieren a este elemento"
+#: Arquetipo.py
+msgid "ModelDDvlPlone_label_referentes"
+msgstr  "Elementos que refieren a este elemento"
+
+
+
+
+#. Default: "Elementos de la aplicacion  que refieren al presente elemento."
+#: Arquetipo.py
+msgid "ModelDDvlPlone_help_referentes"
+msgstr  "Elementos de la aplicacion  que refieren al presente elemento."
+
+
+
+
+#. Default: "Referencias cualificadas"
+#: Arquetipo.py
+msgid "ModelDDvlPlone_label_referenciasCualificadas"
+msgstr  "Referencias cualificadas"
+
+#. Default: "Permite referir a otros elementos de la aplicacion , disponiendo ademas de un texto cualificando la referencia."
+#: Arquetipo.py
+msgid "ModelDDvlPlone_help_referenciasCualificadas"
+msgstr  "Permite referir a otros elementos de la aplicacion , disponiendo ademas un texto cualificando la referencia."
+
+
+#. Default: "Referentes cualificados"
+#: Arquetipo.py
+msgid "ModelDDvlPlone_label_referentesCualificados"
+msgstr  "Referentes cualificados"
+
+#. Default: "Referencias Cualificadas refiriendo a este elemento."
+#: Arquetipo.py
+msgid "ModelDDvlPlone_help_referentesCualificados"
+msgstr  "Referencias Cualificadas refiriendo a este elemento."
+
+#. Default: "Referencias entrantes"
+#: Arquetipo.py
+msgid "ModelDDvlPlone_referentes_section_msgid"
+msgstr  "Referencias entrantes"
+
+#. Default: "Otros elementos de la aplicacion  referenciando el presente."
+#: Arquetipo.py
+msgid "ModelDDvlPlone_referentes_section_description_msgid"
+msgstr  "Otros elementos de la aplicacion  referenciando el presente."
+
+
+#. Default: "Referencias salientes"
+#: Arquetipo.py
+msgid "ModelDDvlPlone_referidos_section_msgid"
+msgstr  "Referencias salientes"
+
+#. Default: "Referencias salientes a otros elementos de la aplicacion y de Plone"
+#: Arquetipo.py
+msgid "ModelDDvlPlone_referidos_section_description_msgid"
+msgstr  "Referencias salientes a otros elementos de la aplicacion y de Plone"
+
+
+#. Default: "Elementos qualificadamente referidos"
+#: ReferenciaCualificada.py
+msgid "ModelDDvlPlone_label_referidosCualificados"
+msgstr  "Elementos qualificadamente referidos."
+
+
+
+
+
+
+#. Default: "Referencia Cualificada"
+#:ReferenciaCualificada.py
+msgid "Referencia Cualificada"
+msgstr  "Referencia Cualificada" 
+
+
+#. Default: "Referencia Cualificada"
+#:ReferenciaCualificada.py
+msgid "ReferenciaCualificada"
+msgstr  "Referencia Cualificada" 
+
+#. Default: "Permite referenciar a elementos de la aplicacion  desde el contenedor de esta Referencia Cualificada, aportando un titulo y texto que cualifica la referencia."
+#: ReferenciaCualificada.py
+msgid "description_edit_referenciacualificada"
+msgstr  "Permite referenciar a elementos de la aplicacion  desde el contenedor de esta Referencia Cualificada, aportando un titulo y texto que cualifica la referencia."
+
+
+
+
+#. Default: "Elementos qualificadamente referidos."
+#: ReferenciaCualificada.py
+msgid "ModelDDvlPlone_label_referidosCualificados"
+msgstr  "Elementos referidos qualificadamente"
+
+
+
+#. Default: "Elementos de la aplicacion  referidos por esta Referencia Cualificada."
+#: ReferenciaCualificada.py
+msgid "ModelDDvlPlone_help_referidosCualificados"
+msgstr  "Elementos de la aplicacion  referidos por esta Referencia Cualificada."
+
+
+
+
+
+#. Default: "Mostrar Listas"
+#: CabeceraEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_hidetrees_action_label"
+msgstr  "Mostrar Listas"
+
+
+#. Default: "Mostrar Arboles"
+#: CabeceraEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_showtrees_action_label"
+msgstr  "Mostrar Arboles"
+
+
+#. Default: "Subir"
+#: ColeccionEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_subir_action_label"
+msgstr  "Subir"
+
+
+
+#. Default: "Bajar"
+#: ColeccionEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_bajar_action_label"
+msgstr  "Bajar"
+
+
+#. Default: "No tiene permiso para editar"
+#: CambiarValores_i18n_view.pt
+msgid "ModelDDvlPlone_sinpermisoparaeditar_error_message"
+msgstr  "No tiene permiso para editar"
+
+
+#. Default: "No tiene permiso para enlazar o desenlazar"
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_sinpermisoparaenlazar_error_message"
+msgstr  "No tiene permiso para enlazar o desenlazar"
+
+
+#. Default: "No tiene permiso para eliminar"
+#: Eliminar_inner.pt
+msgid "ModelDDvlPlone_sinpermisoparaeliminar_error_message"
+msgstr  "No tiene permiso para eliminar"
+
+
+
+
+#. Default: "No hay campos disponibles para edicion."
+#: CambiarValores_i18n_view.pt
+msgid "ModelDDvlPlone_nadaqueeditar_error_message"
+msgstr  "No hay campos disponibles para edicion."
+
+
+#. Default: "Navegar a"
+#: Tabla_i18n_view.pt
+msgid "ModelDDvlPlone_navegara_action_label"
+msgstr  "Navegar a"
+
+
+
+#. Default: "No tiene permiso para crear"
+#: CambiarValores_i18n_view.pt
+msgid "ModelDDvlPlone_sinpermisoparacrear_error_message"
+msgstr  "No tiene permiso para crear"
+
+
+#. Default: "No es posible crear contenido del tipo"
+#: CambiarValores_i18n_view.pt
+msgid "ModelDDvlPlone_nosepuedecreartipocontenido_error_message"
+msgstr  "No es posible crear contenido del tipo"
+
+
+#. Default: "Error creando contenido"
+#: CambiarValores_i18n_view.pt
+msgid "ModelDDvlPlone_creandocontenido_error_message"
+msgstr  "Error creando contenido"
+
+
+
+
+#. Default: "Ha cambiado los campos:"
+#: CambiarValores_i18n_view.pt
+msgid "ModelDDvlPlone_sehancambiadolosdatos"
+msgstr  "Ha cambiado los campos:"
+
+
+#. Default: "Cambiado"
+#: CambiarValores_i18n_view.pt
+msgid "ModelDDvlPlone_datocambiado_msg"
+msgstr  "Cambiado"
+
+
+
+
+#. Default: "de"
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_deorigenrelacioncuandoenlazando"
+msgstr  "de" 
+
+
+
+#. Default: "Ha enlazado el elemento"
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_haenlazadoelelemento"
+msgstr  "Ha enlazado el elemento" 
+
+#. Default: "Ha desenlazado el elemento"
+#: Enlazar_inner.pt
+msgid "ModelDDvlPlone_hadesenlazadoelelemento"
+msgstr  "Ha desenlazado el elemento" 
+
+
+
+#. Default: "No puede crear el elemento."
+#: Crear_simple_i18n_view.pt
+msgid "ModelDDvlPlone_nosehacreadoelemento_info_msgid"
+msgstr  "No puede crear el elemento." 
+
+
+#. Default: "Recorriendo elementos relacionados como"
+#: RelationCursor_i18n_view.pt
+msgid "ModelDDvlPlone_recorriendocursorrelacion_label"
+msgstr  "Recorriendo elementos relacionados como" 
+
+
+#. Default: "No hay elementos relacionados disponibles para recorrer"
+#: RelationCursor_i18n_view.pt
+msgid "ModelDDvlPlone_nohayelementoscursorrelacion_label"
+msgstr  "No hay elementos relacionados disponibles para recorrer." 
+
+
+#. Default: "en"
+#: ColeccionSola_EditableBody_i18n_view.pt
+msgid "ModelDDvlPlone_coleccionen_separator_label"
+msgstr  "en" 
+
+
+#. Default: "Textual"
+#: CabeceraEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_textual_action_label"
+msgstr  "Textual" 
+
+#. Default: "Tabular"
+#: CabeceraEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_tabular_action_label"
+msgstr  "Tabular" 
+
+
+
+
+#. Default: "Detalles"
+#: ModelDDvlPloneTool_Retrieval_I18N.pt
+msgid "ModelDDvlPlone_PloneContent_attr_details_label"
+msgstr  "Detalles" 
+
+
+
+#. Default: "URL del contenido"
+#: ModelDDvlPloneTool_Retrieval_I18N.pt
+msgid "ModelDDvlPlone_PloneContent_attr_content_url_label"
+msgstr  "URL del contenido" 
+
+
+#. Default: "URL de la imagen"
+#: ModelDDvlPloneTool_Retrieval_PloneContent.py
+msgid "ModelDDvlPlone_PloneContent_attr_image_url_label"
+msgstr  "URL de la imagen" 
+
+
+
+#. Default: "Recorrer elementos relacionados como"
+#: ReferenciasEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_recorrercursorrelacion_action_label"
+msgstr  "Recorrer elementos relacionados como" 
+
+
+
+
+#. Default: "Alto"
+#: ModelDDvlPloneTool_Retrieval_PloneContent.py
+msgid "ModelDDvlPlone_PloneContent_attr_content_height_label"
+msgstr  "Alto" 
+
+
+#. Default: "Ancho"
+#: ModelDDvlPloneTool_Retrieval_PloneContent.py
+msgid "ModelDDvlPlone_PloneContent_attr_content_width_label"
+msgstr  "Ancho" 
+
+
+
+
+#. Default: "No disponible"
+#: ModelDDvlPloneTool_Retrieval_PloneContent.py
+msgid "ModelDDvlPlone_valorNoDisponible"
+msgstr  "No disponible" 
+
+
+
+
+#. Default: "Referencia"
+#: ReferenciaEnTabla_view.pt
+#: ReferenciasEnTabla_view.pt
+msgid "ModelDDvlPlone_referencia_label"
+msgstr  "Referencia"
+
+
+#. Default: "Error cambiando los datos"
+#: Editar_inner.pt
+msgid "ModelDDvlPlone_errorcambiandolosdatos"
+msgstr  "Error cambiando los datos"
+
+
+

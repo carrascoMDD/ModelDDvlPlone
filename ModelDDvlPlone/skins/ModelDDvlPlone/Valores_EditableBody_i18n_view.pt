@@ -1,0 +1,63 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+<div metal:define-macro="tValores_EditableBody_i18n" ><tal:block tal:define="global pEsPrimerAtributo python: True"
+tal:condition="python: SRES[ 'non_text_field_names']"><tal:block 
+    tal:repeat="unAttributeName SRES/non_text_field_names"><tal:block 
+        tal:define="ATTRRES python: SRES[ 'values_by_name'].get( unAttributeName, None)"
+        tal:condition="python: ATTRRES and not ATTRRES.get( 'attribute_config', {}).get('exclude_from_values_paragraph', False) and not( ATTRRES[ 'attribute_config'].has_key( 'custom_presentation_view') and ATTRRES[ 'attribute_config'][ 'custom_presentation_view'])"><tal:block
+            tal:condition="python: ATTRRES['type'] == 'boolean'"><tal:block 
+                tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block
+                tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label_and_value'].strip()"/>* </tal:block><tal:block 
+
+            tal:condition="python: ATTRRES['type'] in [ 'string', 'text', 'integer' , 'float', 'fixedpoint', ]"><tal:block
+                tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip() and not (ATTRRES[ 'uvalue'].strip() == 'None') "><tal:block 
+                    tal:condition="not: pEsPrimerAtributo" tal:content="string: , " /><tal:block tal:condition="python: not ( ATTRRES [ 'attribute_config'].has_key( 'hide_label') and ATTRRES [ 'attribute_config'][ 'hide_label'] == True)">*<tal:block 
+                    tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label'].strip()"/>* </tal:block><tal:block 
+                    tal:content="python: ATTRRES[ 'uvalue']" tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block
+                    
+            tal:condition="python: ATTRRES['type'] == 'selection'"><tal:block
+                 tal:condition="python: ATTRRES[ 'translated_value']"><tal:block 
+                     tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                     tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
+                     tal:content="python: ATTRRES[ 'translated_value']"
+                     tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block 
+
+            tal:condition="python: ATTRRES['type'] == 'datetime'"><tal:block
+                 tal:condition="python: ATTRRES[ 'raw_value']"><tal:block 
+                     tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                     tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
+                     tal:content="python: ATTRRES[ 'raw_value']"
+                     tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block></tal:block></tal:block></tal:block>
+
+</div>
+
+</body>
+</html>

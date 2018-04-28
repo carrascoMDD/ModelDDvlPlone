@@ -1,0 +1,79 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+<div metal:define-macro="tContenido_EditableBody_i18n" >
+
+<tal:block tal:define="
+                       pRelacionIndireccion      pRelacionIndireccion  | string:;
+                       pNombresTiposContenido    pNombresTiposContenido | python: [];
+                       pTitulo                   pTitulo      | python: pNombresTiposContenido[0];
+                       pTrue                     python: True;
+                       pSiempre                  pSiempre | pTrue; 
+                       pElementos python: here.getContenidos( pNombresTiposContenido)" >
+
+    <tal:block tal:condition="python: pSiempre or len( pElementos) > 0 ">
+
+|
+|
+
+**<tal:block tal:content="python: here.fAsUnicode( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_coleccionde_section_label', 'Coleccion de'))" /> <tal:block tal:content="python: here.fAsUnicode( pTitulo)" />**
+        
+        <tal:block tal:repeat="unElemento python: pElementos" >
+            <tal:block tal:define="pMetaAndValues python: unElemento.getAttributesMetaAndValues( [ 'title', 'description'])" >
+* <tal:block
+                tal:content="structure python: u'`%s %c%s/%c`__' %  ( here.fAsUnicode( pMetaAndValues[0][1]) , 60, unElemento.absolute_url(), 62)"/> (*<tal:block 
+                tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  '', unElemento.meta_type, '')" />*) . <tal:block 
+                tal:content="python: here.fAsUnicode( pMetaAndValues[1][1])"/><tal:block 
+                tal:condition="python: pRelacionIndireccion"><tal:block 
+                    tal:define="pMetaAndValue python:   unElemento.getReferenceMetaAndValue( pRelacionIndireccion)"><tal:block 
+                        tal:condition="python: pMetaAndValue and len( pMetaAndValue) > 5"><tal:block 
+                            tal:define="pTodosElementos python: pMetaAndValue[ 1]"><tal:block 
+                                tal:condition="pTodosElementos"> -> <tal:block 
+                                    tal:repeat="unElementoIndirecto python: pTodosElementos"><tal:block 
+                                        tal:condition="python: not unElementoIndirecto is None"><tal:block 
+                                            tal:define="pMetaAndValues python: unElementoIndirecto.getAttributesMetaAndValues( [ 'title', 'description'])" > . <tal:block
+                                                tal:content="structure python: u'`%s %c%s/%c`__' %  ( here.fAsUnicode( pMetaAndValues[0][1]) , 60, unElementoIndirecto.absolute_url(), 62)"/> (*<tal:block 
+                                                tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  '', unElementoIndirecto.meta_type, '')" />*) . <tal:block tal:repeat="unaLineaTexto python:  here.fAsUnicode( pMetaAndValues[1][1]).strip().splitlines()"><tal:block 
+    tal:content="python: here.fAsUnicode( unaLineaTexto.strip())" /></tal:block></tal:block></tal:block></tal:block></tal:block></tal:block></tal:block>
+            </tal:block> 
+            </tal:block>        
+            </tal:block>  
+        </tal:block>  
+    </tal:block>                
+</tal:block>                
+
+
+
+</div>        
+
+
+
+
+</body>
+</html>
+

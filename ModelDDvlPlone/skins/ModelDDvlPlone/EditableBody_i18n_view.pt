@@ -1,0 +1,116 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+</tal:block>
+
+<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+<tal:block tal:define=" global pTrue            python: True;
+                        global pFalse           python: False;
+                        global pPagina          string:Textuak;
+                        global pPaginaAnteriorPosterior pPagina;
+                        global pRelationCursorName      request/theRelationCursorName  | python: None;                          
+                        global pShowTrees       pFalse;
+                        global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" /><tal:block 
+tal:condition="python: pRelationCursorName" ><metal:block 
+    metal:use-macro="here/RelationCursor_EditableBody_i18n_view/macros/tRelationCursor_EditableBody_i18n" /></tal:block><tal:block 
+tal:condition="not: pRelationCursorName" ><tal:block 
+    tal:condition="python: request.cookies.has_key('ShowTrees')" ><tal:block    
+        tal:condition="python: request.cookies[ 'ShowTrees'].lower() == 'yes'"><tal:block 
+            tal:define="global pShowTrees python: True" /></tal:block><tal:block 
+        tal:condition="python: not( request.cookies[ 'ShowTrees'].lower() == 'yes')"><tal:block 
+            tal:define="global pShowTrees python: False" /></tal:block></tal:block><tal:block 
+        tal:condition="python: request.form.has_key('ShowTrees')"><tal:block 
+            tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes');
+                               global pShowTrees python: True" /></tal:block><tal:block 
+            tal:condition="python: request.form.has_key('HideTrees')"><tal:block 
+                tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no');
+                               global pShowTrees python: False" /></tal:block><tal:block 
+        tal:condition="python: not( request.cookies.has_key('ShowTrees') and  (request.cookies[ 'ShowTrees'].lower() == 'yes') == pShowTrees)" ><tal:block 
+            tal:condition="python: pShowTrees" ><tal:block  
+                tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes', path='/')" /></tal:block><tal:block 
+                tal:condition="python: not pShowTrees" ><tal:block 
+                    tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no', path='/')" /></tal:block></tal:block><tal:block 
+    tal:condition="pShowTrees" ><tal:block 
+        tal:define="global pTreesFeatureFilter python: [ 'trees']" /></tal:block><tal:block 
+    tal:condition="not: pShowTrees" ><tal:block 
+    tal:define="global pTreesFeatureFilter python: [ ]" /></tal:block>     
+
+<tal:block 
+tal:define="
+    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+    pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+    unosArgs python: {
+        'theTimeProfilingResults'     :pProfilingResults,
+        'theElement'                  :here, 
+        'theParent'                   :None,
+        'theParentTraversalName'      :'',
+        'theTypeConfig'               :None, 
+        'theAllTypeConfigs'           :None, 
+        'theViewName'                 :'Textual', 
+        'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ] + pTreesFeatureFilter,
+        'theWritePermissions'         :[ 'object', 'delete',],
+        'theFeatureFilters'           :None, 
+        'theInstanceFilters'          :None,
+        'theTranslationsCaches'       :None,
+        'theCheckedPermissionsCache'  :None,
+        'theAdditionalParams'         :None};
+    SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs); 
+    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+    pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
+    pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
+    pShowOrHideTrees pTrue; 
+    pMostrarAnteriorPosterior pTrue" >
+<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_REST" />   
+    
+<metal:block metal:use-macro="here/Valores_EditableBody_i18n_view/macros/tValores_EditableBody_i18n" />
+
+<tal:block tal:repeat="unTextAttributeName SRES/text_field_names" ><tal:block 
+    tal:condition="python: not unTextAttributeName == 'description'" ><tal:block 
+        tal:define="ATTRRES python: SRES[ 'values_by_name'][ unTextAttributeName]" ><metal:block 
+            metal:use-macro="here/Texto_EditableBody_i18n_view/macros/tTexto_EditableBody_i18n" /></tal:block></tal:block></tal:block>
+            
+            
+<tal:block tal:repeat="unTraversalName SRES/traversal_names" ><tal:block 
+    tal:define="TRAVRES python: SRES[ 'traversals_by_name'][ unTraversalName]" ><tal:block 
+        tal:condition="python: TRAVRES[ 'traversal_kind'] == 'aggregation'" ><tal:block 
+            tal:condition="not: SRES/is_collection" ><tal:block 
+                tal:condition="TRAVRES/contains_collections" >
+<metal:block metal:use-macro="here/Colecciones_EditableBody_i18n_view/macros/tColecciones_EditableBody_i18n" /></tal:block><tal:block 
+                tal:condition="not: TRAVRES/contains_collections" >
+<metal:block metal:use-macro="here/SinColeccion_EditableBody_i18n_view/macros/tSinColeccion_EditableBody_i18n" /></tal:block></tal:block><tal:block 
+            tal:condition="SRES/is_collection" >
+<metal:block metal:use-macro="here/ColeccionSola_EditableBody_i18n_view/macros/tColeccionSola_EditableBody_i18n" /></tal:block></tal:block><tal:block 
+        tal:condition="python: TRAVRES[ 'traversal_kind'] == 'relation'" ><tal:block 
+            tal:condition="python: TRAVRES['is_multivalued']" ><tal:block tal:define="pRelationCursorNameParameter unTraversalName">
+<metal:block metal:use-macro="here/Referencias_EditableBody_i18n_view/macros/tReferencias_EditableBody_i18n" /></tal:block></tal:block><tal:block 
+            tal:condition="python: not TRAVRES[ 'is_multivalued']" >
+<metal:block metal:use-macro="here/Referencia_EditableBody_i18n_view/macros/tReferencia_EditableBody_i18n" /></tal:block></tal:block></tal:block></tal:block>          
+<tal:block tal:define="pPloneElementsContainer python: SRES[ 'object']" ><metal:block metal:use-macro="here/ColeccionElementosPlone_EditableBody_i18n_view/macros/tColeccionElementosPlone_EditableBody_i18n" /></tal:block>
+  
+
+<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_REST" />   
+  
+</tal:block></tal:block>
+

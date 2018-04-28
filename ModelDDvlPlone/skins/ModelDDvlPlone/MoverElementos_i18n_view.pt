@@ -1,0 +1,61 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tMoverElementos_i18n" >
+
+        <tal:block tal:define="pContainerElement nocall: pContainerElement | here;
+                               pTraversalName   request/theTraversalName | string:;
+                               pMovedElementID  request/theMovedElementID | string:;
+                               pMoveDirection   request/theMoveDirection | string:" >
+                               
+            <tal:block tal:condition="python: pContainerElement and pTraversalName and pMovedElementID and pMoveDirection and (pMoveDirection.lower() in ['up', 'down', 'top', 'bottom',])" >
+                <tal:block tal:define="
+                    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);                
+                    unosArgs python: {
+                        'theTimeProfilingResults' :pProfilingResults,
+                        'theContainerElement'     :pContainerElement,  
+                        'theTraversalName'        :pTraversalName, 
+                        'theMovedObjectId'        :pMovedElementID, 
+                        'theMoveDirection'        :pMoveDirection, 
+                        'theAdditionalParams'     :None, };        
+                    dummy python: here.ModelDDvlPlone_tool.pMoveSubObject( **unosArgs);
+                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">     
+
+<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+                
+                </tal:block>                    
+            </tal:block>
+        </tal:block>
+               
+    </div>
+    
+</body>
+</html>
+    

@@ -1,0 +1,281 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tColeccionesEnTabla_ElementosPlone_i18n" >
+        <tal:block tal:define="global pTrue python: True;
+                               global pFalse python: False;
+                                    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                                    pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                                    unosArgs python: { 
+                                        'theTimeProfilingResults'     :pProfilingResults,
+                                        'theContainerElement'         :here, 
+                                        'thePloneSubItemsParameters'  :None, 
+                                        'theRetrievalExtents'         :[ 'traversals', ],
+                                        'theWritePermissions'         :[ 'object', 'aggregations', 'add', 'plone', 'delete_plone', ],
+                                        'theFeatureFilters'           :None, 
+                                        'theInstanceFilters'          :None,
+                                        'theTranslationsCaches'       :None,
+                                        'theCheckedPermissionsCache'  :None,
+                                        'theAdditionalParams'         :None};                                    
+                                    PLONERES  python: here.ModelDDvlPlone_tool.fRetrievePloneContent( **unosArgs);
+                                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();"
+            tal:condition="PLONERES/traversals" > 
+    
+            <tal:block tal:repeat="TRAVRES PLONERES/traversals">
+                <tal:block tal:define="            
+                                    pPermiteEliminarElementos   pPermiteEliminarElementos | pTrue;
+                                    pPermiteEliminarElementos   python: pPermiteEliminarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
+                                    pPermiteOrdenarElementos    pPermiteOrdenarElementos | pTrue;
+                                    pPermiteOrdenarElementos    python: pPermiteOrdenarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
+                                    pPermiteCrearElementos      pPermiteCrearElementos | pTrue;
+                                    pPermiteCrearElementos      python: pPermiteCrearElementos and PLONERES[ 'add_permission']  and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
+                                    pPermiteEditarElementos     pPermiteEditarElementos | pTrue;
+                                    pPermiteEditarElementos     python: pPermiteEditarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];" >
+            
+            
+                    <h2 id="#" tal:attributes="id string:aggregation-${TRAVRES/traversal_name}"
+                        tal:content="TRAVRES/traversal_translations/translated_label" />
+                        
+                    <p class="formHelp" tal:content="TRAVRES/traversal_translations/translated_description" />
+        
+                    <table 
+                        tal:define="
+                           global unIndexClassFila python: 0;
+                           unasClasesFilas  python: ('odd','even')"
+                        width="100%%" id="cid_ColeccionesEnTabla_ElementosPlone" class="listing" summary="#"  tal:attributes="summary TRAVRES/traversal_translations/translated_label">
+            
+                        <thead>
+                            <tr>
+                                <th align="center" tal:condition="python: pPermiteOrdenarElementos or pPermiteEditarElementos or pPermiteEliminarElementos" 
+                                    class="nosort" width="100" align="left">
+                                    <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_editar_action_label">&nbsp;Editar&nbsp;</span>
+                                </th>
+                                <th class="nosort" width="80" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Tipo&nbsp;</th>
+                                <th class="nosort"  align="left"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_titulo_label">&nbsp;T&iacute;tulo&nbsp;</th>
+                                <th class="nosort"  align="left"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_descripcion_label">&nbsp;Descripci&oacute;n&nbsp;</th>
+                                <th class="nosort"  align="left"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_PloneContent_attr_details_label">&nbsp;Detalles&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        
+                        
+                       
+    <tal:block tal:replace="nothing">  
+    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+    </tal:block> 
+                           
+    
+    
+                            <tr tal:repeat="unElemento TRAVRES/elements"
+                                class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
+                                <td tal:condition="python: pPermiteOrdenarElementos or pPermiteEditarElementos or pPermiteEliminarElementos" align="center">
+                                    <tal:block tal:condition="python: pPermiteEliminarElementos and unElemento[ 'write_permission'] and unElemento[ 'delete_permission']">
+                                        <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_eliminar_action_label', 'Editar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
+                                            href="#" title="#" 
+                                            tal:attributes="title unTituloAccion; href  python: u'%s/EliminarPlone?theUIDToDelete=%s' % ( PLONERES[ 'url'], unElemento[ 'UID']) " >
+                                            <img alt="#" title="#" id="icon-delete" src="#" 
+                                                tal:attributes="src python: '%s/delete_icon.gif' % here.portal_url(); alt python: unTituloAccion; title python: unTituloAccion" />
+                                        </a>
+                                    </tal:block>
+                                    <tal:block tal:condition="python: not( pPermiteEliminarElementos and unElemento[ 'write_permission'] and unElemento[ 'delete_permission'])">
+                                        <img src="#" tal:attributes="src python: '%s/blank_icon.gif' % here.portal_url()" 
+                                            alt="Blank" title="Blank" id="icon-blank" />
+                                    </tal:block>   
+                                    &nbsp;                                        
+                                    <tal:block tal:condition="python: pPermiteEditarElementos and unElemento[ 'write_permission']">
+                                        <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_editar_action_label', 'Editar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
+                                            href="#" title="#" 
+                                            tal:attributes="title unTituloAccion; href  python: u'%s/base_edit' % unElemento[ 'url']" >
+                                           <img src="#" tal:attributes="title unTituloAccion; src python: '%s/edit.gif' % here.portal_url()" alt="Editar" title="#" id="icon-edit"
+                                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_editar_action_label" >
+                                        </a>
+                                    </tal:block>
+                                    <tal:block tal:condition="python: not ( pPermiteEliminarElementos  and unElemento[ 'write_permission'])" >
+                                        <img src="#" tal:attributes="src python: '%s/blank_icon.gif' % here.portal_url()" 
+                                            alt="Blank" title="Blank" id="icon-blank" />
+                                    </tal:block>   
+                                    <tal:block tal:condition="python: pPermiteOrdenarElementos and len( TRAVRES[ 'elements']) > 1">
+                                        &nbsp;
+                                        <tal:block tal:condition="python: not unElemento == TRAVRES[ 'elements'][ 0]">
+                                            <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_subir_action_label', 'Subir'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
+                                                href="#" title="#" 
+                                                tal:attributes="title unTituloAccion; href python: '%s/Tabular?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Up&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], here.ModelDDvlPlone_tool.fMillisecondsNow(), unElemento[ 'UID'] )">                
+                                                <img src="#" title="#" tal:attributes="title unTituloAccion; src python: '%s/arrowUp.gif' % here.portal_url()" 
+                                                    alt="Subir" title="#" id="icon-up"
+                                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_subir_action_label">
+                                            </a>
+                                        </tal:block>
+                                        <tal:block tal:condition="python: unElemento == TRAVRES[ 'elements'][ 0]">
+                                            <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
+                                                alt="Blank" title="Blank" id="icon-blank">
+                                        </tal:block>   
+                                        &nbsp;                                    
+                                        <tal:block tal:condition="python: not unElemento == TRAVRES[ 'elements'][ len( TRAVRES[ 'elements']) - 1]">
+                                            <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_bajar_action_label', 'Bajar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
+                                                href="#" title="#"
+                                                tal:attributes="title unTituloAccion; href python: '%s/Tabular?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Down&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], here.ModelDDvlPlone_tool.fMillisecondsNow(), unElemento[ 'UID'] )">                
+                                                <img src="#" tal:attributes="title unTituloAccion; src python: '%s/arrowDown.gif' % here.portal_url()" 
+                                                    alt="Bajar" title="#" id="icon-down"
+                                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_bajar_action_label">
+                                            </a>
+                                        </tal:block>
+                                        <tal:block tal:condition="python: unElemento == TRAVRES[ 'elements'][ len( TRAVRES[ 'elements']) - 1]">
+                                            <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
+                                                alt="Blank" title="Blank" id="icon-blank">
+                                        </tal:block>                                       
+                                    </tal:block>
+                                </td>
+    
+                                <td  align="left" valign="baseline" tal:content="python: unElemento[ 'type_translations'][ 'translated_archetype_name']" />
+    
+                                <td align="left" valign="baseline" >
+                                   <span class="visualIcon contenttype-xxx" tal:attributes="class python: 'visualIcon contenttype-%s' % unElemento[ 'portal_type'].lower().replace(' ', '-')">
+                                       <h4>
+                                           <a name="#" href="#" title="#"
+                                               tal:define="
+                                                   unTitle python: '%s %s %s (%s)' % ( 
+                                                   here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
+                                                   unElemento[ 'type_translations'][ 'translated_archetype_name'],
+                                                   unElemento[ 'values_by_name'][ 'title'][ 'uvalue'], 
+                                                   unElemento[ 'type_translations'][ 'translated_type_description'])"                          
+                                               tal:attributes="title unTitle; href unElemento/url; name string:elemento-${unElemento/UID};"
+                                               class="state-visible visualIconPadding" title="">
+                                               <span tal:content="unElemento/values_by_name/title/uvalue" />
+                                           </a>
+                                       </h4>
+                                   </span>
+                                </td>
+                                <td align="left" valign="baseline" tal:content="unElemento/values_by_name/description/uvalue" />
+                                <td align="left" valign="baseline">
+                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATImage'">
+                                        <a  href="#" alt="#" title="#" 
+                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" > 
+                                            <img src="#" alt="#" title="#" height="64" 
+                                                tal:attributes="src unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" />    
+                                        </a>
+                                    </tal:block>
+                                    
+                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATLink'">
+                                        <a href="#" alt="#" title="#" 
+                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title"
+                                            tal:content="unElemento/values_by_name/content_url/value" />    
+                                    </tal:block>
+        
+                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATDocument'">
+                                        <a  tal:condition="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue']"
+                                            href="#" alt="#" title="#" 
+                                            tal:attributes="href unElemento/url; alt unElemento/title; title unElemento/title"
+                                            tal:content="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue'][:64]" />    
+                                    </tal:block>
+                                    
+                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATNewsItem'">
+                                        <a  tal:condition="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue']"
+                                            href="#" alt="#" title="#" 
+                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" > 
+                                            <img src="#" alt="#" title="#" height="64" tal:condition="python: unElemento[ 'values_by_name'][ 'content_url'][ 'value']"
+                                                tal:attributes="src unElemento/values_by_name/image_url/value; alt unElemento/title; title unElemento/title" />    
+                                            <span tal:content="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue'][:64]" />
+                                        </a>
+                                    </tal:block>
+        
+                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATFile'">
+                                        <a  href="#" alt="#" title="#" 
+                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" 
+                                            tal:content="unElemento/values_by_name/content_url/value" />   
+                                    </tal:block>
+        
+                                </td>
+                                <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
+                            </tr>
+                        </tbody>
+                       
+                        
+                        <tfoot>
+                            <tal:block tal:condition="pPermiteCrearElementos" >
+                                <tal:block tal:condition="python: len( TRAVRES[ 'factories']) == 1">
+                                    <tr tal:define="unaFactoriaElemento python: TRAVRES[ 'factories'][ 0]; 
+                                                    unTituloAccion python: u'%s %s' % (  here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] )"
+                                        class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" >
+                                        <td align="center"  >
+                                            <a href="#" title="#"
+                                                tal:attributes="title unTituloAccion; href python: '%s/createObject?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'meta_type'])" >
+                                                <img src="#" title="#" alt="#"  id="icon-add"
+                                                    tal:attributes="title unTituloAccion; src python: '%s/add_icon.gif' % here.portal_url()" />                                                  
+                                            </a>
+                                        </td>
+                                        <td colspan="4" align="left">
+                                            <a href="#"  title="#"
+                                                tal:attributes="title unTituloAccion; href python: '%s/createObject?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])">
+                                                <tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_crear_action_label">Crear</tal:block> 
+                                                    <img src="#" alt="" title="" 
+                                                        tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])" />
+                                                    <span tal:content=" unaFactoriaElemento/type_translations/translated_archetype_name" />                                                   
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tal:block>
+                                <tal:block tal:condition="python: len( TRAVRES[ 'factories']) > 1">
+                                    <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" >                            
+                                        <td colspan="5" align="left">
+                                            <tal:block i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_crear_action_label">Crear</tal:block> ... &nbsp;
+                                            <span tal:repeat="unaFactoriaElemento TRAVRES/factories" >      
+                                                <a href="#" title="#"
+                                                    tal:define="unTituloAccion python: u'%s %s' % (  here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] )"
+                                                    tal:attributes="title unTituloAccion;href python: '%s/createObject?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])" >
+                                                    <img src="#" alt="" title=""
+                                                        tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])">
+                                                    <span tal:content=" unaFactoriaElemento/type_translations/translated_archetype_name" />
+                                                </a>
+                                                &nbsp; - &nbsp;
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tal:block>
+                            </tal:block>
+                        </tfoot> 
+                        
+                        
+                        
+                     </table>
+                     <br/> 
+                </tal:block>
+             </tal:block>  
+        </tal:block>  
+    </div>
+
+
+
+
+
+
+</body>
+</html>    
+
+
+

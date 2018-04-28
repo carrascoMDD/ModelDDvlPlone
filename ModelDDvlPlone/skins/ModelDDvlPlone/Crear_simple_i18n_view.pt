@@ -1,0 +1,283 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tCrear_simple_i18n_view" >
+
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+
+        <tal:block tal:define="
+                pNewTypeName      request/theNewTypeName    | string:;
+                pAggregationName  request/theAggregationName    | string:;
+                pNewTitle         request/theNewTitle       | string:;
+                pNewDescription   request/theNewDescription | string:;
+		global  pMostrarFormulario			python: not pNewTitle;
+                pTrue                       python: True;
+                pFalse                      python: False" >
+                
+                                
+            <tal:block tal:condition="python: not (pNewTypeName and pAggregationName)" >
+                <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular' % here.absolute_url())" />
+            </tal:block>
+                                       
+            <tal:block tal:condition="python: pNewTypeName and pAggregationName" >
+                <tal:block tal:define="    
+                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();                
+                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);                
+                unosArgs python: { 
+                    'theTimeProfilingResults'     :pProfilingResults,
+                    'theElement'                  :here, 
+                    'theParent'                   :None,
+                    'theParentTraversalName'      :'',
+                    'theTypeConfig'               :None, 
+                    'theAllTypeConfigs'           :None, 
+                    'theViewName'                 :'Tabular', 
+                    'theRetrievalExtents'         :[ 'traversals', 'owner', ],
+                    'theWritePermissions'         :[ 'object', 'aggregations', 'add', 'add_collection', ],
+                    'theFeatureFilters'           :{ 'aggregations': [ pAggregationName,], 'relations': [], }, 
+                    'theInstanceFilters'          :None,
+                    'theTranslationsCaches'       :None,
+                    'theCheckedPermissionsCache'  :None,
+                    'theAdditionalParams'         :None, };                      
+                    SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    unasTraversals python: [ unaTraversal for unaTraversal in SRES[ 'traversals'] if (unaTraversal[ 'traversal_kind'] == 'aggregation') and ( unaTraversal[ 'traversal_name'] == pAggregationName)]" 
+                    tal:condition="unasTraversals" >
+
+                    <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+                    
+                    <tal:block tal:define="
+                        unaTraversal python: unasTraversals[ 0]; 
+                        pPermiteCrear python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'add_permission'] and unaTraversal[ 'read_permission'] and unaTraversal[ 'write_permission'];
+                        unasFactories python: [ unaFactory for unaFactory in unaTraversal[ 'factories'] if unaFactory[ 'meta_type'] == pNewTypeName]"
+                        tal:condition="unasFactories">
+                   
+                        <tal:block tal:define="
+                            unaFactory python: unasFactories[ 0]" 
+                            tal:condition="unaFactory" >
+                                                        
+                            <tal:block tal:condition="python: not pPermiteCrear" >
+                                <br>
+                                <h2 > 
+                                    <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
+                                        <font color="Red">                    
+                                            <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparacrear_error_message"/>
+                                            &nbsp;
+                                            <span tal:content="unaFactory/type_translations/translated_archetype_name" />
+                                            &nbsp;
+                                            <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_ensiguecontenedorcuandocreando"/>
+                                            &nbsp;
+                                            <span tal:content="SRES/values_by_name/title/uvalue " />
+                                            &nbsp;(                    
+                                            <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), SRES[ 'content_icon'])"  
+                                                 alt="" title="MetaType icon" id="icon-here" />
+                                            &nbsp;
+                                            <span tal:content="SRES/type_translations/translated_archetype_name" />
+                                            )                        
+                                        </font>
+                                    </a>                
+                                </h2>      
+                                
+     
+                            </tal:block>
+                            <tal:block tal:condition="python: not unaFactory" >
+                                <br>
+                                <h2 > 
+                                    <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
+                                        <font color="Red">                    
+                                            <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_nosepuedecreartipocontenido_error_message"/>
+                                            &nbsp;
+                                            <span tal:content="unaFactory/type_translations/translated_archetype_name" />
+                                            &nbsp;
+                                            <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_ensiguecontenedorcuandocreando"/>
+                                            &nbsp;
+                                            <span tal:content="SRES/values_by_name/title/uvalue " />
+                                            &nbsp;(                    
+                                            <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), SRES[ 'content_icon'])"  
+                                                 alt="" title="MetaType icon" id="icon-here" />
+                                            &nbsp;
+                                            <span tal:content="SRES/type_translations/translated_archetype_name" />
+                                            )                        
+                                        </font>
+                                    </a>                
+                                </h2>    
+                                       
+                            </tal:block>
+                            <tal:block tal:condition="python: unaFactory and pPermiteCrear" >
+                                <tal:block tal:define="
+                                    pPermiteAbandonarCrear      pTrue;
+                                    pShowTrees                  pFalse;
+                                    pShowOrHideTrees            pFalse;
+                                    pPermiteEditar              pFalse;
+                                    pPermiteEliminar            pFalse;
+                                    pMostrarAnteriorPosterior   pFalse;
+                                    pPaginaAnteriorPosterior    string:;
+                                    pPagina                     string:Tabular;
+                                    pAbandonarAnchorName        string:#aggregation-${pAggregationName}" >                            
+                                    <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+                                </tal:block>
+                    
+                                <h2>
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_crear_action_label">Crear nuevo elemento&nbsp;</span>
+                                    &nbsp;  
+                                    (      
+                                    <img src="#" tal:attributes="src python: '%s/%s.gif' % (here.portal_url(), unaFactory[ 'meta_type'].lower())"  
+                                        alt="" title="New Typeicon" id="icon-new type" />
+                                    <span tal:content="unaFactory/type_translations/translated_archetype_name" />    
+                                    )
+                                    &nbsp; 
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_ensiguecontenedorcuandocreando">&nbsp;en&nbsp;</span>
+                                    <tal:block tal:condition="SRES/is_collection" >
+                                        <span tal:content="SRES/values_by_name/title/value" />
+                                        &nbsp;(
+                                        <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), SRES[ 'content_icon'])"  
+                                             alt="" title="here icon" id="icon-here" />
+                                        &nbsp;
+                                        <span i18n:translate="" tal:content="SRES/type_translations/translated_archetype_name" />
+                                        )
+                                        &nbsp; 
+                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_colecciondesiguecontenedorcuandocreando">&nbsp;de&nbsp;</span>                                   
+                                        &nbsp; 
+                                        <span tal:content="SRES/owner_element/values_by_name/title/value" />
+                                        &nbsp;(
+                                        <img src="#" tal:attributes="src python: '%s/%s' % ( here.portal_url(), SRES[ 'owner_element'][ 'content_icon'])"  
+                                             alt="" title="Propietario MetaType icon" id="icon-propietario" />
+                                        &nbsp;
+                                        <span tal:content="SRES/owner_element/type_translations/translated_archetype_name" />
+                                        )
+                                    </tal:block>                                
+                                    <tal:block tal:condition="not: SRES/is_collection" >
+                                        <span tal:content="SRES/values_by_name/title/value" />
+                                        &nbsp;(
+                                        <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), SRES[ 'content_icon'])"  
+                                             alt="" title="here icon" id="icon-here" />
+                                        &nbsp;
+                                        <span i18n:translate="" tal:content="SRES/type_translations/translated_archetype_name" />
+                                        )
+                                    </tal:block>                                
+                                </h2>
+                               
+                                <p class="formHelp"  tal:content="unaFactory/type_translations/translated_type_description" />        
+                                <br/>
+                                <br/>
+                            
+                                
+                                <tal:block tal:condition="python: pNewTitle" >
+                                    <tal:block tal:define="
+						                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+										unosArgs python: {
+											'theTimeProfilingResults' :pProfilingResults,
+											'theContainerElement'     :here, 
+											'theTypeName'             :pNewTypeName, 
+											'theTitle'                :pNewTitle, 
+											'theDescription'          :pNewDescription,
+											'theAdditionalParams'     :None, };   
+										pCrearResult python: here.ModelDDvlPlone_tool.fCrearElementoDeTipo( **unosArgs)" >
+										<tal:block tal:condition="python: pCrearResult and ( pCrearResult[ 'effect'] == 'created')" >
+											<tal:block tal:define="
+												dummy python:request.response.redirect( '%s/Editar' % pCrearResult[ 'new_object_result'][ 'url']);" />
+										</tal:block>
+										<tal:block tal:condition="python: not ( pCrearResult) or not ( pCrearResult[ 'effect'] == 'created')" >
+											<h4>
+												<font color="Red">
+													<span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_nosehacreadoelemento_info_msgid" >ModelDDvlPlone_nosehacreadoelemento_info_msgid</span>
+												</font>
+											</h4>
+											<p>
+												<font color="Red">
+													<span tal:condition="python: pCrearResult[ 'failure'] in [ 'duplicate_title',]"
+														i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tituloduplicado_error_msgid" >ModelDDvlPlone_tituloduplicado_error_msgid
+														<tal:block tal:define="global pMostrarFormulario pTrue" />
+													</span>
+													<span tal:condition="python: pCrearResult[ 'failure'] in [ 'read_permission', 'write_permission',]"
+														i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_sinpermisoparacrear_error_message" >ModelDDvlPlone_sinpermisoparacrear_error_message</span>
+													<span tal:condition="python: pCrearResult[ 'failure'] in [ 'content_type_not_allowed', ]"
+														i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_nosepuedecreartipocontenido_error_message" >ModelDDvlPlone_nosepuedecreartipocontenido_error_message</span>
+													<span tal:condition="python: pCrearResult[ 'failure'] in [ 'factory_failure', ]"
+														i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_creandocontenido_error_message" >ModelDDvlPlone_creandocontenido_error_message</span>
+													<span tal:condition="python: not( pCrearResult[ 'failure'] in [ 'duplicate_title', 'factory_failure', 'read_permission', 'write_permission',  'content_type_not_allowed',  'factory_failure', ])"
+														i18n:domain="ModelDDvlPlone"  i18n:translate="" tal:content="pCrearResult/failure" />
+
+												</font>
+											</p>
+										</tal:block>
+									</tal:block>
+								</tal:block>
+								
+                    
+                                <tal:block tal:condition="pMostrarFormulario" >
+                                    <form>
+                                        <h4  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_titulo_label" >Titulo</h4>
+                                        <p class="formHelp"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_titulo_help">Titulo unico del elemento, entre los de su contenedor.</p>        
+                                        <h5 tal:condition="not: pNewTitle">
+                                            <font color="Red">
+                                            <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tituloesrequerido_info_msgid" >ModelDDvlPlone_tituloesrequerido_info_msgid</span>
+                                            </font>
+                                        </h5>
+                        	            
+                        	            <input originalvalue="#" name="theNewTypeName" value="#" type="hidden"
+                        	                tal:attributes="originalvalue python: pNewTypeName;value python: pNewTypeName" />
+                        	                
+                        	            <input originalvalue="#" name="theAggregationName" value="#" type="hidden"
+                        	                tal:attributes="originalvalue python: pAggregationName;value python: pAggregationName" />
+                        	                
+                                        <div class="field ArchetypesStringWidget" id="archetypes-fieldname-newTitleInput">
+                                            <input style="font-size: 12pt;"  name="theNewTitle" id="theNewTitle" value="#" size="80" maxlength="256" type="text" 
+                                                tal:attributes="value python: pNewTitle"/>
+                                        </div>
+                                        <br/>
+                                        <br/>
+                    
+                                        <h4  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_descripcion_label" >Descripcion</h4>
+                                        <p class="formHelp"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_descripcion_help">Una corta descripcion del nuevo elemento.</p>   
+                                             
+                                        <div class="field ArchetypesTextAreaWidget" id="archetypes-fieldname-newDescriptionInput" >
+                                            <textarea style="font-size: 12pt;" cols="40"  rows="2" name="theNewDescription" id="theNewDescription"                             
+                                                    tal:content="python: pNewDescription" />
+                                        </div>
+                    
+                                        
+                                        <input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />                                                        
+                                    </form>
+                                </tal:block>
+                                
+                           </tal:block>
+                        </tal:block>
+                    </tal:block>
+                </tal:block>
+            </tal:block>
+        </tal:block>
+
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+             
+    </div>
+    
+</body>
+</html>
+    

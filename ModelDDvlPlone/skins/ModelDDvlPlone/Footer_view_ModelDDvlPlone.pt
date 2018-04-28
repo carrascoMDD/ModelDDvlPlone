@@ -1,0 +1,65 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+
+
+
+    <div metal:define-macro="tFooter_i18n" >
+        <tal:block tal:define="
+                        pURL_OMG                      string:www.omg.org;
+                        pURL_OMG_BusinessSpecs        string:www.omg.org/technology/documents/br_pm_spec_catalog.htm;
+                        pURL_OMG_BMM                  python:'www.omg.org/technology/documents/br_pm_spec_catalog.htm%cBMM'% 35;
+                        pURL_OMG_BPDM                 python:'www.omg.org/technology/documents/br_pm_spec_catalog.htm%cBPDM'% 35;
+                        pURL_OMG_BPMN                 python:'www.omg.org/technology/documents/br_pm_spec_catalog.htm%cBPMN'% 35;
+                        pParametros                   python: { 'OMG': pURL_OMG, 'BMM': pURL_OMG_BMM, 'BPDM': pURL_OMG_BPDM, 'BPMN': pURL_OMG_BPMN, };
+                        unaFrase1                     python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'gvSIGbpd', 'gvSIGbpd_footer_phrase1_with_parameters', 'Conceptos estandar del');
+                        unaFrase2                     python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'gvSIGbpd', 'gvSIGbpd_footer_phrase2_with_parameters', 'para Estrategia, Reglas y Procesos de Negocio')" >                                        
+            <br>
+            <p align="center">
+                <font size="1">
+                    <tal:block tal:content="python: unaFrase1" />
+                    &nbsp;
+                    <a title="Object Management Group, open standardisation organisation" href="" tal:attributes="href python: 'http://%s' % pURL_OMG" >OMG</a>
+                    &nbsp;
+                    <a title="Adopted standard specifications for Business Strategy, Business Rules and Business Processes" href="" tal:attributes="href python: 'http://%s' % pURL_OMG_BusinessSpecs" ><tal:block tal:content="python: unaFrase2" /></a>                    
+                    &nbsp;
+                    <a title="Business Motivation Model adopted standard specifications" href="" tal:attributes="href python: 'http://%s' % pURL_OMG_BMM" >BMM</a>
+                    &nbsp;
+                    <a title="Business Process Definition Metamodel adopted standard specifications" href="" tal:attributes="href python: 'http://%s' % pURL_OMG_BPDM" >BPDM</a>
+                    &nbsp;
+                    <a title="Business Process Modeling Notation adopted standard specifications" href="" tal:attributes="href python: 'http://%s' % pURL_OMG_BPMN" >BPMN</a>
+                </font>
+            </p>                
+
+         </tal:block>
+    </div>
+
+</body>
+</html>
+

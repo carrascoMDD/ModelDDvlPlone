@@ -1,0 +1,179 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tEliminarPloneInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        
+        <tal:block tal:define=" global pTrue                    python: True;
+                                global pFalse                   python: False;
+                                global pPagina                  string:Tabular;
+                                global pPaginaAnteriorPosterior string:Tabular;
+                                global pShowTrees               pFalse;
+                                global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                                global pNeedToRedirect      pTrue" />
+ 
+        <tal:block tal:define="pUIDToDelete  python: request.get( 'theUIDToDelete', '')" 
+            tal:condition="pUIDToDelete">
+            <tal:block tal:define="
+                pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pProfilingResults       python: ( pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                unosArgs python: { 
+                    'theTimeProfilingResults'     :pProfilingResults,
+                    'theContainerElement'         :here, 
+                    'thePloneSubItemsParameters'  :None, 
+                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ],
+                    'theWritePermissions'         :[ 'object', 'aggregations', 'plone', 'delete_plone', ],
+                    'theFeatureFilters'           :None, 
+                    'theInstanceFilters'          :{ 'UIDs': [ pUIDToDelete, ], },
+                    'theTranslationsCaches'       :None,
+                    'theCheckedPermissionsCache'  :None,
+                    'theAdditionalParams'         :None};                                            
+                PLONERES  python:       here.ModelDDvlPlone_tool.fRetrievePloneContent( **unosArgs);
+                pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow()"
+                tal:condition="PLONERES/traversals" >
+                 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+             
+                 <tal:block tal:define="TRAVRES python: PLONERES[ 'traversals'][ 0]"
+                     tal:condition="TRAVRES/elements" >
+                     
+                    <tal:block tal:define="
+                        pColumnNames            TRAVRES/column_names;
+                        pColumnTranslations     TRAVRES/column_translations;
+                        ERES                    python: TRAVRES[ 'elements'][ 0]"
+                        tal:condition="python: ERES[ 'UID'] == pUIDToDelete" >
+                        <tal:block tal:define="
+                            global pNeedToRedirect pFalse;
+                            pEliminacionPermitida python: PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and ERES[ 'read_permission'] and ERES[ 'write_permission'];
+                            pPermiteAbandonarEliminar   pTrue;
+                            pShowOrHideTrees            pFalse; 
+                            pMostrarAnteriorPosterior   pFalse;
+                            SRES PLONERES;
+                            pAbandonarAnchorName string:#elemento-${ERES/UID}" >
+
+                            <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+
+                            <br>
+                            <h2 tal:condition="not: pEliminacionPermitida"> 
+                                <a  href="#" tal:attributes="href python: '%s/Tabular' % PLONERES[ 'url']" class="state-visible" title="">
+                                    <font color="Red">                    
+                                        <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaeliminar_error_message"/>
+                                        &nbsp;
+                                        <span tal:content="ERES/values_by_name/title/uvalue" />
+                                        &nbsp;(                    
+                                        <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), ERES[ 'content_icon'])"  
+                                             alt="" title="MetaType icon" id="icon-here" />
+                                        &nbsp;
+                                        <span tal:content="ERES/type_translations/translated_archetype_name" />
+                                        )       
+                                                         
+                                    </font>                                    
+                                </a>       
+                                <tal:block tal:define="global pNeedToRedirect pFalse" />
+                            </h2>           
+    
+                            <tal:block tal:condition="pEliminacionPermitida"> 
+            
+                                <h1>
+                                   <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminarplone_action_label">ModelDDvlPlone_eliminarplone_action_label</span>
+                                </h1>       
+                                <p class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminarplone_action_help">ModelDDvlPlone_eliminarplone_action_help</p>        
+                                <br/>
+                                <br/>
+                         
+                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_instruccionesconfirmacioneliminar_help">ModelDDvlPlone_instruccionesconfirmacioneliminar_help</h4>
+                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_tiempoconfirmacioneliminar_help">ModelDDvlPlone_tiempoconfirmacioneliminar_help</h4>
+                                <br/>
+                                <br/>
+            
+            
+            
+                                <h2>
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_elementoaeliminar_title_msgid">ModelDDvlPlone_elementoaeliminar_title_msgid</span>
+                                    <br/>       
+                                    <span tal:content="ERES/values_by_name/title/uvalue"/>
+                                    (
+                                    <img src="#" tal:attributes="src python: '%s/%s' % ( here.portal_url(), ERES[ 'content_icon']);
+                                        alt ERES/values_by_name/title/uvalue;
+                                        title ERES/values_by_name/title/uvalue"  
+                                        alt="#" title="#" id="icon-elemento" />                                    
+                                    <span tal:content="ERES/type_translations/translated_archetype_name"/>
+                                    )
+                                </h2>       
+                                <p tal:content="ERES/values_by_name/description/uvalue"/>
+            
+                                   
+                                <h3>                        
+                                    <tal:block tal:define="pSecondsNow PLONERES/seconds_now">
+                                        <a  href="#" tal:attributes="href python: '%s/EliminarElementoPlone?theUIDToDelete=%s&theSecondsNow=%s&theConfirmedDelete=Yes' % ( PLONERES[ 'url'], ERES[ 'UID'], pSecondsNow, )" 
+                                            title="">
+                                            <font color="Red">
+                                                <img src="#" tal:attributes="src python: here.portal_url() + '/delete_icon.gif'"  
+                                                    alt="Eliminar" title="Eliminar" id="icon-delete"
+                                                    i18n:attributes="alt ModelDDvlPlone_eliminar_action_label; title ModelDDvlPlone_eliminar_action_label" />
+                                                &nbsp;
+                                                <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_confirmareliminacion_action_label">ModelDDvlPlone_confirmareliminacion_action_label</span>
+                                                &nbsp;
+                                                <span tal:content="ERES/values_by_name/title/uvalue" />
+                                                (                    
+                                                <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), ERES['content_icon'])"  
+                                                     alt="" title="MetaType icon" id="icon-here" />
+                                                &nbsp;
+                                                <span tal:content="python: ERES['type_translations'][ 'translated_archetype_name'] "/>
+                                                )
+                                        </font>
+                                        </a>
+                                    </tal:block>
+                                </h3>
+
+        
+                            </tal:block>
+                        </tal:block>
+                    </tal:block>           
+                </tal:block>
+            </tal:block>
+        </tal:block>
+        
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+        
+        <tal:block tal:condition="python: False and pNeedToRedirect">
+            <tal:block tal:define="dummy python: request.response.redirect( here.absolute_url())" />  
+        </tal:block>
+
+      
+    </div>
+    
+
+    
+    
+</body>
+</html>
+    

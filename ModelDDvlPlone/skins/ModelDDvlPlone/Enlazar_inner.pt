@@ -1,0 +1,250 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tEnlazarInner" >
+
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        <tal:block tal:define=" global pTrue                    python: True;
+                                global pFalse                   python: False;
+                                global pPagina                  string:Enlazar;
+                                global pPaginaAnteriorPosterior string:Enlazar;
+                                global pReferenceFieldName      request/theReferenceFieldName  | python: None;
+                                global pLinkUID                 request/theLinkUID  | python: None;
+                                global pUnlinkUID               request/theUnlinkUID | python: None;                                
+                                global pShowTrees               pFalse;
+                                global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />
+
+
+        <tal:block tal:condition="python: not pReferenceFieldName" >
+            <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular' % here.absolute_url())" />
+        </tal:block>
+
+        <tal:block tal:condition="python: pReferenceFieldName" >
+
+
+
+
+            <tal:block tal:define="pSourceElement nocall: here">
+                <metal:block metal:use-macro="here/MoverReferencias_i18n_view/macros/tMoverReferencias_i18n" />   
+            </tal:block>
+
+
+
+    
+            <tal:block tal:condition="python: pLinkUID and not pUnlinkUID" 
+                tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >
+                <tal:block tal:define="
+                    unosArgs python: {
+                        'theTimeProfilingResults' :pProfilingResults,
+                        'theSourceElement'        :here, 
+                        'theReferenceFieldName'   :pReferenceFieldName, 
+                        'theTargetUID'            :pLinkUID,
+                        'theAdditionalParams'     :None, };
+                    aLinkResult python: here.ModelDDvlPlone_tool.fLinkToUIDReferenceFieldNamed( **unosArgs);   
+                    someLinkReports python: aLinkResult.get( 'link_reports', [])"
+                    tal:condition="someLinkReports" >
+                    <tal:block tal:define="pLinkReport python: someLinkReports[ 0]"
+                        tal:condition="python: pLinkReport[ 'effect'] == 'linked'">
+                        <font color="Red">
+                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_haenlazadoelelemento">ModelDDvlPlone_haenlazadoelelemento</span> 
+                            &nbsp;   
+                            <span tal:content="pLinkReport/target/values_by_name/title/uvalue" />
+                        </font>
+                    </tal:block>                            
+                </tal:block>    
+            </tal:block>    
+            <tal:block tal:condition="python: not pLinkUID and pUnlinkUID" 
+                tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >            
+                <tal:block tal:define="
+                    unosArgs python: {
+                        'theTimeProfilingResults' :pProfilingResults,
+                        'theSourceElement'        :here, 
+                        'theReferenceFieldName'   :pReferenceFieldName, 
+                        'theTargetUID'            :pUnlinkUID,
+                        'theAdditionalParams'     :None, };
+                    aUnlinkResult python: here.ModelDDvlPlone_tool.fUnlinkFromUIDReferenceFieldNamed( **unosArgs);
+                    someUnlinkReports python: aUnlinkResult.get( 'link_reports', [])"
+                    tal:condition="someUnlinkReports" >
+                    <tal:block tal:define="pUnlinkReport python: someUnlinkReports[ 0]"
+                        tal:condition="python: pUnlinkReport[ 'effect'] == 'unlinked'">
+                        <font color="Red">
+                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_hadesenlazadoelelemento">ModelDDvlPlone_hadesenlazadoelelemento</span> 
+                            &nbsp;   
+                            <span tal:content="pUnlinkReport/target/values_by_name/title/uvalue" />
+                        </font>
+                    </tal:block>                            
+                </tal:block>    
+            </tal:block>
+    
+     
+            <tal:block tal:define="
+                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                unosArgs python: { 
+                    'theTimeProfilingResults'     :pProfilingResults,
+                    'theElement'                  :here, 
+                    'theParent'                   :None,
+                    'theParentTraversalName'      :'',
+                    'theTypeConfig'               :None, 
+                    'theAllTypeConfigs'           :None, 
+                    'theViewName'                 :'', 
+                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ],
+                    'theWritePermissions'         :[ 'object', 'relations', ],
+                    'theFeatureFilters'           :{ 'attrs': [ 'type', 'description', ], 'aggregations': [], 'relations': [ pReferenceFieldName, ], 'candidates_for_relations': [ pReferenceFieldName, ], }, 
+                    'theInstanceFilters'          :None,
+                    'theTranslationsCaches'       :None,
+                    'theCheckedPermissionsCache'  :None,
+                    'theAdditionalParams'         :None, };                    
+                SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                TRAVRES python: SRES[ 'traversals_by_name'].get( pReferenceFieldName, None)"
+                tal:condition="python: TRAVRES and ( TRAVRES[ 'traversal_kind'] == 'relation')" >
+    
+                <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+    
+                        
+                <tal:block tal:define="
+                    pPermiteEnlazar python: SRES[ 'write_permission'] and TRAVRES[ 'write_permission'] and not ( TRAVRES['traversal_config'].has_key( 'dependency') and TRAVRES['traversal_config'][ 'dependency'] == 'Supplier');
+                    pPermiteEditar              SRES/write_permission; 
+                    pPermiteAbandonarEnlazar    pTrue;
+                    pAbandonarAnchorName        string:#referencias-${TRAVRES/traversal_name};
+                    pShowOrHideTrees            pFalse; 
+                    pMostrarAnteriorPosterior   pTrue">
+    
+                    <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+                   
+                    <br>
+                    <h2 tal:condition="not: pPermiteEnlazar"> 
+                        <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
+                            <font color="Red">                    
+                                <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaenlazar_error_message"/>
+                                &nbsp;
+                                <span tal:content="TRAVRES/traversal_translations/translated_label" />
+                                &nbsp;
+                                <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_deorigenrelacioncuandoenlazando"/>
+                                &nbsp;
+                                <span tal:content="SRES/values_by_name/title/uvalue " />
+                                &nbsp;(                    
+                                <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), SRES[ 'content_icon'])"  
+                                     alt="" title="MetaType icon" id="icon-here" />
+                                &nbsp;
+                                <span tal:content="SRES/type_translations/translated_archetype_name" />
+                                )       
+                                                 
+                            </font>
+                        </a>                
+                    </h2>           
+        
+                    <tal:block tal:condition="pPermiteEnlazar"> 
+        
+                
+                        <h1>
+                           <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_cambiar_referencias_action_label">Cambiar referencias</span>
+                           &nbsp;        
+                           <span  tal:content="TRAVRES/traversal_translations/translated_label" />
+               
+                        </h1>
+                       
+                        <p class="formHelp"  tal:content="TRAVRES/traversal_translations/translated_description" />        
+        
+                
+                        <br/>
+                        <h2>
+                            <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_enlacesexistentes_section_msgid" >ModelDDvlPlone_enlacesexistentes_section_msgid</span>
+                            &nbsp;
+                            <span tal:content="TRAVRES/traversal_translations/translated_label" />
+                        </h2>
+        
+                        <tal:block tal:condition="TRAVRES/is_multivalued" tal:define="pExcludeHeader pTrue; pExcludeFooter pTrue" >
+                            <metal:block metal:use-macro="here/ReferenciasEnTabla_i18n_view/macros/tReferenciasEnTabla_i18n" />
+                        </tal:block>
+                        <tal:block tal:condition="not: TRAVRES/is_multivalued" tal:define="pExcludeHeader pTrue; pExcludeFooter pTrue" >
+                            <metal:block metal:use-macro="here/ReferenciaEnTabla_i18n_view/macros/tReferenciaEnTabla_i18n" />
+                        </tal:block>
+                         
+                         
+                        <tal:block tal:condition="TRAVRES/max_multiplicity_reached">
+                            <h4><font  color="Red">
+                                <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_maxmultiplicityreached_info_msgid" >ModelDDvlPlone_maxmultiplicityreached_info_msgid</span>
+                                &nbsp;
+                                <span tal:content="TRAVRES/traversal_translations/translated_label" />
+                                </font>
+                            </h4>
+                            <h4><font  color="Red">
+                                <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_cannotadd_info_msgid" >ModelDDvlPlone_cannotadd_info_msgid</span>
+                                &nbsp;
+                                <span tal:content="TRAVRES/traversal_translations/translated_label" />
+                                </font>
+                            </h4>
+                            <br/>
+                        </tal:block>
+
+                         
+                
+                        <br/>
+                        <h2>
+                            <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_candidatosaenlazar_section_msgid" >ModelDDvlPlone_candidatosaenlazar_section_msgid</span>
+                            &nbsp;
+                            <span tal:content="TRAVRES/traversal_translations/translated_label" />
+                        </h2>                            
+                        
+                        <tal:block tal:define="CANDIDATES TRAVRES/candidates" >
+ 
+<tal:block tal:replace="nothing">  
+<tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ CANDIDATES, ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+</tal:block>
+                      
+                            <tal:block tal:condition="not: CANDIDATES">
+                                <h4><font  color="Red">
+                                    <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_nohaycandidatosaenlazar_section_msgid" >ModelDDvlPlone_nohaycandidatosaenlazar_section_msgid</span>
+                                    &nbsp;
+                                    <span tal:content="TRAVRES/traversal_translations/translated_label" />
+                                    </font>
+                                </h4>                                    
+                            </tal:block>
+                            <tal:block tal:condition="CANDIDATES">
+                                <metal:block metal:use-macro="here/CandidatosEnTabla_i18n_view/macros/tCandidatosEnTabla_i18n" />
+
+                            </tal:block>
+                        </tal:block>
+                        
+                            
+                     </tal:block>               
+                </tal:block>   
+            </tal:block>   
+        </tal:block>   
+
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+   
+    </div>
+    
+</body>
+</html>
+    

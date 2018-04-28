@@ -1,0 +1,123 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+<div metal:define-macro="tColeccionElementosPlone_EditableBody_i18n" >
+<tal:block
+    tal:define="
+        global pTrue     python: True;
+        global pFalse python: False;
+        pSiempre                 pSiempre | pFalse;    
+        pPloneElementsContainer  nocall: pPloneElementsContainer | nothing;                   
+        pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+        pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+        unosArgs python: { 
+            'theTimeProfilingResults'     :pProfilingResults,
+            'theContainerElement'         :pPloneElementsContainer, 
+            'thePloneSubItemsParameters'  :None, 
+            'theRetrievalExtents'         :[ 'traversals', ],
+            'theWritePermissions'         :None,
+            'theFeatureFilters'           :None, 
+            'theInstanceFilters'          :None,
+            'theTranslationsCaches'       :None,
+            'theCheckedPermissionsCache'  :None,
+            'theAdditionalParams'         :None};                                            
+        PLONERES  python: here.ModelDDvlPlone_tool.fRetrievePloneContent( **unosArgs); 
+        pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" 
+    tal:condition="python: PLONERES and PLONERES[ 'traversals']" ><tal:block 
+        tal:repeat="TRAVRES python: PLONERES[ 'traversals']" ><tal:block 
+            tal:define="pElementos TRAVRES/elements" ><tal:block 
+                tal:condition="python: pSiempre or pElementos">
+        
+|
+|
+
+**<tal:block 
+                    tal:content="TRAVRES/traversal_translations/translated_label" />**
+                
+<tal:block 
+                    tal:repeat="unElemento python: pElementos">
+* <tal:block
+                        tal:content="structure python: u'`%s %c%s/%c`__' %  ( unElemento[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, unElemento[ 'url'], 62)"/> (*<tal:block 
+                        tal:content="unElemento/type_translations/translated_archetype_name" />*) . <tal:block 
+                        tal:condition="python:  unElemento['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()"
+                        tal:repeat="unaLineaTexto python:  unElemento['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()"
+                        tal:content="python: unaLineaTexto.strip()" /><tal:block 
+                        tal:condition="python: unElemento[ 'meta_type'] == 'ATLink' and unElemento[ 'values_by_name'][ 'content_url'][ 'value']"
+                        tal:content="structure python: u' -> `%s %c%s/%c`__' %  ( unElemento[ 'values_by_name'][ 'content_url'][ 'value'], 60, unElemento[ 'values_by_name'][ 'content_url'][ 'value'], 62)"/><tal:block 
+                        tal:condition="python: unElemento[ 'meta_type'] == 'ATImage' and unElemento[ 'values_by_name'][ 'content_url'][ 'value']"
+                        tal:content="string:${unElemento/values_by_name/width/attribute_translations/translated_label} ${unElemento/values_by_name/width/value} x ${unElemento/values_by_name/height/attribute_translations/translated_label} ${unElemento/object/height}"/>
+
+</tal:block></tal:block></tal:block></tal:block><tal:block 
+        tal:repeat="TRAVRES python: PLONERES[ 'traversals']" ><tal:block 
+            tal:define="pElementos TRAVRES/elements" ><tal:block 
+                tal:condition="python: pSiempre or pElementos">
+
+                
+<tal:block 
+                    tal:repeat="unElemento python: pElementos"><tal:block 
+                        tal:condition="python: unElemento[ 'meta_type'] == 'ATImage' and unElemento[ 'values_by_name'][ 'content_url'][ 'value']" >
+                        
+|
+|
+                    
+<tal:block
+                        tal:content="structure python: u'`%s %c%s/%c`__' %  ( unElemento[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, unElemento[ 'url'], 62)"/> (*<tal:block 
+                        tal:content="unElemento/type_translations/translated_archetype_name" />*)
+
+<tal:block 
+                        tal:define="
+                            unWidth python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, 800, unElemento[ 'values_by_name'][ 'width'][ 'value']);
+                            unHeight python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, int( unElemento[ 'values_by_name'][ 'height'][ 'value'] * 800 / unElemento[ 'values_by_name'][ 'width'][ 'value']), unElemento[ 'values_by_name'][ 'height'][ 'value'])"                        
+                        tal:content="structure python: '\n.. image:: %s\n    :width: %d\n    :height: %d\n' % ( unElemento[ 'values_by_name'][ 'content_url'][ 'value'], unWidth, unHeight )"/></tal:block>
+
+<tal:block 
+                        tal:condition="python: unElemento[ 'meta_type'] == 'ATNewsItem' and unElemento[ 'values_by_name'][ 'image_url'][ 'value']" >
+                        
+|
+|
+                    
+<tal:block
+                        tal:content="structure python: u'`%s %c%s/%c`__' %  ( unElemento[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, unElemento[ 'url'], 62)"/> (*<tal:block 
+                        tal:content="unElemento/type_translations/translated_archetype_name" />*)
+
+<tal:block 
+                        tal:define="
+                            unWidth python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, 800, unElemento[ 'values_by_name'][ 'width'][ 'value']);
+                            unHeight python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, int( unElemento[ 'values_by_name'][ 'height'][ 'value'] * 800 / unElemento[ 'values_by_name'][ 'width'][ 'value']), unElemento[ 'values_by_name'][ 'height'][ 'value'])"                        
+                        tal:content="structure python: '\n.. image:: %s\n    :width: %d\n    :height: %d\n' % ( unElemento[ 'values_by_name'][ 'image_url'][ 'value'], unWidth, unHeight )"/></tal:block>
+
+</tal:block></tal:block></tal:block></tal:block></tal:block>  
+</div>
+
+
+
+
+
+</body>
+</html>    

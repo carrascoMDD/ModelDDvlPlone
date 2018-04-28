@@ -1,0 +1,105 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+
+
+<div metal:define-macro="tTabla_EditableBody_i18n" ><tal:block 
+    tal:define="
+        TRAVRES                             TRAVRES | nothing;
+        pTrue                               python: True; 
+        pFalse                              python: False; 
+        pSiempre                            pSiempre | pFalse;
+        pRelationCursorNameParameter        pRelationCursorNameParameter | string:" 
+    tal:condition="python: TRAVRES and ( TRAVRES[ 'num_elements'] > 0)">
+
+
+<tal:block 
+        tal:repeat="ERES TRAVRES/elements"><tal:block 
+            tal:condition="pRelationCursorNameParameter">
+* <tal:block
+                tal:content="structure python: u'`%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__' %  ( ERES[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, SRES[ 'url'], pRelationCursorNameParameter, ERES[ 'UID'], 62)"/> </tal:block><tal:block 
+            tal:condition="not: pRelationCursorNameParameter">
+* <tal:block
+                tal:content="structure python: u'`%s %c%s%c`__' %  ( ERES[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, ERES[ 'url'], 62)"/> </tal:block> (*<tal:block 
+                tal:content="python: ERES[ 'type_translations'][ 'translated_archetype_name']" />*) <tal:block 
+                tal:condition="python:  ERES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()"> . <tal:block 
+                    tal:repeat="unaLineaTexto python:  ERES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()" 
+                    tal:content="python: unaLineaTexto.strip()" /> </tal:block><tal:block 
+                tal:repeat="unColumnName TRAVRES/column_names" ><tal:block
+                    tal:condition="python: not ( unColumnName in [ 'title', 'description'])" ><tal:block
+                        tal:define="ATTRRES python: ERES[ 'values_by_name'].get( unColumnName, None)"
+                        tal:condition="ATTRRES"><tal:block
+                            tal:condition="ATTRRES/computed"><tal:block
+                                tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip()  and not (ATTRRES[ 'uvalue'].strip() == 'None')"><tal:block 
+                                    tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                                        tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label'].strip()"/>* <tal:block 
+                                        tal:content="ATTRRES/uvalue" tal:define="global pEsPrimerAtributo python: False" /></tal:block></tal:block><tal:block
+                            tal:condition="not: ATTRRES/computed" ><tal:block
+                                tal:condition="python: ATTRRES['type'] == 'boolean'"><tal:block 
+                                    tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block
+                                    tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label_and_value'].strip()"/>* </tal:block><tal:block 
+                    
+                                tal:condition="python: ATTRRES['type'] in [ 'string', 'ACV OJO WAS text', ]"><tal:block
+                                    tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip()  and not (ATTRRES[ 'uvalue'].strip() == 'None')"><tal:block 
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                                        tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label'].strip()"/>* <tal:block 
+                                        tal:content="python: ' '.join( ATTRRES[ 'uvalue'].strip().splitlines())" tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block
+                                        
+                                tal:condition="python: ATTRRES['type'] in [ 'integer' , 'float', 'fixedpoint', ]"><tal:block
+                                    tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip()"><tal:block 
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                                        tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label'].strip()"/>* <tal:block 
+                                        tal:content="python: ATTRRES[ 'uvalue']" tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block
+    
+                                tal:condition="python: ATTRRES['type'] == 'selection'"><tal:block
+                                     tal:condition="python: ATTRRES[ 'translated_value']"><tal:block 
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                                         tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
+                                         tal:content="python: ATTRRES[ 'translated_value']"
+                                         tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block 
+                    
+                                tal:condition="python: ATTRRES['type'] == 'datetime'"><tal:block
+                                     tal:condition="python: ATTRRES[ 'raw_value']"><tal:block 
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                                         tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
+                                         tal:content="python: ATTRRES[ 'raw_value']"
+                                         tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block></tal:block></tal:block></tal:block></tal:block>
+
+                
+</tal:block></tal:block>
+</div>
+
+
+ 
+
+</body>
+</html>
+
