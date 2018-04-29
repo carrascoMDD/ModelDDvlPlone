@@ -37,14 +37,22 @@
         TRAVRES                             TRAVRES | nothing;
         pTrue                               python: True; 
         pFalse                              python: False; 
+        pTraversalTargetsByTraversalName    pTraversalTargetsByTraversalName | python: {};
         pSiempre                            pSiempre | pFalse" 
     tal:condition="python: TRAVRES and SRES and ( TRAVRES[ 'num_elements'] > 0)">
 
 |
 |
     
-**<tal:block 
-        tal:content="TRAVRES/traversal_translations/translated_label" />**
+---------------------------------
+
+
+<tal:block tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( TRAVRES[ 'traversal_name'], '')"
+        tal:condition="pMDDTraversalTarget" 
+        tal:content="structure python: u'.. _%s:\n\n' % pMDDTraversalTarget"/>    
+
+<tal:block 
+        tal:content="python: '\n\n**%s** |MDDTopTg|_'% TRAVRES[ 'traversal_translations'][ 'translated_label'].strip()" />
 
 
 <metal:block metal:use-macro="here/Tabla_EditableBody_i18n_view/macros/tTabla_EditableBody_i18n" />        

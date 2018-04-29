@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: CabeceraEnTabla_i18n_view.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -29,8 +33,14 @@
 
 
 
+
     <div metal:define-macro="tCabeceraEnTabla_i18n" >
         <tal:block tal:define="
+            pPresentationVariability_DisplayOwnerAndContainerLabels python: True;     
+            pPresentationVariability_DisplayOwnerAndContainerTypeIcons python: False;     
+            pPresentationVariability_DisplayNavigationLabels python: False;     
+            pPresentationVariability_KeepLabelPositionsWithWhites python: False;
+        
             SRES                              SRES | nothing;
             pTrue                             python: True; 
             pFalse                            python: False; 
@@ -48,304 +58,369 @@
             pPermiteAbandonarCrear            pPermiteAbandonarCrear    | pFalse;
             pPermiteEliminar                  pPermiteEliminar | pFalse;
             pPermiteEliminar                  python: pPermiteEliminar and not SRES[ 'is_root'];
-            pRelationCursorName               pRelationCursorName | string:;
+            global pRelationCursorName        pRelationCursorName | string:;
+            global pCurrentElementUID         pCurrentElementUID  | string:;
             pMostrarAnteriorPosterior         pMostrarAnteriorPosterior | pFalse;
             pMostrarAnteriorPosterior         python: pMostrarAnteriorPosterior and not SRES[ 'is_root'];
             pPaginaAnteriorPosterior          pPaginaAnteriorPosterior | string:;  
-            pRelationCursorName               pRelationCursorName | string:;
+            pReferenceFieldName               pReferenceFieldName | string:;
+            pPermiteExtraLinks                pPermiteExtraLinks | pTrue;
             global unPostfixPagina                   string:;
-            global unPostfixPaginaAnteriorPosterior  string:;" 
+            global unPostfixPaginaAnteriorPosterior  string:; 
+            global unPostfixPaginaRefrescar  string:;" 
             tal:condition="python: SRES">
-            
-            
+                        
 
-
-            <tal:block tal:condition="python: pPagina and not pPagina == 'Textual'">
-                <tal:block tal:define="global unPostfixPagina  python: '/%s' % pPagina" />
+            <tal:block tal:condition="python: pPaginaRefrescar and not ( pPaginaRefrescar == 'Textual')">
+                <tal:block tal:define="global unPostfixPaginaRefrescar  python: '%s/' % pPagina" />
             </tal:block>
-            <tal:block tal:condition="python: pPaginaAnteriorPosterior and not pPaginaAnteriorPosterior == 'Textual'">
-                <tal:block tal:define="global unPostfixPaginaAnteriorPosterior  python: '/%s' % pPaginaAnteriorPosterior" />
+            <tal:block tal:condition="python: pPaginaRefrescar and ( pPaginaRefrescar == 'MDDInspectCache')">
+                <tal:block tal:define="global unPostfixPaginaRefrescar  python: '%s/' % 'MDDInspectCache'" />
+            </tal:block>
+
+            <tal:block tal:condition="python: pPagina and not ( pPagina in 'Textual')">
+                <tal:block tal:define="global unPostfixPagina  python: '%s/' % pPagina" />
+            </tal:block>
+            <tal:block tal:condition="python: pPaginaAnteriorPosterior and not ( pPagina == 'Textual')">
+                <tal:block tal:define="global unPostfixPaginaAnteriorPosterior  python: '%s/' % pPaginaAnteriorPosterior" />
             </tal:block>
     
-            <table width="100%%" cellspacing="0" cellpadding="0" frame="void" >
+            <table  cellspacing="0" cellpadding="0" frame="void" >
                 <tr>
                     <td align="left" valign="baseline" >
                         <h5>
                             <img src="#" tal:attributes="
-                                src python: '%s/%s' % ( here.portal_url(), SRES[ 'content_icon']);
+                                src python: '%s/%s' % ( SRES[ 'portal_url'], SRES[ 'content_icon']);
                                 title SRES/values_by_name/title/uvalue; 
                                 alt SRES/values_by_name/title/uvalue"
                                 alt="#" title="#" id="content_icon" />
-                            &nbsp;
                             <span tal:content="SRES/type_translations/translated_archetype_name" />
+                            &ensp;
                         </h5>
                     </td>
+ 
+                   <tal:block tal:condition="python: pPermiteExtraLinks and SRES[ 'extra_links']" >
+                        <td align="center" valign="baseline" 
+                            tal:repeat="pExtraLink python:  SRES[ 'extra_links']">
+                            <a  id="#"  href="#" title="#" class="state-visible" 
+                                tal:define="
+                                    unTituloEnlace      python: pExtraLink[ 'label'] or '';
+                                    unaHref             python: pExtraLink[ 'href'] or '';
+                                    unIcon              python: pExtraLink[ 'icon'] or 'propietario.gif'"
+                               tal:attributes="
+                                    title unTituloEnlace; 
+                                    href  unaHref;
+                                    id    string:cid_MDDActionLink_Extra_${repeat/pExtraLink/index};" >
+                                <img src="#" alt="#" title="#"  id="#"
+                                    tal:attributes="
+                                        src       python: '%s/%s' % ( SRES[ 'portal_url'], unIcon,); 
+                                        title     unTituloEnlace;
+                                        alt       unTituloEnlace;
+                                        id string:cid_MDDActionLink_Extra_${repeat/pExtraLink/index}_Icon;"
+                                    />
+                                <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                    tal:content="unTituloEnlace" />
+                            </a>   
+                            &ensp;
+                        </td>
+                    </tal:block>
+                    
+                    
                     <tal:block tal:condition="python: not SRES[ 'is_root']" >
                         <td align="center" valign="baseline"   tal:condition="python: SRES[ 'owner_element']" 
                             tal:define="unTituloEnlace python: '%s %s %s %s' % ( SRES[ 'owner_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'owner_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'owner_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'owner_element'][ 'type_translations'][ 'translated_type_description']);
                                         unaHref python: '%s%s#elemento-%s' % ( SRES[ 'owner_element']['url'], unPostfixPagina, SRES[ 'UID']);
                                         unIcon  python: SRES[ 'owner_element'][ 'content_icon']" >
-                            <a   class="state-visible" title="" 
+                            <a   id="cid_MDDActionLink_Propietario"  class="state-visible" title="" 
                                 href="#" title="#" tal:attributes="
                                     title unTituloEnlace; 
                                     href unaHref" >
                                 <img src="#" tal:attributes="
-                                    src string:${portal_url}/propietario.gif; 
+                                    src python: '%s/%s' % ( SRES[ 'portal_url'], 'propietario.gif',); 
                                     title unTituloEnlace;
                                     alt SRES/owner_element/values_by_name/title/uvalue" 
                                     alt="" title="" id="icon-subject" />
-                                &nbsp;
-                                <img src="#" tal:attributes="
-                                    src python: '%s/%s' % (here.portal_url(), SRES[ 'owner_element'][ 'content_icon']);                                 
+                                <img tal:condition="pPresentationVariability_DisplayOwnerAndContainerTypeIcons" 
+                                    src="#" tal:attributes="
+                                    src python: '%s/%s' % ( SRES[ 'portal_url'], SRES[ 'owner_element'][ 'content_icon']);                                 
                                     title unTituloEnlace;
                                     alt SRES/owner_element/values_by_name/title/uvalue"
                                     alt="" title="" id="icon-propietario" />
-                                &nbsp;
-                                <span tal:content="SRES/owner_element/values_by_name/title/uvalue" />
+                                <span tal:condition="pPresentationVariability_DisplayOwnerAndContainerLabels"
+                                    tal:content="SRES/owner_element/values_by_name/title/uvalue" />
                             </a>      
-                            &nbsp;
+                            &ensp;
                         </td>
                         <td align="center" valign="baseline" tal:condition="python: SRES[ 'container_element'] and SRES[ 'owner_element'] and SRES[ 'container_element'][ 'object'] and not ( SRES[ 'owner_element'][ 'object'] == SRES[ 'container_element'][ 'object'])" 
                             tal:define="unTituloEnlace python: '%s %s %s %s' % ( SRES[ 'container_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'container_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'container_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'container_element'][ 'type_translations'][ 'translated_type_description'])" >
-                            <a   class="state-visible" title=""
+                            <a  id="cid_MDDActionLink_Contenedor"   class="state-visible" title=""
                                 href="#" title="#" tal:attributes="
                                     title unTituloEnlace; 
                                     href python: '%s%s#elemento-%s' % ( SRES[ 'container_element']['url'], unPostfixPagina, SRES[ 'UID'])" >
                                 <img src="#" tal:attributes="
-                                    src string:${portal_url}/contenedor.gif; 
+                                    src python: '%s/%s' % ( SRES[ 'portal_url'], 'contenedor.gif',); 
                                     title unTituloEnlace;
                                     alt SRES/container_element/values_by_name/title/uvalue" 
                                     alt="" title="" id="icon-subject" />
-                                &nbsp;
-                                <img src="#" tal:attributes="
-                                    src python: '%s/%s' % ( here.portal_url(), SRES[ 'container_element'][ 'content_icon']);                                 
+                                <img tal:condition="pPresentationVariability_DisplayOwnerAndContainerTypeIcons" 
+                                    src="#" tal:attributes="
+                                    src python: '%s/%s' % ( SRES[ 'portal_url'], SRES[ 'container_element'][ 'content_icon']);                                 
                                     title unTituloEnlace;
                                     alt SRES/container_element/values_by_name/title/uvalue"
                                     alt="" title="" id="icon-propietario" />
-                                &nbsp;
-                                <span tal:content="SRES/container_element/values_by_name/title/uvalue" />
-                                &nbsp;
+                                <span tal:condition="pPresentationVariability_DisplayOwnerAndContainerLabels"
+                                    tal:content="SRES/container_element/values_by_name/title/uvalue" />
                             </a>    
+                            &ensp;
                         </td>                
                     </tal:block>
 
+                    <tal:block tal:condition="python: pPermiteEditar or pPermiteAbandonarEditar or pPermiteAbandonarEliminar or pPermiteAbandonarCrear or pPermiteAbandonarEnlazar or pPermiteEliminar or pShowOrHideTrees or pAllowTextualAndTabular or pAllowRefrescar">
 
-                    <td>&nbsp;&nbsp;</td> 
-                    
-                    
-                    <td align="left" colspan="3" tal:condition="python: pPermiteEditar or pPermiteAbandonarEditar or pPermiteAbandonarEliminar or pPermiteAbandonarCrear or pPermiteAbandonarEnlazar or pPermiteEliminar or pShowOrHideTrees or pAllowTextualAndTabular or pAllowRefrescar">
-
-
-                        <tal:block tal:condition="pAllowRefrescar">
-                            <tal:block tal:condition="python: pPaginaRefrescar in [ 'Tabular', 'Textual', 'General', 'TextualRest', 'Editar', 'Eliminar', 'Enlazar']">      
-                                <tal:block tal:define="global unaHref python: '%s/%s' % ( SRES[ 'url'], pPaginaRefrescar,);
-                                    aRefreshLabel python:  here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-')" >
-                                    <a href="#" title="#"  tal:attributes="href unaHref; title aRefreshLabel" >
-                                        <img src="#" alt="#" title="#" 
-                                            tal:attributes="src string:${portal_url}/refrescar.gif; alt aRefreshLabel; title aRefreshLabel" 
-                                            id="icon-refrescar" />
-                                        <span tal:content="aRefreshLabel" />        
-                                    </a>
-                                </tal:block>                                    
-                                &nbsp;
-                                &nbsp;
-                            </tal:block>
-                        </tal:block>
-
-                        <tal:block tal:condition="pAllowTextualAndTabular">
-                            <tal:block tal:condition="python: pPagina == 'Tabular'">      
-                                <tal:block tal:define="global unaHref python: '%s/Textual' % SRES[ 'url']" >
-                                    <a href="#" title="#"  tal:attributes="href unaHref" 
-                                        i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_textual_action_label">
-                                        <img src="#" tal:attributes="
-                                            src string:${portal_url}/textual.gif"  
-                                            alt="Vista Textual" title="Vista Textual" id="icon-textual"
-                                            i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_textual_action_label; title ModelDDvlPlone_textual_action_label" />
-                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_textual_action_label">Vista Textual</span>        
-                                    </a>
-                                </tal:block>                                    
-                                &nbsp;
-                                &nbsp;
-                            </tal:block>
-                            <tal:block tal:condition="python: pPagina == 'Textual'">      
-                                <tal:block tal:define="global unaHref python: '%s/Tabular' % SRES[ 'url']" >
-                                    <a href="#" title="#"  tal:attributes="href unaHref" 
-                                         i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_tabular_action_label">
-                                        <img src="#" tal:attributes="
-                                            src string:${portal_url}/tabular.gif" 
-                                            alt="Mostrar Arboles" title="HideTrees" id="icon-hidetrees"
-                                             i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_tabular_action_label; title ModelDDvlPlone_tabular_action_label" />
-                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_tabular_action_label">Vista Tabular</span>        
-                                    </a>
+                        <td align="center" >
+                            <span  tal:condition="pAllowRefrescar">
+                                <tal:block tal:condition="python: pPaginaRefrescar in [ 'Tabular', 'Textual', 'General', 'TextualRest', 'Editar', 'Eliminar', 'Enlazar', 'MDDOrdenar', 'MDDInspectCache',]">      
+                                    <tal:block tal:condition="python: not( pPaginaRefrescar == 'Textual')">      
+                                        <tal:block tal:condition="pRelationCursorName">
+                                            <tal:block tal:condition="not: pCurrentElementUID">
+                                                <tal:block tal:define="global unaHref python: '%s%s?theRelationCursorName=%s' % ( SRES['url'], unPostfixPaginaRefrescar, pRelationCursorName,)" />
+                                            </tal:block>
+                                            <tal:block tal:condition="pCurrentElementUID">
+                                                <tal:block tal:define="global unaHref python: '%s%s?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES['url'], unPostfixPaginaRefrescar, pRelationCursorName, pCurrentElementUID)" />
+                                            </tal:block>
+                                        </tal:block>
+                                        <tal:block tal:condition="not: pRelationCursorName">
+                                            <tal:block tal:condition="pReferenceFieldName">
+                                                <tal:block tal:define="global unaHref python: '%s%s?theReferenceFieldName=%s' % ( SRES['url'], unPostfixPaginaRefrescar, pReferenceFieldName,)" />
+                                            </tal:block>
+                                            <tal:block tal:condition="not: pReferenceFieldName">
+                                                <tal:block tal:define="global unaHref python: '%s%s' % ( SRES['url'], unPostfixPaginaRefrescar,)" />
+                                            </tal:block>
+                                        </tal:block>
+                                    </tal:block>
+                                    <tal:block tal:condition="python: pPaginaRefrescar == 'Textual'">      
+                                        <tal:block tal:condition="pRelationCursorName">
+                                            <tal:block tal:condition="not: pCurrentElementUID">
+                                                <tal:block tal:define="global unaHref python: '%s?theRelationCursorName=%s' % ( SRES['url'], pRelationCursorName,)" />
+                                            </tal:block>
+                                            <tal:block tal:condition="pCurrentElementUID">
+                                                <tal:block tal:define="global unaHref python: '%s?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES['url'], pRelationCursorName, pCurrentElementUID,)" />
+                                            </tal:block>
+                                        </tal:block>
+                                        <tal:block tal:condition="not: pRelationCursorName">
+                                            <tal:block tal:condition="pReferenceFieldName">
+                                                <tal:block tal:define="global unaHref python: '%s?theReferenceFieldName=%s' % ( SRES['url'],  pReferenceFieldName,)" />
+                                            </tal:block>
+                                            <tal:block tal:condition="not: pReferenceFieldName">
+                                                <tal:block tal:define="global unaHref python: '%s' %  SRES['url']" />
+                                            </tal:block>
+                                        </tal:block>
+                                    </tal:block>
+                                    <tal:block 
+                                        tal:define="aRefreshLabel python:  here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-')" >
+                                        <a id="cid_MDDActionLink_Refrescar" href="#" title="#"  tal:attributes="href unaHref; title aRefreshLabel" >
+                                            <img src="#" alt="#" title="#" 
+                                                tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
+                                                id="icon-refrescar" />
+                                            <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                                tal:content="aRefreshLabel" />        
+                                        </a>
+                                    </tal:block>                                    
+                                    &ensp;
                                 </tal:block>
-                                &nbsp;
-                                &nbsp;
-                            </tal:block>
-                        </tal:block>
-                        <tal:block tal:condition="pShowOrHideTrees">
-                            <tal:block tal:condition="pShowTrees">      
-                                <tal:block tal:define="global unaHref python: '%s%s?HideTrees' % ( SRES[ 'url'], unPostfixPagina)" >
-                                    <a href="#" title="#"  tal:attributes="href unaHref" 
-                                        i18n:domain="ModelDDvlPlone"  >
-                                        <img src="#" tal:attributes="
-                                            src string:${portal_url}/mostrarlistas.gif"  
-                                            alt="Mostrar Listas" title="HideTrees" id="icon-hidetrees"
-                                            i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_hidetrees_action_label; title ModelDDvlPlone_hidetrees_action_label" />
-                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_hidetrees_action_label">Mostrar Listas</span>        
-                                    </a>
-                                </tal:block>                                    
-                                &nbsp;
-                                &nbsp;
-                            </tal:block>
-                            <tal:block tal:condition="python: not pShowTrees">                            
-                                <tal:block tal:define="global unaHref python: '%s%s?ShowTrees' % ( SRES[ 'url'], unPostfixPagina)" >
-                                    <a href="#" title="#"  tal:attributes="href unaHref" 
-                                         i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_showtrees_action_label">
-                                        <img src="#" tal:attributes="
-                                            src string:${portal_url}/mostrararboles.gif"  
-                                            alt="Mostrar Arboles" title="HideTrees" id="icon-hidetrees"
-                                             i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_showtrees_action_label; title ModelDDvlPlone_showtrees_action_label" />
-                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_showtrees_action_label">Mostrar Arboles</span>        
-                                    </a>
+                            </span>
+
+                            <span  tal:condition="pAllowTextualAndTabular">
+                                <tal:block tal:condition="python: pPagina == 'Tabular' and not ( pPaginaRefrescar in [ 'MDDOrdenar', 'MDDInspectCache',])">      
+                                    <tal:block tal:define="global unaHref python: '%s' % SRES[ 'url']" >
+                                        <a  id="cid_MDDActionLink_Tabular" href="#" title="#"  tal:attributes="href unaHref" 
+                                            i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_textual_action_label">
+                                            <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'textual.gif',)"  
+                                                alt="Vista Textual" title="Vista Textual" id="icon-textual"
+                                                i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_textual_action_label; title ModelDDvlPlone_textual_action_label" />
+                                            <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                                i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_textual_action_label">Vista Textual</span>        
+                                        </a>
+                                    </tal:block>                                    
+                                    &ensp;
                                 </tal:block>
-                                &nbsp;
-                                &nbsp;
-                            </tal:block>
-                        </tal:block>
-                        <tal:block tal:condition="python: pPermiteEditar and not pPermiteAbandonarEditar and not pPermiteAbandonarEliminar and not pPermiteAbandonarCrear and not pPermiteAbandonarEnlazar">
-                            <a href="#" title="#" tal:attributes="href python: '%s/Editar' % SRES[ 'url']" 
-                                 i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_editar_action_label">
-                                <img src="#" tal:attributes="
-                                            src string:${portal_url}/edit.gif"  
-                                    alt="Editar" title="Editar" id="icon-edit"
-                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_editar_action_label; title ModelDDvlPlone_editar_action_label" />
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>        
-                            </a>
-                            &nbsp;
-                            &nbsp;
-                        </tal:block>
-                        <tal:block tal:condition="pPermiteAbandonarEditar">
-                            <a href="#" title="#" tal:attributes="href python: '%s/Tabular#valores' % SRES[ 'url']" 
-                                 i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonaredicion_action_label">
-                                <img src="" alt="Abandonar Editar" title="Abandonar Edicion" id="icon-abandon-edit"
-                                    tal:attributes="
-                                            src string:${portal_url}/mostrarlistas.gif"                                      
-                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonaredicion_action_label; title ModelDDvlPlone_abandonaredicion_action_label" />
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonaredicion_action_label">Abandonar Edicion</span>        
-                            </a>
-                            &nbsp;
-                            &nbsp;
-                        </tal:block>
-                        <tal:block tal:condition="pPermiteAbandonarEnlazar">
-                            <a href="#" title="#" tal:attributes="href python: '%s/Tabular%s' % ( SRES[ 'url'], pAbandonarAnchorName)" 
-                                 i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonarenlazar_action_label">
-                                <img src="" alt="Abandonar Enlazar" title="Abandonar Enlazar" id="icon-abandon-edit"
-                                    tal:attributes="
-                                            src string:${portal_url}/mostrarlistas.gif"                                      
-                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonarenlazar_action_label; title ModelDDvlPlone_abandonarenlazar_action_label" />
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonarenlazar_action_label">Abandonar Enlazar</span>        
-                            </a>
-                            &nbsp;
-                            &nbsp;
-                        </tal:block>
-                        <tal:block tal:condition="pPermiteAbandonarEliminar">
-                            <a href="#" title="#" tal:attributes="href python: '%s/Tabular%s' % ( SRES[ 'url'], pAbandonarAnchorName)" 
-                                 i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonareliminar_action_label">
-                                <img src="" alt="Abandonar Eliminar" title="Abandonar Eliminar" id="icon-abandon-edit"
-                                    tal:attributes="
-                                            src string:${portal_url}/mostrarlistas.gif"                                      
-                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonareliminar_action_label; title ModelDDvlPlone_abandonareliminar_action_label" />
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonareliminar_action_label">Abandonar eliminar</span>        
-                            </a>
-                            &nbsp;
-                            &nbsp;
-                        </tal:block>                        
-                        <tal:block tal:condition="pPermiteAbandonarCrear">
-                            <a href="#" title="#" tal:attributes="href python: '%s/Tabular%s' % ( SRES[ 'url'], pAbandonarAnchorName)"
-                                 i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonarcreacion_action_label">
-                                <img src="" alt="Abandonar Crear" title="Abandonar Crear" id="icon-abandon-create"
-                                    tal:attributes="
-                                            src string:${portal_url}/mostrarlistas.gif"                                      
-                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonarcreacion_action_label; title ModelDDvlPlone_abandonarcreacion_action_label" />
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonarcreacion_action_label">Abandonar Creacion</span>        
-                            </a>
-                            &nbsp;
-                            &nbsp;
-                        </tal:block>
-                        <tal:block tal:condition="python: not (pPermiteEditar or pPermiteAbandonarEditar or pPermiteAbandonarCrear)">
-                            <font color="White">
-                                <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
-                                    alt="Editar" title="Editar" id="icon-edit"
-                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_editar_action_label; title ModelDDvlPlone_editar_action_label" />
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>        
-                            </font>
-                            &nbsp;
-                            &nbsp;
-                        </tal:block>
-                        <tal:block tal:condition="pPermiteEliminar">
-                            <a href="#" title="#" tal:attributes="href python: '%s/Eliminar' % SRES[ 'url']" 
-                                 i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_eliminar_action_label" >
-                                <img src="#" tal:attributes="
-                                            src string:${portal_url}/delete_icon.gif"  
-                                    alt="Eliminar" title="Eliminar" id="icon-delete"
-                                    i18n:attributes="alt ModelDDvlPlone_eliminar_action_label; title ModelDDvlPlone_eliminar_action_label" />
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminar_action_label">Eliminar</span>        
-                            </a>
-                            &nbsp;
-                            &nbsp;
-                        </tal:block>
-                        <tal:block tal:condition="python: not pPermiteEliminar">
-                            <font color="White">
-                                <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
-                                    alt="Eliminar" title="Eliminar" id="icon-delete"
-                                    i18n:attributes="alt ModelDDvlPlone_eliminar_action_label; title ModelDDvlPlone_eliminar_action_label">
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminar_action_label">Eliminar</span>        
-                            </font>
-                        </tal:block>
-                    </td>               
+                                <tal:block tal:condition="python: pPagina in [ 'Textual', 'TextualRest', 'MDDOrdenar', 'MDDInspectCache',] or ( pPaginaRefrescar in [ 'MDDOrdenar', 'MDDInspectCache',])">      
+                                    <tal:block tal:define="global unaHref python: '%sTabular/' % SRES[ 'url']" >
+                                        <a id="cid_MDDActionLink_Tabular"  href="#" title="#"  tal:attributes="href unaHref" 
+                                             i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_tabular_action_label">
+                                            <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'tabular.gif',)" 
+                                                alt="Vista Tabular" title="Vista Tabular" id="icon-tabular"
+                                                 i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_tabular_action_label; title ModelDDvlPlone_tabular_action_label" />
+                                            <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                                i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_tabular_action_label">Vista Tabular</span>        
+                                        </a>
+                                    </tal:block>
+                                    &ensp;
+                                </tal:block>
+                            </span>
+                            <span tal:condition="pShowOrHideTrees">
+                                <tal:block tal:condition="pShowTrees">      
+                                    <tal:block tal:define="global unaHref python: '%s%s?HideTrees' % ( SRES[ 'url'], unPostfixPagina)" >
+                                        <a id="cid_MDDActionLink_MostrarListas" href="#" title="#"  tal:attributes="href unaHref" 
+                                            i18n:domain="ModelDDvlPlone"  >
+                                            <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrarlistas.gif',)"  
+                                                alt="Mostrar Listas" title="HideTrees" id="icon-hidetrees"
+                                                i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_hidetrees_action_label; title ModelDDvlPlone_hidetrees_action_label" />
+                                            <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                                i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_hidetrees_action_label">Mostrar Listas</span>        
+                                        </a>
+                                    </tal:block>                                    
+                                    &ensp;
+                                </tal:block>
+                                <tal:block tal:condition="python: not pShowTrees">                            
+                                    <tal:block tal:define="global unaHref python: '%s%s?ShowTrees' % ( SRES[ 'url'], unPostfixPagina)" >
+                                        <a id="cid_MDDActionLink_MostrarArboles" href="#" title="#"  tal:attributes="href unaHref" 
+                                             i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_showtrees_action_label">
+                                            <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrararboles.gif',)"  
+                                                alt="Mostrar Arboles" title="HideTrees" id="icon-hidetrees"
+                                                 i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_showtrees_action_label; title ModelDDvlPlone_showtrees_action_label" />
+                                            <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                                i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_showtrees_action_label">Mostrar Arboles</span>        
+                                        </a>
+                                    </tal:block>
+                                    &ensp;
+                                </tal:block>
+                            </span>
+                        </td>
+                        <td align="center">
+                            <span  tal:condition="python: pPermiteEditar and not pPermiteAbandonarEditar and not pPermiteAbandonarEliminar and not pPermiteAbandonarCrear and not pPermiteAbandonarEnlazar">
+                                <a id="cid_MDDActionLink_Editar"  href="#" title="#" tal:attributes="href python: '%sEditar/' % SRES[ 'url']" 
+                                     i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_editar_action_label">
+                                    <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'edit.gif',)"  
+                                        alt="Editar" title="Editar" id="icon-edit"
+                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_editar_action_label; title ModelDDvlPlone_editar_action_label" />
+                                    <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                        i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>        
+                                </a>
+                                &ensp;
+                            </span>
+                            <span  tal:condition="pPermiteAbandonarEditar">
+                                <a id="cid_MDDActionLink_AbandonarEditar" href="#" title="#" tal:attributes="href python: '%sTabular/#valores' % SRES[ 'url']" 
+                                     i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonaredicion_action_label">
+                                    <img src="" alt="Abandonar Editar" title="Abandonar Edicion" id="icon-abandon-edit"
+                                        tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrarlistas.gif',)"                                      
+                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonaredicion_action_label; title ModelDDvlPlone_abandonaredicion_action_label" />
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonaredicion_action_label">Abandonar Edicion</span>        
+                                </a>
+                                &ensp;
+                            </span>
+                            <span tal:condition="pPermiteAbandonarEnlazar">
+                                <a id="cid_MDDActionLink_AbandonarEnlazar" href="#" title="#" tal:attributes="href python: '%sTabular/%s' % ( SRES[ 'url'], pAbandonarAnchorName)" 
+                                     i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonarenlazar_action_label">
+                                    <img src="" alt="Abandonar Enlazar" title="Abandonar Enlazar" id="icon-abandon-edit"
+                                        tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrarlistas.gif',)"                                      
+                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonarenlazar_action_label; title ModelDDvlPlone_abandonarenlazar_action_label" />
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonarenlazar_action_label">Abandonar Enlazar</span>        
+                                </a>
+                                &emsp;
+                            </span>
+                            <span tal:condition="pPermiteAbandonarEliminar">
+                                <a id="cid_MDDActionLink_AbandonarEliminar" href="#" title="#" tal:attributes="href python: '%sTabular/%s' % ( SRES[ 'url'], pAbandonarAnchorName)" 
+                                     i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonareliminar_action_label">
+                                    <img src="" alt="Abandonar Eliminar" title="Abandonar Eliminar" id="icon-abandon-edit"
+                                        tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrarlistas.gif',)"                                      
+                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonareliminar_action_label; title ModelDDvlPlone_abandonareliminar_action_label" />
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonareliminar_action_label">Abandonar eliminar</span>        
+                                </a>
+                                &ensp;
+                            </span>                        
+                            <span  tal:condition="pPermiteAbandonarCrear">
+                                <a  id="cid_MDDActionLink_AbandonarCrear" href="#" title="#" tal:attributes="href python: '%sTabular/%s' % ( SRES[ 'url'], pAbandonarAnchorName)"
+                                     i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_abandonarcreacion_action_label">
+                                    <img src="" alt="Abandonar Crear" title="Abandonar Crear" id="icon-abandon-create"
+                                        tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrarlistas.gif',)"                                      
+                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_abandonarcreacion_action_label; title ModelDDvlPlone_abandonarcreacion_action_label" />
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_abandonarcreacion_action_label">Abandonar Creacion</span>        
+                                </a>
+                                &ensp;
+                            </span>
+                            <span tal:condition="python: pPresentationVariability_KeepLabelPositionsWithWhites and not (pPermiteEditar or pPermiteAbandonarEditar or pPermiteAbandonarCrear)">
+                                <font color="White">
+                                    <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
+                                        alt="Editar" title="Editar" id="icon-blank"
+                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_editar_action_label; title ModelDDvlPlone_editar_action_label" />
+                                    <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                        i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>        
+                                </font>
+                                &emsp;
+                            </span>
+                            <span tal:condition="pPermiteEliminar">
+                                &emsp;
+                                <a  id="cid_MDDActionLink_Eliminar" href="#" title="#" tal:attributes="href python: '%sEliminar/' % SRES[ 'url']" 
+                                     i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_eliminar_action_label" >
+                                    <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'delete_icon.gif',)"  
+                                        alt="Eliminar" title="Eliminar" id="icon-delete"
+                                        i18n:attributes="alt ModelDDvlPlone_eliminar_action_label; title ModelDDvlPlone_eliminar_action_label" />
+                                    <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                        i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminar_action_label">Eliminar</span>        
+                                </a>
+                                &emsp;
+                            </span>
+                            <span tal:condition="python: pPresentationVariability_KeepLabelPositionsWithWhites and not pPermiteEliminar">
+                                &emsp;
+                                <font color="White">
+                                    <img src="#" tal:attributes="
+                                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
+                                        alt="Eliminar" title="Eliminar" id="icon-delete"
+                                        i18n:attributes="alt ModelDDvlPlone_eliminar_action_label; title ModelDDvlPlone_eliminar_action_label">
+                                    <span tal:condition="pPresentationVariability_DisplayNavigationLabels"
+                                        i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminar_action_label">Eliminar</span>        
+                                </font>
+                                &emsp;
+                            </span>
+                        </td>
+                    </tal:block>               
                     
                     
-                    <td align="left" valign="baseline" tal:condition="python: not ( pMostrarAnteriorPosterior and SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
+                    <td align="left" valign="baseline" tal:condition="python: pPresentationVariability_KeepLabelPositionsWithWhites and not ( pMostrarAnteriorPosterior and SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
                         <font color="White">
                             <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
-                                alt="#" title="#" id="icon-primero"
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
+                                alt="#" title="#" id="icon-blank"
                                 i18n:attributes="alt ModelDDvlPlone_iraprimero_action_label; title ModelDDvlPlone_iraprimero_action_label" />
                         </font>
-                        &nbsp;
-                        &nbsp;
+                        &emsp;
                         <font color="White">
                             <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
-                                alt="Anterior" title="Anterior" id="icon-anterior"
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
+                                alt="Anterior" title="Anterior" id="icon-blank"
                                 i18n:attributes="alt ModelDDvlPlone_anterior_action_label; title ModelDDvlPlone_anterior_action_label" />
                         </font>
-                         <font color="White">
-                           &nbsp;                     
-                            <span tal:content="string:0" />
-                            /
-                            <span tal:content="string:0" />
-                            &nbsp;
+                        <font color="White">
+                            <tal:block tal:condition="SRES/cursor/elements_count"  
+                                tal:replace="structure python: '%s&ensp;/%s &ensp;' % ( SRES['cursor']['element_index'], SRES['cursor']['elements_count'],)" />       
                         </font>
                         <font color="White">
                             <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
                                 alt="Posterior" title="Posterior" id="icon-posterior"
                                 i18n:attributes="alt ModelDDvlPlone_posterior_action_label; title ModelDDvlPlone_posterior_action_label" />
                         </font>
-                        &nbsp;
-                        &nbsp;
+                        &ensp;
                         <font color="White">
                             <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
                                 alt="Posterior" title="Posterior" id="icon-ultimo"
                                 i18n:attributes="alt ModelDDvlPlone_iraultimo_action_label; title ModelDDvlPlone_iraultimo_action_label" />
                         </font>
                     </td>
 
-                    <td>&nbsp;&nbsp;</td> 
                     
                     <td align="right" valign="baseline" tal:condition="python: ( pMostrarAnteriorPosterior and SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
                          <tal:block tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object'])" >                            
@@ -353,42 +428,50 @@
                                 <tal:block tal:define="global unaHref python: '%s%s?theRelationCursorName=%s' % ( SRES[ 'cursor'][ 'first_element']['url'], unPostfixPaginaAnteriorPosterior, pRelationCursorName)" />
                             </tal:block>
                             <tal:block tal:condition="not: pRelationCursorName">
-                                <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'first_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                <tal:block tal:condition="pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s?theReferenceFieldName=%s' % ( SRES[ 'cursor'][ 'first_element']['url'], unPostfixPaginaAnteriorPosterior, pReferenceFieldName)" />
+                                </tal:block>
+                                <tal:block tal:condition="not: pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'first_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                </tal:block>
                             </tal:block>
-                            <a href="#" title="#" 
+                            <a  id="cid_MDDActionLink_Primero" href="#" title="#" 
                                 tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'first_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'first_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'first_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'first_element'][ 'type_translations'][ 'translated_type_description'])"
                                 tal:attributes="title unTitle; href unaHref" >
                                 <img src="#" tal:attributes="
-                                            src string:${portal_url}/primero.gif;
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'primero.gif',);
                                     title unTitle;
                                     alt  SRES/cursor/first_element/values_by_name/title/uvalue"  
                                     alt="#" title="#" id="icon-primero" />
                             </a>
-                            &nbsp;
-                            &nbsp;
+                            &ensp;
                         </tal:block>
                         <tal:block tal:condition="python: not( SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and  not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object']))" >                            
                             <font color="White">
                                 <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
                                     alt="#" title="#" id="icon-primero"
                                     i18n:attributes="alt ModelDDvlPlone_iraprimero_action_label; title ModelDDvlPlone_iraprimero_action_label" />
                             </font>
-                            &nbsp;
-                            &nbsp;
+                            &ensp;
                         </tal:block>
                         <tal:block tal:condition="SRES/cursor/previous_element" >                            
                             <tal:block tal:condition="pRelationCursorName">
                                 <tal:block tal:define="global unaHref python: '%s%s?theRelationCursorName=%s' % ( SRES[ 'cursor'][ 'previous_element']['url'], unPostfixPaginaAnteriorPosterior, pRelationCursorName)" />
                             </tal:block>
                             <tal:block tal:condition="not: pRelationCursorName">
-                                <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'previous_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                <tal:block tal:condition="pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s?theReferenceFieldName=%s' % ( SRES[ 'cursor'][ 'previous_element']['url'], unPostfixPaginaAnteriorPosterior, pReferenceFieldName)" />
+                                </tal:block>
+                                <tal:block tal:condition="not: pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'previous_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                </tal:block>
                             </tal:block>
-                           <a href="#" title="#" 
+                           <a   id="cid_MDDActionLink_Anterior" href="#" title="#" 
                                 tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'previous_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'previous_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'previous_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'previous_element'][ 'type_translations'][ 'translated_type_description'])"
                                 tal:attributes=" title  unTitle; href unaHref" >
                                 <img src="#" tal:attributes="
-                                    src python: here.absolute_url() + '/anterior.gif';
+                                    src python: '%s/%s' % ( SRES[ 'portal_url'], 'anterior.gif',);
                                     title unTitle;
                                     alt  SRES/cursor/previous_element/values_by_name/title/uvalue"  
                                     alt="#" title="#" id="icon-anterior"/>
@@ -397,79 +480,78 @@
                         <tal:block tal:condition="not: SRES/cursor/previous_element">                            
                             <font color="White">
                                 <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
                                     alt="Anterior" title="Anterior" id="icon-anterior"
                                     i18n:attributes="alt ModelDDvlPlone_anterior_action_label; title ModelDDvlPlone_anterior_action_label" />
                             </font>
                         </tal:block>
     
                         
-                        <tal:block tal:condition="SRES/cursor/elements_count"  >       
-                            &nbsp;                     
-                            <span tal:content="SRES/cursor/element_index" />
-                            /
-                            <span tal:content="SRES/cursor/elements_count" />
-                            &nbsp;
-                        </tal:block>
-                        
+                        <tal:block tal:condition="SRES/cursor/elements_count"  
+                            tal:replace="structure python: ' %s/%s ' % ( SRES['cursor']['element_index'], SRES['cursor']['elements_count'],)" />       
+
                         
                         <tal:block tal:condition="SRES/cursor/next_element">                            
                             <tal:block tal:condition="pRelationCursorName">
                                 <tal:block tal:define="global unaHref python: '%s%s?theRelationCursorName=%s' % ( SRES[ 'cursor'][ 'next_element']['url'], unPostfixPaginaAnteriorPosterior, pRelationCursorName)" />
                             </tal:block>
                             <tal:block tal:condition="not: pRelationCursorName">
-                                <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'next_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                <tal:block tal:condition="pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s?theReferenceFieldName=%s' % ( SRES[ 'cursor'][ 'next_element']['url'], unPostfixPaginaAnteriorPosterior, pReferenceFieldName)" />
+                                </tal:block>
+                                <tal:block tal:condition="not: pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'next_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                </tal:block>
                             </tal:block>
-                            <a href="#" title="#" 
+                            <a  id="cid_MDDActionLink_Siguiente" href="#" title="#" 
                                 tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'next_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'next_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'next_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'next_element'][ 'type_translations'][ 'translated_type_description']); "
                                 tal:attributes="title unTitle; href unaHref" >
                                 <img src="#" tal:attributes="
-                                            src string:${portal_url}/siguiente.gif;
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'siguiente.gif',);
                                     title unTitle;
                                     alt  SRES/cursor/next_element/values_by_name/title/uvalue"  
                                     alt="#" title="#" id="icon-posterior"/>
                             </a>
-                            &nbsp;
-                            &nbsp;
+                            &emsp;
                         </tal:block>
                         <tal:block tal:condition="not: SRES/cursor/next_element">                            
                             <font color="White">
                                 <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
                                     alt="Posterior" title="Posterior" id="icon-posterior"
                                     i18n:attributes="alt ModelDDvlPlone_posterior_action_label; title ModelDDvlPlone_posterior_action_label" />
                             </font>
-                            &nbsp;
-                            &nbsp;
+                            &ensp;
                         </tal:block>
                         <tal:block tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'last_element'] and not (SRES[ 'cursor'][ 'last_element'][ 'object'] == SRES[ 'object'])" >                            
                             <tal:block tal:condition="pRelationCursorName">
                                 <tal:block tal:define="global unaHref python: '%s%s?theRelationCursorName=%s' % ( SRES[ 'cursor'][ 'last_element']['url'], unPostfixPaginaAnteriorPosterior, pRelationCursorName)" />
                             </tal:block>
                             <tal:block tal:condition="not: pRelationCursorName">
-                                <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'last_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                <tal:block tal:condition="pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s?theReferenceFieldName=%s' % ( SRES[ 'cursor'][ 'last_element']['url'], unPostfixPaginaAnteriorPosterior, pReferenceFieldName)" />
+                                </tal:block>
+                                <tal:block tal:condition="not: pReferenceFieldName">
+                                    <tal:block tal:define="global unaHref python: '%s%s' % ( SRES[ 'cursor'][ 'last_element']['url'], unPostfixPaginaAnteriorPosterior)" />
+                                </tal:block>
                             </tal:block>
-                            <a href="#" title="#"  
+                            <a id="cid_MDDActionLink_Ultimo"  href="#" title="#"  
                                 tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'last_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'last_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'last_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'last_element'][ 'type_translations'][ 'translated_type_description'])"
                                 tal:attributes="title unTitle; href unaHref" >
                                 <img src="#" tal:attributes="
-                                            src string:${portal_url}/ultimo.gif; 
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'ultimo.gif',); 
                                     title unTitle;
                                     alt  SRES/cursor/last_element/values_by_name/title/uvalue"  
                                     alt="#" title="#" id="icon-ultimo" />
                             </a>
-                            &nbsp;
-                            &nbsp;
                         </tal:block>
                         <tal:block tal:condition="python: not( SRES[ 'cursor'] and SRES[ 'cursor'][ 'last_element'] and not (SRES[ 'cursor'][ 'last_element'][ 'object'] == SRES[ 'object']))" > 
                             <font color="White">
                                 <img src="#" tal:attributes="
-                                            src string:${portal_url}/blank_icon.gif"  
+                                            src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif',)"  
                                     alt="Posterior" title="Posterior" id="icon-ultimo"
                                     i18n:attributes="alt ModelDDvlPlone_iraultimo_action_label; title ModelDDvlPlone_iraultimo_action_label" />
                             </font>
-                            &nbsp;
-                            &nbsp;
                         </tal:block>
                     </td>    
                     <td width="48" />
@@ -495,6 +577,9 @@
         </tal:block>        
         
     </div>
+
+
+
 
 
 </body>

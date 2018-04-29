@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: Tabular_inner.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -34,7 +38,7 @@
     
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
  
- 
+ <tal:block tal:replace="nothing">
         <tal:block tal:define="pPasteRequested pPasteRequested | nothing">
             <tal:block tal:condition="pPasteRequested">
                 <tal:block tal:define="
@@ -64,12 +68,28 @@
                     'theGroupAction'          :pGroupAction,
                     'theGroupUIDs'            :pGroupUIDs,
                     'theAdditionalParams'     :None, }; 
-                    pGroupActionReport python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" />
+                    pGroupActionReport python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" >
+                    <tal:block tal:condition="python: pGroupAction == 'Copy'" >
+                        <tal:block tal:condition="pGroupActionReport" >
+                            <div class="portalMessage" tal:content="python: u'%s %d' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumElementsCopied', 'Number of elements copied-',), pGroupActionReport, )" />
+                        </tal:block>
+                        <tal:block tal:condition="not: pGroupActionReport" >
+                            <div class="portalMessage" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_No_items_copied', 'No items copied-',)" />
+                        </tal:block>
+                    </tal:block>
+                    <tal:block tal:condition="python: pGroupAction == 'Cut'" >
+                        <tal:block tal:condition="pGroupActionReport" >
+                            <div class="portalMessage" tal:content="python: u'%s %d' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumElementsCut', 'Number of elements cut-',), pGroupActionReport, )" />
+                        </tal:block>
+                        <tal:block tal:condition="not: pGroupActionReport" >
+                            <div class="portalMessage" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_No_items_cut', 'No items cut-',)" />
+                        </tal:block>
+                    </tal:block>
+                </tal:block>
             </tal:block>
         </tal:block>
  
         
-
         
  
         <tal:block tal:define="pContainerElement nocall: here">
@@ -84,14 +104,16 @@
             <metal:block metal:use-macro="here/MoverElementosPlone_i18n_view/macros/tMoverElementosPlone_i18n" />   
         </tal:block>
         
+</tal:block>
         
         <tal:block tal:define=" global pTrue            python: True;
                                 global pFalse           python: False;
                                 global pPagina          string:Tabular;
                                 global pPaginaAnteriorPosterior pPagina;
                                 global pShowTrees       pFalse;
-                                global pRelationCursorName      request/theRelationCursorName  | python: None;  
-                                global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />
+                                global pRelationCursorName     request/theRelationCursorName | python: None;  
+                                global pCurrentElementUID      request/theCurrentElementUID  | string:;  
+                                global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />
                                 
                                 
         <tal:block tal:condition="python: pRelationCursorName" >
@@ -145,7 +167,7 @@
                     'theTypeConfig'               :None, 
                     'theAllTypeConfigs'           :None, 
                     'theViewName'                 :'Tabular', 
-                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ] + pTreesFeatureFilter,
+                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', 'extra_links',] + pTreesFeatureFilter,
                     'theWritePermissions'         :[ 'object', 'aggregations', 'relations', 'add', 'delete', 'add_collection', ],
                     'theFeatureFilters'           :None, 
                     'theInstanceFilters'          :None,
@@ -163,12 +185,10 @@
                 pPaginaRefrescar string:Tabular" >
 
  
-<tal:block tal:replace="nothing">  
-
-                <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />   
- 
-<tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
-</tal:block>
+                <tal:block tal:replace="nothing">  
+                    <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />   
+                    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+                </tal:block>
 
 
 

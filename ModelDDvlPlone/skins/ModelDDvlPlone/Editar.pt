@@ -36,7 +36,8 @@
     <metal:main fill-slot="main">
     
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero" >
+        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
 
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
 
@@ -54,7 +55,7 @@
                 pChangeIdReports python: [ aChangeReport for aChangeReport in pChangeReports[ 'field_reports'] if ( aChangeReport.get( 'attribute_name', '') == 'id') and ( aChangeReport.get( 'effect', '') == 'changed')]" >
                  
             <tal:block tal:condition="pChangeIdReports">
-                <tal:block tal:define="dummy python: request.response.redirect( '%s/Editar' % here.absolute_url())" />    
+                <tal:block tal:define="dummy python: request.response.redirect( '%s/Editar/' % here.absolute_url())" />    
             </tal:block>    
                  
                  

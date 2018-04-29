@@ -32,7 +32,7 @@
 tal:condition="python: SRES[ 'non_text_field_names']"><tal:block 
     tal:repeat="unAttributeName SRES/non_text_field_names"><tal:block 
         tal:define="ATTRRES python: SRES[ 'values_by_name'].get( unAttributeName, None)"
-        tal:condition="python: ATTRRES and not ATTRRES.get( 'attribute_config', {}).get('exclude_from_values_paragraph', False) and not( ATTRRES[ 'attribute_config'].has_key( 'custom_presentation_view') and ATTRRES[ 'attribute_config'][ 'custom_presentation_view'])"><tal:block
+        tal:condition="python: ( not ( unAttributeName.lower() == 'title')) and ATTRRES and not ATTRRES.get( 'attribute_config', {}).get('exclude_from_values_paragraph', False) and not ( ATTRRES.get( 'attribute_config', {}).get('exclude_from_values_paragraph_when', '123dsad12332sad') == ATTRRES['value'])and not( ATTRRES[ 'attribute_config'].has_key( 'custom_presentation_view') and ATTRRES[ 'attribute_config'][ 'custom_presentation_view'])"><tal:block
             tal:condition="python: ATTRRES['type'] == 'boolean'"><tal:block 
                 tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block
                 tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label_and_value'].strip()"/>* </tal:block><tal:block 

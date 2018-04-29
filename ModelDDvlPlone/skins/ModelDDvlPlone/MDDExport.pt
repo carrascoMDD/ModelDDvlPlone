@@ -36,34 +36,26 @@
     <metal:main fill-slot="main">
     
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero" >
+        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
 
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
 
 
-        <tal:block tal:define="
-                 global pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-                        pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-                        unosArgs python: {
-                            'theTimeProfilingResults' :pProfilingResults,
-                            'theObject'               :here, 
-                            'theOutputEncoding'       :'utf-8',
-                            'theAdditionalParams'     :None, }; 
-                  pExportReport python: here.ModelDDvlPlone_tool.fExport( **unosArgs)" >
+        <div metal:use-macro="here/document_actions/macros/document_actions">
+            Document actions (print, sendto etc)
+        </div>
 
-            <div metal:use-macro="here/document_actions/macros/document_actions">
-                Document actions (print, sendto etc)
-            </div>
+        <h1 tal:content="here/Title" class="documentFirstHeading">
+             Title or id
+        </h1>
+
+        <div metal:use-macro="here/document_byline/macros/byline">
+             Get the byline - contains details about author and modification date.
+        </div>
     
-            <h1 tal:content="here/Title" class="documentFirstHeading">
-              Title or id
-            </h1>
-    
-            <div metal:use-macro="here/document_byline/macros/byline">
-              Get the byline - contains details about author and modification date.
-            </div>
-    
-        </tal:block>
+        
+        <metal:block metal:use-macro="here/MDDExport_inner/macros/tExportInner" />
         
         <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
                             

@@ -1,0 +1,65 @@
+Contents of the Plone product ModelDDvlPloneTool
+================================================
+
+- gpl.txt
+
+- MDD_RefactorComponents.py
+
+- ModelDDvlPloneTool.py
+
+- ModelDDvlPloneTool_Bodies.py
+
+- ModelDDvlPloneTool_Export.py
+
+- ModelDDvlPloneTool_Import.py
+
+- ModelDDvlPloneTool_ImportExport_Constants.py
+
+- ModelDDvlPloneTool_Mutators.py
+
+- ModelDDvlPloneTool_Mutators_Plone.py
+
+- ModelDDvlPloneTool_Permissions_Definitions.py
+
+- ModelDDvlPloneTool_Profiling.py
+
+- ModelDDvlPloneTool_Refactor.py
+
+- ModelDDvlPloneTool_Refactor_Constants.py
+
+- ModelDDvlPloneTool_Retrieval.py
+
+- ModelDDvlPloneTool_Retrieval_Candidates.py
+
+- ModelDDvlPloneTool_Retrieval_I18N.py
+
+- ModelDDvlPloneTool_Retrieval_Impact.py
+
+- ModelDDvlPloneTool_Retrieval_Permissions.py
+
+- ModelDDvlPloneTool_Retrieval_PloneContent.py
+
+- ModelDDvlPloneTool_Retrieval_TraversalConfigs.py
+
+- ModelDDvlPloneTool_Retrieval_Utils.py
+
+- ModelDDvlPloneTool_Version.py
+
+- PloneElement_TraversalConfig.py
+
+- readme.txt
+
+- refresh.txt
+
+- release_notes.txt
+
+- version.txt
+
+- version_base.txt
+
+- __init__.py
+
+- skins
+
+  - icon.gif
+  - index_html.zpt

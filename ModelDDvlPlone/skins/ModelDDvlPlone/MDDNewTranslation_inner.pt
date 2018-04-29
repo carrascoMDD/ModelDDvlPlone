@@ -42,7 +42,7 @@
                                 pPaginaAnteriorPosterior string:Tabular;
                                 pShowTrees               pFalse;
 								pUploadedFile					request/form/theUploadedFile			| python: None;                                
-                                pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                                global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
  
 			<tal:block tal:define="
 				pPermiteAbandonarEliminar   pTrue;
@@ -118,7 +118,7 @@
                                         not ( ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
                                         not ( ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
                                         ERES[ 'type_translations'][ 'translated_type_description'])"
-                                    tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
+                                    tal:attributes="href python: '%sTabular/' % (ERES[ 'url']); title unTitle"                                                                            
                                     class="state-visible" > 
                                     
     
@@ -184,7 +184,7 @@
                                     not ( ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) and '', 
                                     not ( ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) and '',
                                     ERES[ 'type_translations'][ 'translated_type_description'])"
-                                tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
+                                tal:attributes="href python: '%sTabular/' % (ERES[ 'url']); title unTitle"                                                                            
                                 class="state-visible" > 
                                 
 

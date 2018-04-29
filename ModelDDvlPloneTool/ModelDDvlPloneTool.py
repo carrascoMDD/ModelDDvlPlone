@@ -32,6 +32,8 @@ __docformat__ = 'plaintext'
 
 import os
 
+import threading
+
 # Zope
 from OFS import SimpleItem
 from OFS.PropertyManager import PropertyManager
@@ -66,6 +68,20 @@ from ModelDDvlPloneTool_Bodies      import ModelDDvlPloneTool_Bodies
 from ModelDDvlPloneTool_Mutators    import ModelDDvlPloneTool_Mutators   
 from ModelDDvlPloneTool_Refactor    import ModelDDvlPloneTool_Refactor
 from ModelDDvlPloneTool_Version     import ModelDDvlPloneTool_Version
+from ModelDDvlPloneTool_Cache       import ModelDDvlPloneTool_Cache
+
+from ModelDDvlPloneTool_Cache       import cCacheEnabled_Default,              cLockOnceOrTwice_Default
+from ModelDDvlPloneTool_Cache       import cMaxCharsCachedForElements_Default, cDisplayCacheHitInformation_Default
+from ModelDDvlPloneTool_Cache       import cUnsecureCacheFlushAcknowledgedAuthenticationString
+
+
+
+
+
+    
+cSecondsToReviewAndDelete_Minumum = 10
+cSecondsToReviewAndDelete_Default = max( 60, cSecondsToReviewAndDelete_Minumum)
+
 
 
 
@@ -73,8 +89,20 @@ from ModelDDvlPloneTool_Version     import ModelDDvlPloneTool_Version
 
 cModelDDvlPloneToolName = 'ModelDDvlPlone_tool'
 
+cDefaultNombreProyecto  = 'a_ModelDDvlPlone_driven_ProjectName'
 
 
+
+
+cRoleKind_Anonymous     = 'Anonymous'
+cRoleKind_Authenticated = 'Authenticated'
+cRoleKind_Member        = 'Member'
+cRoleKind_Owner         = 'Owner'
+cRoleKind_Manager       = 'Manager'
+
+
+cNoRelationCursorName = '-NoRelationCursorName-'
+cNoCurrentElementUID  = '-NoCurrentElementUID-'
 
 
 """Tool permissions to be set upon instantiation of the tool,  not restricting the access of anonymous users.
@@ -86,7 +114,6 @@ cModelDDvlPloneToolPermissions = [
     { 'permission': permissions.ModifyPortalContent,  'acquire': False,  'roles': [              'Authenticated',  ], },  
     { 'permission': permissions.View,                 'acquire': False,  'roles': [ 'Anonymous', 'Authenticated',  ], },  
 ]
-
 
 
 
@@ -119,46 +146,76 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     index_html = PageTemplateFile('skins/index_html', globals())
 
     
-    
-    
     def __init__( self):
-        self.vCachedRenderedTemplates = { }
+        """Instantiation and initialization.
         
-        #"""Trying to find wich superclasses instance intialiation methods to delegate into.
+        """
         
+        # #######################################################
+        """Cache and cache control
+        
+        """
+        self.vCacheEnabled               = cCacheEnabled_Default
+        self.vMaxCharsCachedForElements  = cMaxCharsCachedForElements_Default
+        self.vLockOnceOrTwice            = cLockOnceOrTwice_Default
+        self.vDisplayCacheHitInformation = cDisplayCacheHitInformation_Default
+        self.vSecondsToReviewAndDelete   = cSecondsToReviewAndDelete_Default
+    
+            
+ 
+        
+
+    security.declarePrivate( 'fSecondsToReviewAndDelete')
+    def fSecondsToReviewAndDelete( self, theContextualElement):
+        
+        if self.vSecondsToReviewAndDelete > cSecondsToReviewAndDelete_Minumum:
+            return self.vSecondsToReviewAndDelete
+            
+        return cSecondsToReviewAndDelete_Default
+    
+        
+        
+    security.declarePrivate( 'fCacheFlushAcknowledgedAuthenticationString')
+    def fCacheFlushAcknowledgedAuthenticationString(self,):
+        return cUnsecureCacheFlushAcknowledgedAuthenticationString
+        
+        
+        
+    #"""Trying to find wich superclasses instance intialiation methods to delegate into.
+    
+    #"""
+    
+    #"""
+    #UniqueObject: __init__ method in object supertype (which just pass)
+    #PropertyManager: __init__ method in ExtensionClass supertype (which just pass)
+    
+    #Can not find up the inheritance chain any __init__ method worth to delegate to
+    
+    
+    #x: __init__ method in itself or its superclasses
+    
         #"""
-        
-        #"""
-        #UniqueObject: __init__ method in object supertype (which just pass)
-        #PropertyManager: __init__ method in ExtensionClass supertype (which just pass)
-        
-        #Can not find up the inheritance chain any __init__ method worth to delegate to
-        
-        
-        #x: __init__ method in itself or its superclasses
-        
-        #"""
 
         
 
 
-# ACV 20090325 Learned from tools generation by ArchGenXML
-#    # tool-constructors have no id argument, the id is fixed
-#    def __init__(self, id=None):
-#        BaseContent.__init__(self,'TRAtool_gvSIGtraducciones')
-#        self.setTitle('Catalogo de Traducciones')
-#        
-#        ##code-section constructor-footer #fill in your manual code here
-#        ##/code-section constructor-footer
-
-
-# ACV 20090325 Learned from tools generation by ArchGenXML
-#    # tool should not appear in portal_catalog
-#    def at_post_edit_script(self):
-#        self.unindexObject()
-#        
-#        ##code-section post-edit-method-footer #fill in your manual code here
-#        ##/code-section post-edit-method-footer
+    # ACV 20090325 Learned from tools generation by ArchGenXML
+    #    # tool-constructors have no id argument, the id is fixed
+    #    def __init__(self, id=None):
+    #        BaseContent.__init__(self,'TRAtool_gvSIGtraducciones')
+    #        self.setTitle('Catalogo de Traducciones')
+    #        
+    #        ##code-section constructor-footer #fill in your manual code here
+    #        ##/code-section constructor-footer
+    
+    
+    # ACV 20090325 Learned from tools generation by ArchGenXML
+    #    # tool should not appear in portal_catalog
+    #    def at_post_edit_script(self):
+    #        self.unindexObject()
+    #        
+    #        ##code-section post-edit-method-footer #fill in your manual code here
+    #        ##/code-section post-edit-method-footer
 
 
 
@@ -178,8 +235,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
 
     # #############################################################
-    # Security configuration utility 
-    #     
+    """Security configuration utility 
+    
+    """
 
     
     security.declarePrivate( 'pSetPermissions')
@@ -199,15 +257,24 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
 
  
-#######################################
-# Time methods
+    # ######################################
+    """Time methods.
+    
+    """
 
    
+    security.declareProtected( permissions.View, 'fSecondsNow')
+    def fSecondsNow(self):   
+
+        return int( time())
     
+   
+        
     security.declareProtected( permissions.View, 'fMillisecondsNow')
     def fMillisecondsNow(self):   
-        return round( time(), 3)
-    
+
+        return int( time() * 1000)
+   
     
     
     security.declareProtected( permissions.View, 'fDateTimeNow')
@@ -219,11 +286,13 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
         
       
-
-
-#######################################
-# Retrieval methods
-
+    
+    
+    # ######################################
+    """Retrieval methods.
+    
+    """
+    
 
     
     
@@ -477,6 +546,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
         unDeleteImpactReport =  aModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
+            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theElement              =theElement,
             theAdditionalParams     =theAdditionalParams 
@@ -506,6 +576,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
         
         unDeleteManyImpactReports =  aModelDDvlPloneTool_Retrieval.fDeleteManyImpactReports( 
+            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theContainerElement     =theContainerElement,
             theGroupUIDs            =theGroupUIDs,
@@ -554,8 +625,16 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
         
-#####################################################
-# Rest (ReStructuredText) reporting methods
+    
+    
+    
+    
+    
+    
+    # ####################################################
+    """Rest (ReStructuredText) reporting methods.
+    
+    """
 
     
     
@@ -602,13 +681,35 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
 
     
+    security.declarePublic( 'fEditableBodyBlock_MetaTypeIcons')
+    def fEditableBodyBlock_MetaTypeIcons(self, 
+        theTimeProfilingResults =None,
+        theElement              =None,
+        theAdditionalParams     =None):
+        """Retrieve a REST presentation of an element's content as a Textual view.
+        
+        """
+        
+        return ModelDDvlPloneTool_Bodies().fEditableBodyBlock_MetaTypeIcons( 
+            theTimeProfilingResults =theTimeProfilingResults,
+            theElement              =theElement,
+            theAdditionalParams     =theAdditionalParams
+        )
     
     
     
     
-#####################################################
-# Change element methods
-            
+    
+    
+    
+    
+    
+    
+    # ####################################################
+    """Change element methods.
+    
+    """
+                
     
     
     
@@ -617,6 +718,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTimeProfilingResults =None,
         theContainerElement      =None, 
         theTypeName             ='', 
+        theId                   =None,
         theTitle                ='', 
         theDescription          ='',
         theAdditionalParams     =None,
@@ -625,23 +727,44 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
         
-        return ModelDDvlPloneTool_Mutators().fCrearElementoDeTipo( 
+        aCreationReport = ModelDDvlPloneTool_Mutators().fCrearElementoDeTipo( 
             theTimeProfilingResults =theTimeProfilingResults,
             theContainerElement     =theContainerElement, 
             theTypeName             =theTypeName, 
+            theId                   =theId,
             theTitle                =theTitle, 
             theDescription          =theDescription,
             theAdditionalParams     =theAdditionalParams,
             theAllowFactoryMethods  =theAllowFactoryMethods,
         )
+        if not aCreationReport:
+            return aCreationReport
+        
+        unNewElementResult = aCreationReport.get( 'new_object_result', None)
+        if not unNewElementResult:
+            return aCreationReport
+        
+        unNewElementUID = unNewElementResult.get( 'UID', '')
+        if not unNewElementUID:
+            return aCreationReport
+        
+        ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, [ unNewElementUID],)
+            
+        return aCreationReport
             
         
+        
+        
+    
+    
+    
    
     # ACV OJO 20090917 Seems unused
     security.declareProtected( permissions.AddPortalContent,  'fCrearElementoDeTipoEspecial')
     def fCrearElementoDeTipoEspecial(self, 
         theTimeProfilingResults =None,
         theContainerElement     =None, 
+        theId                   =None,
         theTypeName             ='', 
         theTitle                ='', 
         theDescription          ='',
@@ -650,15 +773,33 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
         
-        return ModelDDvlPloneTool_Mutators().fCrearElementoDeTipo( 
+        aCreationReport = ModelDDvlPloneTool_Mutators().fCrearElementoDeTipo( 
             theTimeProfilingResults =theTimeProfilingResults,
             theContainerElement     =theContainerElement, 
             theTypeName             =theTypeName, 
+            theId                   =theId,
             theTitle                =theTitle, 
             theDescription          =theDescription,
             theAdditionalParams     =theAdditionalParams
         )
+        if not aCreationReport:
+            return aCreationReport
+        
+        unNewElementResult = aCreationReport.get( 'new_object_result', None)
+        if not unNewElementResult:
+            return aCreationReport
+        
+        unNewElementUID = unNewElementResult.get( 'UID', '')
+        if not unNewElementUID:
+            return aCreationReport
+        
+        ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, [ unNewElementUID],)
             
+        return aCreationReport
+            
+        
+        
+                    
     
     
         
@@ -672,19 +813,27 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
         
-        return ModelDDvlPloneTool_Mutators().fChangeValues(  
+        unChangeReport = ModelDDvlPloneTool_Mutators().fChangeValues(  
             theTimeProfilingResults =theTimeProfilingResults,
             theElement              =theElement, 
             theNewValuesDict        =theNewValuesDict,
             theAdditionalParams     =theAdditionalParams
         )
+        if not unChangeReport:
+            return unChangeReport
         
+        unosImpactedObjectsUIDs = unChangeReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theElement, unosImpactedObjectsUIDs)
+            
+        return unChangeReport
         
         
     
     
-    security.declareProtected( permissions.ModifyPortalContent, 'pMoveSubObject')
-    def pMoveSubObject(self, 
+    security.declareProtected( permissions.ModifyPortalContent, 'fMoveSubObject')
+    def fMoveSubObject(self, 
         theTimeProfilingResults =None,
         theContainerElement      =None,  
         theTraversalName        =None, 
@@ -695,7 +844,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
         
-        return ModelDDvlPloneTool_Mutators().pMoveSubObject( 
+        unMoveReport = ModelDDvlPloneTool_Mutators().fMoveSubObject( 
             theTimeProfilingResults =theTimeProfilingResults,
             theContainerElement      =theContainerElement,  
             theTraversalName        =theTraversalName, 
@@ -703,13 +852,22 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theMoveDirection        =theMoveDirection, 
             theAdditionalParams     =theAdditionalParams
         )
+        if not unMoveReport:
+            return unMoveReport
         
+        unosImpactedObjectsUIDs = unMoveReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, unosImpactedObjectsUIDs)
+            
+        return unMoveReport
+                
         
         
     
            
-    security.declareProtected( permissions.ModifyPortalContent, 'pMoveReferencedObject')
-    def pMoveReferencedObject(self,
+    security.declareProtected( permissions.ModifyPortalContent, 'fMoveReferencedObject')
+    def fMoveReferencedObject(self,
         theTimeProfilingResults =None,
         theSourceElement        =None,  
         theReferenceFieldName   =None, 
@@ -720,7 +878,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
         
-        return ModelDDvlPloneTool_Mutators().pMoveReferencedObject(
+        unMoveReport = ModelDDvlPloneTool_Mutators().fMoveReferencedObject(
             theTimeProfilingResults =theTimeProfilingResults,
             theSourceElement        =theSourceElement,  
             theReferenceFieldName   =theReferenceFieldName, 
@@ -728,7 +886,19 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theMoveDirection        =theMoveDirection, 
             theAdditionalParams     =theAdditionalParams
         )
+        if not unMoveReport:
+            return unMoveReport
+        
+        unosImpactedObjectsUIDs = unMoveReport.get('impacted_objects_UIDs', [])
 
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theSourceElement, unosImpactedObjectsUIDs)
+            
+        return unMoveReport
+                  
+    
+    
+ 
     
     
      
@@ -743,15 +913,24 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
         
-        return ModelDDvlPloneTool_Mutators().fLinkToUIDReferenceFieldNamed( 
+        unLinkReport = ModelDDvlPloneTool_Mutators().fLinkToUIDReferenceFieldNamed( 
             theTimeProfilingResults =theTimeProfilingResults,            
             theSourceElement        =theSourceElement, 
             theReferenceFieldName   =theReferenceFieldName, 
             theTargetUID            =theTargetUID, 
             theAdditionalParams     =theAdditionalParams
         )
+        if not unLinkReport:
+            return unLinkReport
         
-    
+        unosImpactedObjectsUIDs = unLinkReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theSourceElement, unosImpactedObjectsUIDs)
+            
+        return unLinkReport
+        
+       
     
         
     
@@ -766,13 +945,23 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
 
-        return ModelDDvlPloneTool_Mutators().fUnlinkFromUIDReferenceFieldNamed( 
+        unUnlinkReport = ModelDDvlPloneTool_Mutators().fUnlinkFromUIDReferenceFieldNamed( 
             theTimeProfilingResults =theTimeProfilingResults,            
             theSourceElement        =theSourceElement, 
             theReferenceFieldName   =theReferenceFieldName, 
             theTargetUID            =theTargetUID, 
             theAdditionalParams     =theAdditionalParams
         )
+        if not unUnlinkReport:
+            return unUnlinkReport
+        
+        unosImpactedObjectsUIDs = unUnlinkReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theSourceElement, unosImpactedObjectsUIDs)
+            
+        return unUnlinkReport
+        
         
         
     
@@ -790,7 +979,8 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
 
-        return ModelDDvlPloneTool_Mutators().fEliminarElemento( 
+        unDeleteReport = ModelDDvlPloneTool_Mutators().fEliminarElemento( 
+            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theElement              =theElement,            
             theIdToDelete           =theIdToDelete, 
@@ -798,12 +988,23 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theRequestSeconds       =theRequestSeconds, 
             theAdditionalParams     =theAdditionalParams
         )
+        if not unDeleteReport:
+            return unDeleteReport
+        
+        unosImpactedObjectsUIDs = unDeleteReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theElement, unosImpactedObjectsUIDs)
+            
+        return unDeleteReport
+        
     
               
 
     
     security.declareProtected( permissions.DeleteObjects,  'fEliminarVariosElementos')
     def fEliminarVariosElementos(self, 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,                          
         theContainerElement     =None, 
         theIdsToDelete          =None, 
@@ -814,7 +1015,8 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
 
-        return ModelDDvlPloneTool_Mutators().fEliminarVariosElementos( 
+        unDeleteManyReport = ModelDDvlPloneTool_Mutators().fEliminarVariosElementos( 
+            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theContainerElement     =theContainerElement,            
             theIdsToDelete          =theIdsToDelete, 
@@ -822,20 +1024,37 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theRequestSeconds       =theRequestSeconds, 
             theAdditionalParams     =theAdditionalParams
         )
+        if not unDeleteManyReport:
+            return unDeleteManyReport
+        
+        unosImpactedObjectsUIDs = unDeleteManyReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theElement, unosImpactedObjectsUIDs)
+            
+        return unDeleteReport
     
                 
     
         
     
     
-#####################################################
-# Change Plone methods
-            
+    
+    
+    
+    
+    
+    # ####################################################
+    """Change Plone methods.
+    
+    """
+                
                 
     
     
     security.declareProtected( permissions.DeleteObjects,  'fEliminarElementoPlone')
     def fEliminarElementoPlone(self, 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,                          
         theContainerElement     =None, 
         theUIDToDelete          =None, 
@@ -845,20 +1064,30 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
 
-        return ModelDDvlPloneTool_Mutators().fEliminarElementoPlone( 
+        unDeleteReport = ModelDDvlPloneTool_Mutators().fEliminarElementoPlone( 
+            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults, 
             theContainerElement     =theContainerElement,
             theUIDToDelete          =theUIDToDelete, 
             theRequestSeconds       =theRequestSeconds, 
             theAdditionalParams     =theAdditionalParams
         )
+        if not unDeleteReport:
+            return unDeleteReport
+        
+        unosImpactedObjectsUIDs = unDeleteReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theElement, unosImpactedObjectsUIDs)
+            
+        return unDeleteReport
 
             
     
     
     
-    security.declareProtected( permissions.ModifyPortalContent, 'pMoveSubObjectPlone')
-    def pMoveSubObjectPlone(self, 
+    security.declareProtected( permissions.ModifyPortalContent, 'fMoveSubObjectPlone')
+    def fMoveSubObjectPlone(self, 
         theTimeProfilingResults =None,                          
         theContainerElement     =None,  
         theTraversalName        ='', 
@@ -869,7 +1098,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         """
 
-        return ModelDDvlPloneTool_Mutators().pMoveSubObjectPlone( 
+        unMoveReport = ModelDDvlPloneTool_Mutators().fMoveSubObjectPlone( 
             theTimeProfilingResults =theTimeProfilingResults,            
             theContainerElement      =theContainerElement,  
             theTraversalName        =theTraversalName, 
@@ -877,7 +1106,16 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theMoveDirection        =theMoveDirection, 
             theAdditionalParams     =theAdditionalParams
         )
-                
+        if not unMoveReport:
+            return unMoveReport
+        
+        unosImpactedObjectsUIDs = unMoveReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theSourceElement, unosImpactedObjectsUIDs)
+            
+        return unMoveReport
+                  
     
     
     
@@ -885,8 +1123,10 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
                 
 
-#####################################################
-# Display view maintenance methods
+    # ####################################################
+    """Display view maintenance methods.
+    
+    """
 
                
                    
@@ -933,9 +1173,11 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
     
+        
+    # #####################################
+    """Internationalisation methods.
     
-#######################################
-# Internationalisation methods
+    """
 
     
     security.declareProtected( permissions.View,  'fTranslateI18N')
@@ -947,6 +1189,23 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         return ModelDDvlPloneTool_Retrieval().fTranslateI18N( theI18NDomain, theString, theDefault, theContextElement)
 
 
+    
+    
+
+
+    security.declarePublic( 'fTranslateI18NManyIntoDict')
+    def fTranslateI18NManyIntoDict( self, 
+        theContextElement,
+        theI18NDomainsStringsAndDefaults, 
+        theResultDict                   =None):
+        """Internationalization: build or update a dictionaty with the translations of all requested strings from the specified domain into the language preferred by the connected user, or return the supplied default.
+        
+        """
+        
+        return ModelDDvlPloneTool_Retrieval().fTranslateI18NManyIntoDict( theContextElement, theI18NDomainsStringsAndDefaults, theResultDict)
+        
+    
+    
 
     security.declareProtected( permissions.View,  'fAsUnicode')
     def fAsUnicode( self, theContextElement,  theString):
@@ -962,9 +1221,11 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
     
+        
+    # ######################################
+    """Pretty print methods.
     
-#######################################
-# Pretty print methods
+    """
 
     
     security.declareProtected( permissions.View,  'fPrettyPrintHTML')
@@ -1009,12 +1270,17 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
     
-# #############################################################
-# Template invocation methods
-#
+    
+    
+    
+    # #############################################################
+    """Template invocation methods.
+    
+    """
 
 
-    security.declarePublic('fRenderTemplate')
+
+    security.declareProtected( permissions.View, 'fRenderTemplate')
     def fRenderTemplate(self, theContextualObject, theTemplateName):
         """Execute a template in the current context and return the rendered HTML.
         
@@ -1024,13 +1290,13 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
                         
         aViewName = theTemplateName
         if aViewName.find( '%s') >= 0:
-            unNombreProyecto = ''
+            aProjectName = ''
             try:
-                unNombreProyecto = theContextualObject.getNombreProyecto()
+                aProjectName = theContextualObject.getNombreProyecto()
             except:
                 None
-            if unNombreProyecto:    
-                aViewName = aViewName % unNombreProyecto
+            if aProjectName:    
+                aViewName = aViewName % aProjectName
             else:
                 aViewName = aViewName % ''
             
@@ -1049,94 +1315,138 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
 
+    
+    
+    
+    
+    
+    
+    # #############################################################
+    """Rendered Templates Retrieval from Caches and Caches management methods.
+    
+    """
 
-    security.declareProtected( permissions.ManagePortal, 'pFlushCachedTemplates')
-    def pFlushCachedTemplates(self, theContextualObject):
-        self.vCachedRenderedTemplates = { }
-        return self
+    
+    
+    security.declareProtected( permissions.View, 'fRetrieveCachedTemplatesStatusReport')
+    def fRetrieveCachedTemplatesStatusReport(self, theContextualObject,):
+        """Retrieve a report with the status of the templates cache, containing the number of entries, the amount of memory occupied, and statistics of cache hits and faults.
+        
+        """
+        
+        return ModelDDvlPloneTool_Cache().fRetrieveCachedTemplatesStatusReport( self, theContextualObject)
+
+    
+    
+        
+    
+    security.declareProtected( permissions.ManagePortal, 'fConfigureTemplatesCache')
+    def fConfigureTemplatesCache(self, theContextualObject, theTemplateCacheParameters):
+        """Set parameters controlling the maximum amount of memory available to store cached templates, and other controls on the behavior of the cache.
+        
+        """
+      
+        return ModelDDvlPloneTool_Cache().fConfigureTemplatesCache( self, theContextualObject, theTemplateCacheParameters)
+        
+
+            
+        
+        
+    
+    security.declareProtected( permissions.ManagePortal, 'fEnableTemplatesCache')
+    def fEnableTemplatesCache(self, theContextualObject,):
+        """Allow to store in memory the result of rendering templates, and save the effort of rendering in future request.
+        
+        """
+      
+        return ModelDDvlPloneTool_Cache().fEnableTemplatesCache( self, theContextualObject)
+        
+
+        
+    
+        
+    
+    security.declareProtected( permissions.ManagePortal, 'fDisableTemplatesCache')
+    def fDisableTemplatesCache(self, theContextualObject,):
+        """Allow to store in memory the result of rendering templates, and save the effort of rendering in future request.
+        
+        """
+      
+        return ModelDDvlPloneTool_Cache().fDisableTemplatesCache( self, theContextualObject)
+        
+
+        
     
 
+      
+    
 
+    security.declareProtected( permissions.ManagePortal, 'fFlushCachedTemplates')
+    def fFlushCachedTemplates(self, theContextualObject):
+        """Remove all cached rendered templates, recording who and when requested the flush.
+        
+        """
+        
+        return ModelDDvlPloneTool_Cache().fFlushCachedTemplates( self, theContextualObject)
 
-    security.declarePublic('fRenderTemplateOrCachedForProjectInLanguage')
+    
+
+    
+    security.declareProtected( permissions.ManagePortal, 'fInvalidateCachedTemplatesForElements')
+    def fInvalidateCachedTemplatesForElements(self, theContextualObject, theFlushedElementsUIDs, theAuthenticationString):
+        """Invoked from service exposed to receive notifications from other ZEO clients authenticated with the supplied string, to flush cache entries for elements of the specified Ids.
+        
+        """
+        
+        return ModelDDvlPloneTool_Cache().fInvalidateCachedTemplatesForElements( self, theContextualObject, theFlushedElementsUIDs, theAuthenticationString)
+
+    
+
+    
+    security.declarePrivate( 'pFlushCachedTemplatesForElements')
+    def pFlushCachedTemplatesForElements(self, theContextualObject, theFlushedElementsUIDs):
+        """Invoked from an element intercepting drag&drop reordering and impacting its changes.
+        
+        """
+        return ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContextualObject, theFlushedElementsUIDs)
+  
+    
+    
+    security.declareProtected( permissions.View, 'fRenderTemplateOrCachedForProjectInLanguage')
     def fRenderTemplateOrCachedForProjectInLanguage(self, theContextualObject, theTemplateName):
         """Retrieve a previously rendered template for a project, independent of the here element, for the currently negotiared language and return the rendered HTML.
         
         """
-        if not theTemplateName:
-            return self.fRenderTemplate( theContextualObject, theTemplateName)
-                        
-        unNombreProyecto = ''
-        try:
-            unNombreProyecto = theContextualObject.getNombreProyecto()
-        except:
-            None
-        if not unNombreProyecto:    
-            return self.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        aViewName = theTemplateName
-        if aViewName.find( '%s') >= 0:
-            aViewName = aViewName % unNombreProyecto
-            
-        if not aViewName:
-            return self.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        
-        
-        aI18NDomain = ''
-        if not aI18NDomain:
-            try:
-                aI18NDomain = theContextualObject.getNombreProyecto()
-            except:
-                None
-                
-        if not aI18NDomain:
-            aI18NDomain = "plone"
-        
-        
-        #aTranslationService = getToolByName( self, 'translation_service', None)
-        #if not aTranslationService:
-            #return self.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        #unGlobalTranslationService = getGlobalTranslationService()
-        #if not unGlobalTranslationService:
-            #return self.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        unosPreferredLanguages = getLangPrefs( theContextualObject.REQUEST)
-        if not unosPreferredLanguages:
-            return self.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        aNegotiatedLanguage = unosPreferredLanguages[ 0]   
-        if not aNegotiatedLanguage:
-            return self.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        if self.vCachedRenderedTemplates:
-            someCachedRenderedTemplatesForLanguage = self.vCachedRenderedTemplates.get( aNegotiatedLanguage, {})
-            if someCachedRenderedTemplatesForLanguage:
-                aCachedRenderedTemplateForLanguage = someCachedRenderedTemplatesForLanguage.get( aViewName, '')
-                if aCachedRenderedTemplateForLanguage:
-                    return aCachedRenderedTemplateForLanguage
-                
-            
-        unRenderedTemplate = self.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        someCachedRenderedTemplatesForLanguage = self.vCachedRenderedTemplates.get( aNegotiatedLanguage, None)
-        if someCachedRenderedTemplatesForLanguage == None:
-            someCachedRenderedTemplatesForLanguage = { }
-            if not self.vCachedRenderedTemplates:
-                self.vCachedRenderedTemplates = { }
-            self.vCachedRenderedTemplates[ aNegotiatedLanguage] = someCachedRenderedTemplatesForLanguage
-        someCachedRenderedTemplatesForLanguage[ aViewName] = unRenderedTemplate
-        
-        return unRenderedTemplate
-    
+        return ModelDDvlPloneTool_Cache().fRenderTemplateOrCachedForProjectInLanguage( self, theContextualObject, theTemplateName)
     
     
 
 
+    security.declareProtected( permissions.View, 'fRenderTemplateOrCachedForElementInLanguage')
+    def fRenderTemplateOrCachedForElementInLanguage(self, theContextualObject, theTemplateName):
+        """ Return theHTML, from cache or just rendered, for a project, for an element (by it's UID), for the specified view, and for the currently negotiared language.
+        
+        """
+        
+        return ModelDDvlPloneTool_Cache().fRenderTemplateOrCachedForElementInLanguage( self, theContextualObject, theTemplateName)
 
 
     
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    # #############################################################
+    """Import and export methods.
+    
+    """
+
+        
     
     
     security.declareProtected( permissions.View, 'fExport')
@@ -1196,7 +1506,21 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
       
     
  
-   
+ 
+    
+    
+    
+    
+        
+    # #############################################################
+    """Version retrieval and management methods.
+    
+    """
+
+        
+    
+    
+    
     security.declareProtected( permissions.View, 'fRetrieveAllVersions')
     def fRetrieveAllVersions(self, 
         theTimeProfilingResults     =None,
@@ -1307,6 +1631,57 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
    
 
     
+
+    
+    
+    
+    
+        
+    # #############################################################
+    """Translation retrieval and management methods.
+    
+    """
+
+
+    security.declareProtected( permissions.View, 'fNewTranslation')
+    def fNewTranslation(self, 
+        theTimeProfilingResults     =None,
+        theOriginalObject           =None, 
+        theNewTranslationContainerKind  =None,
+        theNewLanguage           =None,
+        theFallbackStrategy        =None,
+        theNewTitle                 =None,
+        theNewId                    =None,
+        theAdditionalParams         =None):
+        """Create a new translation of the original object which shall be a root, with the new translation name as given as parameter, as a whole object network copy of the source root object and its contents."
+        
+        """
+                
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+
+        someMDDNewTranslationTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs(   theOriginalObject)        
+        somePloneNewTranslationTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theOriginalObject)        
+                
+        return ModelDDvlPloneTool_Translation().fNewTranslation( 
+            theTimeProfilingResults          =theTimeProfilingResults,
+            theModelDDvlPloneTool            =self,
+            theModelDDvlPloneTool_Retrieval  =aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators   =ModelDDvlPloneTool_Mutators(),
+            theOriginalObject                =theOriginalObject, 
+            theNewTranslationContainerKind   =theNewTranslationContainerKind,
+            theNewLanguage                   =theNewLanguage,
+            theFallbackStrategy              =theFallbackStrategy,
+            theNewTitle                      =theNewTitle,
+            theNewId                         =theNewId,
+            theMDDNewTranslationTypeConfigs  =someMDDNewTranslationTypeConfigs, 
+            thePloneNewTranslationTypeConfigs=somePloneNewTranslationTypeConfigs, 
+            theAdditionalParams              =theAdditionalParams
+        )
+
+
+   
+
+        
        
     security.declareProtected( permissions.View, 'fGroupAction')
     def fGroupAction(self, 
@@ -1365,6 +1740,16 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         
         
+    
+    
+    
+
+        
+    # #############################################################
+    """Clipboard paste methods.
+    
+    """    
+    
     
     security.declareProtected( permissions.AddPortalContent, 'fObjectPaste')
     def fObjectPaste(self, 
@@ -1439,6 +1824,17 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
      
+    
+    
+    
+    
+    
+
+    # #############################################################
+    """Retrieval of information about relevant Plone Products installed.
+    
+    """        
+    
     
     security.declareProtected( permissions.View, 'fProductsInfo')
     def fProductsInfo(self, 
@@ -1552,9 +1948,10 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
 
-#####################################################
-# Constructor methods, only used when adding class
-# to objectManager
+# ####################################################
+"""Constructor methods, only used when adding class to objectManager.
+
+"""
 
 def manage_addAction(self, REQUEST=None):
     "Add tool instance to parent ObjectManager"

@@ -36,8 +36,8 @@ __docformat__ = 'plaintext'
 from time import time
 
 
-from AccessControl      import ClassSecurityInfo
-
+from AccessControl          import ClassSecurityInfo
+from Products.CMFCore       import permissions
 
 
 from StringIO import StringIO
@@ -56,25 +56,25 @@ class ModelDDvlPloneTool_Retrieval_Utils:
 # Accessor for timing constraints 
 #        
     
-    security.declarePrivate( 'getSecondsNow')
-    def getSecondsNow(self): 
-        return int( round( time(), 0) / 1000)
-        
-        # ACV 200903062050 optimized
-        # aTime = gmtime()
-        # aNumSeconds = aTime[0] - 2000
-        # aNumSeconds = aNumSeconds * 13
-        # aNumSeconds = aNumSeconds + aTime[1] 
-        # aNumSeconds = aNumSeconds * 32
-        # aNumSeconds = aNumSeconds + aTime[2] 
-        # aNumSeconds = aNumSeconds * 25
-        # aNumSeconds = aNumSeconds + aTime[3] 
-        # aNumSeconds = aNumSeconds * 62
-        # aNumSeconds = aNumSeconds + aTime[4] 
-        # aNumSeconds = aNumSeconds * 62
-        # aNumSeconds = aNumSeconds + aTime[5] 
-        # return aNumSeconds
-
+    security.declarePrivate( 'fSecondsNow')
+    def fSecondsNow(self): 
+        return int( time())
+            
+    
+    
+    security.declarePrivate( 'fMillisecondsNow')
+    def fMillisecondsNow(self):   
+        return int( time() * 1000)
+ 
+    
+    security.declarePrivate( 'fDateTimeNow')
+    def fDateTimeNow(self):   
+        return DateTime()
+    
+    
+    
+    
+    
     
 # ##################################################################
 # List / Dict conversion to a formatted multiline indented string

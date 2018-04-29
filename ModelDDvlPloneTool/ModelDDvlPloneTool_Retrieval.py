@@ -66,10 +66,16 @@ from urllib  import quote,    unquote
 from zlib    import compress, decompress
 
 
+
+from PloneElement_TraversalConfig            import cPloneTypes
+
+
+
 cKnownWritePermissionTargets = [ 'object', 'add', 'add_collection', 'delete', 'attrs', 'aggregations', 'relations', 'plone', 'delete_plone', ]
-cKnownFeatureFilterKeys      = [ 'types', 'attrs', 'aggregations', 'relations', 'relations_without_element_details', 'candidates_for_relations', 'do_not_recurse_collections']
+cKnownFeatureFilterKeys      = [ 'objectValues', 'types', 'attrs', 'aggregations', 'relations', 'relations_without_element_details', 'candidates_for_relations', 'do_not_recurse_collections']
+                               #  objectValues retrieves all objectValues in a traversalResult with a predefined traversal spec
 cKnownInstanceFilterKeys     = [ 'UIDs', ]
-cKnownRetrievalExtents       = [ 'traversals', 'tree',  'owner', 'cursor', 'relation_cursors', 'dynamic_vocabularies', 'audit', 'change_log', ] # ACV 20090920 Removed 'plone_objects',
+cKnownRetrievalExtents       = [ 'traversals', 'tree',  'owner', 'cursor', 'relation_cursors', 'dynamic_vocabularies', 'audit', 'change_log', 'extra_links', ] # ACV 20090920 Removed 'plone_objects',
 cKnownAdditionalParams       = [ 'Do_Not_Translate', 'Retrieve_Minimal_Related_Results', ]
 
 cAuditFieldKeys = [
@@ -183,15 +189,25 @@ class ModelDDvlPloneTool_Retrieval(
             # Versioning and Translation field namess
             'inter_version_field':      '',
             'version_field':            '',
+            'version_storage_field':    '',
+            'version_comment_field':    '',
+            'version_comment_storage_field':'',
             'language_field':           '',
             'fields_pending_translation_field': '',
             'fields_pending_revision_field':'',
             
             # Traceability field names
+            'inter_translation_field':  '',
             'versioning_link_fields':   '',
             'translation_link_fields':  '',
             'usage_link_fields':        '',
             'derivation_link_fields':   '',
+            'propagate_delete_impact_to':'',
+            
+            # Presentation dynamics and customizaton
+            'extra_links':              '',
+            
+            
             
             
 # ACV 20090921 Removed
@@ -243,6 +259,7 @@ class ModelDDvlPloneTool_Retrieval(
             'traversal_name' :          '', 
             'contains_collections' :    False, 
             'has_grandchildren':        False,
+            'num_grandchildren':        0,
             'is_multivalued' :          False, 
             'relationship':             '',
             'inverse_relationship':     '',
@@ -328,6 +345,28 @@ class ModelDDvlPloneTool_Retrieval(
 
     
     
+    security.declarePrivate('fPortalURL')
+    def fPortalURL(self, theContextualObject=None):
+        
+        unContextualObject = theContextualObject
+        if unContextualObject == None:
+            unContextualObject = self
+
+        unPortalURLTool = getToolByName( unContextualObject, 'portal_url', None)
+        if not unPortalURLTool:
+            return ''
+        
+        unPortalURL = ''
+        try:
+            unPortalURL = unPortalURLTool()
+        except: 
+            None
+        if not unPortalURL:
+            return ''
+        
+        return unPortalURL
+    
+   
     
     
     security.declarePrivate(   'fUniqueStringWithCounter')
@@ -551,7 +590,7 @@ class ModelDDvlPloneTool_Retrieval(
                         otroWritePermissions.append( 'object')
                      
                     unPropietario = theElement.getPropietario()
-                    if unPropietario:
+                    if not ( unPropietario == None):
                         unPropietarioResult = self.fRetrieveElementoBasicInfoAndTranslations( 
                             theTimeProfilingResults     =theTimeProfilingResults,
                             theElement                  =unPropietario,      
@@ -567,8 +606,8 @@ class ModelDDvlPloneTool_Retrieval(
                             unResult[ 'owner_element'] = unPropietarioResult
         
                     unContenedor = theElement.getContenedor()
-                    if unContenedor:
-                        if unPropietario and ( unContenedor == unPropietario):
+                    if not ( unContenedor == None):
+                        if ( not( unPropietario == None)) and ( unContenedor == unPropietario):
                             unContenedorResult = unPropietarioResult
                         else:
                             unContenedorResult = self.fRetrieveElementoBasicInfoAndTranslations( 
@@ -735,7 +774,48 @@ class ModelDDvlPloneTool_Retrieval(
                         theAdditionalParams         =theAdditionalParams
                    ) 
             
+                    
+            if theFeatureFilters.get( 'objectValues', False):
+                
+                if unResult.has_key( 'traversals'):
+                    someTraversalResults = unResult[ 'traversals']
+                else:
+                    someTraversalResults = [ ]
+                    unResult[ 'traversals'] = someTraversalResults
+                
+                unTraversalResult= self.fRetrieveTraversalConfig_ObjectValues( 
+                    theTimeProfilingResults     =theTimeProfilingResults,
+                    theTraversedObjectResult    =unResult,
+                    theElement                  =theElement, 
+                    theCanReturnValues          =unCanReturnValues,
+                    theViewName                 =theViewName,
+                    theRetrievalExtents         =theRetrievalExtents,
+                    theTypeConfig               =unTypeConfig, 
+                    theAllTypeConfigs           =theAllTypeConfigs, 
+                    theTranslationsCaches       =theTranslationsCaches, 
+                    theCheckedPermissionsCache  =theCheckedPermissionsCache, 
+                    theWritePermissions         =theWritePermissions, 
+                    theFeatureFilters           =theFeatureFilters, 
+                    theInstanceFilters          =theInstanceFilters,
+                    theAdditionalParams         =theAdditionalParams
+                )
+                
+                if unTraversalResult:
+                    someTraversalResults.append( unTraversalResult)
+                    
+                    if ('delete' in theWritePermissions) and theResult.get( 'delete_permission', False):
+                        unosElementResults = unTraversalResult.get( 'elements', [])
+                        for unElementResult in unosElementResults:
+                            if unElementResult and ( not unElementResult.get( 'object', None) == None):
+                                if not unElementResult.get( 'delete_permission', False): 
+                                    theResult[ 'delete_permission']  =  False   
+                    
+                    
             if theRetrievalExtents and ( ( 'traversals' in theRetrievalExtents) or ( 'tree' in theRetrievalExtents)):
+                
+                     
+                    
+                    
                 if unTypeConfig.has_key( 'traversals'):
                     someTraversalConfigs =  unTypeConfig.get( 'traversals', [])
                     if someTraversalConfigs:
@@ -1183,11 +1263,12 @@ class ModelDDvlPloneTool_Retrieval(
                 if unCanReturnValues and theTraversedObjectResult[ 'traverse_permission'] and theTraversedObjectResult[ 'write_permission'] and theWritePermissions and ( 'aggregations' in theWritePermissions):
                     unWritePermission = True
                     if theTraversalConfig.get( 'read_only', False) == True:
-                        unWritePermission = False            
-                    if unWritePermission:
+                        unWritePermission = False   
+                    else:
                         unWritePermission = self.fCheckFieldWritePermission( theElement, aFieldName, [ permissions.ModifyPortalContent, ], theCheckedPermissionsCache) == True
-                    if unWritePermission:
-                        unTraversalResult[ 'write_permission'] = unWritePermission     
+                        if unWritePermission:
+                            unTraversalResult[ 'write_permission'] = True  
+                                
                 
                         
             aDummy = self.fAttributeTranslationsFromCache( 
@@ -1253,7 +1334,8 @@ class ModelDDvlPloneTool_Retrieval(
             
             unosTodosTiposAceptados = []
         
-            unHasGrandChildren = False
+            unNumGrandChildren = 0
+            
             unasTodosSubAggregationsTranslations = []
             
             if theRetrievalExtents:
@@ -1390,9 +1472,12 @@ class ModelDDvlPloneTool_Retrieval(
                                     #unTraversalResult[ 'elements_by_id' ][ unElementResult[ 'id' ]] = unElementResult
                                     
                                     if unContainsCollections:
-                                        someAggegationSubTraversals = [ unTraversalRes for unTraversalRes in unElementResult[ 'traversals'] if unTraversalRes[ 'traversal_kind'] == 'aggregation' and unTraversalRes[ 'num_elements'] > 0]
-                                        if not  unHasGrandChildren:
-                                            unHasGrandChildren = len( someAggegationSubTraversals) > 0 
+                                        someAggegationSubTraversals = []
+                                        for unTraversalRes in unElementResult[ 'traversals']:
+                                            if unTraversalRes[ 'traversal_kind'] == 'aggregation' and unTraversalRes[ 'num_elements'] > 0:
+                                                someAggegationSubTraversals.append( unTraversalRes)
+                                                unNumGrandChildren += unTraversalRes[ 'num_elements']
+                                                
                                         for unTraversalRes in someAggegationSubTraversals:
                                             unTranslatedSubAggregationName = unTraversalRes.get( 'traversal_translations', {}).get( 'translated_label', '')
                                             if unTranslatedSubAggregationName and not ( unTranslatedSubAggregationName in unasTodosSubAggregationsTranslations):
@@ -1426,7 +1511,9 @@ class ModelDDvlPloneTool_Retrieval(
 
             
             if unContainsCollections:
-                unTraversalResult[ 'has_grandchildren'] = unHasGrandChildren
+                unTraversalResult[ 'num_grandchildren'] = unNumGrandChildren
+                unTraversalResult[ 'has_grandchildren'] = unNumGrandChildren > 0
+                
                 unTraversalResult[ 'grandchildren_plural_type_translations'] = unasTodosSubAggregationsTranslations
             return unTraversalResult
         
@@ -1440,7 +1527,208 @@ class ModelDDvlPloneTool_Retrieval(
     
     
     
+
+  
+   
+    security.declarePrivate('fRetrieveTraversalConfig_ObjectValues')
+    def fRetrieveTraversalConfig_ObjectValues(self, 
+        theTimeProfilingResults     =None,
+        theTraversedObjectResult    =None,
+        theElement                  =None, 
+        theCanReturnValues          =True,
+        theViewName                 ='',
+        theRetrievalExtents         =None,
+        theTypeConfig               =None, 
+        theAllTypeConfigs           =None, 
+        theTranslationsCaches       =None, 
+        theCheckedPermissionsCache  =None, 
+        theWritePermissions         =None, 
+        theFeatureFilters           =None, 
+        theInstanceFilters          =None,
+        theAdditionalParams         =None):
+        """Retrieval of the traversal results for an aggregation in an element.
+        
+        """
+
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fRetrieveTraversalConfig_ObjectValues', theTimeProfilingResults)
+
+        try:
+
+            unasElementResults = [ ]        
+            unTraversalResult = self.fNewVoidTraversalResult()
+            unTraversalResult.update( { 
+                'traversal_kind' :          'aggregation', 
+                'traversal_name' :          'objectValues', 
+                'contains_collections' :    False, 
+                'is_multivalued' :          True, 
+                'elements':                 unasElementResults, 
+                'max_multiplicity_reached': False,
+                'multiplicity_higher':      -1,
+            })
+
+            aTraversalConfig          =self.objectValuesTraversalConfig()
+            if not aTraversalConfig:
+                return unTraversalResult
+            unTraversalResult[ 'traversal_config'] =  aTraversalConfig
+            
+            if not theCanReturnValues:
+                return unTraversalResult
+            unTraversalResult[ 'read_permission'] = True
     
+            anObjectValuesAttributeTranslationsResult = self.getTranslationsForObjectAttributeFromMsgIds(  
+                theElement, 
+                'ModelDDvlPlone', 
+                'ModelDDvlPlone_objectValues_Label', 
+                'Aggregated Elements-', 
+                'ModelDDvlPlone_objectValues_Help', 
+                'Contents: Elements Aggregated into the current element. When the current element is deleted, these elements, and their contents, recursively, are also deleted.-',
+            )
+            if not( anObjectValuesAttributeTranslationsResult == None):
+                unTraversalResult[ 'traversal_translations'] = anObjectValuesAttributeTranslationsResult
+                
+            #aDummy = self.fAttributeTranslationsFromCache( 
+                #theElement            = theElement,
+                #theFieldName          = 'objectValues', 
+                #theTranslationsCaches = theTranslationsCaches,
+                #theResultDict         = unTraversalResult, 
+                #theResultKey          = 'traversal_translations',
+                #theAdditionalParams   = theAdditionalParams,
+            #)                                         
+    
+      
+             # ACV 20090905 If no columns specified in traversal config, then do not restrict attributes to retrieve
+            someColumnNames = aTraversalConfig.get( 'columns', None)     
+            unosFeatureFilters = {}
+            if not someColumnNames:
+                unTraversalResult[ 'column_names'] = []
+            else:           
+                unTraversalResult[ 'column_names'] = someColumnNames
+                if theFeatureFilters:
+                    unosFeatureFilters = theFeatureFilters.copy()
+                else:
+                    unosFeatureFilters = {}
+                unosAttrsFilters = unosFeatureFilters.get( 'attrs', None)
+                if not unosAttrsFilters:
+                    unosFeatureFilters[ 'attrs'] = someColumnNames[:]
+                else:
+                    for unColumnName in someColumnNames:
+                        if not ( unColumnName in unosAttrsFilters):
+                            unosAttrsFilters.append( unColumnName)
+     
+            someElementFactoryNames = []
+            
+            unasTodosSubAggregationsTranslations = []
+            
+            unRetrievalExtents = []
+            if theRetrievalExtents:
+                unRetrievalExtents = theRetrievalExtents[:]
+            if 'relation_cursors' in unRetrievalExtents:
+                unRetrievalExtents.remove( 'relation_cursors')
+            if 'traversals' in unRetrievalExtents:
+                unRetrievalExtents.remove( 'traversals')
+                
+            unEsColeccion = False
+            unContainsCollections = False
+                 
+            unosSubitemsTypeConfigs = aTraversalConfig.get( 'subitems', [])
+            if not unosSubitemsTypeConfigs:
+                return unTraversalResult
+            
+            unSubitemsTypeConfig  = unosSubitemsTypeConfigs[ 0]         
+            
+            someElements = theElement.objectValues( )
+
+            unSetTodosTiposAceptados = set()
+            
+            if someElements:
+                for unElemento in someElements:
+                    
+                    unElementResult = self.fNewResultForElement( unElemento)
+                                
+                    unDummy = self.fRetrieveElementoBasicInfoAndTranslations( 
+                        theTimeProfilingResults     =theTimeProfilingResults,
+                        theElement                  =unElemento, 
+                        theRetrievalExtents         =unRetrievalExtents,
+                        theTranslationsCaches       =theTranslationsCaches, 
+                        theCheckedPermissionsCache  =theCheckedPermissionsCache, 
+                        theResult                   =unElementResult,
+                        theParentTraversalResult    =unTraversalResult,
+                        theWritePermissions         =theWritePermissions,
+                        theAdditionalParams         =theAdditionalParams,
+                    )
+                    if unElementResult and unElementResult[ 'read_permission']:
+                        unasElementResults.append( unElementResult)
+                        
+                        unElementoMetaType = unElemento.meta_type
+                        if unElementoMetaType:
+                            unSetTodosTiposAceptados.add( unElementoMetaType)
+                            
+                        if not unElementResult.get( 'type_translations', {}):
+                                           
+                            unTypeMsgId = ''
+                            unArchetypeName = ''
+                            unContentIcon = None
+                            
+                            unTypeParameter = cPloneTypes.get(  unElementoMetaType, {})
+                            if unTypeParameter:
+                                unTypeMsgId             = unTypeParameter[ 'i18n_msgid']
+                                unArchetypeName         = unTypeParameter[ 'archetype_name']
+                                unContentIcon           = unTypeParameter[ 'content_icon']
+                             
+                            if not unArchetypeName:
+                                try:
+                                    unArchetypeName = unElemento.archetype_name
+                                except:
+                                    None
+                            
+                            if not unTypeMsgId:
+                                unTypeMsgId = unArchetypeName
+                            if not unTypeMsgId:
+                                unTypeMsgId = unElementoMetaType
+                                
+                            if not unContentIcon:
+                                try:
+                                    unContentIcon = unElemento.content_icon   
+                                except:
+                                    None
+                                if not unContentIcon:
+                                    if unArchetypeName:
+                                        unContentIcon = '%s_icon.gif' % unArchetypeName.lower()
+                                    else:
+                                        unIconName = unElementoMetaType
+                                        if unIconName.startswith( 'AT'):
+                                            unIconName = unIconName[ 2:] 
+                                        unContentIcon = '%s_icon.gif' % unIconName.lower()
+                            if unContentIcon:
+                                unElementResult[ 'content_icon'] = unContentIcon                
+                             
+                            unTypeTranslations = self.getPloneTypeTranslationResultFromMsgIdMetatypeAndArchetype( unTypeMsgId, unElementoMetaType, unArchetypeName, unElemento)
+                            if unTypeTranslations:
+                                unElementResult[ 'type_translations'] = unTypeTranslations
+                    
+                            
+            unosTodosTiposAceptados = list ( unSetTodosTiposAceptados)
+            self.pCompleteColumnTranslations( 
+                theTimeProfilingResults= theTimeProfilingResults,
+                theContextualElement   = theElement, 
+                theTraversalResult     = unTraversalResult, 
+                theTypeNames           = unosTodosTiposAceptados, 
+                theTranslationsCaches  = theTranslationsCaches,
+                theAdditionalParams    = theAdditionalParams,
+            )
+            
+            unTraversalResult[ 'num_elements'] = len( unasElementResults)
+            
+            return unTraversalResult
+        
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fRetrieveTraversalConfig_ObjectValues', theTimeProfilingResults)
+
+ 
+    
+        
     
     
     
@@ -2129,7 +2417,7 @@ class ModelDDvlPloneTool_Retrieval(
         unResult.update( { 
             'object':                   theElement,                           
             'meta_type':                theElement.meta_type,  
-            'seconds_now':              self.getSecondsNow(),
+            'seconds_now':              self.fSecondsNow(),
         } )
 
         unTitle = ''    
@@ -2154,6 +2442,8 @@ class ModelDDvlPloneTool_Retrieval(
         except:
             None
         if unaUrl:
+            if not ( unaUrl[-1:] == '/'):
+                unaUrl = '%s/' % unaUrl                
             unResult[ 'url'] = unaUrl 
             
         unaUID = ''    
@@ -2420,6 +2710,22 @@ class ModelDDvlPloneTool_Retrieval(
         except:
             None            
         try:
+            unResult[ 'version_storage_field'] = theElement.version_storage_field
+        except:
+            None            
+        try:
+            unResult[ 'version_comment_field'] = theElement.version_comment_field
+        except:
+            None            
+        try:
+            unResult[ 'version_comment_storage_field'] = theElement.version_comment_storage_field
+        except:
+            None            
+        try:
+            unResult[ 'inter_translation_field'] = theElement.inter_translation_field
+        except:
+            None            
+        try:
             unResult[ 'language_field'] = theElement.language_field
         except:
             None            
@@ -2451,6 +2757,16 @@ class ModelDDvlPloneTool_Retrieval(
         except:
             None            
   
+            
+            
+            
+            
+        try:
+            unResult[ 'propagate_delete_impact_to'] = theElement.propagate_delete_impact_to
+        except:
+            None            
+            
+            
         return unResult   
 
 
@@ -2488,6 +2804,9 @@ class ModelDDvlPloneTool_Retrieval(
             if not unResult:    
                 unResult = self.fNewResultForElement( theElement)
     
+                
+                
+                
             aDummy = self.fMetaTypeNameTranslationsFromCache_into( 
                 theMetaTypeName        =theElement.meta_type, 
                 theTranslationsCaches  =theTranslationsCaches, 
@@ -2521,7 +2840,7 @@ class ModelDDvlPloneTool_Retrieval(
                     
                         if ( 'object' in theWritePermissions) or ( 'add' in theWritePermissions) or ( 'add_collection' in theWritePermissions) or ( 'delete' in theWritePermissions):
                             unWritePermission = self.fCheckTypeWritePermission( theElement, [ permissions.ModifyPortalContent, ], theCheckedPermissionsCache) == True
-                            unResult[ 'write_permission']   =  unWritePermission   
+                            unResult[ 'write_permission']            =  unWritePermission   
         
                             if unWritePermission and ( 'add' in theWritePermissions):
                                 unAddPortalContentPermission = self.fCheckElementPermission( theElement, [ permissions.AddPortalContent, ], theCheckedPermissionsCache) == True
@@ -2533,7 +2852,7 @@ class ModelDDvlPloneTool_Retrieval(
             
                             if unWritePermission and ('delete' in theWritePermissions):
                                 unDeletePermission = self.fCheckElementPermission( theElement, [ permissions.DeleteObjects, ], theCheckedPermissionsCache) == True
-                                unResult[ 'delete_permission']  =  unDeletePermission   
+                                unResult[ 'delete_permission']           =  unDeletePermission   
             
             someAttributeConfigs = [
                 { 'name': 'title',             'type': 'String',     'kind': 'Data',  }, 
@@ -2582,6 +2901,27 @@ class ModelDDvlPloneTool_Retrieval(
                     theAdditionalParams         =theAdditionalParams                
                 )
  
+                
+            if ( 'extra_links' in theRetrievalExtents):
+                unosExtraLinks = []
+                try:
+                    unosExtraLinks = theElement.fExtraLinks()
+                except:
+                    None
+                if unosExtraLinks:
+                    unResult[ 'extra_links'] = unosExtraLinks
+               
+                #self.fRetrieveExtraLinks(                
+                    #theTimeProfilingResults     =theTimeProfilingResults,
+                    #theElement                  =theElement, 
+                    #theRetrievalExtents         =None,
+                    #theTranslationsCaches       =theTranslationsCaches, 
+                    #theResult                   =unResult, 
+                    #theCheckedPermissionsCache  =theCheckedPermissionsCache, 
+                    #theAdditionalParams         =theAdditionalParams                
+                #)
+                
+                
             return unResult
             
         finally:
@@ -2701,6 +3041,59 @@ class ModelDDvlPloneTool_Retrieval(
                 self.pProfilingEnd( 'fRetrieveChangeLog', theTimeProfilingResults)
                   
                                 
+
+                
+                
+                
+                
+                
+ 
+    #security.declarePrivate('fRetrieveExtraLinks')
+    #def fRetrieveExtraLinks(self, 
+        #theTimeProfilingResults     =None,
+        #theElement                  =None, 
+        #theRetrievalExtents         =None,
+        #theTranslationsCaches       =None, 
+        #theCheckedPermissionsCache  =None, 
+        #theResult                   =None,
+        #theAdditionalParams         =None):
+        #"""Retrieve a result structure for an element, initialized with the extra hyperlinks that should be also presented to the user, when the element is presented.
+        
+        #"""
+        
+        #if not ( theTimeProfilingResults == None):
+            #self.pProfilingStart( 'fRetrieveChangeLog', theTimeProfilingResults)
+
+        #try:
+        
+            #if ( theElement == None):
+                #return None
+            
+            #unResult = theResult
+            #if not unResult:    
+                #unResult = self.fNewResultForElement( theElement)  
+                
+                
+            #unosExtraLinks = []
+            #try:
+                #unosExtraLinks = theElement.fExtraLinks()
+            #except:
+                #None
+                
+            #if not unosExtraLinks:
+                #return unResult
+            
+            #unResult[ 'extra_links'] = unosExtraLinks
+                   
+            #return unResult
+            
+        #finally:
+            #if not ( theTimeProfilingResults == None):
+                #self.pProfilingEnd( 'fRetrieveExtraLinks', theTimeProfilingResults)
+                                  
+                
+                
+                
                 
                 
                 

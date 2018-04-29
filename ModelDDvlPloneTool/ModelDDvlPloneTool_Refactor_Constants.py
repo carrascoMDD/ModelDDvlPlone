@@ -75,6 +75,7 @@ cRefactorStatus_RelatedSource_Not_OK                                    = 'Refac
 cRefactorStatus_Missing_Parameter_TraversalResult                       = 'RefactorStatus_Missing_Parameter_TraversalResult'
 cRefactorStatus_Missing_Parameter_TraversalName                         = 'RefactorStatus_Missing_Parameter_TraversalName'
 cRefactorStatus_Missing_Parameter_AttributeName                         = 'RefactorStatus_Missing_Parameter_AttributeName'
+cRefactorStatus_Missing_Parameter_AttributeType                         = 'RefactorStatus_Missing_Parameter_AttributeType'
                                     
 
 cRefactorStatus_Missing_Parameter_RefactorFrame                         = 'RefactorStatus_Missing_Parameter_RefactorFrame'
@@ -84,6 +85,7 @@ cRefactorStatus_TargetRoot_Not_Readable                                 = 'Refac
 cRefactorStatus_TargetRoot_Not_Writable                                 = 'RefactorStatus_TargetRoot_Not_Writable'
 cRefactorStatus_SourceRoot_Not_Readable                                 = 'RefactorStatus_SourceRoot_Not_Readable'
 
+cRefactorStatus_Error_NoAttributeConfig                                 = 'RefactorStatus_Error_NoAttributeConfig'
 
 cRefactorStatus_Error_NoSourceType                                      = 'RefactorStatus_Error_NoSourceType'
 cRefactorStatus_Error_NoTarget_Type                                     = 'RefactorStatus_Error_NoTarget_Type'
@@ -119,9 +121,12 @@ cRefactorStatus_Error_NoNewUniqueIdOrTitle                              = 'Refac
 cRefactorStatus_Field_Not_in_Schema                                     = 'RefactorStatus_Field_Not_in_Schema'
 cRefactorStatus_Field_NotRelationOrReference                            = 'RefactorStatus_Field_NotRelationOrReference'
 cRefactorStatus_Field_NoRelationName                                    = 'RefactorStatus_Field_NoRelationName'
-cRefactorStatus_Spec_NoRelationName                                     = 'cRefactorStatus_Spec_NoRelationName'
-cRefactorStatus_Spec_NoAttributeName                                    = 'cRefactorStatus_Spec_NoRAttributeName'
-cRefactorStatus_Spec_NoAggregationName                                  = 'cRefactorStatus_Spec_NoAggregationName'
+cRefactorStatus_Spec_NoRelationName                                     = 'cefactorStatus_Spec_NoRelationName'
+cRefactorStatus_Spec_NoAttributeName                                    = 'RefactorStatus_Spec_NoRAttributeName'
+cRefactorStatus_Spec_NoAggregationName                                  = 'RefactorStatus_Spec_NoAggregationName'
+
+cRefactorStatus_Attr_No_Accessor                                        = 'RefactorStatus_Attr_No_Accessor'
+cRefactorStatus_Attr_No_AttributeOwner                                  = 'RefactorStatus_Attr_No_AttributeOwner'
 
 cRefactorStatus_NoRelationsLibrary                                      = 'RefactorStatus_NoRelationsLibrary'
 cRefactorStatus_NoSourceUID                                             = 'RefactorStatus_Field_NoSourceUID'

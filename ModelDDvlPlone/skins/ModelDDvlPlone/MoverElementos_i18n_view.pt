@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MoverElementos_i18n_view.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -29,6 +33,8 @@
 
     <div metal:define-macro="tMoverElementos_i18n" >
 
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+        
         <tal:block tal:define="pContainerElement nocall: pContainerElement | here;
                                pTraversalName   request/theTraversalName | string:;
                                pMovedElementID  request/theMovedElementID | string:;
@@ -45,7 +51,7 @@
                         'theMovedObjectId'        :pMovedElementID, 
                         'theMoveDirection'        :pMoveDirection, 
                         'theAdditionalParams'     :None, };        
-                    dummy python: here.ModelDDvlPlone_tool.pMoveSubObject( **unosArgs);
+                    aMoveResult python: here.ModelDDvlPlone_tool.fMoveSubObject( **unosArgs);
                     pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">     
 
 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   

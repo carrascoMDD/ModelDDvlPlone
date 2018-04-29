@@ -40,7 +40,7 @@
                                 pPaginaRefrescar string:Editar;
                                 pAllowRefrescar pTrue;
                                 pShowTrees         pFalse;
-                               pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                               global pStartTime pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
 
             <tal:block tal:define="
                 pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
@@ -54,7 +54,7 @@
                     'theAllTypeConfigs'           :None, 
                     'theViewName'                 :'Tabular', 
                     'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', 'dynamic_vocabularies',],
-                    'theWritePermissions'         :[ 'object', 'attrs', ],
+                    'theWritePermissions'         :[ 'object', 'attrs', 'delete',],
                     'theFeatureFilters'           :{ 'aggregations': [], 'relations': [], }, 
                     'theInstanceFilters'          :None,
                     'theTranslationsCaches'       :None,
@@ -104,7 +104,7 @@
                
                 <br>
                 <h2 tal:condition="python: not( SRES[ 'read_permission'] and SRES[ 'write_permission'])"> 
-                    <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
+                    <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
                         <font color="Red">                    
                             <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaeditar_error_message"/>
                             &nbsp;
@@ -122,7 +122,7 @@
                 <tal:block tal:condition="python: SRES[ 'read_permission'] and SRES[ 'write_permission']"> 
             
                     <h2 tal:condition="python: not ( SRES[ 'non_text_field_names'] or SRES[ 'text_field_names']) and pExcludeId"> 
-                        <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
+                        <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
                             <font color="Blue">                    
                                 <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_nadaqueeditar_error_message"/>
                                 &nbsp;
@@ -140,7 +140,7 @@
                     
                     <tal:block tal:condition="python: ( SRES[ 'non_text_field_names'] or SRES[ 'text_field_names']) or ( not pForceExcludeId)"> 
                         <form name="edit_form" method="post" enctype="multipart/form-data" class="enableUnloadProtection" 
-                            action="#" tal:attributes="action python: '%s/Editar' % SRES[ 'url']">
+                            action="#" tal:attributes="action python: '%sEditar/' % SRES[ 'url']">
                             
                             <input originalvalue="#" name="UID" value="#" type="hidden"
                                 tal:attributes="originalvalue SRES/UID;value SRES/UID" >
@@ -182,8 +182,12 @@
                         
             
             
-            
-                            <table tal:define="global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even')"
+                            <p tal:condition="pEditId">
+                                <font color="red">
+                                    <span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_EditId_LongProcess_Warning', 'Changing an element Id is a potentially long-running process. Your Internet Browser or intermediate Gateways connections may timeout, because all contained elements are also affected by the change of the path to access them.-')" />
+                                </font>
+                            </p>
+                            <table tal:define="global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even')"
                                 width="100%%" id="cid_TablaEdicionValores" class="listing" summary="Caracteristicas">                                                         
                                 <thead>
                                     <tr>

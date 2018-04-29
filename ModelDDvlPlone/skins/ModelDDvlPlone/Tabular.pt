@@ -36,7 +36,8 @@
 
     <metal:main fill-slot="main">
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero" >
+        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
         
             <div metal:use-macro="here/document_actions/macros/document_actions">
                 Document actions (print, sendto etc)
@@ -52,9 +53,37 @@
     
             <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.pSetDefaultDisplayView( here)" />
             
+            
+            <tal:block tal:replace="nothing">
+                <metal:block metal:use-macro="here/Tabular_inner/macros/tTabularInner" />
+            </tal:block>
+            
+
+            
+            
+            
+            
+        <tal:block tal:define="pContainerElement nocall: here">
+            <metal:block metal:use-macro="here/MoverElementos_i18n_view/macros/tMoverElementos_i18n" />   
+        </tal:block>
+
+            
+            
+            <tal:block tal:define="
+                pFlushCache request/theFlushCache | string:;
+                pNoCache    request/theNoCache | string:" >
+                <tal:block tal:condition="pFlushCache">
+                    <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.fFlushCachedTemplates( here)" />
+                </tal:block>
+                <tal:block tal:condition="pNoCache">
+                    <metal:block metal:use-macro="here/Tabular_inner/macros/tTabularInner" />
+                </tal:block>
+                <tal:block tal:condition="not: pNoCache">
+                    <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplateOrCachedForElementInLanguage( here, 'Tabular_NoHeaderNoFooter' )" />
+                </tal:block>
+            </tal:block>
     
-            <metal:block metal:use-macro="here/Tabular_inner/macros/tTabularInner" />
-    
+
             <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
        
         </tal:main-macro>

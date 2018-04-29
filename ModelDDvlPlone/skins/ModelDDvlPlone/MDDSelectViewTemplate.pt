@@ -30,4 +30,4 @@
 </tal:block>
 
 <tal:block tal:define="pTemplateId request/templateId | string:Textual;
-    dummy python: request.response.redirect( '%s/%s' % ( here.absolute_url(), pTemplateId))" />    
+    dummy python: request.response.redirect( '%s/%s/' % ( here.absolute_url(), pTemplateId))" />    

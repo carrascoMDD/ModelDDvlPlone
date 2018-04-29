@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: ColeccionEnTabla_ElementosPlone_i18n_view.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -49,14 +53,14 @@
     
             <tal:block tal:repeat="TRAVRES PLONERES/traversals">
                 <tal:block tal:define="            
-                                    pPermiteEliminarElementos   pPermiteEliminarElementos | pTrue;
-                                    pPermiteEliminarElementos   python: pPermiteEliminarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
                                     pPermiteOrdenarElementos    pPermiteOrdenarElementos | pTrue;
                                     pPermiteOrdenarElementos    python: pPermiteOrdenarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
                                     pPermiteCrearElementos      pPermiteCrearElementos | pTrue;
                                     pPermiteCrearElementos      python: pPermiteCrearElementos and PLONERES[ 'add_permission']  and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
                                     pPermiteEditarElementos     pPermiteEditarElementos | pTrue;
-                                    pPermiteEditarElementos     python: pPermiteEditarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];" >
+                                    pPermiteEditarElementos     python: pPermiteEditarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
+                                    pPermiteEliminarElementos   pPermiteEliminarElementos | pTrue;
+                                    pPermiteEliminarElementos   python: pPermiteEliminarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission']">
             
             
                     <h2 id="#" tal:attributes="id string:aggregation-${TRAVRES/traversal_name}"
@@ -99,7 +103,7 @@
                                     <tal:block tal:condition="python: pPermiteEliminarElementos and unElemento[ 'write_permission'] and unElemento[ 'delete_permission']">
                                         <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_eliminar_action_label', 'Editar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                             href="#" title="#" 
-                                            tal:attributes="title unTituloAccion; href  python: u'%s/EliminarPlone?theUIDToDelete=%s' % ( PLONERES[ 'url'], unElemento[ 'UID']) " >
+                                            tal:attributes="title unTituloAccion; href  python: u'%sEliminarPlone?theUIDToDelete=%s' % ( PLONERES[ 'url'], unElemento[ 'UID']) " >
                                             <img alt="#" title="#" id="icon-delete" src="#" 
                                                 tal:attributes="src python: '%s/delete_icon.gif' % here.portal_url(); alt python: unTituloAccion; title python: unTituloAccion" />
                                         </a>
@@ -112,7 +116,7 @@
                                     <tal:block tal:condition="python: pPermiteEditarElementos and unElemento[ 'write_permission']">
                                         <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_editar_action_label', 'Editar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                             href="#" title="#" 
-                                            tal:attributes="title unTituloAccion; href  python: u'%s/base_edit' % unElemento[ 'url']" >
+                                            tal:attributes="title unTituloAccion; href  python: u'%sbase_edit' % unElemento[ 'url']" >
                                            <img src="#" tal:attributes="title unTituloAccion; src python: '%s/edit.gif' % here.portal_url()" alt="Editar" title="#" id="icon-edit"
                                                         i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_editar_action_label" >
                                         </a>
@@ -126,7 +130,7 @@
                                         <tal:block tal:condition="python: not unElemento == TRAVRES[ 'elements'][ 0]">
                                             <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_subir_action_label', 'Subir'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                                 href="#" title="#" 
-                                                tal:attributes="title unTituloAccion; href python: '%s/Tabular?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Up&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], here.ModelDDvlPlone_tool.fMillisecondsNow(), unElemento[ 'UID'] )">                
+                                                tal:attributes="title unTituloAccion; href python: '%sTabular/?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Up&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], here.ModelDDvlPlone_tool.fMillisecondsNow(), unElemento[ 'UID'] )">                
                                                 <img src="#" title="#" tal:attributes="title unTituloAccion; src python: '%s/arrowUp.gif' % here.portal_url()" 
                                                     alt="Subir" title="#" id="icon-up"
                                                     i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_subir_action_label">
@@ -140,7 +144,7 @@
                                         <tal:block tal:condition="python: not unElemento == TRAVRES[ 'elements'][ len( TRAVRES[ 'elements']) - 1]">
                                             <a tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_bajar_action_label', 'Bajar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                                 href="#" title="#"
-                                                tal:attributes="title unTituloAccion; href python: '%s/Tabular?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Down&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], here.ModelDDvlPlone_tool.fMillisecondsNow(), unElemento[ 'UID'] )">                
+                                                tal:attributes="title unTituloAccion; href python: '%sTabular/?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Down&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], here.ModelDDvlPlone_tool.fMillisecondsNow(), unElemento[ 'UID'] )">                
                                                 <img src="#" tal:attributes="title unTituloAccion; src python: '%s/arrowDown.gif' % here.portal_url()" 
                                                     alt="Bajar" title="#" id="icon-down"
                                                     i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_bajar_action_label">
@@ -165,7 +169,7 @@
                                                    unElemento[ 'type_translations'][ 'translated_archetype_name'],
                                                    unElemento[ 'values_by_name'][ 'title'][ 'uvalue'], 
                                                    unElemento[ 'type_translations'][ 'translated_type_description'])"                          
-                                               tal:attributes="title unTitle; name string:elemento-${unElemento/UID}; href python: (( unElemento[ 'meta_type'] in [ 'ATLink', 'ATDocument', 'ATFile', 'ATImage', 'ATNewsItem',]) and '%s/view' % unElemento['url']) or unElemento['url']"
+                                               tal:attributes="title unTitle; name string:elemento-${unElemento/UID}; href python: (( unElemento[ 'meta_type'] in [ 'ATLink', 'ATDocument', 'ATFile', 'ATImage', 'ATNewsItem',]) and '%sview' % unElemento['url']) or unElemento['url']"
                                                class="state-visible visualIconPadding" title="">
                                                <span tal:content="unElemento/values_by_name/title/uvalue" />
                                            </a>
@@ -225,14 +229,14 @@
                                         class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" >
                                         <td align="center"  >
                                             <a href="#" title="#"
-                                                tal:attributes="title unTituloAccion; href python: '%s/createObject?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'meta_type'])" >
+                                                tal:attributes="title unTituloAccion; href python: '%screateObject/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'meta_type'])" >
                                                 <img src="#" title="#" alt="#"  id="icon-add"
                                                     tal:attributes="title unTituloAccion; src python: '%s/add_icon.gif' % here.portal_url()" />                                                  
                                             </a>
                                         </td>
                                         <td colspan="4" align="left">
                                             <a href="#"  title="#"
-                                                tal:attributes="title unTituloAccion; href python: '%s/createObject?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])">
+                                                tal:attributes="title unTituloAccion; href python: '%screateObject/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])">
                                                 <tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_crear_action_label">Crear</tal:block> 
                                                     <img src="#" alt="" title="" 
                                                         tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])" />
@@ -248,7 +252,7 @@
                                             <span tal:repeat="unaFactoriaElemento TRAVRES/factories" >      
                                                 <a href="#" title="#"
                                                     tal:define="unTituloAccion python: u'%s %s' % (  here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] )"
-                                                    tal:attributes="title unTituloAccion;href python: '%s/createObject?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])" >
+                                                    tal:attributes="title unTituloAccion;href python: '%screateObject/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])" >
                                                     <img src="#" alt="" title=""
                                                         tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])">
                                                     <span tal:content=" unaFactoriaElemento/type_translations/translated_archetype_name" />

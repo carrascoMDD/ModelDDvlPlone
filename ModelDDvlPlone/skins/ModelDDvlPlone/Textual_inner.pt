@@ -35,7 +35,8 @@
 
 
         <tal:block tal:define=" global pTrue            python: True;
-                                global pFalse           python: False" />
+                                global pFalse           python: False;
+                                global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />
 
         <tal:block tal:define="global pPagina string:Textual" />
         <tal:block tal:define="global pShowTrees python:False" />
@@ -76,8 +77,8 @@
                 'theTypeConfig'               :None, 
                 'theAllTypeConfigs'           :None, 
                 'theViewName'                 :'Textual', 
-                'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ],
-                'theWritePermissions'         :[ 'object', ],
+                'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', 'extra_links',],
+                'theWritePermissions'         :[ 'object', 'delete',],
                 'theFeatureFilters'           :{ 'attrs': ['title', 'description',], 'aggregations': [], 'relations': [],}, 
                 'theInstanceFilters'          :None,
                 'theTranslationsCaches'       :None,
@@ -101,7 +102,10 @@
 
             <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
 
-            <tal:block tal:define="pRelationCursorName      request/theRelationCursorName  | python: None"> 
+            <tal:block tal:define="
+                global pRelationCursorName      request/theRelationCursorName | python: None;
+                global pCurrentElementUID       request/theCurrentElementUID  | string:" >  
+
                 <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
             </tal:block>
         

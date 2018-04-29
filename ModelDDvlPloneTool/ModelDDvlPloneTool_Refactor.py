@@ -192,6 +192,9 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                 
                 unosMonikers.append( unMoniker.dump())
                 
+        if not unosMonikers:
+            raise CopyError, self.fExceptionDialog_NoItemsCopied( theModelDDvlPloneTool, theContainerObject)
+                
         unIsMoveClipboardParameter = ( theIsCut and 1) or 0
         
         unClipBoardContent = ( unIsMoveClipboardParameter, unosMonikers) 
@@ -211,7 +214,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
             aResponse.setCookie('__cp', unClipBoardCookieContent, path='%s' % self.fPathForCookie( aRequest))
         aRequest['__cp'] = unClipBoardCookieContent
     
-        return True
+        return len( unosMonikers)
         
         
     
@@ -247,7 +250,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
     def fExceptionDialog_NoItemsSpecified( self, theModelDDvlPloneTool, theContextualElement):
         
         aMessageDialog =MessageDialog(
-            title    = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'No items specified','No items specified'),
+            title    = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'No items specified','No items specified-'),
             message  = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'You must select one or more items to perform this operation.', 'You must select one or more items to perform this operation.'),
             action ='Tabular'
         )    
@@ -255,13 +258,25 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
     
     
     
+    security.declarePrivate( 'fExceptionDialog_NoItemsCopied')
+    def fExceptionDialog_NoItemsSpecified( self, theModelDDvlPloneTool, theContextualElement):
+        
+        aMessageDialog =MessageDialog(
+            title    = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'ModelDDvlPlone', 'ModelDDvlPlone_No_items_copied','No items copied-'),
+            message  = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'You must select one or more items to perform this operation.', 'You must select one or more items to perform this operation.'),
+            action ='Tabular'
+        )    
+        return aMessageDialog
+    
+    
+        
     
     security.declarePrivate( 'fExceptionDialog_MoveNotSupported')
     def fExceptionDialog_MoveNotSupported( self, theModelDDvlPloneTool, theContextualElement):
         
         aMessageDialog =MessageDialog(
             title    = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'Move not supported','Move not supported'),
-            message  = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'Object can not be moved: %s', 'Object can not be moved: %s') % '/'.join( theContextualElement.getPhysicalPath()),
+            message  = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'Object can not be moved: %s', 'Object can not be moved:- %s') % '/'.join( theContextualElement.getPhysicalPath()),
             action ='Tabular'
         )    
         return aMessageDialog
@@ -381,16 +396,22 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
         try:
             unPasteReport = None
             try:      
+                
+                # ##############################################################################
+                """Transaction Save point before import to get a clean view on the existing object network.
+                
+                """      
+                transaction.savepoint(optimistic=True)
+                
                 unPasteContext = self.fNewVoidPasteContext()
                 unPasteReport  = unPasteContext.get( 'report', {})
                 
+                
+                
                 # ##############################################################################
-                """Transaction  Commit. Even if no change should have been performed.
+                """Check parameters.
                 
                 """      
-                transaction.commit()
-                
-                
                 
                 if ( theContainerObject == None):
                     unPasteReport.update( { 
@@ -614,6 +635,11 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                     
                 
                 unPasteReport.update( {
+                    'num_elements_expected':       unRefactor.vNumElementsExpected,
+                    'num_mdd_elements_expected':   unRefactor.vNumMDDElementsExpected,
+                    'num_plone_elements_expected': unRefactor.vNumPloneElementsExpected,
+                    'num_attributes_expected':     unRefactor.vNumAttributesExpected,
+                    'num_links_expected':          unRefactor.vNumLinksExpected,
                     'num_elements_pasted':         unRefactor.vNumElementsPasted,
                     'num_mdd_elements_pasted':     unRefactor.vNumMDDElementsPasted,
                     'num_plone_elements_pasted':   unRefactor.vNumPloneElementsPasted,
@@ -631,19 +657,23 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                     'num_links_bypassed':          unRefactor.vNumLinksBypassed,
                 })
                 unPasteReport[ 'error_reports'].extend( unRefactor.vErrorReports )
-                            
+                        
+                
+                transaction.commit()
+                if cLogPasteResults:
+                    logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                    
+            
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
-                    transaction.commit()
     
                     unPasteReport.update( { 
                          'success':      True,
                     })
                     
                     if cLogPasteResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED COMPLETED: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
                     
                 else:
-                    transaction.abort()
                     
                     unPasteReport.update( { 
                         'success':      False,
@@ -651,7 +681,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                     })
                     
                     if cLogPasteResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED WITH ERRORS during: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
                     
                 return unPasteReport
             
@@ -667,7 +697,19 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                 if not unPasteReport:
                     unPasteReport = self.fNewVoidPasteReport()
                     
-                unPasteReport[ 'error_reports'].append( unInformeExcepcion)
+                anErrorReport = { 
+                    'theclass': self.__class__.__name__, 
+                    'method': u'fPaste', 
+                    'status': unicode( 'Exception'),
+                    'reason': unicode( 'Exception'),
+                    'params': { 
+                        'theTarget':          str( theContainerObject), 
+                        'numElementsToPaste': unicode( str( len( theObjectsToPaste))),
+                    }, 
+                }
+                    
+                    
+                unPasteReport[ 'error_reports'].append( anErrorReport)
                     
                 unPasteReport.update( { 
                     'success':      False,

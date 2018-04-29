@@ -46,7 +46,7 @@
                                  pForm                request/form;
                                  pGroupAction         python: pForm.get( 'theGroupAction');
                                  pGroupUIDs           python: pForm.get( 'theUIDs');
-                                 pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()"
+                                 global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()"
             tal:condition="python: pGroupAction == 'Delete'" >
  
  
@@ -77,7 +77,7 @@
     
                     <br>
                     <h2 tal:condition="not: pEliminacionPermitida"> 
-                        <a  href="#" tal:attributes="href python: '%s/Tabular' % here.absolute_url_path()" class="state-visible" title="">
+                        <a  href="#" tal:attributes="href python: '%s/Tabular/' % here.absolute_url_path()" class="state-visible" title="">
                             <font color="Red">                    
                                 <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaeliminar_contenidoDe_error_message"/>
                                 &nbsp;
@@ -161,7 +161,7 @@
                             pUIDsForDeleteConfirmation python: [ unDelResult.get( 'UID', '') for unDelResult in pElementResultsForDeleteConfirmation];
                             pIdsForDeleteConfirmation python: [ unDelResult.get( 'id', '') for unDelResult in pElementResultsForDeleteConfirmation]
                             ">
-                            <a  href="#" tal:attributes="href python: '%s/MDDEliminarVariosElementos?theConfirmedDelete=Yes&theSecondsNow=%d&%s&%s' % ( SRES[ 'url'], pSecondsNow, '&'.join( [ 'theIds=%s' % unaId for unaId in pIdsForDeleteConfirmation]),  '&'.join( [ 'theUIDs=%s' % unaId for unaId in pUIDsForDeleteConfirmation]), )" 
+                            <a  href="#" tal:attributes="href python: '%sMDDEliminarVariosElementos/?theConfirmedDelete=Yes&theSecondsNow=%d&%s&%s' % ( SRES[ 'url'], pSecondsNow, '&'.join( [ 'theIds=%s' % unaId for unaId in pIdsForDeleteConfirmation]),  '&'.join( [ 'theUIDs=%s' % unaId for unaId in pUIDsForDeleteConfirmation]), )" 
                                 title="">
                                 <font color="Red">
                                     <img src="#" tal:attributes="src python: here.portal_url() + '/delete_icon.gif'"  
@@ -180,8 +180,29 @@
                             </font>
                             </a>
                         </h3>
+                        <p>
+                            <font size="2">
+                                <strong>
+                                    <span tal:content="python: '%s %d %s ' % (
+                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
+                                        pDeleteManyImpactReports.get( 'seconds_to_delete', 0),
+                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
+                                    )" />
+                                    <br/>
+                                    <span tal:content="python: '%s %s' % (
+                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
+                                        ( pDeleteManyImpactReports.get( 'latest_date_to_delete', None) and pDeleteManyImpactReports.get( 'latest_date_to_delete', None).rfc822()) or '',
+                                    )" />
+                                    <br/>
+                                    <span tal:content="python: '%s %s' % (
+                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
+                                        ( pDeleteManyImpactReports.get( 'date_now', None) and pDeleteManyImpactReports.get( 'date_now', None).rfc822()) or '',
+                                    )" />
+                                </strong>
+                            </font>
+                        </p>
                         <br/>
-                        <br/>
+                        <br/>               
             
                 
                     </tal:block>
@@ -217,7 +238,7 @@
                                             ( not ( unColumnName == 'title') and  ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
                                             ( not ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
                                             ERES[ 'type_translations'][ 'translated_type_description'])"
-                                        tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
+                                        tal:attributes="href python: '%sTabular/' % (ERES[ 'url']); title unTitle"                                                                            
                                         class="state-visible" > 
                                         
         
@@ -286,7 +307,7 @@
                                        ( not ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
                                        ( not ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
                                        ERES[ 'type_translations'][ 'translated_type_description'])"
-                                   tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
+                                   tal:attributes="href python: '%sTabular/' % (ERES[ 'url']); title unTitle"                                                                            
                                    class="state-visible" > 
                                    
    

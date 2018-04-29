@@ -117,6 +117,28 @@ class ModelDDvlPloneTool_Export:
         unExportReport  = unExportContext.get( 'report', {})
         
         
+        aExcludeUsers    = False
+        aExcludeCounters = False
+        aExcludeDates    = False
+        aExcludeUIDs     = False
+        aExcludeFiles    = False
+        aExcludeEmpty    = False
+        aSortByIds       = False
+        aForceRootId     = False
+        anArchiveFormat  = ''
+        if theAdditionalParams:
+            aExcludeUsers    = theAdditionalParams.get( 'theExcludeUsers',    False)
+            aExcludeCounters = theAdditionalParams.get( 'theExcludeCounters', False)
+            aExcludeDates    = theAdditionalParams.get( 'theExcludeDates',    False)
+            aExcludeUIDs     = theAdditionalParams.get( 'theExcludeUIDs',     False)
+            aExcludeFiles    = theAdditionalParams.get( 'theExcludeFiles',    False)
+            aExcludeEmpty    = theAdditionalParams.get( 'theExcludeEmpty',    False)
+            aSortByIds       = theAdditionalParams.get( 'theSortByIds',       False)
+            aForceRootId     = theAdditionalParams.get( 'theForceRootId',     False)
+            anArchiveFormat  = theAdditionalParams.get( 'theArchiveFormat',   False)
+            anArchiveFormat  = (( anArchiveFormat.lower() == 'none') and 'None') or '.zip'
+        
+
         if ( theObject == None):
             unExportReport.update( { 
                 'success':      False,
@@ -161,34 +183,41 @@ class ModelDDvlPloneTool_Export:
         
            
         # ##############################################################################
-        """Create in-memory zip file for exported content, to be sent back to the user in the HTTP request response.
+        """Create in-memory zip file for exported content, to be sent back to the user in the HTTP request response, Unless files are excluded and archive format is none or not supported.
         
         """
         unZipBuffer = None
         unZipFile   = None
         
-        unZipBuffer      = StringIO()
-        unZipFile        = None
-        try:
-            unZipFile = ZipFile( unZipBuffer, "w", compression=ZIP_DEFLATED)
-        except:
-            None
-        if not unZipFile:
-            unZipFile = ZipFile( unZipBuffer, "w", compression=ZIP_STORED)
+        if ( not aExcludeFiles) or not ( anArchiveFormat.lower() == 'none'):
             
-        if not unZipFile:
-            unExportReport.update( {
-                'success':              False,
-                'status':               cExportStatus_Error_Internal_CanNotCreateZipFile,
+            unZipBuffer = None
+            unZipFile   = None
+            
+            unZipBuffer      = StringIO()
+            unZipFile        = None
+            try:
+                unZipFile = ZipFile( unZipBuffer, "w", compression=ZIP_DEFLATED)
+            except:
+                None
+            if not unZipFile:
+                unZipFile = ZipFile( unZipBuffer, "w", compression=ZIP_STORED)
+                
+            if not unZipFile:
+                unExportReport.update( {
+                    'success':              False,
+                    'status':               cExportStatus_Error_Internal_CanNotCreateZipFile,
+                })
+                return unExportReport
+                
+            unExportContext.update( {            
+                'zip_file':                 unZipFile,
+                'zip_buffer':               unZipBuffer,
             })
-            return unExportReport
             
-        unExportContext.update( {            
-            'zip_file':                 unZipFile,
-            'zip_buffer':               unZipBuffer,
-        })
         
-        
+            
+            
         # ##############################################################################
         """Encode in the output encoding, and cache, all meta_type and attribute names.
         
@@ -236,6 +265,7 @@ class ModelDDvlPloneTool_Export:
         unExportResult = self.fExport_Recursive( 
             theTimeProfilingResults     =theTimeProfilingResults,
             theRootObject               =theObject,
+            theIsRootObject             =True,
             theObject                   =theObject, 
             theAllExportTypeConfigs     =theAllExportTypeConfigs, 
             theExportContext            =unExportContext,
@@ -245,19 +275,30 @@ class ModelDDvlPloneTool_Export:
             theExportErrors             =unExportErrors,
             theAdditionalParams         =theAdditionalParams)
         
+        if not unExportResult:
+            unExportReport.update( { 
+                'success':      False,
+            })
+            return unExportResult
+ 
         
-        
-        
-        unExportImagesAndFilesResult = self.fExportImagesAndFiles( 
-            theTimeProfilingResults     =theTimeProfilingResults,
-            theObject                   =theObject, 
-            theAllExportTypeConfigs     =theAllExportTypeConfigs, 
-            theExportContext            =unExportContext,
-            theTranslationService       =aTranslationService,
-            theOutputEncoding           =theOutputEncoding,
-            theEncodedNamesCache        =anEncodedNamesCache,
-            theExportErrors             =unExportErrors,
-            theAdditionalParams         =theAdditionalParams)
+        if not aExcludeFiles:
+            unExportImagesAndFilesResult = self.fExportImagesAndFiles( 
+                theTimeProfilingResults     =theTimeProfilingResults,
+                theObject                   =theObject, 
+                theAllExportTypeConfigs     =theAllExportTypeConfigs, 
+                theExportContext            =unExportContext,
+                theTranslationService       =aTranslationService,
+                theOutputEncoding           =theOutputEncoding,
+                theEncodedNamesCache        =anEncodedNamesCache,
+                theExportErrors             =unExportErrors,
+                theAdditionalParams         =theAdditionalParams)
+            
+            if not unExportImagesAndFilesResult:
+                unExportReport.update( { 
+                    'success':      False,
+                })
+                return unExportResult
 
         
         
@@ -265,18 +306,28 @@ class ModelDDvlPloneTool_Export:
         
         unXMLFileName = '%s.%s' % ( theObject.getId(), cXMLFilePostfix,)
         
-        unZipFile.writestr( unXMLFileName, unXMLString)
-
-        unZipFile.close()  
-        
-        unZIPFileName = '%s%s' % ( theObject.getId(), cZIPFilePostfix, )
-        
-        theObject.REQUEST.RESPONSE.setHeader('Content-Type','application/zip')
-        theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unZIPFileName)
-        theObject.REQUEST.RESPONSE.write( unZipBuffer.getvalue()) 
         
         
+        if ( not aExcludeFiles) or not ( anArchiveFormat.lower() == 'none'):
         
+            unZipFile.writestr( unXMLFileName, unXMLString)
+    
+            unZipFile.close()  
+            
+            unZIPFileName = '%s%s' % ( theObject.getId(), cZIPFilePostfix, )
+        
+            theObject.REQUEST.RESPONSE.setHeader('Content-Type','application/zip')
+            theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unZIPFileName)
+            theObject.REQUEST.RESPONSE.write( unZipBuffer.getvalue()) 
+        
+        else:
+            
+            theObject.REQUEST.RESPONSE.setHeader('Content-Type','text/xml')
+            theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unXMLFileName)
+            theObject.REQUEST.RESPONSE.write( unXMLString) 
+            
+        
+            
         unExportReport.update( { 
              'success':      True,
         })
@@ -413,6 +464,7 @@ class ModelDDvlPloneTool_Export:
     def fExport_Recursive( self,
         theTimeProfilingResults     =None,
         theRootObject               =None,
+        theIsRootObject             =False,
         theObject                   =None, 
         theAllExportTypeConfigs     =None, 
         theExportContext            =None,
@@ -434,6 +486,28 @@ class ModelDDvlPloneTool_Export:
         
         unExportReport  = theExportContext.get( 'report', {})
         
+        aExcludeUsers    = False
+        aExcludeCounters = False
+        aExcludeDates    = False
+        aExcludeUIDs     = False
+        aExcludeFiles    = False
+        aExcludeEmpty    = False
+        aSortByIds       = False
+        aForceRootId     = False
+        anArchiveFormat  = ''
+        if theAdditionalParams:
+            aExcludeUsers    = theAdditionalParams.get( 'theExcludeUsers',    False)
+            aExcludeCounters = theAdditionalParams.get( 'theExcludeCounters', False)
+            aExcludeDates    = theAdditionalParams.get( 'theExcludeDates',    False)
+            aExcludeUIDs     = theAdditionalParams.get( 'theExcludeUIDs',     False)
+            aExcludeFiles    = theAdditionalParams.get( 'theExcludeFiles',    False)
+            aExcludeEmpty    = theAdditionalParams.get( 'theExcludeEmpty',    False)
+            aSortByIds       = theAdditionalParams.get( 'theSortByIds',       False)
+            aForceRootId     = theAdditionalParams.get( 'theForceRootId',     False)
+            anArchiveFormat  = theAdditionalParams.get( 'theArchiveFormat',   False)
+            anArchiveFormat  = (( anArchiveFormat.lower() == 'none') and 'None') or '.zip'
+       
+       
         unElementMetaType = theObject.meta_type
         
         unTypeConfig = theAllExportTypeConfigs.get( unElementMetaType, {})
@@ -472,8 +546,7 @@ class ModelDDvlPloneTool_Export:
                 'status':       cExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName,
             })
             return False
-         
-            
+
             
             
         # ##############################################################################
@@ -483,11 +556,30 @@ class ModelDDvlPloneTool_Export:
         unNewElement = unXMLDocument.createElement( unElementMetaTypeEncoded)
         
         unNewElement.setAttribute( cXMLAttributeName_PloneTitle,    theObject.Title())
-        unNewElement.setAttribute( cXMLAttributeName_PloneId,       theObject.getId())
-        unNewElement.setAttribute( cXMLAttributeName_PloneUID,      theObject.UID())
+
+        unObjectId = cExportForcedRootId
+        if not ( theIsRootObject and aForceRootId):
+            unObjectId = theObject.getId()
+            
+            
+        unNewElement.setAttribute( cXMLAttributeName_PloneId,       unObjectId)
         unNewElement.setAttribute( cXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( theObject, theRootObject))
+        if not aExcludeUIDs:
+            unNewElement.setAttribute( cXMLAttributeName_PloneUID,  theObject.UID())
         
-        
+            
+            
+        unEsCollection = False
+        try:
+            unEsCollection = theObject.getEsColeccion()
+        except:
+            None
+            
+        if unEsCollection:
+            unNewElement.setAttribute( cXMLAttributeName_IsCollection,   cXMLAttributeValue_IsCollection_True)
+            
+            
+            
         
         # ##############################################################################
         """Add new element to parent, or as root if no current parent, adding the new element to the stack.
@@ -519,12 +611,27 @@ class ModelDDvlPloneTool_Export:
                 return False
            
             
+            
+            
             # ##############################################################################
             """Iterate and export each configured attribute.
             
             """
             unosAttrConfigs = unTypeConfig.get( 'attrs', [])
-            for unAttrConfig in unosAttrConfigs:
+            unosSortedAttrConfigs = unosAttrConfigs[:]
+            
+            
+            
+            # ##############################################################################
+            """Sort attributes by name, if requested to sort elements by id.
+            
+            """
+            if aSortByIds:
+                unosSortedAttrConfigs = sorted( unosSortedAttrConfigs, lambda unAC, otroAC: cmp( unAC[ 'name'], otroAC[ 'name']))
+            
+                
+                
+            for unAttrConfig in unosSortedAttrConfigs:
                 
                 unAttrName = unAttrConfig.get( 'name', '')
                 if not unAttrName:
@@ -539,7 +646,7 @@ class ModelDDvlPloneTool_Export:
                 unIdAttributeToSet          = ''
                 unTitleAttributeToSet       = ''
                 
-                unAttrNameEncoded = theEncodedNamesCache.get( unAttrName, None)
+                unAttrNameEncoded = theEncodedNamesCache.get( unAttrName, '')
                 if not unAttrNameEncoded:
                     theExportErrors.append( { 
                         'status':       cExportStatus_Error_Internal_EncodedNameMissing_AttrName,
@@ -547,9 +654,36 @@ class ModelDDvlPloneTool_Export:
                     })
                     continue
                 
+                
+                unIsInterVersionUID   = unAttrConfig.get( 'is_inter_version',    False)
+                if unIsInterVersionUID and aExcludeUIDs:
+                    continue
+                
+                unIsInterTranslationUID   = unAttrConfig.get( 'is_inter_translation',    False)
+                if unIsInterTranslationUID and aExcludeUIDs:
+                    continue
+                
+                
+                unIsActivityUser   = unAttrConfig.get( 'is_activity_user',    False)
+                if unIsActivityUser and aExcludeUsers:
+                    continue
+                
+                unIsActivityCounter= unAttrConfig.get( 'is_activity_counter', False)
+                if unIsActivityCounter and aExcludeCounters:
+                    continue
+                
+                unIsActivityDate   = unAttrConfig.get( 'is_activity_date',    False)
+                if unIsActivityDate and aExcludeDates:
+                    continue
+                
+                
                 unAttrType         = unAttrConfig.get( 'type',      '').lower()
                 unAttrAccessorName = unAttrConfig.get( 'accessor',  '')     
-                unAttributeName    = unAttrConfig.get( 'attribute', '')     
+                unAttributeName    = unAttrConfig.get( 'attribute', '')    
+                
+                
+
+                
                 
                 if unAttrAccessorName or unAttributeName:
                     
@@ -672,42 +806,100 @@ class ModelDDvlPloneTool_Export:
                 unValueStringEncoded = ''
                 unCreateCDATA = False
                 
+                unCreateAttribute = False
+                
                 if unAttrType in [ 'string', 'text', 'selection',]:  
-                    if unAttrType in [ 'text',]:  
-                        if unAttrName == "description":
-                            unCreateCDATA = False
-                        else:
-                            unCreateCDATA = True                                    
+                    
+                    if unRawValue or not aExcludeEmpty:
                         
-                            if unObjectAttributeField:
-                                aContentTypeAttributeToSet = unObjectAttributeField.getContentType( theObject)
-                         
-                    unValueStringEncoded = ''
-                    if unRawValue:
-                        unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRawValue, theTranslationService, theOutputEncoding)
-                        if ( not unEncodingOk)  or not unValueStringEncoded:
-                            theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
-                                'meta_type':    unElementMetaType,
-                                'attr':         unAttrName,
-                                'value':        repr( unRawValue),
-                            })
+                        unCreateAttribute = True
                         
-                elif unAttrType in [ 'boolean', 'integer', 'float','fixedpoint',]:  
+                        if unAttrType in [ 'text',]:  
+                            if unAttrName == "description":
+                                unCreateCDATA = False
+                            else:
+                                unCreateCDATA = True                                    
+                            
+                                if unObjectAttributeField:
+                                    aContentTypeAttributeToSet = unObjectAttributeField.getContentType( theObject)
+                             
+                        unValueStringEncoded = ''
+                        if unRawValue:
+                            unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRawValue, theTranslationService, theOutputEncoding)
+                            if ( not unEncodingOk)  or not unValueStringEncoded:
+                                theEncodingErrors.append( { 
+                                    'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
+                                    'meta_type':    unElementMetaType,
+                                    'attr':         unAttrName,
+                                    'value':        repr( unRawValue),
+                                })
+                        
+                                
+                                
+                                
+                                
+                elif unAttrType in [ 'boolean', ]: 
+                    
+                    unCreateAttribute = True
+
                     unValueString = str( unRawValue)
                     unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unValueString, theTranslationService, theOutputEncoding)
                     if not unEncodingOk:
                         unValueStringEncoded = ''
                         
                         
-                elif unAttrType in [ 'datetime', 'date', ]:  
+                        
+                        
+                        
+                elif unAttrType in [ 'integer', ]:
+                    
+                    # ACV 20091110 Always output numbers
+                    # if unRawValue or not aExcludeEmpty:
+                        
+                    unCreateAttribute = True
+                
                     unValueString = str( unRawValue)
                     unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unValueString, theTranslationService, theOutputEncoding)
                     if not unEncodingOk:
                         unValueStringEncoded = ''
                         
+                        
+                            
+                            
+                            
+                elif unAttrType in ['float','fixedpoint',]:  
+                    
+                    # ACV 20091110 Always output numbers
+                    #if not ( unRawValue == 0.0) or not aExcludeEmpty:
+                       
+                    unCreateAttribute = True
+                
+                    unValueString = str( unRawValue)
+                    unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unValueString, theTranslationService, theOutputEncoding)
+                    if not unEncodingOk:
+                        unValueStringEncoded = ''
+                        
+                       
+                        
+                elif unAttrType in [ 'datetime', 'date', ]: 
+                    
+                    if unRawValue or not aExcludeEmpty:
+                        
+                        unCreateAttribute = True
+                        
+                        unValueString = str( unRawValue)
+                        unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unValueString, theTranslationService, theOutputEncoding)
+                        if not unEncodingOk:
+                            unValueStringEncoded = ''
+                        
+                            
+                            
+                            
                 elif unAttrType == 'image':
+                    
                     if unRawValue:
+                        
+                        unCreateAttribute = True                    
                         
                         unaImage = unRawValue
 
@@ -744,9 +936,15 @@ class ModelDDvlPloneTool_Export:
                         
                         theExportContext[ 'images_to_export'].append( [ unImageFullFileName, unFilename, unaImageAsFile, aContentTypeAttributeToSet, ])
                     
+                        
+                        
+                        
                     
                 elif unAttrType == 'file':
+                    
                     if unRawValue:
+                        
+                        unCreateAttribute = True
                         
                         unFile      = unRawValue
                         
@@ -781,32 +979,36 @@ class ModelDDvlPloneTool_Export:
                         
                         theExportContext[ 'files_to_export'].append( [ unFileFullFileName, unFilename, unFileAsFile, aContentTypeAttributeToSet,])
                     
-                    
-
-                unNewAttributeElement    = unXMLDocument.createElement( unAttrNameEncoded)
-                unNewElement.appendChild( unNewAttributeElement)
-
-                if unValueStringEncoded:
-                    
-                    if unIdAttributeToSet:
-                        unNewAttributeElement.setAttribute( cXMLAttributeName_PloneId,     unIdAttributeToSet)                        
-
-                    if aContentTypeAttributeToSet:
-                        unNewAttributeElement.setAttribute( cXMLAttributeName_ContentType, aContentTypeAttributeToSet)                        
-                    
-                    if unTitleAttributeToSet:
-                        unNewAttributeElement.setAttribute( cXMLAttributeName_PloneTitle,  unTitleAttributeToSet)                        
-
-                    unNewAttributeElementData = None
-                    if unCreateCDATA:
-                        unValueStringEncoded = unValueStringEncoded.replace( ']]>', '')
-                        unNewAttributeElementData   = unXMLDocument.createCDATASection( unValueStringEncoded)
-                    else:
-                        unValueStringEncoded = unValueStringEncoded.replace( '<![CDATA[', '')                                                        
-                        unNewAttributeElementData   = unXMLDocument.createTextNode( unValueStringEncoded)
                         
-                    unNewAttributeElement.appendChild( unNewAttributeElementData)
-        
+                        
+                        
+                    
+                if unCreateAttribute:
+                    
+                    unNewAttributeElement    = unXMLDocument.createElement( unAttrNameEncoded)
+                    unNewElement.appendChild( unNewAttributeElement)
+    
+                    if unValueStringEncoded:
+                        
+                        if unIdAttributeToSet:
+                            unNewAttributeElement.setAttribute( cXMLAttributeName_PloneId,     unIdAttributeToSet)                        
+    
+                        if aContentTypeAttributeToSet:
+                            unNewAttributeElement.setAttribute( cXMLAttributeName_ContentType, aContentTypeAttributeToSet)                        
+                        
+                        if unTitleAttributeToSet:
+                            unNewAttributeElement.setAttribute( cXMLAttributeName_PloneTitle,  unTitleAttributeToSet)                        
+    
+                        unNewAttributeElementData = None
+                        if unCreateCDATA:
+                            unValueStringEncoded = unValueStringEncoded.replace( ']]>', '')
+                            unNewAttributeElementData   = unXMLDocument.createCDATASection( unValueStringEncoded)
+                        else:
+                            unValueStringEncoded = unValueStringEncoded.replace( '<![CDATA[', '')                                                        
+                            unNewAttributeElementData   = unXMLDocument.createTextNode( unValueStringEncoded)
+                            
+                        unNewAttributeElement.appendChild( unNewAttributeElementData)
+            
                         
                         
                         
@@ -815,7 +1017,19 @@ class ModelDDvlPloneTool_Export:
             
             """
             unosTraversalConfigs = unTypeConfig.get( 'traversals', [])
-            for unTraversalConfig in unosTraversalConfigs:
+            unosSortedTraversalConfigs = unosTraversalConfigs[:]
+            
+            
+            # ##############################################################################
+            """Sort attributes by name, if requested to sort elements by id.
+            
+            """
+            if aSortByIds:
+                unosSortedTraversalConfigs = sorted( unosTraversalConfigs, lambda unTC, otroTC: cmp( unTC.get( 'aggregation_name', '') or unTC.get( 'relation_name', ''), otroTC.get( 'aggregation_name', '') or otroTC.get( 'relation_name', '') )  )
+            
+            
+                
+            for unTraversalConfig in unosSortedTraversalConfigs:
                 unAggregationName = unTraversalConfig.get( 'aggregation_name', '')
                 if unAggregationName:
                     # ##############################################################################
@@ -847,50 +1061,70 @@ class ModelDDvlPloneTool_Export:
                         
                         
                         
-                         
-                        if someSubItems:
-                            # ##############################################################################
-                            """Sort Retrieved contained objects by Id.
-                            
-                            """
-                            someIdsAndSubItems = [ [ aSubItem.getId(), aSubItem, ] for aSubItem in someSubItems]
-                            someSortedIdsAndSubItems = someIdsAndSubItems # ACV 20090917 Do not alter order on export, removed: sorted( someIdsAndSubItems, lambda unSI, otroSI: cmp( unSI[ 0], otroSI[ 0]))
                         
+                        if someSubItems or not aExcludeEmpty:
+                            
                             # ##############################################################################
-                            """Recursively export retrieved sorted subitems, creating a DOM element for the aggregation, and adding the new element to the stack.
+                            """Create a DOM element for the aggregation.
                             
                             """
                             unNewAggregationElement  = unXMLDocument.createElement( unAggregationName)
+                            unNewAggregationElement.setAttribute( cXMLAttributeName_IsAggregation,   cXMLAttributeValue_IsAggregation_True)
                             unNewElement.appendChild( unNewAggregationElement)
-                            try:
-                                unXMLStack.append( unNewAggregationElement)
-        
-                                for unaIdAndSubItem in someSortedIdsAndSubItems:
-                                    unSubItemId = unaIdAndSubItem[ 0]
-                                    unSubItem   = unaIdAndSubItem[ 1]
+                        
+                         
+                            if someSubItems:
+                                
+                                somePathsAndSubItems = [ [ self.fPathStringRelativeToRoot( aSubItem, theRootObject, ), aSubItem, ] for aSubItem in someSubItems]
+                                someSortedPathsAndSubItems = somePathsAndSubItems[:]
+                                
+                                # ##############################################################################
+                                """Sort Retrieved contained objects by Id if so requested.
+                                
+                                """
+                                if aSortByIds:
+                                    someSortedPathsAndSubItems = sorted( somePathsAndSubItems, lambda unSI, otroSI: cmp( unSI[ 0], otroSI[ 0]))
                                     
-                                    unSubItemExportResult = self.fExport_Recursive( 
-                                        theTimeProfilingResults     =theTimeProfilingResults,
-                                        theRootObject               =theRootObject, 
-                                        theObject                   =unSubItem, 
-                                        theAllExportTypeConfigs     =theAllExportTypeConfigs, 
-                                        theExportContext            =theExportContext,
-                                        theTranslationService       =theTranslationService,
-                                        theOutputEncoding           =theOutputEncoding,
-                                        theEncodedNamesCache        =theEncodedNamesCache,
-                                        theExportErrors             =theExportErrors,
-                                        theAdditionalParams         =theAdditionalParams)
-                            finally:   
-                                unXMLStack.pop()
+                                    
+                                # ##############################################################################
+                                """Add the new aggregation element to the stack and Recursively export retrieved subitems.
+                                
+                                """
+                                try:
+                                    unXMLStack.append( unNewAggregationElement)
+            
+                                    for unPathAndSubItem in someSortedPathsAndSubItems:
+                                        unSubItem   = unPathAndSubItem[ 1]
+                                        
+                                        unSubItemExportResult = self.fExport_Recursive( 
+                                            theTimeProfilingResults     =theTimeProfilingResults,
+                                            theRootObject               =theRootObject, 
+                                            theIsRootObject             =False,
+                                            theObject                   =unSubItem, 
+                                            theAllExportTypeConfigs     =theAllExportTypeConfigs, 
+                                            theExportContext            =theExportContext,
+                                            theTranslationService       =theTranslationService,
+                                            theOutputEncoding           =theOutputEncoding,
+                                            theEncodedNamesCache        =theEncodedNamesCache,
+                                            theExportErrors             =theExportErrors,
+                                            theAdditionalParams         =theAdditionalParams)
+                                finally:   
+                                    unXMLStack.pop()
                     
                 else:
+                    
+                    
                     unRelationName = unTraversalConfig.get( 'relation_name', '')
+
+                    
                     if unRelationName:
+
                         # ##############################################################################
                         """Iterate and export a reference to each related element, which are of one of the configured types.
                         
                         """
                         if unObjectSchema.has_key( unRelationName):
+                                                        
                         
                             # ##############################################################################
                             """Determine types of subitems to export.
@@ -934,30 +1168,42 @@ class ModelDDvlPloneTool_Export:
                                         if aRelatedItemMetaType in someAcceptedPortalTypes:
                                             someRelatedItemsOfRightType.append( aRelatedItem)
                                     
-                                
-                            if someRelatedItemsOfRightType:
+                                             
+                                            
+                            if someRelatedItemsOfRightType or not aExcludeEmpty:
+                                                
                                 # ##############################################################################
-                                """Sort Retrieved related objects by Id.
-                                
-                                """
-                                someIdsAndRelatedItems = [ [ aRelatedItem.getId(), aRelatedItem, ] for aRelatedItem in someRelatedItemsOfRightType]
-                                someSortedIdsAndRelatedItems = someIdsAndRelatedItems # ACV 20090917 Do not alter order on export, removed:  sorted( someIdsAndRelatedItems, lambda unRI, otroRI: cmp( unRI[ 0], otroRI[ 0]))
-                                
-                                
-                                
-                                # ##############################################################################
-                                """Export  sorted references to related items.
+                                """Create node for the relation.
                                 
                                 """
                                 unNewRelationElement  = unXMLDocument.createElement( unRelationName)
+                                unNewRelationElement.setAttribute( cXMLAttributeName_IsRelation,   cXMLAttributeValue_IsRelation_True)
                                 unNewElement.appendChild( unNewRelationElement)
-                                try:
-                                    unXMLStack.append( unNewRelationElement)
+                                            
+                                                
+                                if someRelatedItemsOfRightType:
+                                     
+                                    
+                                    somePathsAndRelatedItems = [ [ self.fPathStringRelativeToRoot( aRelatedItem, theRootObject, ), aRelatedItem, ] for aRelatedItem in someRelatedItemsOfRightType]
+                                    someSortedPathsAndRelatedItems = somePathsAndRelatedItems[:]
+                                
                                     
                                     
-                                    for unaIdAndRelatedItem in someSortedIdsAndRelatedItems:
-                                        unRelatedItemId = unaIdAndRelatedItem[ 0]
-                                        unRelatedItem   = unaIdAndRelatedItem[ 1]
+                                    # ##############################################################################
+                                    """Sort Retrieved related objects by Id if so requested.
+                                    
+                                    """
+                                    if aSortByIds:
+                                        someSortedPathsAndRelatedItems = sorted( somePathsAndRelatedItems, lambda unSI, otroSI: cmp( unSI[ 0], otroSI[ 0]))
+                                     
+                                        
+                                        
+                                    # ##############################################################################
+                                    """Export references to related items.
+                                    
+                                    """
+                                    for unPathAndRelatedItem in someSortedPathsAndRelatedItems:
+                                        unRelatedItem   = unPathAndRelatedItem[ 1]
                                         
                                         unRelatedMetaType = unRelatedItem.meta_type
                                         
@@ -966,9 +1212,14 @@ class ModelDDvlPloneTool_Export:
                                         """Get related element metatype name from cache in output encoding, or using translation service.
                                         
                                         """
-                                        unRelatedMetaTypeEncoded = theEncodedNamesCache.get( unRelatedMetaType, None)
+                                        
+                                        # ACV 20091105 To differentiate between content elements and reference elements
+                                        # Was:
+                                        # unRelatedMetaTypeReference = unRelatedMetaType
+                                        unRelatedMetaTypeReference = unRelatedMetaType + cXMLRelatedMetaTypePostfix
+                                        unRelatedMetaTypeEncoded = theEncodedNamesCache.get( unRelatedMetaTypeReference, '')
                                         if not unRelatedMetaTypeEncoded:
-                                            unRelatedMetaTypeEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRelatedMetaType, theTranslationService, theOutputEncoding)
+                                            unRelatedMetaTypeEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRelatedMetaTypeReference, theTranslationService, theOutputEncoding)
                                             if ( not unEncodingOk)  or not unRelatedMetaTypeEncoded:
                                                 theEncodingErrors.append( { 
                                                     'status':       cExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName,
@@ -976,7 +1227,7 @@ class ModelDDvlPloneTool_Export:
                                                 })                                            
                                                 unRelatedMetaTypeEncoded = ''
                                             else:
-                                                theEncodedNamesCache[ unRelatedMetaType] = unRelatedMetaTypeEncoded    
+                                                theEncodedNamesCache[ unRelatedMetaTypeReference] = unRelatedMetaTypeEncoded    
                                             
                                                 
                                                 
@@ -988,14 +1239,18 @@ class ModelDDvlPloneTool_Export:
                                             """
                                             unNewRelatedElementReference = unXMLDocument.createElement( unRelatedMetaTypeEncoded)
                                             
+                                            # ACV 20091105 To differentiate between content elements and reference elements
+                                            # Added
+                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_IsReference,   cXMLAttributeValue_IsReference_True)
+    
                                             unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneTitle,    unRelatedItem.Title())
-                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneUID,      unRelatedItem.UID())
+                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneId,       unRelatedItem.getId())
                                             unNewRelatedElementReference.setAttribute( cXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( unRelatedItem, theRootObject))
-            
+                                            if not aExcludeUIDs:
+                                                unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneUID,      unRelatedItem.UID())
+                                            
                                             unNewRelationElement.appendChild( unNewRelatedElementReference)
-                    
-                                finally:   
-                                    unXMLStack.pop()
+                        
                     
         finally:   
             unXMLStack.pop()

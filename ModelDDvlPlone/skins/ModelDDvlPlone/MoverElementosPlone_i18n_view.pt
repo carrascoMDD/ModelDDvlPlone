@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MoverElementosPlone_i18n_view.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -44,7 +48,7 @@
                         'theMovedObjectUID'       :pMovedObjectUID, 
                         'theMoveDirection'        :pMoveDirection, 
                         'theAdditionalParams'     :None, };                  
-                    dummy python: here.ModelDDvlPlone_tool.pMoveSubObjectPlone( **unosArgs);
+                    aMoveResult python: here.ModelDDvlPlone_tool.pMoveSubObjectPlone( **unosArgs);
                     pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">     
 
 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   

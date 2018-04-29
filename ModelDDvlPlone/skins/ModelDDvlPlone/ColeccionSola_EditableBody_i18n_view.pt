@@ -42,9 +42,13 @@
 
 |
 |
-    
+
+
 **<tal:block 
         tal:content="TRAVRES/traversal_translations/translated_label" />**
+**<tal:block 
+            tal:content="python: u'%s' % TRAVRES[ 'traversal_translations'][ 'translated_label'].strip()" />**
+
 
 
 <metal:block metal:use-macro="here/Tabla_EditableBody_i18n_view/macros/tTabla_EditableBody_i18n" />        

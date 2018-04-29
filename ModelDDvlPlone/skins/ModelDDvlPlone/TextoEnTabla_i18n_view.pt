@@ -57,7 +57,8 @@
                         <td align="left">
                             <p>
                                 <tal tal:repeat="unaLineaTexto python: ATTRRES[ 'uvalue' ].splitlines()">
-                                    <span tal:content="unaLineaTexto" /><br/>
+                                    <tal:block tal:replace="structure python: '<span>%s%s</span>\n' % ( '&ensp;' * ( len( unaLineaTexto) - len( unaLineaTexto.lstrip())) , unaLineaTexto.lstrip(), )" />
+                                    <br/>
                                 </tal>
                             </p>
                        </td>

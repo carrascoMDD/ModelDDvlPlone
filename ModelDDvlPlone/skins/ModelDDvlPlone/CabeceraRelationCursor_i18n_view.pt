@@ -37,7 +37,7 @@
             pPagina                           pPagina          | string:;
             pShowOrHideTrees                  pFalse;
             pShowTrees                        pShowTrees       | pFalse;
-            pRelationCursorName               pRelationCursorName | string:;
+            global pRelationCursorName               pRelationCursorName | string:;
             pPaginaAnteriorPosterior          pPaginaAnteriorPosterior | string:;  
             global unPostfixPagina                   string:;
             global unPostfixPaginaAnteriorPosterior  string:;" 
@@ -47,10 +47,10 @@
 
 
             <tal:block tal:condition="python: pPagina and not pPagina == 'Textual'">
-                <tal:block tal:define="global unPostfixPagina  python: '/%s' % pPagina" />
+                <tal:block tal:define="global unPostfixPagina  python: '%s/' % pPagina" />
             </tal:block>
             <tal:block tal:condition="python: pPaginaAnteriorPosterior and not pPaginaAnteriorPosterior == 'Textual'">
-                <tal:block tal:define="global unPostfixPaginaAnteriorPosterior  python: '/%s' % pPaginaAnteriorPosterior" />
+                <tal:block tal:define="global unPostfixPaginaAnteriorPosterior  python: '%s/' % pPaginaAnteriorPosterior" />
             </tal:block>
     
             <table width="100%%" cellspacing="0" cellpadding="0" frame="void" >
@@ -66,27 +66,20 @@
                             <span tal:content="SRES/type_translations/translated_archetype_name" />
                         </h5>
                     </td>
-                    <td align="center" valign="baseline"   tal:condition="python: SRES[ 'owner_element']" 
+                    <td align="right" valign="baseline"   tal:condition="python: SRES[ 'owner_element']" 
                         tal:define="unTituloEnlace python: '%s %s %s %s' % ( SRES[ 'owner_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'owner_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'owner_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'owner_element'][ 'type_translations'][ 'translated_type_description']);
-                             global unaHref python: '%s/Tabular#referencias-%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, );
+                             global unaHref python: '%sTabular/#referencias-%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, );
                              global unIcon  python: SRES[ 'cursor'][ 'container_element'][ 'content_icon']" >
                         <a   class="state-visible" title="" 
                             href="#" title="#" tal:attributes="
                                 title unTituloEnlace; 
                                 href unaHref" >
                             <img src="#" tal:attributes="
-                                src string:${portal_url}/propietario.gif; 
+                                src python: '%s/%s' % ( SRES[ 'portal_url'], 'propietario.gif'); 
                                 title unTituloEnlace;
                                 alt SRES/owner_element/values_by_name/title/uvalue" 
                                 alt="" title="" id="icon-subject" />
-                            &nbsp;
-                            <img src="#" tal:attributes="
-                                src python: '%s/%s' % (here.portal_url(), SRES[ 'owner_element'][ 'content_icon']);                                 
-                                title unTituloEnlace;
-                                alt SRES/owner_element/values_by_name/title/uvalue"
-                                alt="" title="" id="icon-propietario" />
-                            &nbsp;
-                            <span tal:content="SRES/owner_element/values_by_name/title/uvalue" />
+                            <span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_abandonarrecorrer_action_label', 'Abandon Browse-')" />
                         </a>                    
                         &nbsp;
                     </td>
@@ -96,10 +89,10 @@
                     
                     <td align="right" colspan="3" tal:condition="python: pShowOrHideTrees">
                         <tal:block tal:condition="pShowTrees">      
-                            <tal:block tal:define="unaHref python: '%s/Tabular?HideTrees&theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'UID'] )" >
+                            <tal:block tal:define="unaHref python: '%sTabular/?HideTrees&theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'UID'] )" >
                                 <a href="#" title="#"  tal:attributes="href unaHref" 
                                     i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_hidetrees_action_label">
-                                    <img src="#" tal:attributes="src string:${portal_url}/mostrarlistas.gif"  
+                                    <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrarlistas.gif', )"  
                                         alt="Mostrar Listas" title="HideTrees" id="icon-hidetrees"
                                         i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_hidetrees_action_label; title ModelDDvlPlone_hidetrees_action_label" />
                                     <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_hidetrees_action_label">Mostrar Listas</span>        
@@ -109,10 +102,10 @@
                             &nbsp;
                         </tal:block>
                         <tal:block tal:condition="python: not pShowTrees">                            
-                            <tal:block tal:define="global unaHref python: '%s/Tabular?ShowTrees&theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'UID'] )" >
+                            <tal:block tal:define="global unaHref python: '%sTabular/?ShowTrees&theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'UID'] )" >
                                 <a href="#" title="#"  tal:attributes="href unaHref" 
                                      i18n:domain="ModelDDvlPlone" i18n:attributes="title ModelDDvlPlone_showtrees_action_label">
-                                    <img src="#" tal:attributes="src string:${portal_url}/mostrararboles.gif"  
+                                    <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'mostrararboles.gif', )"  
                                         alt="Mostrar Arboles" title="HideTrees" id="icon-hidetrees"
                                          i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_showtrees_action_label; title ModelDDvlPlone_showtrees_action_label" />
                                     <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_showtrees_action_label">Mostrar Arboles</span>        
@@ -125,14 +118,14 @@
 
                     <td align="right" valign="baseline" tal:condition="python: not ( SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
                         <font color="White">
-                            <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                            <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                 alt="#" title="#" id="icon-primero"
                                 i18n:attributes="alt ModelDDvlPlone_iraprimero_action_label; title ModelDDvlPlone_iraprimero_action_label" />
                         </font>
                         &nbsp;
                         &nbsp;
                         <font color="White">
-                            <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                            <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                 alt="Anterior" title="Anterior" id="icon-anterior"
                                 i18n:attributes="alt ModelDDvlPlone_anterior_action_label; title ModelDDvlPlone_anterior_action_label" />
                         </font>
@@ -144,26 +137,26 @@
                             &nbsp;
                         </font>
                         <font color="White">
-                            <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                            <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                 alt="Posterior" title="Posterior" id="icon-posterior"
                                 i18n:attributes="alt ModelDDvlPlone_posterior_action_label; title ModelDDvlPlone_posterior_action_label" />
                         </font>
                         &nbsp;
                         &nbsp;
                         <font color="White">
-                            <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                            <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                 alt="Posterior" title="Posterior" id="icon-ultimo"
                                 i18n:attributes="alt ModelDDvlPlone_iraultimo_action_label; title ModelDDvlPlone_iraultimo_action_label" />
                         </font>
                     </td>
                     <td align="right" valign="baseline" tal:condition="python: ( SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
                          <tal:block tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object'])" >                            
-                            <tal:block tal:define="unaHref python: '%s/Tabular?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'first_element'][ 'UID'] )" >
+                            <tal:block tal:define="unaHref python: '%sTabular/?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'first_element'][ 'UID'] )" >
                                 <a href="#" title="#" 
                                     tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'first_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'first_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'first_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'first_element'][ 'type_translations'][ 'translated_type_description'])"
                                     tal:attributes="title unTitle; href unaHref" >
                                     <img src="#" tal:attributes="
-                                        src string:${portal_url}/primero.gif;
+                                        src python: '%s/primero.gif' % SRES[ 'portal_url'];
                                         title unTitle;
                                         alt  SRES/cursor/first_element/values_by_name/title/uvalue"  
                                         alt="#" title="#" id="icon-primero" />
@@ -174,7 +167,7 @@
                         </tal:block>
                         <tal:block tal:condition="python: not( SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and  not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object']))" >                            
                             <font color="White">
-                                <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                                <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                     alt="#" title="#" id="icon-primero"
                                     i18n:attributes="alt ModelDDvlPlone_iraprimero_action_label; title ModelDDvlPlone_iraprimero_action_label" />
                             </font>
@@ -182,12 +175,12 @@
                             &nbsp;
                         </tal:block>
                         <tal:block tal:condition="SRES/cursor/previous_element" >                            
-                            <tal:block tal:define="unaHref python: '%s/Tabular?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'previous_element'][ 'UID'] )" >
+                            <tal:block tal:define="unaHref python: '%sTabular/?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'previous_element'][ 'UID'] )" >
                                 <a href="#" title="#" 
                                     tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'previous_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'previous_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'previous_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'previous_element'][ 'type_translations'][ 'translated_type_description'])"
                                     tal:attributes=" title  unTitle; href unaHref" >
                                     <img src="#" tal:attributes="
-                                        src string:${portal_url}/anterior.gif;
+                                        src python: '%s/anterior.gif' % SRES[ 'portal_url'];
                                         title unTitle;
                                         alt  SRES/cursor/previous_element/values_by_name/title/uvalue"  
                                         alt="#" title="#" id="icon-anterior"/>
@@ -196,7 +189,7 @@
                         </tal:block>
                         <tal:block tal:condition="not: SRES/cursor/previous_element">                            
                             <font color="White">
-                                <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                                <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                     alt="Anterior" title="Anterior" id="icon-anterior"
                                     i18n:attributes="alt ModelDDvlPlone_anterior_action_label; title ModelDDvlPlone_anterior_action_label" />
                             </font>
@@ -213,12 +206,12 @@
                         
                         
                         <tal:block tal:condition="SRES/cursor/next_element">                            
-                            <tal:block tal:define="unaHref python: '%s/Tabular?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'next_element'][ 'UID'] )" >
+                            <tal:block tal:define="unaHref python: '%sTabular/?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'next_element'][ 'UID'] )" >
                                 <a href="#" title="#" 
                                     tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'next_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'next_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'next_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'next_element'][ 'type_translations'][ 'translated_type_description']); "
                                     tal:attributes="title unTitle; href unaHref" >
                                     <img src="#" tal:attributes="
-                                        src string:${portal_url}/siguiente.gif;
+                                        src python: '%s/siguiente.gif' % SRES[ 'portal_url'];
                                         title unTitle;
                                         alt  SRES/cursor/next_element/values_by_name/title/uvalue"  
                                         alt="#" title="#" id="icon-posterior"/>
@@ -229,7 +222,7 @@
                         </tal:block>
                         <tal:block tal:condition="not: SRES/cursor/next_element">                            
                             <font color="White">
-                                <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                                <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                     alt="Posterior" title="Posterior" id="icon-posterior"
                                     i18n:attributes="alt ModelDDvlPlone_posterior_action_label; title ModelDDvlPlone_posterior_action_label" />
                             </font>
@@ -237,12 +230,12 @@
                             &nbsp;
                         </tal:block>
                         <tal:block tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'last_element'] and not (SRES[ 'cursor'][ 'last_element'][ 'object'] == SRES[ 'object'])" >                            
-                            <tal:block tal:define="unaHref python: '%s/Tabular?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'last_element'][ 'UID'] )" >
+                            <tal:block tal:define="unaHref python: '%sTabular/?theRelationCursorName=%s&theCurrentElementUID=%s' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName,  SRES[ 'cursor'][ 'last_element'][ 'UID'] )" >
                                 <a href="#" title="#"  
                                     tal:define="unTitle python: '%s %s %s (%s)' % ( SRES[ 'cursor'][ 'last_element'][ 'type_translations'][ 'translated_archetype_name'], SRES[ 'cursor'][ 'last_element'][ 'values_by_name'][ 'title'][ 'uvalue'], SRES[ 'cursor'][ 'last_element'][ 'values_by_name'][ 'description'][ 'uvalue'], SRES[ 'cursor'][ 'last_element'][ 'type_translations'][ 'translated_type_description'])"
                                     tal:attributes="title unTitle; href unaHref" >
                                     <img src="#" tal:attributes="
-                                        src string:${portal_url}/ultimo.gif; 
+                                        src python: '%s/ultimo.gif' % SRES[ 'portal_url'];
                                         title unTitle;
                                         alt  SRES/cursor/last_element/values_by_name/title/uvalue"  
                                         alt="#" title="#" id="icon-ultimo" />
@@ -253,7 +246,7 @@
                         </tal:block>
                         <tal:block tal:condition="python: not( SRES[ 'cursor'] and SRES[ 'cursor'][ 'last_element'] and not (SRES[ 'cursor'][ 'last_element'][ 'object'] == SRES[ 'object']))" > 
                             <font color="White">
-                                <img src="#" tal:attributes="src string:${portal_url}/blank_icon.gif"  
+                                <img src="#" tal:attributes="src python: '%s/%s' % ( SRES[ 'portal_url'], 'blank_icon.gif', )"  
                                     alt="Posterior" title="Posterior" id="icon-ultimo"
                                     i18n:attributes="alt ModelDDvlPlone_iraultimo_action_label; title ModelDDvlPlone_iraultimo_action_label" />
                             </font>

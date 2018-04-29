@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: RelationCursor_EditableBody_i18n_view.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -33,16 +37,18 @@
 
 <div metal:define-macro="tRelationCursor_EditableBody_i18n" ><metal:block
     metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" /><tal:block 
-tal:define="                    global pTrue            python: True;
+tal:define=" 
+                                global pTrue            python: True;
                                 global pFalse           python: False;
+                                global pMDDTopTgDefined pMDDTopTgDefined | pFalse;
                                 global pPagina          string:Tabular;
                                 global pPaginaAnteriorPosterior pPagina;
                                 global pRelationCursorName      request/theRelationCursorName  | python: None;  
                                 global pCurrentElementUID       request/theCurrentElementUID  | python: None;                                                                                              
                                 global pShowTrees       pFalse;
-                                global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" /><tal:block 
+                                global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" /><tal:block 
 tal:condition="not: pRelationCursorName" ><tal:block 
-    tal:define="dummy python:request.response.redirect( '%s/Tabular' % here.absolute_url())" /></tal:block><tal:block 
+    tal:define="dummy python:request.response.redirect( '%s/Tabular/' % here.absolute_url())" /></tal:block><tal:block 
 tal:condition="pRelationCursorName" ><tal:block 
     tal:condition="python: request.cookies.has_key('ShowTrees')" ><tal:block    
         tal:condition="python: request.cookies[ 'ShowTrees'].lower() == 'yes'"><tal:block 
@@ -143,18 +149,214 @@ tal:define="
 <tal:block metal:use-macro="here/CabeceraRelationCursor_EditableBody_i18n_view/macros/tCabeceraRelationCursor_EditableBody_i18n" />            
     
     
-<tal:block tal:define="aTitleHRef python: u'`%s (%s) %c%s%c`__' %  ( SRES[ 'values_by_name'][ 'title'][ 'uvalue'] , SRES[ 'type_translations'][ 'translated_archetype_name'], 60, SRES[ 'url'], 62)">
+<tal:block tal:define="aTitleHRef python: u'|MDDIcon_%s| `%s (%s) %c%s%c`__' %  ( SRES[ 'meta_type'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'].strip() , SRES[ 'type_translations'][ 'translated_archetype_name'], 60, SRES[ 'url'], 62)">
 <tal:block
     tal:content="structure python: '%s\n%s\n\n' % ( aTitleHRef, '-' * len(aTitleHRef), )" />
 </tal:block>    
 
                         
+
+
+
 <metal:block metal:use-macro="here/Valores_EditableBody_i18n_view/macros/tValores_EditableBody_i18n" />
+
+
+
+<tal:block      
+    tal:condition="python:  SRES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()"><tal:block 
+        tal:repeat="unaLineaTexto python:  SRES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()" ><tal:block 
+            tal:condition="not: repeat/unaLineaTexto/start" tal:content="string: "/><tal:block
+            tal:content="python: '%s' % unaLineaTexto.strip()" /></tal:block></tal:block>
+
+
+
+
+
+
+
+
+
+
+<tal:block tal:replace="nothing" >
+<tal:block
+    tal:define="PLONERES python: { 'traversals': [],};
+        pNonEmptyTraversals      python: [ aTravResult for aTravResult in SRES[ 'traversals'] if ( ( aTravResult[ 'traversal_kind'] == 'aggregation') and aTravResult[ 'contains_collections'] and ( aTravResult[ 'num_elements'] > 0) and aTravResult[ 'has_grandchildren']) or ( ( aTravResult[ 'traversal_kind'] == 'aggregation') and ( not aTravResult[ 'contains_collections']) and ( aTravResult[ 'num_elements'] > 0) ) or ( ( aTravResult[ 'traversal_kind'] == 'relation') and ( aTravResult[ 'num_elements'] > 0))];
+        pNonEmptyPloneTraversals python: [ aTravResult for aTravResult in PLONERES[ 'traversals'] if aTravResult[ 'num_elements'] ];
+        " >
+    
+<tal:block tal:condition="python: ( not SRES[ 'is_collection']) and len( pNonEmptyTraversals) > 0" >
+        <tal:block tal:repeat="TRAVRES python: pNonEmptyTraversals" >
+            <tal:block tal:define="global pMDDTraversalTargetCounter python:pMDDTraversalTargetCounter + 1; 
+                    pMDDTraversalTarget python: 'MDDTrTg%d' % pMDDTraversalTargetCounter;
+                    dummy python: pTraversalTargetsByTraversalName.update( { TRAVRES[ 'traversal_name']: pMDDTraversalTarget, })">
+                <tal:block tal:condition="python: ( TRAVRES[ 'traversal_kind'] == 'aggregation')">
+                    <tal:block tal:condition="python: TRAVRES[ 'num_elements'] > 1">
+                        <tal:block tal:condition="python: TRAVRES[ 'contains_collections']">
+        
+<tal:block tal:content="python:'\n\n.. |%s| replace:: %s\n\n' % ( pMDDTraversalTarget, TRAVRES[ 'traversal_translations'][ 'translated_label'])"/>
+        
+                            <tal:block tal:repeat="ERES TRAVRES/elements">
+<tal:block tal:define="pElementIndex repeat/ERES/index;
+                                    pMDDSubTraversalTarget python: '%sIdx%d' % ( pMDDTraversalTarget, pElementIndex,);
+                                    dummy python: pTraversalTargetsByTraversalName.update( { '%sIdx%d' % ( TRAVRES[ 'traversal_name'], pElementIndex): pMDDSubTraversalTarget, })"
+                                tal:content="python: '\n\n.. |%s| replace:: %s\n\n' % ( pMDDSubTraversalTarget, ERES[ 'values_by_name'][ 'title'][ 'uvalue'].strip(), )" />
+                            </tal:block>
+                        </tal:block>
+                        <tal:block tal:condition="python: not  TRAVRES[ 'contains_collections']">
+        
+<tal:block tal:define="global pMDDTraversalTargetCounter python:pMDDTraversalTargetCounter + 1; 
+                            pMDDTraversalTarget python: 'MDDTrTg%d' % pMDDTraversalTargetCounter;
+                            dummy python: pTraversalTargetsByTraversalName.update( { TRAVRES[ 'traversal_name']: pMDDTraversalTarget, })"
+                            tal:content="python: '\n\n.. |%s| replace:: %s\n\n' % (  pMDDTraversalTarget, TRAVRES[ 'traversal_translations'][ 'translated_label'], )"/>
+                        </tal:block>
+                    </tal:block>
+                    
+                    <tal:block tal:condition="python: TRAVRES[ 'num_elements'] == 1">
+                        <tal:block tal:condition="python: TRAVRES[ 'contains_collections']">
+                            <tal:block tal:condition="python: TRAVRES['elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip() == TRAVRES['elements'][ 0][ 'archetype_name']">
+                                <tal:block tal:define="global pCollectionTitle python: TRAVRES['elements'][ 0][ 'type_translations'][ 'translated_archetype_name']" />
+                            </tal:block>
+                            <tal:block tal:condition="python: not ( TRAVRES['elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip() == TRAVRES['elements'][ 0][ 'archetype_name'])">
+                                <tal:block tal:define="global pCollectionTitle python: TRAVRES[ 'elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip()" />
+                            </tal:block>
+                            <tal:block tal:define="global pMDDTraversalTargetCounter python:pMDDTraversalTargetCounter + 1; 
+                                pMDDTraversalTarget python: 'MDDTrTg%d' % pMDDTraversalTargetCounter;
+                             dummy python: pTraversalTargetsByTraversalName.update( { ( '%sIdx0' % TRAVRES[ 'traversal_name']): pMDDTraversalTarget, })">                
+<tal:block tal:content="python: '\n\n.. |%s| replace:: %s\n\n' % ( pMDDTraversalTarget, pCollectionTitle,)" />
+                            </tal:block>
+                        </tal:block>
+                        <tal:block tal:condition="python: not TRAVRES[ 'contains_collections']">
+                            <tal:block tal:define="global pMDDTraversalTargetCounter python:pMDDTraversalTargetCounter + 1; 
+                                pMDDTraversalTarget python: 'MDDTrTg%d' % pMDDTraversalTargetCounter;
+                                dummy python: pTraversalTargetsByTraversalName.update( { TRAVRES[ 'traversal_name']: pMDDTraversalTarget, })">                
+<tal:block tal:content="python: '\n\n.. |%s| replace:: %s\n\n' % ( pMDDTraversalTarget, TRAVRES[ 'traversal_translations'][ 'translated_label'],)" />
+                            </tal:block>
+                        </tal:block>
+                    </tal:block>
+                </tal:block>
+    
+                <tal:block tal:condition="python: ( TRAVRES[ 'traversal_kind'] == 'relation')">
+    
+<tal:block tal:define="global pMDDTraversalTargetCounter python:pMDDTraversalTargetCounter + 1; 
+                            pMDDTraversalTarget python: 'MDDTrTg%d' % pMDDTraversalTargetCounter;
+                            dummy python: pTraversalTargetsByTraversalName.update( { TRAVRES[ 'traversal_name']: pMDDTraversalTarget, })"
+                            tal:content="python: '\n\n.. |%s| replace:: %s\n\n' % (  pMDDTraversalTarget, TRAVRES[ 'traversal_translations'][ 'translated_label'], )"/>
+                </tal:block>
+             </tal:block>
+        </tal:block>
+    
+        
+        
+
+    
+        <tal:block tal:repeat="TRAVRES python: pNonEmptyPloneTraversals" >
+<tal:block tal:define="global pMDDTraversalTargetCounter python:pMDDTraversalTargetCounter + 1; 
+                pMDDTraversalTarget python: 'MDDTrTg%d' % pMDDTraversalTargetCounter;
+                dummy python: pTraversalTargetsByTraversalName.update( { TRAVRES[ 'traversal_name']: pMDDTraversalTarget, })"
+                tal:content="python: '\n\n.. |%s| replace:: %s\n\n' % (  pMDDTraversalTarget, TRAVRES[ 'traversal_translations'][ 'translated_label'], )"/>
+        </tal:block>
+        
+        <tal:block tal:content="python: '\n\n|\n|\n\n' " />
+        
+        <tal:block tal:condition="not: pMDDTopTgDefined" >
+<tal:block tal:define="global pMDDTopTgDefined python: True" 
+            tal:replace="structure python: '\n\n.. |MDDTopTg| replace:: |MDDIcon_atablacontenidos| %s\n\n.. _MDDTopTg:\n\n' % pMsgGoToToc" />
+</tal:block>
+            
+        
+    
+        
+        <tal:block tal:content="python: '\n\n**%s**\n\n' % here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_TableOfContents_Title', 'Contents-')" />
+        
+        
+        
+        <tal:block tal:repeat="TRAVRES python: pNonEmptyTraversals" >
+            <tal:block tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( TRAVRES[ 'traversal_name'], '')">
+    
+                <tal:block tal:condition="python: ( TRAVRES[ 'traversal_kind'] == 'aggregation')">
+                    <tal:block tal:condition="python: TRAVRES[ 'num_elements'] > 1">
+                        <tal:block tal:condition="python: TRAVRES[ 'contains_collections']">
+    
+<tal:block tal:content="python: '- |%s|_\n' % (  pMDDTraversalTarget)"/>
+    
+                            <tal:block tal:repeat="ERES TRAVRES/elements">
+<tal:block tal:define="pElementIndex repeat/ERES/index;
+                                        pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( '%sIdx%d' % ( TRAVRES[ 'traversal_name'], pElementIndex,), '')"
+                                    tal:content="python: '  - |%s|_\n' % pMDDTraversalTarget" />
+                            </tal:block>
+                        </tal:block>
+                        <tal:block tal:condition="python: not  TRAVRES[ 'contains_collections']">
+<tal:block          tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( TRAVRES[ 'traversal_name'], '')"
+                            tal:content="python: '- |%s|_\n' % pMDDTraversalTarget"/>
+                        </tal:block>
+                    </tal:block>
+                    <tal:block tal:condition="python: TRAVRES[ 'num_elements'] == 1">
+                        <tal:block tal:condition="python: TRAVRES[ 'contains_collections']">
+                    
+                            <tal:block tal:condition="python: TRAVRES['elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip() == TRAVRES['elements'][ 0][ 'archetype_name']">
+                                <tal:block tal:define="global pCollectionTitle python: TRAVRES['elements'][ 0][ 'type_translations'][ 'translated_archetype_name']" />
+                            </tal:block>
+                            <tal:block tal:condition="python: not ( TRAVRES['elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip() == TRAVRES['elements'][ 0][ 'archetype_name'])">
+                                <tal:block tal:define="global pCollectionTitle python: TRAVRES[ 'elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip()" />
+                            </tal:block>
+                            <tal:block tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( '%sIdx0' % TRAVRES[ 'traversal_name'], '')">                
+<tal:block tal:content="python: '- |%s|_\n' % pMDDTraversalTarget" />
+                            </tal:block>
+                        </tal:block>
+                        <tal:block tal:condition="python: not TRAVRES[ 'contains_collections']">
+                            <tal:block tal:define="MDDTraversalTarget python: pTraversalTargetsByTraversalName.get(  TRAVRES[ 'traversal_name'], '')"                
+                                tal:content="python: '- |%s|_\n' % pMDDTraversalTarget"/>
+                        </tal:block>
+                    </tal:block>
+                </tal:block>
+                <tal:block tal:condition="python: ( TRAVRES[ 'traversal_kind'] == 'relation')">
+    
+<tal:block tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( TRAVRES[ 'traversal_name'], '')"
+                    tal:content="python: '- |%s|_\n' % pMDDTraversalTarget"/>
+                </tal:block>
+            </tal:block>
+        </tal:block>
+        
+        <tal:block tal:repeat="TRAVRES python: pNonEmptyPloneTraversals" >
+            <tal:block tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( TRAVRES[ 'traversal_name'], '')">    
+<tal:block 
+                    tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( TRAVRES[ 'traversal_name'], '')"
+                    tal:content="python: '- |%s|_\n' % pMDDTraversalTarget"/>
+            </tal:block>
+        </tal:block>
+        
+        
+    </tal:block>
+       
+</tal:block>
+
+</tal:block>
+
+
+<tal:block tal:condition="not: pMDDTopTgDefined">
+<tal:block
+    tal:replace="structure python: '\n\n.. |MDDTopTg| replace:: %s\n\n.. _MDDTopTg:\n\n' % here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_GoToTOC', 'toc-')" />
+    <tal:block tal:define="global pMDDTopTgDefined python: True" />
+</tal:block>
+
+
+
+
+
+
+
+
     
 <tal:block tal:repeat="unTextAttributeName SRES/text_field_names" ><tal:block 
         tal:condition="python: not unTextAttributeName == 'description'" ><tal:block 
             tal:define="ATTRRES python: SRES[ 'values_by_name'][ unTextAttributeName]" ><metal:block 
                 metal:use-macro="here/Texto_EditableBody_i18n_view/macros/tTexto_EditableBody_i18n" /></tal:block></tal:block></tal:block>
+                
+                
+<tal:block tal:condition="not: pMDDTopTgDefined">
+<tal:block tal:define="global pMDDTopTgDefined python: True"
+    tal:replace="structure python: '\n\n.. |MDDTopTg| replace:: %s\n\n.. _MDDTopTg:\n\n' % here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_GoToTOC', 'toc-')" />
+</tal:block>
                 
                 
 <tal:block tal:repeat="unTraversalName SRES/traversal_names" ><tal:block 
@@ -176,8 +378,6 @@ tal:define="
     
 <tal:block tal:define="pPloneElementsContainer python: pCurrentElement[ 'object']" ><metal:block
     metal:use-macro="here/ColeccionElementosPlone_EditableBody_i18n_view/macros/tColeccionElementosPlone_EditableBody_i18n" /></tal:block>
-
-    <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_REST" />   
       
     </tal:block></tal:block></tal:block></tal:block></tal:block></div>
 

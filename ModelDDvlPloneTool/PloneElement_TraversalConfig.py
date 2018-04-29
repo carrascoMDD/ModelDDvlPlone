@@ -207,3 +207,11 @@ cExportConfig_PloneElements = [
     },
 ]    
  
+
+cExportConfig_PloneElements_MetaTypes = [ ]
+for aTypeConfig in cExportConfig_PloneElements:
+    someTypes = aTypeConfig.get( 'portal_types', [])
+    for aType in someTypes:
+        if not ( aType in cExportConfig_PloneElements_MetaTypes):
+            cExportConfig_PloneElements_MetaTypes.append( aType)
+            

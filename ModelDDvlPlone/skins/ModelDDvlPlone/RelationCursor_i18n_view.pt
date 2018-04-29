@@ -40,10 +40,10 @@
                                 global pRelationCursorName      request/theRelationCursorName  | python: None;  
                                 global pCurrentElementUID       request/theCurrentElementUID  | python: None;                                                                                              
                                 global pShowTrees       pFalse;
-                                global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />
+                                global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />
         
         <tal:block tal:condition="python: not pRelationCursorName" >
-            <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular' % here.absolute_url())" />
+            <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular/' % here.absolute_url())" />
         </tal:block>
 
         
@@ -158,7 +158,7 @@
                         <span  tal:content="TRAVRES/traversal_translations/translated_label" />
                         &nbsp;:&nbsp; <br/>     
                         <a href="#" title="#"
-                            tal:attributes="href python: '%s/Tabular' % pCurrentElement[ 'url']; title unTitle"                                                                            
+                            tal:attributes="href python: '%sTabular/' % pCurrentElement[ 'url']; title unTitle"                                                                            
                             class="state-visible" 
                             tal:define="unTitle python: '%s %s %s %s (%s)' % ( 
                                 pNavegarALabel, 
@@ -192,7 +192,7 @@
                 </h1>
                 <h3>
                     <a href="#" title="#"
-                        tal:attributes="href python: '%s/Tabular#referencias-%s' % (SRES[ 'url'], pRelationCursorName, ); 
+                        tal:attributes="href python: '%sTabular/#referencias-%s' % (SRES[ 'url'], pRelationCursorName, ); 
                                         title python: '%s %s %s (%s)' % ( 
                                 SRES[ 'type_translations'][ 'translated_archetype_name'],
                                 SRES[ 'values_by_name'][ 'title'][ 'uvalue'], 

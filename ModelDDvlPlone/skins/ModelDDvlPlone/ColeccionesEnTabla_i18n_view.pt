@@ -57,7 +57,7 @@
                                 <tal:block tal:condition="python: len( TRAVRES[ 'factories']) == 1" >
                                     <a href="#"  title="#"
                                         tal:define="unTitle python: u'%s %s: %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), TRAVRES[ 'factories'][ 0][ 'type_translations'][ 'translated_archetype_name'], TRAVRES[ 'factories'][ 0][ 'type_translations'][ 'translated_type_description'] )"
-                                        tal:attributes="href python: '%s/Crear?theNewTypeName=%s&theAggregationName=%s' % ( SRES[ 'url'] , TRAVRES[ 'factories'][ 0][ 'meta_type'], TRAVRES[ 'traversal_name']);
+                                        tal:attributes="href python: '%sCrear/?theNewTypeName=%s&theAggregationName=%s' % ( SRES[ 'url'] , TRAVRES[ 'factories'][ 0][ 'meta_type'], TRAVRES[ 'traversal_name']);
                                                         title unTitle" >
                                         <img src="#" 
                                             tal:attributes="src python: '%s/add_icon.gif' % here.portal_url(); title unTitle"  
@@ -71,7 +71,7 @@
                                     </a>
                                 </tal:block>
                                 <tal:block tal:condition="python: len( TRAVRES[ 'factories']) > 1" >
-                                    <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.absolute_url()"  
+                                    <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.portal_url()"  
                                             alt="Crear" title="Crear" id="icon-add"
                                             i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_crear_action_label; title ModelDDvlPlone_crear_action_label">
                                     &nbsp;
@@ -79,7 +79,7 @@
                                 
                                     <tal:block tal:repeat="unaFactoriaColeccion TRAVRES/factories" >
                                         <a href="#" title="#"
-                                            tal:attributes="href python: '%s/Crear?theNewTypeName=%s&theAggregationName=%s' % ( SRES[ 'url'], unaFactoriaColeccion[ 'meta_type'], TRAVRES[ 'traversal_name']);
+                                            tal:attributes="href python: '%sCrear/?theNewTypeName=%s&theAggregationName=%s' % ( SRES[ 'url'], unaFactoriaColeccion[ 'meta_type'], TRAVRES[ 'traversal_name']);
                                                             title python: u'%s %s: %s' % (  here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaColeccion['type_translations'][ 'translated_archetype_name'], unaFactoriaColeccion[ 'type_translations'][ 'translated_type_description'] )" >
                                             &nbsp;
                                             <tal:block tal:content="unaFactoriaColeccion/type_translations/translated_archetype_name" />       
@@ -108,13 +108,13 @@
                                     <a href="#" title="#"
                                         tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_subir_action_label', 'Subir'), SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                         tal:attributes="title unTituloAccion;
-                                                        href  python: '%s/Tabular?theMovedElementID=%s&theMoveDirection=Up&theTraversalName=%s&dd=%d#elemento-%s' % (PARENT_SRES[ 'url'], SRES[ 'id'], TRAVRES[ 'traversal_name'], here.ModelDDvlPlone_tool.fMillisecondsNow(), SRES[ 'UID'], )">                
+                                                        href  python: '%sTabular/?theMovedElementID=%s&theMoveDirection=Up&theTraversalName=%s&dd=%d#elemento-%s' % (PARENT_SRES[ 'url'], SRES[ 'id'], TRAVRES[ 'traversal_name'], here.ModelDDvlPlone_tool.fMillisecondsNow(), SRES[ 'UID'], )">                
                                         <img alt="#" title="#" id="icon-up"  src="#" 
-                                            tal:attributes="src python: '%s/arrowUp.gif' % here.absolute_url(); alt python: unTituloAccion; title python: unTituloAccion" />
+                                            tal:attributes="src python: '%s/arrowUp.gif' % here.portal_url(); alt python: unTituloAccion; title python: unTituloAccion" />
                                     </a>
                                 </tal:block>
                                 <tal:block tal:condition="python: SRES == TRAVRES[ 'elements'][ 0]">
-                                    <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.absolute_url()" 
+                                    <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
                                         alt="Blank" title="Blank" id="icon-blank">
                                 </tal:block>   
                                 &nbsp;                                    
@@ -122,13 +122,13 @@
                                     <a href="#" title="#"
                                         tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_bajar_action_label', 'Bajar'), SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                         tal:attributes="title python: unTituloAccion;
-                                                        href  python: '%s/Tabular?theMovedElementID=%s&theMoveDirection=Down&theTraversalName=%s&dd=%d#elemento-%s' %  (PARENT_SRES[ 'url'], SRES[ 'id'], TRAVRES[ 'traversal_name'], here.ModelDDvlPlone_tool.fMillisecondsNow(), SRES[ 'UID'], )">           
+                                                        href  python: '%sTabular/?theMovedElementID=%s&theMoveDirection=Down&theTraversalName=%s&dd=%d#elemento-%s' %  (PARENT_SRES[ 'url'], SRES[ 'id'], TRAVRES[ 'traversal_name'], here.ModelDDvlPlone_tool.fMillisecondsNow(), SRES[ 'UID'], )">           
                                         <img alt="#" title="#" id="icon-down" src="#"
-                                            tal:attributes="src python: '%s/arrowDown.gif' % here.absolute_url(); alt python: unTituloAccion; title python: unTituloAccion" />
+                                            tal:attributes="src python: '%s/arrowDown.gif' % here.portal_url(); alt python: unTituloAccion; title python: unTituloAccion" />
                                     </a>
                                 </tal:block>
                                 <tal:block tal:condition="python: SRES == TRAVRES[ 'elements'][ len( TRAVRES[ 'elements']) - 1]">
-                                    <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.absolute_url()" 
+                                    <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
                                         alt="Blank" title="Blank" id="icon-blank" />
                                 </tal:block>                                       
                             </td>
@@ -139,7 +139,7 @@
                                         tal:define="unTitulo python: u'%s %s %s' % ( pNavegarALabel, SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                         tal:attributes="name python: 'elemento-%s' % (SRES[ 'UID']);
                                                     title python: unTitulo;
-                                                    href python: u'%s/%s' % ( SRES[ 'url'], pPagina)">
+                                                    href python: u'%s%s/' % ( SRES[ 'url'], pPagina)">
                                         <span class="state-visible" tal:content="SRES/values_by_name/title/uvalue" />
                                     </a>
                                 </h3>
@@ -149,7 +149,7 @@
                                         tal:define="unTitulo python: u'%s %s %s' % (pNavegarALabel, SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'] )"
                                         tal:attributes="name python: 'elemento-%s' % (SRES[ 'UID']);
                                                     title python: unTitulo;
-                                                    href python: u'%s/%s' % ( SRES[ 'url'], pPagina)">
+                                                    href python: u'%s%s/' % ( SRES[ 'url'], pPagina)">
                                         <span class="state-visible" tal:content="SRES/type_translations/translated_archetype_name" />
                                     </a>
                                 </h3>
@@ -168,10 +168,10 @@
                                 <a href="#" title="#" 
                                     tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_editar_action_label', 'Editar'), SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"                                
                                     tal:attributes="title python: unTituloAccion;
-                                                    href python: '%s/Editar' % SRES[ 'url']">
+                                                    href python: '%sEditar/' % SRES[ 'url']">
                                     <img src="#"
                                         alt="Editar" title="Editar" id="icon-edit"
-                                        tal:attributes="src python: here.absolute_url() + '/edit.gif'; alt unTituloAccion; title unTituloAccion" />
+                                        tal:attributes="src python: here.portal_url() + '/edit.gif'; alt unTituloAccion; title unTituloAccion" />
                                     <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>        
                                 </a>
                             </td>  
@@ -180,9 +180,9 @@
                                 <a href="#" title="#"
                                     tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_eliminar_action_label', 'Eliminar'), SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                     tal:attributes="title python: unTituloAccion;
-                                                    href python: u'%s/Eliminar' % SRES[ 'url']">
+                                                    href python: u'%sEliminar/' % SRES[ 'url']">
                                     <img alt="#" title="#" id="icon-delete" src="#" 
-                                        tal:attributes="src python: '%s/delete_icon.gif' % here.absolute_url(); alt python: unTituloAccion; title python: unTituloAccion" />
+                                        tal:attributes="src python: '%s/delete_icon.gif' % here.portal_url(); alt python: unTituloAccion; title python: unTituloAccion" />
                                     <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminar_action_label">Eliminar</span>        
                                 </a>
                             </td>

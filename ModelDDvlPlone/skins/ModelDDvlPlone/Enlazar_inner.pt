@@ -41,11 +41,11 @@
                                  pLinkUID                 request/theLinkUID  | python: None;
                                  pUnlinkUID               request/theUnlinkUID | python: None;                                
                                  pShowTrees               pFalse;
-                                 pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                                 global pStartTime  pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
 
 
             <tal:block tal:condition="python: not pReferenceFieldName" >
-                <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular' % here.absolute_url())" />
+                <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular/' % here.absolute_url())" />
             </tal:block>
     
             <tal:block tal:condition="python: pReferenceFieldName" >
@@ -74,11 +74,11 @@
                         tal:condition="someLinkReports" >
                         <tal:block tal:define="pLinkReport python: someLinkReports[ 0]"
                             tal:condition="python: pLinkReport[ 'effect'] == 'linked'">
-                            <font color="Red">
+                            <div class="portalMessage">
                                 <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_haenlazadoelelemento">ModelDDvlPlone_haenlazadoelelemento</span> 
                                 &nbsp;   
                                 <span tal:content="pLinkReport/target/values_by_name/title/uvalue" />
-                            </font>
+                            </div >
                         </tal:block>                            
                     </tal:block>    
                 </tal:block>    
@@ -96,11 +96,11 @@
                         tal:condition="someUnlinkReports" >
                         <tal:block tal:define="pUnlinkReport python: someUnlinkReports[ 0]"
                             tal:condition="python: pUnlinkReport[ 'effect'] == 'unlinked'">
-                            <font color="Red">
+                            <div class="portalMessage">
                                 <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_hadesenlazadoelelemento">ModelDDvlPlone_hadesenlazadoelelemento</span> 
                                 &nbsp;   
                                 <span tal:content="pUnlinkReport/target/values_by_name/title/uvalue" />
-                            </font>
+                            </div>
                         </tal:block>                            
                     </tal:block>    
                 </tal:block>
@@ -144,7 +144,7 @@
                        
                         <br>
                         <h2 tal:condition="not: pPermiteEnlazar"> 
-                            <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
+                            <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
                                 <font color="Red">                    
                                     <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaenlazar_error_message"/>
                                     &nbsp;
