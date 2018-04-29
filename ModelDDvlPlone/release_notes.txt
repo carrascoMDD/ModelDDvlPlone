@@ -1,6 +1,17 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
+
+v1.0.2 build 201001282200
+----------------------------------------------
+Task Id  	Task Summary  	Start Date  	End Date  	Percent Complete
+698	PERF05 Yield a fraction of processor during import, new version and new translation processes	2010-01-28 20:00	  2010-02-04 20:00	100%
+
+|
+|
+
+------------------------------------------
+
 v1.0.1 build 201001280800
 ----------------------------------------------
 

@@ -41,7 +41,9 @@
                                 pPagina                  string:Tabular;
                                 pPaginaAnteriorPosterior string:Tabular;
                                 pShowTrees               pFalse;
-								pUploadedFile					request/form/theUploadedFile			| python: None;                                
+								pUploadedFile			 request/form/theUploadedFile	  | python: None;  
+								pMinimumTimeSlice        request/form/theMinimumTimeSlice | string:1000;
+								pYieldTimePercent        request/form/theYieldTimePercent | string:25;
                                 global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
  
 			<tal:block tal:define="
@@ -60,13 +62,37 @@
 						<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_page_title">Import content-</tal:block></strong></font>
 					</h2>
     			    <br/>
+					
     			    <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_selectFile">Select a .zip archive with an XML file and optionally binary content files-</p>
     			    <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_mayTakeLongToExecute">The import process may take a long time to execute. Your browser or intermediate proxies may time-out.-</p>
                     <br/>			    
 						
-     			    <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_fichero_label">Archive (.zip) to import-</strong></p>
+     			    <div>
+						<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_fichero_label">Archive (.zip) to import-</strong>
+						<br/>
+						<input id="cid_MDDUploadedFile" name="theUploadedFile" type="file" />
+					</div>
+					<br/>
 					
-					<input name="theUploadedFile" type="file" />
+     			    <div>
+	 					<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_MinimumTimeSlice_label">Minimum Time Slice-</strong>
+						<br/>
+	 					<span class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_MinimumTimeSlice_help">If bigger than 10, then the import process shall yield control of the processor after using it for more milliseconds than this parameter. Can not be bigger than 5000 milliseconds. A reasonable value is 1000.-</span>
+						<br/>
+						<input id="cid_MDDMinimumTimeSlice"  type="text" name="theMinimumTimeSlice" size="4" maxlength="4"  
+							value="#" tal:attributes="value pMinimumTimeSlice"/>
+					</div>
+					<br/>		
+					
+     			    <div>
+	 					<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_YieldTimePercent_label">Yield Time Percentage-</strong>
+						<br/>
+	 					<span class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_YieldTimePercent_help">The percentage of time that the import process shall yield control of the processor (If Minimum Time Slice is bigger than 10). A reasonable value is 25.-</span>
+						<br/>
+						<input id="cid_MDDYieldTimePercent"  type="text" name="theYieldTimePercent" size="2" maxlength="2" 
+							value="#" tal:attributes="value pYieldTimePercent"/>
+					</div>
+					<br/>					
 					
 					<br/>
 					<br/>
@@ -83,8 +109,10 @@
 					pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
 					unosArgs python: {
 						'theTimeProfilingResults' :pProfilingResults,
-						'theContainerObject'       :here, 
+						'theContainerObject'      :here, 
 						'theUploadedFile'         :pUploadedFile,
+						'theMinimumTimeSlice'     :pMinimumTimeSlice,
+						'theYieldTimePercent'     :pYieldTimePercent,
 						'theAdditionalParams'     :None, }; 
 					pImportReport python: here.ModelDDvlPlone_tool.fImport( **unosArgs)" >
 					

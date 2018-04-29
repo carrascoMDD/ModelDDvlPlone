@@ -2133,6 +2133,8 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
         theTimeProfilingResults     =None,
         theContainerObject          =None, 
         theUploadedFile             =None,
+        theMinimumTimeSlice         =None,
+        theYieldTimePercent         =None,
         theAdditionalParams         =None):
         """Import into an element a zipped archive with XML file, and any included binary content the attached files and images."
         
@@ -2154,6 +2156,8 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
             theMDDImportTypeConfigs        =someMDDImportTypeConfigs, 
             thePloneImportTypeConfigs      =somePloneImportTypeConfigs, 
             theMappingConfigs              =someMappingConfigs,
+            theMinimumTimeSlice            =theMinimumTimeSlice,
+            theYieldTimePercent            =theYieldTimePercent,
             theAdditionalParams            =theAdditionalParams
         )
 

@@ -85,6 +85,8 @@
 						'theTimeProfilingResults' :pProfilingResults,
 						'theContainerObject'       :here, 
 						'theUploadedFile'         :pUploadedFile,
+						'theMinimumTimeSlice'     :500,
+						'theYieldTimePercent'     :50,
 						'theAdditionalParams'     :None, }; 
 					pExportReport python: here.ModelDDvlPlone_tool.fImport( **unosArgs)" >
 				</tal:block>
