@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneToolLoadConstants.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -130,7 +130,19 @@ cLoadModulesSpecification = {
             }, 
             'singleton_spec': {}, 
         },   
-        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache',                      'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRenderedTemplateCacheEntry_ElementIndependent', 'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRenderedTemplateCacheEntry_ForElement',         'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Configuration',           'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Diagnostics',             'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Disc',                    'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_EntriesAccess',           'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_EntriesFlush',            'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_GenericAccessors',        'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Render',                  'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Statistics',              'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Status',                  'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_VoidResults',             'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache',                         'global_spec': {}, 'singleton_spec': {}, },  
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool',                            
             'global_spec': {}, 
             'singleton_spec': {

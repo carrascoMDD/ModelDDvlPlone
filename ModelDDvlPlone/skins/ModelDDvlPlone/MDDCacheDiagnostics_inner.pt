@@ -3,7 +3,7 @@
 #
 # File: MDDCacheDiagnostics_inner.pt
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -345,8 +345,19 @@
 							<font size="2">
 								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_CountersSection']" />
 							</font>
+							
+							&emsp;&emsp;							
+							<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheDiagnostics/&theMS=%d#cid_MDDCache_%s_section' % ( here.absolute_url(), here.MDDModelDDvlPlone_tool.fMillisecondsNow(), pCacheName, )"
+								tal:define="aRefreshLabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+								<img src="#" alt="#" title="#" 
+									tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
+									id="icon-refrescar" />
+								<font size="2">
+									<strong tal:content="python: aRefreshLabel" />
+								</font>
+							</a>
 							&emsp;&emsp;
-							<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus/#cid_MDDCache_%s_section' % ( here.absolute_url(), pCacheName,)" >
+							<a class="state-visible" id="cid_CacheStatus" href="#" tal:attributes="href python: '%s/MDDCacheStatus/#cid_MDDCache_%s_section' % ( here.absolute_url(), pCacheName,)" >
 								<font size="2">
 									<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
 								</font>

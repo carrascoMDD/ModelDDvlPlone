@@ -2,7 +2,7 @@
 #
 # File: MDDTool_Retrieval.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -168,7 +168,6 @@ class MDDTool_Retrieval:
     
     
 
-    
 
     security.declareProtected( permissions.View, 'fRetrieveTypeConfigByUID')
     def fRetrieveTypeConfigByUID(self, 
@@ -217,6 +216,22 @@ class MDDTool_Retrieval:
     
     
   
+    
+    
+
+    security.declareProtected( permissions.View, 'fNewResultForElementByUID')
+    def fNewResultForElementByUID(self,  theContextualElement=None, theUID=None,):
+        """Retrieve a result structure for an element given its UID, initialized with just the most important information and attributes.
+        
+        """
+        
+        return self.fModelDDvlPloneTool_Retrieval( theContextualElement).fNewResultForElementByUID( 
+            theTimeProfilingResults =None,
+            theContextualElement    =theContextualElement, 
+            theUID                  =theUID, 
+        )
+    
+    
     
     
     

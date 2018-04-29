@@ -2,7 +2,7 @@
 #
 # File: MDDLoadModules.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -960,7 +960,8 @@ def _fLoadModules(
         return None
             
 
-    theLoadModulesReport[ 'success'] = True
+    if not theLoadModulesReport[ 'error_reports']:
+        theLoadModulesReport[ 'success'] = True
                                     
     return None
 
@@ -1393,11 +1394,11 @@ def _fReloadModule(
                 aResult[ 'thePersistentRetained'] = True
                 
                 
-                
-    aResult.update( {
-        'success': True,
-    })
-    
+    if not aResult[ 'error_reports']:            
+        aResult.update( {
+            'success': True,
+        })
+        
         
     return aResult
 
