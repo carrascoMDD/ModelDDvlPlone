@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_PloneContent.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -28,7 +28,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -42,7 +42,7 @@ from Products.CMFCore.utils import getToolByName
 
 from PloneElement_TraversalConfig            import cPloneTypes
 from PloneElement_TraversalConfig            import cPloneSubItemsParameters
-from PloneElement_TraversalConfig            import cPloneElement_ColumnName_Details
+
 
 
 
@@ -145,7 +145,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
     
     
     security.declarePrivate('fDefaultPloneSubItemsParameters')
-    def fDefaultPloneSubItemsParameters(self, fDefaultPloneSubItemsTypes):
+    def fDefaultPloneSubItemsParameters(self):
         return cPloneSubItemsParameters
     
     
@@ -154,7 +154,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
     
         somePloneTypes = [ ]
             
-        somePloneSubItemsParameters =self.fDefaultPloneSubItemsParameters( fDefaultPloneSubItemsTypes)
+        somePloneSubItemsParameters =self.fDefaultPloneSubItemsParameters()
         if not somePloneSubItemsParameters:
             return somePloneTypes      
         
@@ -265,7 +265,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
 
             unPloneSubItemsParameters = thePloneSubItemsParameters
             if not unPloneSubItemsParameters:
-                unPloneSubItemsParameters = self.fDefaultPloneSubItemsParameters( theContainerElement)
+                unPloneSubItemsParameters = self.fDefaultPloneSubItemsParameters()
                 if not unPloneSubItemsParameters:
                     return None             
                                 
@@ -357,12 +357,8 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
             unTraversalResult = self.fNewVoidTraversalResult_PloneContent()
             
             unTraversalName = thePloneSubItemsParameter[ 'traversal_name']
-            unTraversalResult.update( { 
-                'traversal_kind' :          'aggregation-plone', 
-                'traversal_name' :          unTraversalName, 
-                'traversal_config':         thePloneSubItemsParameter, 
-            })
-
+            unTraversalResult[ 'traversal_name']    = unTraversalName
+            
             unCanReturnValues = theCanReturnValues
             unCanChangeValues = unCanReturnValues and theResult[ 'write_permission']
             if unCanReturnValues:
@@ -404,8 +400,10 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
 
             unosElementResults = [ ]        
             unTraversalResult.update( { 
+                'traversal_kind' :          'aggregation-plone', 
+                'traversal_config':         None, 
                 'elements':                 unosElementResults, 
-                'column_names':             [ 'title', 'description', cPloneElement_ColumnName_Details, ],
+                'column_names':             [ 'title', 'description', 'details', ],
                 'column_translations':      { 'title': unTitleColumnTranslation,  'description': unDescriptionColumnTranslation,  'details': unDetailsColumnTranslation, }
             })
              

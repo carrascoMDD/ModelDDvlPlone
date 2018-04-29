@@ -46,25 +46,6 @@ def install(self):
     out = StringIO()
 
     install_dependencies(self, out)
-    
-    # ########################################
-    """ACV OJO 20101027 To fix error when installing product through the test machinery.
-    
-    """
-    
-    someTypes = listTypes(PROJECTNAME)
-    for aType in someTypes:
-        aKlass = aType.get( 'klass', None)
-        if not ( aKlass == None):
-            aFTIMetaType = getattr( aKlass, '_at_fti_meta_type', None)
-            if not ( aFTIMetaType == 'Factory-based Type Information with dynamic views'):
-                aKlass._at_fti_meta_type = 'Factory-based Type Information with dynamic views'
-                
-    """ACV OJO 20101027 To fix error when installing product through the test machinery.
-    
-    """
-    # ########################################
-    
     installTypes(self, out, listTypes(PROJECTNAME), PROJECTNAME)
     install_subskin(self, out, GLOBALS)
     install_tools(self, out)

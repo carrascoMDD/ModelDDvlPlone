@@ -55,7 +55,7 @@
                     <td align="right" valign="baseline"> 
                         <tal:block tal:condition="python: pPermiteCrearColecciones">
                             <a href="#" tal:attributes="href python: '%s/Crear?theNewTypeName=%s' % (here.absolute_url() , pNombreTipoColeccion, )">
-                                <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.portal_url()"  
+                                <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.getRaiz().absolute_url()"  
                                         alt="Crear" title="Crear" id="icon-add"
                                          i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_crearcoleccion_action_label; title ModelDDvlPlone_crear_action_label">
                                 &nbsp;
@@ -99,7 +99,7 @@
                             <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
                                 <td align="center">
                                     <a href="#" tal:attributes="href python: '%s/Crear?theNewTypeName=%s' % (pUnaColeccion.absolute_url() , pNombresTiposContenido[0], )" >
-                                        <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.portal_url()"  
+                                        <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.getRaiz().absolute_url()"  
                                             alt="Crear" title="Crear" id="icon-add"
                                             i18n:attributes="alt ModelDDvlPlone_crear_action_label; title ModelDDvlPlone_crear_action_label">
                                         </a>
@@ -165,7 +165,7 @@
           
             <table width="100%%" id="cid_ArbolSoloEnTabla" class="listing" summary="#"  
                 i18n:attributes="summary python: here.meta_type.lower()"            
-                tal:define=" global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even')" >
+                tal:define=" global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even')" >
     
                 <thead>
                     <tr>
@@ -185,7 +185,7 @@
                             <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
                                 <td align="center">
                                     <a href="#" tal:attributes="href python: '%s/Crear?theNewTypeName=%s' % (here.absolute_url(), pNombresTiposContenido[0])">
-                                        <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.portal_url()"  
+                                        <img src="#" tal:attributes="src python: '%s/add_icon.gif' % here.getRaiz().absolute_url()"  
                                             alt="Crear" title="Crear" id="icon-add"
                                             i18n:attributes="alt ModelDDvlPlone_crear_action_label; title ModelDDvlPlone_crear_action_label">
                                         </a>
@@ -309,7 +309,7 @@
                    <td align="center">
                        <tal:block tal:condition="python: pPermiteEliminarElementos and unNivelElemento == 1">
                            <a href="#" tal:attributes="href python: '%s/Eliminar' % unElemento.absolute_url()">
-                               <img src="#" tal:attributes="src python: '%s/delete_icon.gif' % here.portal_url()" 
+                               <img src="#" tal:attributes="src python: '%s/delete_icon.gif' % here.absolute_url()" 
                                    alt="Eliminar" title="Eliminar" id="icon-delete"
                                    i18n:attributes="alt ModelDDvlPlone_eliminar_action_label; title ModelDDvlPlone_eliminar_action_label">
                            </a>
@@ -322,7 +322,7 @@
                        </tal:block>
                        <tal:block tal:condition="python: pPermiteEditarElementos">
                            <a href="#" tal:attributes="href python: '%s/Editar' % unElemento.absolute_url()">
-                               <img src="#" tal:attributes="src python: '%s/edit.gif' % here.portal_url()" 
+                               <img src="#" tal:attributes="src python: '%s/edit.gif' % here.absolute_url()" 
                                    alt="Editar" title="Editar" id="icon-edit"
                                    i18n:attributes="alt ModelDDvlPlone_editar_action_label; title ModelDDvlPlone_editar_action_label">
                            </a>
@@ -331,7 +331,7 @@
                        <tal:block tal:condition="python: len( pUnosContenidosColeccion) > 1 and pPermiteOrdenarElementos and unNivelElemento == 1">
                            <tal:block tal:condition="python: not unElemento == pUnosContenidosColeccion[ 0][ 0]">
                                <a href="#" tal:attributes="href python: '%s/Tabular?theMovedElementID=%s%ctheMoveDirection=Up' % (pUnaColeccion.absolute_url(), unElemento.id, 59)">                
-                                   <img src="#" tal:attributes="src python: '%s/arrowUp.gif' % here.portal_url()" 
+                                   <img src="#" tal:attributes="src python: '%s/arrowUp.gif' % here.absolute_url()" 
                                        alt="Subir" title="Subir" id="icon-up"
                                        i18n:attributes="alt ModelDDvlPlone_subir_action_label; title ModelDDvlPlone_subir_action_label">
                                </a>
@@ -343,20 +343,20 @@
                            &nbsp;                                    
                            <tal:block tal:condition="python: not unElemento == pUnosContenidosColeccion[ len( pUnosContenidosColeccion) - 1][ 0]">
                                <a href="#" tal:attributes="href python: '%s/Tabular?theMovedElementID=%s%ctheMoveDirection=Down' % (pUnaColeccion.absolute_url(), unElemento.id, 59)">                
-                                   <img src="#" tal:attributes="src python: '%s/arrowDown.gif' % here.portal_url()" 
+                                   <img src="#" tal:attributes="src python: '%s/arrowDown.gif' % here.absolute_url()" 
                                        alt="Bajar" title="Bajar" id="icon-down"
                                        i18n:attributes="alt ModelDDvlPlone_bajar_action_label; title ModelDDvlPlone_bajar_action_label">
                                </a>
                            </tal:block>
                            <tal:block tal:condition="python: unElemento == pUnosContenidosColeccion[ len( pUnosContenidosColeccion) - 1][ 0]">
-                               <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
+                               <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.absolute_url()" 
                                    alt="Blank" title="Blank" id="icon-blank">
                            </tal:block>                                       
                        </tal:block>
                        <tal:block tal:condition="python: len( pUnosContenidosColeccion) > 1 and pPermiteOrdenarElementos and not( unNivelElemento == 1)">
-                           <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
+                           <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.absolute_url()" 
                                alt="Blank" title="Blank" id="icon-blank">
-                           <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
+                           <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.absolute_url()" 
                                alt="Blank" title="Blank" id="icon-blank">                       
                        </tal:block>
                        

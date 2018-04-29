@@ -1,9 +1,5 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: Tabla_EditableBody_i18n_view.pt
-#
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -37,103 +33,65 @@
 
 <div metal:define-macro="tTabla_EditableBody_i18n" ><tal:block 
     tal:define="
-    global pMDDTitleCounter                 pMDDTitleCounter | python: 0;
-    global pAlreadyDeclaredTargets          pAlreadyDeclaredTargets | nothing;
-    global pAlreadyDeclaredTargets          python:  not ((not ( pAlreadyDeclaredTargets is None)) and pAlreadyDeclaredTargets) or [ ];
-    global pTraversalTargetsByTraversalName pTraversalTargetsByTraversalName | nothing;
-    global pTraversalTargetsByTraversalName python:  not ((not ( pTraversalTargetsByTraversalName is None)) and pTraversalTargetsByTraversalName) or { };
         TRAVRES                             TRAVRES | nothing;
         pTrue                               python: True; 
         pFalse                              python: False; 
         pSiempre                            pSiempre | pFalse;
         pRelationCursorNameParameter        pRelationCursorNameParameter | string:" 
     tal:condition="python: TRAVRES and ( TRAVRES[ 'num_elements'] > 0)">
-    
+
 
 <tal:block 
         tal:repeat="ERES TRAVRES/elements"><tal:block 
             tal:condition="pRelationCursorNameParameter">
-<tal:block      tal:define="global pMDDTitleCounter python: pMDDTitleCounter + 1; 
-                    pMDDTitle python: 'MDDTitle%d' % pMDDTitleCounter;" ><tal:block 
-                tal:content="structure python: u'\n\n.. |%s| replace:: |MDDIcon_%s| **%s**\n\n' %  ( pMDDTitle, ERES[ 'meta_type'], ERES[ 'values_by_name'][ 'title'][ 'uvalue'].strip(), )"/><tal:block 
-                tal:define="
-                    pTargetName python: ERES[ 'title'].strip().replace( ':', ' ').replace( '_', ' ');
-                    pTargetNameAlreadyDefined python: pTargetName in pAlreadyDeclaredTargets" ><tal:block
-                tal:condition="not: pTargetNameAlreadyDefined" ><tal:block 
-                    tal:define="dummy python: pAlreadyDeclaredTargets.append( pTargetName)"
-                    tal:content="structure python: u'\n\n..  _%s: `%s`_\n\n' %  ( pMDDTitle, pTargetName, )"/><tal:block 
-                tal:content="structure python: u'\n\n.. _`%s`: %s?theRelationCursorName=%s&theCurrentElementUID=%s\n\n' %  (  pTargetName, SRES[ 'url'], pRelationCursorNameParameter, ERES[ 'UID'], )"/></tal:block><tal:block
-                tal:condition="pTargetNameAlreadyDefined" ><tal:block 
-                    tal:content="structure python: u'\n\n.. _%s: %s?theRelationCursorName=%s&theCurrentElementUID=%s\n\n' %  (   pMDDTitle, SRES[ 'url'], pRelationCursorNameParameter, ERES[ 'UID'], )"/></tal:block><tal:block 
-                    tal:content="structure python: u'\n\n* |%s|_' %  (  pMDDTitle )"/></tal:block></tal:block> </tal:block> <tal:block 
+* <tal:block
+                tal:content="structure python: u'`%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__' %  ( ERES[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, SRES[ 'url'], pRelationCursorNameParameter, ERES[ 'UID'], 62)"/> </tal:block><tal:block 
             tal:condition="not: pRelationCursorNameParameter">
-<tal:block    tal:define="global pMDDTitleCounter python: pMDDTitleCounter + 1; 
-                pMDDTitle python: 'MDDTitle%d' % pMDDTitleCounter" ><tal:block 
-                tal:content="structure python: u'\n\n.. |%s| replace:: |MDDIcon_%s| **%s**\n\n' %  (pMDDTitle,  ERES[ 'meta_type'], ERES[ 'values_by_name'][ 'title'][ 'uvalue'].strip(), )"/><tal:block 
-                tal:define="
-                    pTargetName python: ERES[ 'title'].strip(); 
-                    pTargetNameAlreadyDefined python: pTargetName in pAlreadyDeclaredTargets" ><tal:block
-                tal:condition="not: pTargetNameAlreadyDefined" ><tal:block 
-                    tal:define="dummy python: pAlreadyDeclaredTargets.append( pTargetName)"
-                    tal:content="structure python: u'\n\n.. _%s: `%s`_\n\n' %  ( pMDDTitle, pTargetName, )" /><tal:block 
-                    tal:content="structure python: u'\n\n.. _`%s`: %s\n\n' %  ( pTargetName, ERES[ 'url'],)" /></tal:block><tal:block
-                tal:condition="pTargetNameAlreadyDefined" ><tal:block 
-                tal:content="structure python: u'\n\n.. _%s: %s\n\n' % ( pMDDTitle, ERES[ 'url'],  )"/></tal:block></tal:block><tal:block 
-                tal:content="structure python: u'\n\n* |%s|_' %  pMDDTitle"/></tal:block> </tal:block> <tal:block 
-                tal:content="python: '(*%s*)\n\n' % ( ERES[ 'type_translations'][ 'translated_archetype_name'],)" /><tal:block      
-                tal:condition="python:  ERES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()"><tal:block 
-                    tal:repeat="unaLineaTexto python:  ERES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()" ><tal:block 
-                        tal:condition="not: repeat/unaLineaTexto/start" tal:content="string: "/><tal:block
-                        tal:content="python: '  %s' % unaLineaTexto.strip()" /></tal:block></tal:block><tal:block 
-                tal:define="global pEsPrimerAtributo pTrue"
+* <tal:block
+                tal:content="structure python: u'`%s %c%s%c`__' %  ( ERES[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, ERES[ 'url'], 62)"/> </tal:block> (*<tal:block 
+                tal:content="python: ERES[ 'type_translations'][ 'translated_archetype_name']" />*) <tal:block 
+                tal:condition="python:  ERES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()"> . <tal:block 
+                    tal:repeat="unaLineaTexto python:  ERES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()" 
+                    tal:content="python: unaLineaTexto.strip()" /> </tal:block><tal:block 
                 tal:repeat="unColumnName TRAVRES/column_names" ><tal:block
-                    tal:condition="python: not ( unColumnName in [ 'title', 'description']) and not ( ERES[ 'values_by_name'].get( unColumnName, {}).get( 'attribute_config', {}).get('exclude_from_values_paragraph_when', '123dsad12332sad') == ERES[ 'values_by_name'].get( unColumnName, {}).get( 'value', None))" ><tal:block
+                    tal:condition="python: not ( unColumnName in [ 'title', 'description'])" ><tal:block
                         tal:define="ATTRRES python: ERES[ 'values_by_name'].get( unColumnName, None)"
                         tal:condition="ATTRRES"><tal:block
                             tal:condition="ATTRRES/computed"><tal:block
                                 tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip()  and not (ATTRRES[ 'uvalue'].strip() == 'None')"><tal:block 
-                                    tal:condition="pEsPrimerAtributo" tal:content="string:  " /><tal:block 
-                                    tal:condition="not: pEsPrimerAtributo" tal:content="string:, " />*<tal:block 
+                                    tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
                                         tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label'].strip()"/>* <tal:block 
                                         tal:content="ATTRRES/uvalue" tal:define="global pEsPrimerAtributo python: False" /></tal:block></tal:block><tal:block
                             tal:condition="not: ATTRRES/computed" ><tal:block
                                 tal:condition="python: ATTRRES['type'] == 'boolean'"><tal:block 
-                                    tal:condition="pEsPrimerAtributo" tal:content="string:  " /><tal:block 
-                                    tal:condition="not: pEsPrimerAtributo" tal:content="string:, " />*<tal:block
-                                    tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label_and_value'].strip()"
-                                    tal:define="global pEsPrimerAtributo python: False"/>* </tal:block><tal:block 
+                                    tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block
+                                    tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label_and_value'].strip()"/>* </tal:block><tal:block 
                     
                                 tal:condition="python: ATTRRES['type'] in [ 'string', 'ACV OJO WAS text', ]"><tal:block
                                     tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip()  and not (ATTRRES[ 'uvalue'].strip() == 'None')"><tal:block 
-                                        tal:condition="pEsPrimerAtributo" tal:content="string:  " /><tal:block 
-                                        tal:condition="not: pEsPrimerAtributo" tal:content="string:, " />*<tal:block 
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
                                         tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label'].strip()"/>* <tal:block 
-                                        tal:content="python: ' '.join( ATTRRES[ 'uvalue'].strip().splitlines())"
-                                        tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block
+                                        tal:content="python: ' '.join( ATTRRES[ 'uvalue'].strip().splitlines())" tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block
                                         
                                 tal:condition="python: ATTRRES['type'] in [ 'integer' , 'float', 'fixedpoint', ]"><tal:block
                                     tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip()"><tal:block 
-                                        tal:condition="pEsPrimerAtributo" tal:content="string:  " /><tal:block 
-                                        tal:condition="not: pEsPrimerAtributo" tal:content="string:, " />*<tal:block 
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
                                         tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label'].strip()"/>* <tal:block 
-                                        tal:content="python: ATTRRES[ 'uvalue']"
-                                        tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block
+                                        tal:content="python: ATTRRES[ 'uvalue']" tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block
     
                                 tal:condition="python: ATTRRES['type'] == 'selection'"><tal:block
                                      tal:condition="python: ATTRRES[ 'translated_value']"><tal:block 
-                                        tal:condition="pEsPrimerAtributo" tal:content="string:  " /><tal:block 
-                                        tal:condition="not: pEsPrimerAtributo" tal:content="string:, " />*<tal:block 
-                                        tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
-                                        tal:content="python: ATTRRES[ 'translated_value']"
-                                        tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block 
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                                         tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
+                                         tal:content="python: ATTRRES[ 'translated_value']"
+                                         tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block><tal:block 
                     
                                 tal:condition="python: ATTRRES['type'] == 'datetime'"><tal:block
                                      tal:condition="python: ATTRRES[ 'raw_value']"><tal:block 
-                                        tal:condition="pEsPrimerAtributo" tal:content="string:  " /><tal:block 
-                                        tal:condition="not: pEsPrimerAtributo" tal:content="string:, " />*<tal:block 
-                                        tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
-                                        tal:content="python: ATTRRES[ 'raw_value']"
-                                        tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block></tal:block></tal:block></tal:block></tal:block>
+                                        tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block 
+                                         tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label']"/>* <tal:block 
+                                         tal:content="python: ATTRRES[ 'raw_value']"
+                                         tal:define="global pEsPrimerAtributo python: False"/></tal:block></tal:block></tal:block></tal:block></tal:block></tal:block>
 
                 
 </tal:block></tal:block>

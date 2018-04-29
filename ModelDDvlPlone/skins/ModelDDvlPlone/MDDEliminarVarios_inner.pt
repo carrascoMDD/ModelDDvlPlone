@@ -3,7 +3,7 @@
 #
 # File: MDDEliminarVarios_inner.pt
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -46,21 +46,21 @@
                                  pForm                request/form;
                                  pGroupAction         python: pForm.get( 'theGroupAction');
                                  pGroupUIDs           python: pForm.get( 'theUIDs');
-                                 global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()"
+                                 pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()"
             tal:condition="python: pGroupAction == 'Delete'" >
  
  
             <tal:block tal:define="
-                pRetrievalStartTime     python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: {
                     'theTimeProfilingResults' :pProfilingResults,
                     'theContainerElement'     :here,
                     'theGroupUIDs'            :pGroupUIDs,
                     'theAdditionalParams'     :None, };
-                pDeleteManyImpactReports    python: here.MDDModelDDvlPlone_tool.fDeleteManyImpactReports( **unosArgs);
+                pDeleteManyImpactReports    python: here.ModelDDvlPlone_tool.fDeleteManyImpactReports( **unosArgs);
                 pDeleteImpactReports    pDeleteManyImpactReports/impact_reports;
-                pRetrievalEndTime       python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                 SRES                    pDeleteManyImpactReports/container_result;
                 pColumnNames            pDeleteManyImpactReports/column_names;
                 pColumnTranslations     pDeleteManyImpactReports/column_translations;
@@ -75,9 +75,9 @@
                     pMostrarAnteriorPosterior   pFalse">
                     <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
     
-                    <br/>
+                    <br>
                     <h2 tal:condition="not: pEliminacionPermitida"> 
-                        <a  href="#" tal:attributes="href python: '%s/Tabular/' % here.absolute_url_path()" class="state-visible" title="">
+                        <a  href="#" tal:attributes="href python: '%s/Tabular' % here.absolute_url_path()" class="state-visible" title="">
                             <font color="Red">                    
                                 <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaeliminar_contenidoDe_error_message"/>
                                 &nbsp;
@@ -161,7 +161,7 @@
                             pUIDsForDeleteConfirmation python: [ unDelResult.get( 'UID', '') for unDelResult in pElementResultsForDeleteConfirmation];
                             pIdsForDeleteConfirmation python: [ unDelResult.get( 'id', '') for unDelResult in pElementResultsForDeleteConfirmation]
                             ">
-                            <a  href="#" tal:attributes="href python: '%sMDDEliminarVariosElementos/?theConfirmedDelete=Yes&theSecondsNow=%d&%s&%s' % ( SRES[ 'url'], pSecondsNow, '&'.join( [ 'theIds=%s' % unaId for unaId in pIdsForDeleteConfirmation]),  '&'.join( [ 'theUIDs=%s' % unaId for unaId in pUIDsForDeleteConfirmation]), )" 
+                            <a  href="#" tal:attributes="href python: '%s/MDDEliminarVariosElementos?theConfirmedDelete=Yes&theSecondsNow=%d&%s&%s' % ( SRES[ 'url'], pSecondsNow, '&'.join( [ 'theIds=%s' % unaId for unaId in pIdsForDeleteConfirmation]),  '&'.join( [ 'theUIDs=%s' % unaId for unaId in pUIDsForDeleteConfirmation]), )" 
                                 title="">
                                 <font color="Red">
                                     <img src="#" tal:attributes="src python: here.portal_url() + '/delete_icon.gif'"  
@@ -180,29 +180,8 @@
                             </font>
                             </a>
                         </h3>
-                        <p>
-                            <font size="2">
-                                <strong>
-                                    <span tal:content="python: '%s %d %s ' % (
-                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
-                                        pDeleteManyImpactReports.get( 'seconds_to_delete', 0),
-                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
-                                    )" />
-                                    <br/>
-                                    <span tal:content="python: '%s %s' % (
-                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
-                                        ( pDeleteManyImpactReports.get( 'latest_date_to_delete', None) and pDeleteManyImpactReports.get( 'latest_date_to_delete', None).rfc822()) or '',
-                                    )" />
-                                    <br/>
-                                    <span tal:content="python: '%s %s' % (
-                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
-                                        ( pDeleteManyImpactReports.get( 'date_now', None) and pDeleteManyImpactReports.get( 'date_now', None).rfc822()) or '',
-                                    )" />
-                                </strong>
-                            </font>
-                        </p>
                         <br/>
-                        <br/>               
+                        <br/>
             
                 
                     </tal:block>
@@ -222,7 +201,7 @@
     
     <div metal:define-macro="tFilasIncludedElement" >
         <tal:block tal:define="unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even');
-            pNavegarALabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
+            pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
             
             <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]">                        
                 <tal:block tal:define="ERES      pDeleteImpactReport/here" >
@@ -238,7 +217,7 @@
                                             ( not ( unColumnName == 'title') and  ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
                                             ( not ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
                                             ERES[ 'type_translations'][ 'translated_type_description'])"
-                                        tal:attributes="href python: '%sTabular/' % (ERES[ 'url']); title unTitle"                                                                            
+                                        tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
                                         class="state-visible" > 
                                         
         
@@ -293,7 +272,7 @@
     
     <div metal:define-macro="tFilasRelatedElement" >
         <tal:block tal:define="unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even');
-            pNavegarALabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
+            pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
             <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]"
                tal:repeat="ERES python: pDeleteImpactReport[ 'related']" >                        
                <tal:block tal:repeat="unColumnName pColumnNames" >
@@ -307,7 +286,7 @@
                                        ( not ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
                                        ( not ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
                                        ERES[ 'type_translations'][ 'translated_type_description'])"
-                                   tal:attributes="href python: '%sTabular/' % (ERES[ 'url']); title unTitle"                                                                            
+                                   tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
                                    class="state-visible" > 
                                    
    

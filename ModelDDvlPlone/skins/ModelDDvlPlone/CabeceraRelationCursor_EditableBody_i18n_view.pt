@@ -1,9 +1,5 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: CabeceraRelationCursor_EditableBody_i18n_view.pt
-#
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -32,6 +28,7 @@
 
 
 
+
 <div metal:define-macro="tCabeceraRelationCursor_EditableBody_i18n" ><tal:block 
 tal:define="
             SRES                              SRES | nothing;
@@ -40,88 +37,27 @@ tal:define="
             pPagina                           pPagina          | string:;
             pShowOrHideTrees                  pFalse;
             pShowTrees                        pShowTrees       | pFalse;
-            global pRelationCursorName        pRelationCursorName | string:;
+            pRelationCursorName               pRelationCursorName | string:;
             pPaginaAnteriorPosterior          pPaginaAnteriorPosterior | string:;  
             global unPostfixPagina                   string:;
             global unPostfixPaginaAnteriorPosterior  string:;" 
 tal:condition="python: SRES"><tal:block
     tal:condition="python: SRES[ 'owner_element']" ><tal:block 
-        tal:content="structure python: u'\n\n.. |MDDRelCursor_Contenedor| replace:: |MDDIcon_contenedor|\n\n.. _MDDRelCursor_Contenedor: %s\n\n' % SRES[ 'owner_element'][ 'url']"/><tal:block
+        tal:content="structure python: u'.. epigraph::\n   `%s%s %c%s%c`__  ' %  ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_arriba_action_label', '^'), SRES[ 'owner_element'][ 'values_by_name'][ 'title'][ 'uvalue'],  60,  SRES[ 'owner_element'][ 'url'], 62, )"/><tal:block
         tal:condition="python: SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element'])"><tal:block 
             tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object'])" 
-                tal:content="structure python:  u'.. |MDDRelCursor_Primero| replace:: |MDDIcon_primero|\n.. _MDDRelCursor_Primero: %s?theRelationCursorName=%s&theCurrentElementUID=%s\n\n' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'first_element'][ 'UID'], )" /><tal:block 
+                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_primero_label', '<<'), SRES[ 'cursor'][ 'first_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'first_element'][ 'UID'], 62, )" /><tal:block 
             tal:condition="SRES/cursor/previous_element" 
-                tal:content="structure python:  u'.. |MDDRelCursor_Anterior| replace:: |MDDIcon_anterior|\n.. _MDDRelCursor_Anterior: %s?theRelationCursorName=%s&theCurrentElementUID=%s\n\n' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'previous_element'][ 'UID'], )" /><tal:block
-            tal:condition="SRES/cursor/next_element"
-                tal:content="structure python:  u'.. |MDDRelCursor_Siguiente| replace:: |MDDIcon_siguiente|\n.. _MDDRelCursor_Siguiente: %s?theRelationCursorName=%s&theCurrentElementUID=%s\n\n' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'next_element'][ 'UID'], )" /><tal:block 
-            tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'last_element'] and not (SRES[ 'cursor'][ 'last_element'][ 'object'] == SRES[ 'object'])"
-                tal:content="structure python:  u'.. |MDDRelCursor_Ultimo| replace:: |MDDIcon_ultimo|\n.. _MDDRelCursor_Ultimo: %s?theRelationCursorName=%s&theCurrentElementUID=%s\n\n' % ( SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'last_element'][ 'UID'], )" /> 
-    
-</tal:block></tal:block>
-      
-
-<tal:block tal:define="
-    pPosition         python: ( SRES[ 'cursor'][ 'elements_count'] and ( u' %d / %d ' % ( SRES[ 'cursor'][ 'element_index'], SRES[ 'cursor'][ 'elements_count'], ))) or u'';
-    pIconContenedor   python: (   SRES[ 'owner_element'] and '|MDDRelCursor_Contenedor|_') or u'|MDDIcon_blank|';
-    pIconPrimero      python: (( SRES[ 'owner_element'] and ( SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object']))) and '|MDDRelCursor_Primero|_') or u'|MDDIcon_blank|';
-    pIconAnterior     python: (( SRES[ 'owner_element'] and ( SRES[ 'cursor'] and SRES[ 'cursor'][ 'previous_element'])) and '|MDDRelCursor_Anterior|_') or u'|MDDIcon_blank|';
-    pIconSiguiente    python: (( SRES[ 'owner_element'] and ( SRES[ 'cursor'] and SRES[ 'cursor'][ 'next_element'])) and '|MDDRelCursor_Siguiente|_') or u'|MDDIcon_blank|';
-    pIconUltimo       python: (( SRES[ 'owner_element'] and ( SRES[ 'cursor'] and SRES[ 'cursor'][ 'last_element'] and not (SRES[ 'cursor'][ 'last_element'][ 'object'] == SRES[ 'object']))) and '|MDDRelCursor_Ultimo|_') or u'|MDDIcon_blank|'"
-    tal:content="python: '%s |MDDIcon_blank| %s |MDDIcon_blank| %s |MDDIcon_blank| %s |MDDIcon_blank| %s |MDDIcon_blank| %s\n\n' % 
-    ( pIconContenedor, pIconPrimero, pIconAnterior, pPosition, pIconSiguiente, pIconUltimo,)" />
-    
-
-
-
-
-</tal:block></div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div metal:define-macro="OBSOLETE_tCabeceraRelationCursor_EditableBody_i18n_withTitles" ><tal:block 
-tal:define="
-            SRES                              SRES | nothing;
-            pTrue                             python: True; 
-            pFalse                            python: False; 
-            pPagina                           pPagina          | string:;
-            pShowOrHideTrees                  pFalse;
-            pShowTrees                        pShowTrees       | pFalse;
-            global pRelationCursorName               pRelationCursorName | string:;
-            pPaginaAnteriorPosterior          pPaginaAnteriorPosterior | string:;  
-            global unPostfixPagina                   string:;
-            global unPostfixPaginaAnteriorPosterior  string:;" 
-tal:condition="python: SRES"><tal:block
-    tal:condition="python: SRES[ 'owner_element']" ><tal:block 
-        tal:content="structure python: u'.. epigraph::\n   `%s%s %c%s%c`__  ' %  ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_arriba_action_label', '^'), SRES[ 'owner_element'][ 'values_by_name'][ 'title'][ 'uvalue'].strip(),  60,  SRES[ 'owner_element'][ 'url'], 62, )"/><tal:block
-        tal:condition="python: SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element'])"><tal:block 
-            tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object'])" 
-                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_primero_label', '<<'), SRES[ 'cursor'][ 'first_element'][ 'values_by_name'][ 'title'][ 'uvalue'].strip(), 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'first_element'][ 'UID'], 62, )" /><tal:block 
-            tal:condition="SRES/cursor/previous_element" 
-                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_anterior_label', '<'), SRES[ 'cursor'][ 'previous_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'previous_element'][ 'UID'], 62, )" /><tal:block 
+                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_anterior_label', '<'), SRES[ 'cursor'][ 'previous_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'previous_element'][ 'UID'], 62, )" /><tal:block 
             tal:condition="SRES/cursor/elements_count"  
                 tal:content="structure python:  u' %d / %d ' % ( SRES[ 'cursor'][ 'element_index'], SRES[ 'cursor'][ 'elements_count'], )" /><tal:block
             tal:condition="SRES/cursor/next_element"
-                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_siguiente_label', '>'), SRES[ 'cursor'][ 'next_element'][ 'values_by_name'][ 'title'][ 'uvalue'].strip(), 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'next_element'][ 'UID'], 62, )" /><tal:block 
+                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_siguiente_label', '>'), SRES[ 'cursor'][ 'next_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'next_element'][ 'UID'], 62, )" /><tal:block 
             tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'last_element'] and not (SRES[ 'cursor'][ 'last_element'][ 'object'] == SRES[ 'object'])"
-                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_ultimo_label', '>>'), SRES[ 'cursor'][ 'last_element'][ 'values_by_name'][ 'title'][ 'uvalue'].strip(), 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'last_element'][ 'UID'], 62, )" />
+                tal:content="structure python:  u' `%s%s %c%s?theRelationCursorName=%s&theCurrentElementUID=%s%c`__  ' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_ultimo_label', '>>'), SRES[ 'cursor'][ 'last_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 60,  SRES[ 'cursor'][ 'container_element']['url'], pRelationCursorName, SRES[ 'cursor'][ 'last_element'][ 'UID'], 62, )" />
     
 </tal:block></tal:block>
-
-
-
+        
 </tal:block></div>
 
 

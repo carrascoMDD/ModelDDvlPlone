@@ -74,7 +74,7 @@
                                         <td align="left">
                                             <span class="visualIcon contenttype-xxx" tal:attributes="class python: 'visualIcon contenttype-%s' % pRefValue.portal_type.lower()">
                                             <h4>
-                                                <a href="#" tal:attributes="href python: '%s/Tabular/' % pRefValue.absolute_url()"
+                                                <a href="#" tal:attributes="href python: '%s/Tabular' % pRefValue.absolute_url()"
                                                    class="state-visible visualIconPadding" title="">
                                                    <span tal:content="python: pMetaAndValues[0][1]" />
                                                </a>

@@ -2,7 +2,7 @@
 #
 # File: PloneElement_TraversalConfig.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -28,7 +28,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -40,9 +40,7 @@ from Acquisition        import aq_inner, aq_parent
 from Products.CMFCore import permissions
 
 
-cPloneElement_ColumnName_Details = 'details'
-cPloneImage_DetailsHeight        = 64
-cPloneDocument_DetailsLen        = 128
+
 
 
 cPloneTypes = {
@@ -209,11 +207,3 @@ cExportConfig_PloneElements = [
     },
 ]    
  
-
-cExportConfig_PloneElements_MetaTypes = [ ]
-for aTypeConfig in cExportConfig_PloneElements:
-    someTypes = aTypeConfig.get( 'portal_types', [])
-    for aType in someTypes:
-        if not ( aType in cExportConfig_PloneElements_MetaTypes):
-            cExportConfig_PloneElements_MetaTypes.append( aType)
-            

@@ -1,9 +1,5 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: Colecciones_EditableBody_i18n_view.pt
-#
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -35,95 +31,33 @@
 
 
 
-<div metal:define-macro="tColecciones_EditableBody_i18n" >
-
-<tal:block 
+<div metal:define-macro="tColecciones_EditableBody_i18n" ><tal:block 
     tal:define="
-        pPagina                             pPagina | string:;
-        pPaginaYSlash                       python: (( pPagina == 'Textual') and '') or (( pPagina and ( not ( pPagina == 'Textual')) and ( '%s/' % pPagina)) or '');
-        global pMDDTitleCounter                 pMDDTitleCounter | python: 0;
-        pTraversalTargetsByTraversalName    pTraversalTargetsByTraversalName | python: {};
         SRES                                SRES | nothing;
         TRAVRES                             TRAVRES | nothing;
         pTrue                               python: True; 
         pFalse                              python: False; 
-        pAmp                                python: chr( 38);
         pSiempre                            pSiempre | pFalse" 
     tal:condition="python: TRAVRES and SRES and ( TRAVRES[ 'num_elements'] > 0 and TRAVRES[ 'has_grandchildren'])">
 
 |
 |
     
----------------------------------
-
-
-    <tal:block 
-        tal:condition="python: ( TRAVRES[ 'num_elements'] == 1) and ( TRAVRES['elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip() == TRAVRES['elements'][ 0][ 'archetype_name'])"
-        tal:define="
-            pCollectionTitle python: TRAVRES['elements'][ 0][ 'type_translations'][ 'translated_archetype_name'];       
-            pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( '%sIdx0' % TRAVRES[ 'traversal_name'], '')" >
-        
-        <tal:block tal:define="
-            global pMDDTitleCounter python: pMDDTitleCounter + 1; 
-            pMDDTitle python: 'MDDTitle%d' % pMDDTitleCounter" >
-            <tal:block tal:content="structure python: u'\n\n.. |%s| replace:: |MDDIcon_%s| **%s**\n.. _%s: %s%s\n\n' %  ( pMDDTitle,  TRAVRES['elements'][ 0][ 'meta_type'] , pCollectionTitle, pMDDTitle, TRAVRES['elements'][ 0][ 'url'], pPaginaYSlash)" />
-            <tal:block  
-                tal:condition="pMDDTraversalTarget" 
-                tal:content="structure python: u'\n\n.. _%s:' %  (  pMDDTraversalTarget,)"/>
-            <tal:block  tal:content="structure python: u'\n\n|%s|_ |MDDTopTg|_' %  pMDDTitle" />
-        </tal:block>        
-        <tal:block tal:condition="python:  TRAVRES['elements'][ 0]['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()">
+**<tal:block 
+        tal:content="TRAVRES/traversal_translations/translated_label" />**
 
 <tal:block 
-                tal:repeat="unaLineaTexto python:  TRAVRES['elements'][ 0]['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()" 
-                tal:content="python: unaLineaTexto.strip()" />
-        </tal:block>
-
-    </tal:block>
-    <tal:block 
-        tal:define="pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( '%s' % TRAVRES[ 'traversal_name'], '')"
-        tal:condition="python:  pMDDTraversalTarget and ( TRAVRES[ 'num_elements'] > 1) and not ( ( TRAVRES[ 'num_elements'] == 1) and ( TRAVRES['elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip() == TRAVRES['elements'][ 0][ 'archetype_name']))"
-        tal:replace="structure python: '\n\n.. _%s:\n\n|MDDIcon_Colecciones| **%s** |MDDTopTg|_' % ( pMDDTraversalTarget, TRAVRES[ 'traversal_translations'][ 'translated_label'].strip(), )" />
-
-    <tal:block 
         tal:define="PARENT_SRES SRES; PARENT_TRAVRES TRAVRES"
         tal:repeat="SRES TRAVRES/elements">
-        <tal:block tal:condition="not: repeat/SRES/start">
-
-|
-|
-
-        </tal:block >
-        
-        <tal:block  tal:condition="python: not ( ( TRAVRES[ 'num_elements'] == 1) and ( TRAVRES['elements'][ 0][ 'values_by_name'][ 'title'][ 'uvalue'].strip() == TRAVRES['elements'][ 0][ 'archetype_name'])) and [ unTraversalResult for unTraversalResult in SRES[ 'traversals'] if unTraversalResult[ 'traversal_kind'] =='aggregation'][ 0][ 'num_elements']">
-            <tal:block
-                tal:define="pIsCollectionsWithStandardName python: SRES[ 'values_by_name'][ 'title'][ 'uvalue'].strip() == SRES[ 'archetype_name'];
-                    pCollectionTitle python: ( pIsCollectionsWithStandardName and  SRES[ 'type_translations'][ 'translated_archetype_name'].strip()) or SRES[ 'values_by_name'][ 'title'][ 'uvalue'].strip();
-                    global pMDDTitleCounter python: pMDDTitleCounter + 1; 
-                    pMDDTitle python: 'MDDTitle%d' % pMDDTitleCounter;
-                    pElementIndex repeat/SRES/index;
-                    pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( '%sIdx%d' % ( TRAVRES[ 'traversal_name'], pElementIndex), '')" ><tal:block 
-                tal:content="structure python: u'\n\n.. |%s| replace:: |MDDIcon_%s| **%s**\n.. _%s: %s%s\n\n' %  ( pMDDTitle, SRES[ 'meta_type'],pCollectionTitle, pMDDTitle, SRES[ 'url'], pPaginaYSlash,  )"/>
-            <tal:block  
-                    tal:condition="pMDDTraversalTarget"
-                    tal:content="structure python: u'\n\n.. _%s:\n\n' %   pMDDTraversalTarget"/>
-            <tal:block tal:content="structure python: u'\n\n|%s|_ ' % pMDDTitle "/></tal:block> <tal:block 
-            tal:content="python: ' (*%s*) ' % SRES[ 'type_translations'][ 'translated_archetype_name']" /> |MDDTopTg|_ <tal:block 
-                tal:define="global pMDDTopTgDefined python: True" 
-                tal:condition="python:  SRES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()"> . <tal:block 
-                    tal:repeat="unaLineaTexto python:  SRES['values_by_name'][ 'description'][ 'uvalue'].strip().splitlines()" 
-                    tal:content="python: unaLineaTexto.strip()" /> </tal:block> .</tal:block>
+<tal:block 
+            tal:content="structure python: u'`%s %c%s%c`__' %  ( SRES[ 'values_by_name'][ 'title'][ 'uvalue'] , 60, SRES[ 'url'], 62)"/> (*<tal:block 
+            tal:content="python: SRES[ 'type_translations'][ 'translated_archetype_name']" />*) .
     
 <tal:block
-            tal:repeat="TRAVRES python: [ unTraversalResult for unTraversalResult in SRES[ 'traversals'] if ( unTraversalResult[ 'traversal_kind'] =='aggregation')  ]">
-<tal:block tal:define="pElementIndex repeat/SRES/index;
-                        pMDDTraversalTarget python: pTraversalTargetsByTraversalName.get( '%sIdx%d' % ( PARENT_TRAVRES[ 'traversal_name'], pElementIndex, ), '')" >
-              
-
-
+            tal:repeat="TRAVRES python: [ unTraversalResult for unTraversalResult in SRES[ 'traversals'] if unTraversalResult[ 'traversal_kind'] =='aggregation' ]">
 <metal:block metal:use-macro="here/Tabla_EditableBody_i18n_view/macros/tTabla_EditableBody_i18n" />        
                 
-</tal:block></tal:block></tal:block></tal:block>
+</tal:block></tal:block></tal:block>
 </div>
 
 
@@ -133,5 +67,4 @@
 
 </body>
 </html>
-
 

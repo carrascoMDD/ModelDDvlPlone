@@ -1,5 +1,5 @@
 <tal:block replace="nothing">
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -29,70 +29,30 @@
 
     <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
 
-    <tal:block tal:define="global pRedirectURL python: '%s/Tabular/' % here.absolute_url();
-        global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
-        pCanDelete python: request.has_key('theConfirmedDelete') and request['theConfirmedDelete'] == 'Yes' and request.has_key('theUIDToDelete') and request['theUIDToDelete'] and request.has_key('theSN') and request['theSN']" >
-        <tal:block tal:condition="pCanDelete">      
-            <tal:block tal:define="
-                pUIDToDelete            request/theUIDToDelete; 
-                pSecondsRequest         python: int( request['theSN']);
-                pRetrievalStartTime     python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
-                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-                unosArgs python: {
-                    'theTimeProfilingResults' :pProfilingResults,                          
-                    'theContainerElement'     :here, 
-                    'theUIDToDelete'          :pUIDToDelete, 
-                    'theRequestSeconds'       :pSecondsRequest, 
-                    'theAdditionalParams'     :None, };
-                pDeleteReport           python: here.MDDModelDDvlPlone_tool.fEliminarElementoPlone( **unosArgs);
-                pRetrievalEndTime       python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
-                <tal:block tal:condition="python: pDeleteReport and ( pDeleteReport.get( 'effect', '').lower() == 'deleted')" >
-                    <tal:block tal:condition="python: pDeleteReport.get( 'parent_traversal_name', '')" >
-                        <tal:block tal:define="
-                            pMessageText python: '%s %d' % ( 
-                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumberElementsDeleted', 'Deleted elements #-'), 
-                                pDeleteReport.get( 'num_elements_to_delete', 0));
-                            global pRedirectURL python: '%s/Tabular/?portal_status_message=%s#aggregation-%s' % ( here.absolute_url(), pMessageText, pDeleteReport.get( 'parent_traversal_name', ''))" />
-                    </tal:block>
-                    <tal:block tal:condition="python: not pDeleteReport.get( 'parent_traversal_name', '')" >
-                        <tal:block tal:define="
-                            pMessageText python: '%s %d' % ( 
-                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumberElementsDeleted', 'Deleted elements #-'), 
-                                pDeleteReport.get( 'num_elements_to_delete', 0));
-                            global pRedirectURL python: '%s/Tabular/?portal_status_message=%s' % ( here.absolute_url(), pMessageText)" />
-                    </tal:block>
-                </tal:block>
-                <tal:block tal:condition="python: not( pDeleteReport and ( pDeleteReport.get( 'effect', '').lower() == 'deleted'))" >
-                    <tal:block tal:condition="python: pDeleteReport.get( 'parent_traversal_name', '')" >
-                        <tal:block tal:define="
-                            pDeleteReport  python: pDeleteReport or {};
-                            pMessageText python: '%s %s' % ( 
-                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_DeleteFailed', 'Delete operation Failed-'), 
-                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_%s' % pDeleteReport.get( 'failure', ''), 'ModelDDvlPlone_Failure_%s-' % pDeleteReport.get( 'failure', '')),);
-                            global pRedirectURL python: '%s/Tabular/?portal_status_message=%s#aggregation-%s' % ( here.absolute_url(), pMessageText, pDeleteReport.get( 'parent_traversal_name', ''))" 
-                        />
-                    </tal:block>
-                    <tal:block tal:condition="python: not pDeleteReport.get( 'parent_traversal_name', '')" >
-                        <tal:block tal:define="
-                            pDeleteReport  python: pDeleteReport or {};
-                            pMessageText python: '%s %s' % ( 
-                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_DeleteFailed', 'Delete operation Failed-'), 
-                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_%s' % pDeleteReport.get( 'failure', ''), 'ModelDDvlPlone_Failure_%s-' % pDeleteReport.get( 'failure', '')),);
-                            global pRedirectURL python: '%s/Tabular/?portal_status_message=%s' % ( here.absolute_url(), pMessageText, )" 
-                        />
-                    </tal:block>
-                </tal:block>
-             </tal:block>
-        </tal:block>
-        <tal:block tal:condition="not: pCanDelete">
-            <tal:block tal:define="
-                pMessageText python: '%s %s' % ( 
-                    here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_DeleteFailed', 'Delete operation Failed-'), 
-                    here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_required_parameters_missing' ),);
-                global pRedirectURL python: '%s/Tabular/?portal_status_message=%s' % ( here.absolute_url(), pMessageText, )" 
-            />
-        </tal:block>
+    <tal:block tal:define="global pRedirectURL python: '%s/Tabular' % here.absolute_url()"
+        tal:condition="python: request.has_key('theConfirmedDelete') and request['theConfirmedDelete'] == 'Yes' and request.has_key('theUIDToDelete') and request['theUIDToDelete'] and request.has_key('theSecondsNow') and request['theSecondsNow']" >
+<p>eliminando</p>        
+        <tal:block tal:define="
+            pUIDToDelete            request/theUIDToDelete; 
+            pSecondsRequest         python: int( request['theSecondsNow']);
+            pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+            pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+            unosArgs python: {
+                'theTimeProfilingResults' :pProfilingResults,                          
+                'theContainerElement'     :here, 
+                'theUIDToDelete'          :pUIDToDelete, 
+                'theRequestSeconds'       :pSecondsRequest, 
+                'theAdditionalParams'     :None, };
+            pDeleteReport           python: here.ModelDDvlPlone_tool.fEliminarElementoPlone( **unosArgs);
+            pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow()" 
+            tal:condition="pDeleteReport" >
+            <tal:block tal:condition="python: pDeleteReport.get( 'parent_traversal_name', '')" >
+                <tal:block tal:define="global pRedirectURL python: '%s/Tabular#aggregation-%s' % ( here.absolute_url(), pDeleteReport.get( 'parent_traversal_name', ''))" />
+            </tal:block>
+         </tal:block>
     </tal:block>
+
+    <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
 
     <tal:block tal:define="dummy python: request.response.redirect( pRedirectURL)" />    
 

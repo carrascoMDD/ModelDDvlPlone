@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_Candidates.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -28,7 +28,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -41,8 +41,6 @@ from Products.CMFCore.utils import getToolByName
 from Products.Relations.config                  import RELATIONS_LIBRARY
 
    
-from ModelDDvlPloneToolSupport          import fEvalString
-
 cElementsOfTypeTraversalName = 'ElementsOfType_TraversalName'   
 
 
@@ -105,17 +103,13 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
         if not theReferenceFieldName or not theField:
             return []
 
-        someComputedTypesString = ''
+        someComputedypes = []
         try:
-            someComputedTypesString = theField.computed_types
+            someComputedypes = eval( theField.computed_types)
         except:
-            None    
-        if not someComputedTypesString:
-            return []
-        
-        someComputedTypes = fEvalString( someComputedTypesString)
+            None                    
 
-        return someComputedTypes
+        return someComputedypes
              
  
     
@@ -150,12 +144,7 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
         if not aRelationslib:
             return []
             
-        aRuleset = None
-        try:
-            aRuleset = aRelationslib.getRuleset( unRelationName)
-        except ValueError:
-            None
-            
+        aRuleset = aRelationslib.getRuleset( unRelationName)
         if not aRuleset:
             return []
 
@@ -471,13 +460,18 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
             
             unPathDelRaiz = theElement.fPathDelRaiz()
  
+            # OJO ACV 20090609 
+            # Want to remove index getPathDelRaiz introduced by BPD, eMOF and other ModelDDvlPlone based applications
+            # and use the standard Plone index "path" instead
             if unTodosArquetipos:               
                 unaBusqueda = { 
+#                   'getPathDelRaiz' :   unPathDelRaiz,
                    'path' :              unPathDelRaiz,
                 }
             else:
                 unaBusqueda = { 
                     'meta_type'      :   someAcceptedPortalTypes,
+#                   'getPathDelRaiz' :   unPathDelRaiz,
                     'path' :             unPathDelRaiz,
                 }
      

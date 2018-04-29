@@ -1,4 +1,5 @@
-# GNU gettext PO File generated Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero for ModelDDvlPlone product. http://gvsig.org and http://www.ModelDD.org
+# Copyright (c) 2008, 2009 by Conselleria de Infraestructuras y Transporte de la Generalidad Valenciana
+#
 # GNU General Public License (GPL)
 #
 # This program is free software; you can redistribute it and/or
@@ -16,22 +17,28 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ModelDDvlPlone\n"
-"POT-Creation-Date: 2009-11-19 08:19+0100\n"
-"PO-Revision-Date: 2009-11-19 08:19+0100\n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"Project-Id-Version: gvSIGtraducciones\n"
+"POT-Creation-Date: Fri Mar 20 11:10:50 2009\n"
+"PO-Revision-Date: Fri Mar 20 11:10:50 2009\n"
+"Last-Translator: Model Driven Development sl, Antonio Carrasco Valero <gvSIGi18n@ModelDD.org, carrasco@ModelDD.org>\n"
+"Language-Team:  Model Driven Development sl, Antonio Carrasco Valero < gvSIGi18n@ModelDD.org, carrasco@ModelDD.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0\n"
 "Language-Code: en\n"
 "Language-Name: English\n"
 "Preferred-Encodings: latin1 utf-8\n"
 "Domain: plone\n"
+"X-Is-Fallback-For: en-au en-bz en-ca en-ie en-jm en-nz en-ph en-za en-tt en-gb en-us en-zw\n"
+
+
 
 #. Default: "Exportar"
 #: 
@@ -43,30 +50,16 @@ msgstr "Export"
 msgid "Import"
 msgstr "Import"
 
-#. Default: "Cache"
-#: 
-msgid "Cache"
-msgstr "Cache"
-
-#. Default: "Nueva Traduccion"
-#: 
-msgid "New Translation"
-msgstr "New Translation"
-
 #. Default: "Nueva Version"
 #: 
 msgid "New Version"
 msgstr "New Version"
 
-#. Default: "Tabular"
-#: 
-msgid "Relations"
-msgstr "Tabular"
 
-#. Default: "Ordenar"
+#. Default: "Nueva Traduccion"
 #: 
-msgid "Reorder"
-msgstr "Reorder"
+msgid "New Translation"
+msgstr "New Translation"
 
 #. Default: "Versiones"
 #: 
@@ -75,64 +68,12 @@ msgstr "Versions"
 
 #. Default: "Tabular"
 #: 
-msgid "relations"
+msgid "Relations"
 msgstr "Tabular"
 
-
-#. Default: "Vaciar"
+#. Default: "Tabular"
 #: 
-msgid "Flush"
-msgstr "Flush"
-
-
-#. Default: "Vaciar Disco"
-#: 
-msgid "Flush Disk"
-msgstr "Flush Disk"
-
-
-
-#. Default: "Habilitar"
-#: 
-msgid "Enable"
-msgstr "Enable"
-
-
-#. Default: "Deshabilitar"
-#: 
-msgid "Disable"
-msgstr "Disable"
-
-
-#. Default: "Inicializar"
-#: 
-msgid "Reset"
-msgstr "Reset"
-
-
-
-
-
-
-#. Default: "Portapapeles""
-#: 
-msgid "Clipboard"
-msgstr "Clipboard"
-
-#. Default: "Activar"
-#: 
-msgid "Activate"
-msgstr "Activate"
-
-
-#. Default: "Desactivar"
-#: 
-msgid "Deactivate"
-msgstr "Deactivate"
-
-#. Default: "Cambios"
-#: 
-msgid "Changes"
-msgstr "Changes"
+msgid "relations"
+msgstr "Tabular"
 
 

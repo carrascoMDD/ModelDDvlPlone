@@ -1,8 +1,4 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: ColeccionEnTabla_i18n_view.pt
-#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -53,7 +49,7 @@
                     pPermiteOrdenarElementos          pPermiteOrdenarElementos  | pTrue;
                     pPermiteOrdenarElementos          python: pPermiteOrdenarElementos and SRES[ 'read_permission'] and SRES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];         
                     pPermiteEliminarElementos         pPermiteEliminarElementos | pTrue;
-                    pPermiteEliminarElementos         python: pPermiteEliminarElementos and SRES[ 'read_permission'] and SRES[ 'write_permission']  and SRES[ 'delete_permission']  and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'] and not ( TRAVRES['traversal_config'].has_key( 'no_ui_changes') and TRAVRES['traversal_config'][ 'no_ui_changes'] == True)"
+                    pPermiteEliminarElementos         python: pPermiteEliminarElementos and SRES[ 'read_permission'] and SRES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'] and not ( TRAVRES['traversal_config'].has_key( 'no_ui_changes') and TRAVRES['traversal_config'][ 'no_ui_changes'] == True) "
                     tal:condition="python: (TRAVRES[ 'traversal_kind'] == 'aggregation') and (not TRAVRES[ 'contains_collections']) and ( pSiempre or len( TRAVRES[ 'elements']))" >
              
                     <metal:block metal:use-macro="here/Tabla_i18n_view/macros/tTabla_i18n" />

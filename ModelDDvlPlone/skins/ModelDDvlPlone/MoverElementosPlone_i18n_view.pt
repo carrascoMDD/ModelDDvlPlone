@@ -1,9 +1,5 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: MoverElementosPlone_i18n_view.pt
-#
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -39,7 +35,7 @@
                                pMoveDirection    request/theMoveDirection | string:" >
             <tal:block tal:condition="python: pContainerElement and pTraversalName and pMovedObjectUID and pMoveDirection and (pMoveDirection.lower() in ['up', 'down', 'top', 'bottom',])" >
                 <tal:block tal:define="
-                    pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+                    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                     pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);  
                     unosArgs python: {
                         'theTimeProfilingResults' :pProfilingResults,                          
@@ -48,8 +44,8 @@
                         'theMovedObjectUID'       :pMovedObjectUID, 
                         'theMoveDirection'        :pMoveDirection, 
                         'theAdditionalParams'     :None, };                  
-                    aMoveResult python: here.MDDModelDDvlPlone_tool.fMoveSubObjectPlone( **unosArgs);
-                    pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();">     
+                    dummy python: here.ModelDDvlPlone_tool.pMoveSubObjectPlone( **unosArgs);
+                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">     
 
 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
                 

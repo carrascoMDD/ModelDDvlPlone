@@ -1,9 +1,5 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: PerformanceAnalysis.pt
-#
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -32,26 +28,12 @@
 
 
     <div metal:define-macro="tSetupPerformanceAnalysis" >
-        <tal:block tal:define="global pPerformanceAnalysis pPerformanceAnalysis | python: { 'retrieval_times': True, 'processing_times': True,  'profiling_results': None, };
-            global pStartTime pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" />  
-    </div>
-    
-    <div metal:define-macro="NO_tSetupPerformanceAnalysis" >
-        <tal:block tal:define="global pPerformanceAnalysis python: { 'retrieval_times': False, 'processing_times': False,  'profiling_results': None, };
-            global pStartTime pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" />                           
-    </div>
-
-    <div metal:define-macro="SI_tSetupPerformanceAnalysis" >
-        <tal:block tal:define="global pPerformanceAnalysis python: { 'retrieval_times': True, 'processing_times': True,  'profiling_results': None, };
-            global pStartTime pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" />                           
+        <tal:block tal:define="global pPerformanceAnalysis python: { 'retrieval_times': False, 'processing_times': False,  'profiling_results': None, } " />                           
     </div>
     
     
     <div metal:define-macro="tRenderRetrievalTime_HTML" >
-        <p tal:define="pPerformanceAnalysis pPerformanceAnalysis | python:{};
-                    pRetrievalEndTime   pRetrievalEndTime| python: 0;
-                    pRetrievalStartTime pRetrievalStartTime| pRetrievalEndTime;"
-            tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'retrieval_times', False) == True)"
+        <p tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'retrieval_times', False) == True)"
             class="formHelp" tal:content="python: 'Retrieval milliseconds %s' % str( int( pRetrievalEndTime - pRetrievalStartTime))" />   
     </div>
     
@@ -60,11 +42,7 @@
     
     
 <div metal:define-macro="tRenderRetrievalTime_REST" >
-<tal:block
-    tal:define="pPerformanceAnalysis pPerformanceAnalysis | python:{};
-    pRetrievalEndTime   pRetrievalEndTime|  python: 0;
-    pRetrievalStartTime pRetrievalStartTime| pRetrievalEndTime;"
-    tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'retrieval_times', False) == True)"
+<tal:block tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'retrieval_times', False) == True)"
     tal:replace="structure python: '.. epigraph::\n   Retrieval milliseconds %s\n\n' % str( int( pRetrievalEndTime - pRetrievalStartTime))" />
 </div>
     
@@ -72,31 +50,25 @@
     
     
     <div metal:define-macro="tRenderProcessingTime_HTML" >
-        <p tal:define="pPerformanceAnalysis pPerformanceAnalysis | python:{};
-                 global pEndTime python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
-                 global pStartTime pStartTime | pEndTime" 
-            tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'processing_times', False) == True)"
-            class="formHelp"
+        <p tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'processing_times', False) == True)"
+            class="formHelp" tal:define="global pEndTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" 
             tal:content="python: 'Processing milliseconds %s' % str( int( pEndTime - pStartTime))" />
     </div>
     
     
     
 <div metal:define-macro="tRenderProcessingTime_REST" >
-<p  tal:define="pPerformanceAnalysis pPerformanceAnalysis | python:{};
-                global pEndTime python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
-                global pStartTime pStartTime | pEndTime"      
-    tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'processing_times', False) == True)"
+<p  tal:condition="python: pPerformanceAnalysis and ( pPerformanceAnalysis.get( 'processing_times', False) == True)"
+    tal:define="global pEndTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" 
     tal:replace="structure python: '.. epigraph::\n   Processing milliseconds %s\n\n' % str( int( pEndTime - pStartTime))" />
 </div>
 
 
     
-    <div metal:define-macro="tRenderProfilingResults_HTML" >
+    <div metal:define-macro="tRenderProfilingResults_HTML" >s
         <tal:block 
-            tal:define="pPerformanceAnalysis pPerformanceAnalysis | python:{}"
             tal:condition="python: pPerformanceAnalysis and not ( pPerformanceAnalysis.get( 'profiling_results', None) == None)"
-            tal:replace="structure python: here.MDDModelDDvlPlone_tool.fPrettyPrintProfilingResultHTML( pPerformanceAnalysis[ 'profiling_results'][ 'root'] )" />
+            tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintProfilingResultHTML( pPerformanceAnalysis[ 'profiling_results'][ 'root'] )" />
     </div>
     
     

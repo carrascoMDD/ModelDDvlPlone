@@ -3,7 +3,7 @@
 #
 # File: TextualRest.pt
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -35,102 +35,78 @@
 
     <metal:main fill-slot="main">
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
-        global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
-        
-        
-    
-        <div metal:use-macro="here/document_actions/macros/document_actions">
-            Document actions (print, sendto etc)
-        </div>
-
-        <h1 tal:content="object_title" class="documentFirstHeading">
-          Title or id
-        </h1>
-
-        <div metal:use-macro="here/document_byline/macros/byline">
-          Get the byline - contains details about author and modification date.
-        </div>
-
-        <tal:block tal:define="dummy python: here.MDDModelDDvlPlone_tool.pSetDefaultDisplayView( here)" />
+        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero" >
         
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />           
         
-        <tal:block tal:define="
-            pPagina string:TextualRest;
-            pPaginaAnteriorPosterior string:TextualRest;
-            pShowTrees python:False" >
-            
-            <tal:block tal:condition="python: request.cookies.has_key('ShowTrees')" >
-                <tal:block tal:condition="python: request.cookies[ 'ShowTrees'].lower() == 'yes'">
-                    <tal:block tal:define="global pShowTrees python: True" />
-                </tal:block>     
-                <tal:block tal:condition="python: not( request.cookies[ 'ShowTrees'].lower() == 'yes')">
-                    <tal:block tal:define="global pShowTrees python: False" />
-                </tal:block>     
-            </tal:block>     
-            <tal:block tal:condition="python: request.form.has_key('ShowTrees')">
-                <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes');
-                                       global pShowTrees python: True" />            
-            </tal:block>     
-            <tal:block tal:condition="python: request.form.has_key('HideTrees')">
-                <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no');
-                                       global pShowTrees python: False" />            
-            </tal:block> 
-            <tal:block tal:condition="python: not( request.cookies.has_key('ShowTrees') and  (request.cookies[ 'ShowTrees'].lower() == 'yes') == pShowTrees)" >
-                <tal:block tal:condition="python: pShowTrees" >
-                    <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes', path='/')" />
-                </tal:block> 
-                <tal:block tal:condition="python: not pShowTrees" >
-                    <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no', path='/')" />
-                </tal:block> 
-            </tal:block> 
-            
+        <tal:block tal:define="global pPagina string:Textual" />
+        <tal:block tal:define="global pShowTrees python:False" />
         
-            <tal:block tal:define="
-                pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
-                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-                unosArgs python: { 
-                    'theTimeProfilingResults'     :pProfilingResults,
-                    'theElement'                  :here, 
-                    'theParent'                   :None,
-                    'theParentTraversalName'      :'',
-                    'theTypeConfig'               :None, 
-                    'theAllTypeConfigs'           :None, 
-                    'theViewName'                 :'Textual', 
-                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ],
-                    'theWritePermissions'         :[ 'object', ],
-                    'theFeatureFilters'           :{ 'attrs': ['title', 'description',], 'aggregations': [], 'relations': [],}, 
-                    'theInstanceFilters'          :None,
-                    'theTranslationsCaches'       :None,
-                    'theCheckedPermissionsCache'  :None,
-                    'theAdditionalParams'         :None};
-                SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
-                pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
-                pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
-                pShowOrHideTrees python: True; 
-                pMostrarAnteriorPosterior python: True" >
+        <tal:block tal:condition="python: request.cookies.has_key('ShowTrees')" >
+            <tal:block tal:condition="python: request.cookies[ 'ShowTrees'].lower() == 'yes'">
+                <tal:block tal:define="global pShowTrees python: True" />
+            </tal:block>     
+            <tal:block tal:condition="python: not( request.cookies[ 'ShowTrees'].lower() == 'yes')">
+                <tal:block tal:define="global pShowTrees python: False" />
+            </tal:block>     
+        </tal:block>     
+        <tal:block tal:condition="python: request.form.has_key('ShowTrees')">
+            <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes');
+                                   global pShowTrees python: True" />            
+        </tal:block>     
+        <tal:block tal:condition="python: request.form.has_key('HideTrees')">
+            <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no');
+                                   global pShowTrees python: False" />            
+        </tal:block> 
+        <tal:block tal:condition="python: not( request.cookies.has_key('ShowTrees') and  (request.cookies[ 'ShowTrees'].lower() == 'yes') == pShowTrees)" >
+            <tal:block tal:condition="python: pShowTrees" >
+                <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'yes', path='/')" />
+            </tal:block> 
+            <tal:block tal:condition="python: not pShowTrees" >
+                <tal:block tal:define="dummy python: request.RESPONSE.setCookie('ShowTrees', 'no', path='/')" />
+            </tal:block> 
+        </tal:block> 
+        
     
-     
-    <tal:block tal:replace="nothing">  
-                <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />
-    
-                <tal:block tal:replace="structure python: here.MDDModelDDvlPlone_tool.fPrettyPrintHTML( here [ SRES  , ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.MDDModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
-    </tal:block>
-    
-    <p class="formHelp"  tal:content="python: 'Retrieval Time %s' % str( int( pRetrievalEndTime - pRetrievalStartTime))" />   
-    
-                <tal:block tal:define="
-                    pPaginaRefrescar                  string:TextualRest;
-                    pAllowRefrescar                   python: True;
-                    pAllowTextualAndTabular           python: True;
-                    "> 
-                    <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
-                </tal:block>
-            
+        <tal:block tal:define="
+            pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+            pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+            pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+            unosArgs python: { 
+                'theTimeProfilingResults'     :pProfilingResults,
+                'theElement'                  :here, 
+                'theParent'                   :None,
+                'theParentTraversalName'      :'',
+                'theTypeConfig'               :None, 
+                'theAllTypeConfigs'           :None, 
+                'theViewName'                 :'Textual', 
+                'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', ],
+                'theWritePermissions'         :[ 'object', ],
+                'theFeatureFilters'           :{ 'attrs': ['title', 'description',], 'aggregations': [], 'relations': [],}, 
+                'theInstanceFilters'          :None,
+                'theTranslationsCaches'       :None,
+                'theCheckedPermissionsCache'  :None,
+                'theAdditionalParams'         :None};
+            SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+            pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+            pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
+            pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
+            pShowOrHideTrees python: True; 
+            pMostrarAnteriorPosterior python: True" >
+
+ 
+<tal:block tal:replace="nothing">  
+            <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />
+
+            <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ SRES  , ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+</tal:block>
+
+<p class="formHelp"  tal:content="python: 'Retrieval Time %s' % str( int( pRetrievalEndTime - pRetrievalStartTime))" />   
+
+            <tal:block > 
+                <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
             </tal:block>
+        
         </tal:block>
 
 

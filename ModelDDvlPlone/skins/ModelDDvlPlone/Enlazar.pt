@@ -3,7 +3,7 @@
 #
 # File: Enlazar.pt
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -35,8 +35,7 @@
                         
     <metal:main fill-slot="main">
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
-        global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
+        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero" >
 
         <div metal:use-macro="here/document_actions/macros/document_actions">
             Document actions (print, sendto etc)
@@ -50,14 +49,14 @@
           Get the byline - contains details about author and modification date.
         </div>
 
-        <tal:block tal:replace="nothing">
-            <tal:block tal:define="global pReferenceFieldName request/theReferenceFieldName | string:" />
-            <tal:block tal:define="global pLinkUID request/theLinkUID | string:" />
-            <tal:block tal:define="global pUnlinkUID request/theUnlinkUID | string:" />
-        </tal:block>
+    
+        <tal:block tal:define="global pReferenceFieldName request/theReferenceFieldName | string:" />
+        <tal:block tal:define="global pLinkUID request/theLinkUID | string:" />
+        <tal:block tal:define="global pUnlinkUID request/theUnlinkUID | string:" />
+
         <metal:block metal:use-macro="here/Enlazar_inner/macros/tEnlazarInner" />
 
-        <div tal:replace="structure python: here.MDDModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
+        <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
                
  
     </tal:main-macro>

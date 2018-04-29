@@ -1,5 +1,5 @@
 <tal:block replace="nothing">
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -37,13 +37,13 @@
                                 global pPagina                  string:Tabular;
                                 global pPaginaAnteriorPosterior string:Tabular;
                                 global pShowTrees               pFalse;
-                                global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+                                global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                                 global pNeedToRedirect      pTrue" />
  
         <tal:block tal:define="pUIDToDelete  python: request.get( 'theUIDToDelete', '')" 
             tal:condition="pUIDToDelete">
             <tal:block tal:define="
-                pRetrievalStartTime     python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults       python: ( pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: { 
                     'theTimeProfilingResults'     :pProfilingResults,
@@ -56,8 +56,8 @@
                     'theTranslationsCaches'       :None,
                     'theCheckedPermissionsCache'  :None,
                     'theAdditionalParams'         :None};                                            
-                PLONERES  python:       here.MDDModelDDvlPlone_tool.fRetrievePloneContent( **unosArgs);
-                pRetrievalEndTime       python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()"
+                PLONERES  python:       here.ModelDDvlPlone_tool.fRetrievePloneContent( **unosArgs);
+                pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow()"
                 tal:condition="PLONERES/traversals" >
                  <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
              
@@ -80,9 +80,9 @@
 
                             <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
 
-                            <br/>
+                            <br>
                             <h2 tal:condition="not: pEliminacionPermitida"> 
-                                <a  href="#" tal:attributes="href python: '%sTabular/' % PLONERES[ 'url']" class="state-visible" title="">
+                                <a  href="#" tal:attributes="href python: '%s/Tabular' % PLONERES[ 'url']" class="state-visible" title="">
                                     <font color="Red">                    
                                         <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaeliminar_error_message"/>
                                         &nbsp;
@@ -102,21 +102,21 @@
                             <tal:block tal:condition="pEliminacionPermitida"> 
             
                                 <h1>
-                                   <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminarplone_action_label">Delete Plone element-</span>
+                                   <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminarplone_action_label">ModelDDvlPlone_eliminarplone_action_label</span>
                                 </h1>       
-                                <p class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminarplone_action_help">You are going to DELETE Plone elements below. Please, make sure you really want to delete them.-</p>        
+                                <p class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminarplone_action_help">ModelDDvlPlone_eliminarplone_action_help</p>        
                                 <br/>
                                 <br/>
                          
-                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_instruccionesconfirmacioneliminar_help">Please, confirm deletion of the elements below, clicking in the link at the bottom of this page.-</h4>
-                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_tiempoconfirmacioneliminar_help">You must confirm within a limited interval of time. If you need additional time to review the impact, please request again the deletion of this element.-</h4>
+                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_instruccionesconfirmacioneliminar_help">ModelDDvlPlone_instruccionesconfirmacioneliminar_help</h4>
+                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_tiempoconfirmacioneliminar_help">ModelDDvlPlone_tiempoconfirmacioneliminar_help</h4>
                                 <br/>
                                 <br/>
             
             
             
                                 <h2>
-                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_elementosaeliminar_title_msgid">Elements to be deleted-</span>
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_elementoaeliminar_title_msgid">ModelDDvlPlone_elementoaeliminar_title_msgid</span>
                                     <br/>       
                                     <span tal:content="ERES/values_by_name/title/uvalue"/>
                                     (
@@ -132,14 +132,14 @@
                                    
                                 <h3>                        
                                     <tal:block tal:define="pSecondsNow PLONERES/seconds_now">
-                                        <a  href="#" tal:attributes="href python: '%sEliminarElementoPlone/?theUIDToDelete=%s&theSN=%s&theConfirmedDelete=Yes' % ( PLONERES[ 'url'], ERES[ 'UID'], pSecondsNow, )" 
+                                        <a  href="#" tal:attributes="href python: '%s/EliminarElementoPlone?theUIDToDelete=%s&theSecondsNow=%s&theConfirmedDelete=Yes' % ( PLONERES[ 'url'], ERES[ 'UID'], pSecondsNow, )" 
                                             title="">
                                             <font color="Red">
                                                 <img src="#" tal:attributes="src python: here.portal_url() + '/delete_icon.gif'"  
                                                     alt="Eliminar" title="Eliminar" id="icon-delete"
                                                     i18n:attributes="alt ModelDDvlPlone_eliminar_action_label; title ModelDDvlPlone_eliminar_action_label" />
                                                 &nbsp;
-                                                <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_confirmareliminacion_action_label">Please confirm deletion of-</span>
+                                                <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_confirmareliminacion_action_label">ModelDDvlPlone_confirmareliminacion_action_label</span>
                                                 &nbsp;
                                                 <span tal:content="ERES/values_by_name/title/uvalue" />
                                                 (                    
@@ -152,33 +152,6 @@
                                         </a>
                                     </tal:block>
                                 </h3>
-        <tal:block  tal:replace="nothing">
-                                <p>
-                                    <font size="2">
-                                        <strong tal:define="pDateTimeNow python: here.MDDModelDDvlPlone_tool.fDateTimeNow( );
-                                            pSecondsToReviewAndDelete python: here.MDDModelDDvlPlone_tool.fSecondsToReviewAndDelete( here);
-                                            pLatestDateToDelete python: here.MDDModelDDvlPlone_tool.fDateTimeAfterSeconds( pDateTimeNow, pSecondsToReviewAndDelete)">
-                                            <span tal:content="python: '%s %d %s ' % (
-                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
-                                                pSecondsToReviewAndDelete,
-                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
-                                            )" />
-                                            <br/>
-                                            <span tal:content="python: '%s %s' % (
-                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
-                                                pLatestDateToDelete.rfc822(),
-                                            )" />
-                                            <br/>
-                                            <span tal:content="python: '%s %s' % (
-                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
-                                                pDateTimeNow.rfc822(),
-                                            )" />
-                                        </strong>
-                                    </font>
-                                </p>
-        </tal:block>
-                                <br/>
-                                <br/>               
 
         
                             </tal:block>
@@ -192,7 +165,7 @@
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
         
         <tal:block tal:condition="python: False and pNeedToRedirect">
-            <tal:block tal:define="dummy python: request.response.redirect( '%s/' % here.absolute_url())" />  
+            <tal:block tal:define="dummy python: request.response.redirect( here.absolute_url())" />  
         </tal:block>
 
       

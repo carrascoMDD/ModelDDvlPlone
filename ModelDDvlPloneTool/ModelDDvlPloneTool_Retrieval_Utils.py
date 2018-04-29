@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_Utils.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -28,7 +28,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -36,8 +36,8 @@ __docformat__ = 'plaintext'
 from time import time
 
 
-from AccessControl          import ClassSecurityInfo
-from Products.CMFCore       import permissions
+from AccessControl      import ClassSecurityInfo
+
 
 
 from StringIO import StringIO
@@ -56,25 +56,25 @@ class ModelDDvlPloneTool_Retrieval_Utils:
 # Accessor for timing constraints 
 #        
     
-    #security.declarePrivate( 'fSecondsNow')
-    #def fSecondsNow(self): 
-        #return int( time())
-            
-    
-    
-    #security.declarePrivate( 'fMillisecondsNow')
-    #def fMillisecondsNow(self):   
-        #return int( time() * 1000)
- 
-    
-    #security.declarePrivate( 'fDateTimeNow')
-    #def fDateTimeNow(self):   
-        #return DateTime()
-    
-    
-    
-    
-    
+    security.declarePrivate( 'getSecondsNow')
+    def getSecondsNow(self): 
+        return int( round( time(), 0) / 1000)
+        
+        # ACV 200903062050 optimized
+        # aTime = gmtime()
+        # aNumSeconds = aTime[0] - 2000
+        # aNumSeconds = aNumSeconds * 13
+        # aNumSeconds = aNumSeconds + aTime[1] 
+        # aNumSeconds = aNumSeconds * 32
+        # aNumSeconds = aNumSeconds + aTime[2] 
+        # aNumSeconds = aNumSeconds * 25
+        # aNumSeconds = aNumSeconds + aTime[3] 
+        # aNumSeconds = aNumSeconds * 62
+        # aNumSeconds = aNumSeconds + aTime[4] 
+        # aNumSeconds = aNumSeconds * 62
+        # aNumSeconds = aNumSeconds + aTime[5] 
+        # return aNumSeconds
+
     
 # ##################################################################
 # List / Dict conversion to a formatted multiline indented string
@@ -239,7 +239,7 @@ class ModelDDvlPloneTool_Retrieval_Utils:
     security.declarePrivate( 'prettyPrintDict')
     def prettyPrintDict(self, theOutput, theDict, theIndentLevel, theDictKeysToExclude=None, theDictKeysOrder=None, theAlreadyPrinted=None):
         theOutput.write(  cIndent *  theIndentLevel)
-        theOutput.write( '{\n')
+        theOutput.write( '{')
     
         if (not theAlreadyPrinted) or not (theDict in theAlreadyPrinted['elements']):
             if theAlreadyPrinted:
@@ -253,7 +253,7 @@ class ModelDDvlPloneTool_Retrieval_Utils:
                 if len( unaKey) > unaMaxKeyLen:
                     unaMaxKeyLen = len( unaKey)       
         
-            unaFirstKey = False
+            unaFirstKey = True
             for unaKey in unasKeys:
                 if (not theDictKeysToExclude) or not ( unaKey in theDictKeysToExclude):
                     unElement = theDict[ unaKey]

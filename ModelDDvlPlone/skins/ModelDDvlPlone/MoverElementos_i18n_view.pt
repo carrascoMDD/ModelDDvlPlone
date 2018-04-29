@@ -1,9 +1,5 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: MoverElementos_i18n_view.pt
-#
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -33,8 +29,6 @@
 
     <div metal:define-macro="tMoverElementos_i18n" >
 
-        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
-        
         <tal:block tal:define="pContainerElement nocall: pContainerElement | here;
                                pTraversalName   request/theTraversalName | string:;
                                pMovedElementID  request/theMovedElementID | string:;
@@ -42,7 +36,7 @@
                                
             <tal:block tal:condition="python: pContainerElement and pTraversalName and pMovedElementID and pMoveDirection and (pMoveDirection.lower() in ['up', 'down', 'top', 'bottom',])" >
                 <tal:block tal:define="
-                    pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+                    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                     pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);                
                     unosArgs python: {
                         'theTimeProfilingResults' :pProfilingResults,
@@ -51,8 +45,8 @@
                         'theMovedObjectId'        :pMovedElementID, 
                         'theMoveDirection'        :pMoveDirection, 
                         'theAdditionalParams'     :None, };        
-                    aMoveResult python: here.MDDModelDDvlPlone_tool.fMoveSubObject( **unosArgs);
-                    pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();">     
+                    dummy python: here.ModelDDvlPlone_tool.pMoveSubObject( **unosArgs);
+                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">     
 
 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
                 

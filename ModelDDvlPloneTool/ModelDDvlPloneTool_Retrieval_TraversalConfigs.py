@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_TraversalConfigs.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -28,7 +28,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -117,7 +117,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
                 if someConfigsForType.has_key( 'Default'):    
                     aTypeConfig = someConfigsForType[ 'Default']
                 else:
-                    aTypeConfig =  someConfigsForType[ sorted( someConfigsForType.keys())[ 0]]
+                    aTypeConfig =  someConfigsForType[ 0]
         return aTypeConfig
 
    
@@ -703,39 +703,3 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
     
        
     
-    
-    
-
-  
-
-    security.declarePublic('objectValuesTraversalConfig')
-    def objectValuesTraversalConfig( self):
-        return {   
-            'aggregation_name':     'objectValues',
-            'columns':              [ 'title', 'description', ],
-            'contains_collections': False,
-            'tabular_tree':         False,
-            'subitems':             [
-                {   'portal_types': [ 'object', ],
-                    'extension':    'NonTextAttrsOneParagraph',
-                    'divider':      [ 'Before', ],
-                    'attrs':        [
-                        {   'name': 'title',
-                            'kind': 'Data',
-                            'type': 'String',
-                        },
-                        {   'name': 'archetype_name',
-                            'kind': 'Meta',
-                            'type': 'String',
-                        },
-                        {   'name':     'description',
-                            'kind':     'Data',
-                            'type':     'Text',
-                            'optional': True,
-                        },
-                    ],
-                },
-            ],
-        }
-     
-       

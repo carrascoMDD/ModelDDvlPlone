@@ -70,7 +70,7 @@
                             <td align="left">
                                <span class="visualIcon contenttype-xxx" tal:attributes="class python: 'visualIcon contenttype-%s' %  pElemento.portal_type.lower().replace(' ', '-')">
                                    <h4>
-                                       <a href="#" tal:attributes="href python: '%s/' % pElemento.absolute_url()"
+                                       <a href="#" tal:attributes="href python: pElemento.absolute_url()"
                                            class="state-visible visualIconPadding" title="">
                                            <span tal:content="python: pElemento.Title()" />
                                        </a>

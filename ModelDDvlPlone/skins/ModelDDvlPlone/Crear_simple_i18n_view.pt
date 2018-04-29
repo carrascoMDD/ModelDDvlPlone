@@ -1,9 +1,5 @@
 <tal:block replace="nothing">
-# -*- coding: utf-8 -*-
-#
-# File: Crear_simple_i18n_view.pt
-#
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -40,7 +36,6 @@
                 pNewTypeName      request/theNewTypeName    | string:;
                 pAggregationName  request/theAggregationName    | string:;
                 pNewTitle         request/theNewTitle       | string:;
-                pNewId            request/theNewId          | string:;
                 pNewDescription   request/theNewDescription | string:;
 		global  pMostrarFormulario			python: not pNewTitle;
                 pTrue                       python: True;
@@ -48,12 +43,12 @@
                 
                                 
             <tal:block tal:condition="python: not (pNewTypeName and pAggregationName)" >
-                <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular/' % here.absolute_url())" />
+                <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular' % here.absolute_url())" />
             </tal:block>
                                        
             <tal:block tal:condition="python: pNewTypeName and pAggregationName" >
                 <tal:block tal:define="    
-                pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();                
+                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();                
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);                
                 unosArgs python: { 
                     'theTimeProfilingResults'     :pProfilingResults,
@@ -70,8 +65,8 @@
                     'theTranslationsCaches'       :None,
                     'theCheckedPermissionsCache'  :None,
                     'theAdditionalParams'         :None, };                      
-                    SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                    pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+                    SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                     unasTraversals python: [ unaTraversal for unaTraversal in SRES[ 'traversals'] if (unaTraversal[ 'traversal_kind'] == 'aggregation') and ( unaTraversal[ 'traversal_name'] == pAggregationName)]" 
                     tal:condition="unasTraversals" >
 
@@ -88,9 +83,9 @@
                             tal:condition="unaFactory" >
                                                         
                             <tal:block tal:condition="python: not pPermiteCrear" >
-                                <br/>
+                                <br>
                                 <h2 > 
-                                    <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
+                                    <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
                                         <font color="Red">                    
                                             <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparacrear_error_message"/>
                                             &nbsp;
@@ -112,9 +107,9 @@
      
                             </tal:block>
                             <tal:block tal:condition="python: not unaFactory" >
-                                <br/>
+                                <br>
                                 <h2 > 
-                                    <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
+                                    <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
                                         <font color="Red">                    
                                             <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_nosepuedecreartipocontenido_error_message"/>
                                             &nbsp;
@@ -201,13 +196,12 @@
 											'theContainerElement'     :here, 
 											'theTypeName'             :pNewTypeName, 
 											'theTitle'                :pNewTitle, 
-											'theId'                   :pNewId, 
 											'theDescription'          :pNewDescription,
 											'theAdditionalParams'     :None, };   
-										pCrearResult python: here.MDDModelDDvlPlone_tool.fCrearElementoDeTipo( **unosArgs)" >
+										pCrearResult python: here.ModelDDvlPlone_tool.fCrearElementoDeTipo( **unosArgs)" >
 										<tal:block tal:condition="python: pCrearResult and ( pCrearResult[ 'effect'] == 'created')" >
 											<tal:block tal:define="
-												dummy python:request.response.redirect( '%sEditar/' % pCrearResult[ 'new_object_result'][ 'url']);" />
+												dummy python:request.response.redirect( '%s/Editar' % pCrearResult[ 'new_object_result'][ 'url']);" />
 										</tal:block>
 										<tal:block tal:condition="python: not ( pCrearResult) or not ( pCrearResult[ 'effect'] == 'created')" >
 											<h4>
@@ -239,12 +233,6 @@
                     
                                 <tal:block tal:condition="pMostrarFormulario" >
                                     <form>
-                        	            <input originalvalue="#" name="theNewTypeName" value="#" type="hidden"
-                        	                tal:attributes="originalvalue python: pNewTypeName;value python: pNewTypeName" />
-                        	                
-                        	            <input originalvalue="#" name="theAggregationName" value="#" type="hidden"
-                        	                tal:attributes="originalvalue python: pAggregationName;value python: pAggregationName" />
- 										
                                         <h4  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_titulo_label" >Titulo</h4>
                                         <p class="formHelp"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_titulo_help">Titulo unico del elemento, entre los de su contenedor.</p>        
                                         <h5 tal:condition="not: pNewTitle">
@@ -252,6 +240,13 @@
                                             <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tituloesrequerido_info_msgid" >ModelDDvlPlone_tituloesrequerido_info_msgid</span>
                                             </font>
                                         </h5>
+                        	            
+                        	            <input originalvalue="#" name="theNewTypeName" value="#" type="hidden"
+                        	                tal:attributes="originalvalue python: pNewTypeName;value python: pNewTypeName" />
+                        	                
+                        	            <input originalvalue="#" name="theAggregationName" value="#" type="hidden"
+                        	                tal:attributes="originalvalue python: pAggregationName;value python: pAggregationName" />
+                        	                
                                         <div class="field ArchetypesStringWidget" id="archetypes-fieldname-newTitleInput">
                                             <input style="font-size: 12pt;"  name="theNewTitle" id="theNewTitle" value="#" size="80" maxlength="256" type="text" 
                                                 tal:attributes="value python: pNewTitle"/>
@@ -259,34 +254,14 @@
                                         <br/>
                                         <br/>
                     
-										
-										
                                         <h4  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_descripcion_label" >Descripcion</h4>
                                         <p class="formHelp"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_descripcion_help">Una corta descripcion del nuevo elemento.</p>   
+                                             
                                         <div class="field ArchetypesTextAreaWidget" id="archetypes-fieldname-newDescriptionInput" >
                                             <textarea style="font-size: 12pt;" cols="40"  rows="2" name="theNewDescription" id="theNewDescription"                             
                                                     tal:content="python: pNewDescription" />
                                         </div>
                     
-                       	                
-											
-										<tal:block tal:condition="here/portal_properties/site_properties/visible_ids">
-											<tal:block tal:define="
-												member python:here.portal_membership.getAuthenticatedMember();
-												member_visible_ids python:member.getProperty('visible_ids', here.portal_memberdata.getProperty('visible_ids'));"
-												tal:condition="member_visible_ids">
-												<h4  i18n:domain="plone" i18n:translate="Short Name" >Short Name-</h4>
-												<p class="formHelp"  i18n:domain="plone" i18n:translate="help_shortname">Should not contain spaces, underscores or mixed case. Short Name is part of the item's web address.-</p>        
-												<div class="field ArchetypesStringWidget" id="archetypes-fieldname-newTitleInput">
-													<input style="font-size: 11pt;"  name="theNewId" id="theNewId" value="#" size="40" maxlength="256" type="text" 
-														tal:attributes="value python: pNewId"/>
-												</div>
-												<br/>
-												<br/>
-											</tal:block>
-										</tal:block>
-                    
-										
                                         
                                         <input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />                                                        
                                     </form>

@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Bodies.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -42,23 +42,16 @@ from reStructuredText                   import HTML
 
 from Acquisition                        import aq_inner
 
-from StringIO import StringIO
-
-
-
 
 
 from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
-
-from PloneElement_TraversalConfig       import cPloneTypes 
   
+from ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
+
+#from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+#from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
 
 
-
-
-cReplaceWithPortalURLslashedMark              = '|replace_with_portal_url_slashed|'
-cEditableBody_ReusedRestDefinitions_i18n_view = 'EditableBody_ReusedRestDefinitions_i18n_view'
-     
 
 
 class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
@@ -76,93 +69,7 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
 #
 
 
-    
-    security.declarePrivate('fPortalURL')
-    def fPortalURL(self, theContextualObject=None):
-        """Duplicated in ModelDDvlPloneTool_Retrieval.
-        
-        """
-        unContextualObject = theContextualObject
-        if unContextualObject == None:
-            unContextualObject = self
-
-        unPortalURLTool = getToolByName( unContextualObject, 'portal_url', None)
-        if not unPortalURLTool:
-            return ''
-        
-        unPortalURL = ''
-        try:
-            unPortalURL = unPortalURLTool()
-        except: 
-            None
-        if not unPortalURL:
-            return ''
-        
-        return unPortalURL
-    
-    
  
-    security.declarePrivate('fEditableBodyBlock_MetaTypeIcons')
-    def fEditableBodyBlock_MetaTypeIcons(self, 
-        theTimeProfilingResults =None,
-        theElement              =None,
-        theAdditionalParams     =None):
-        """Produce a REST structute defining substitutions for icons for all meta types.
-        
-        """
-        
-        unOutput= StringIO( u'')
-        
-            
-        unPortalURL = self.fPortalURL( theElement)
-        if not unPortalURL:
-            unPortalURL = ''
-        else:
-            if not ( unPortalURL[-1:] == '/'):
-                unPortalURL = '%s/' % unPortalURL
-            
-        
-        unosRestHeaders = self.getEditableBody_forLevel_WithTemplate( theElement, cEditableBody_ReusedRestDefinitions_i18n_view, theLevel=1, theTimeProfilingResults=theTimeProfilingResults)
-        if unosRestHeaders:
-        
-            unosRestHeadersWithPortalURLReplacements = unosRestHeaders.replace( cReplaceWithPortalURLslashedMark, unPortalURL)
-            unOutput.write( unosRestHeadersWithPortalURLReplacements)
-            
-            
-        for unPloneMetaType in sorted( cPloneTypes.keys()):
-            unPloneIcon = cPloneTypes.get( unPloneMetaType, {}).get( 'content_icon', '')
-            if unPloneIcon:
-                unOutput.write( '\n\n.. |PloneIcon_%s| image:: %s%s\n\n' % ( unPloneMetaType, unPortalURL, unPloneIcon,))
-                
-        if theElement == None:
-            return unOutput.getvalue()
-        
-        someClassNames = []
-        try:
-            someClassNames = theElement.fArchetypeClassNames( )
-        except:
-            None
-            
-        if not someClassNames:
-            return unOutput.getvalue()
-        
-        
-        for aClassName in someClassNames:
-            unArchetypeClass = theElement.fArchetypeClassByName( aClassName)
-            if unArchetypeClass:
-                unIcon = None
-                try:
-                    unIcon = unArchetypeClass.content_icon
-                except:
-                    None
-                if unIcon:
-                    unOutput.write( '\n\n.. |MDDIcon_%s| image:: %s%s\n\n' % ( aClassName, unPortalURL, unIcon,))
-        
-        return unOutput.getvalue()
-    
-    
-    
-      
 
     security.declarePrivate('fEditableBodyForElement')
     def fEditableBodyForElement(self, 
@@ -177,24 +84,16 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
         
       
       
-    security.declarePrivate('getEditableBody_forLevel')
-    def getEditableBody_forLevel( self, theElement, theLevel=1, theTimeProfilingResults=None):
-        
-        return self.getEditableBody_forLevel_WithTemplate( theElement, "EditableBody_i18n_view", theLevel=1, theTimeProfilingResults=theTimeProfilingResults)
- 
       
    
 
-    security.declarePrivate('getEditableBody_forLevel_WithTemplate')
-    def getEditableBody_forLevel_WithTemplate( self, theElement, theTemplateName='',theLevel=1, theTimeProfilingResults=None):
+    security.declarePrivate('getEditableBody_forLevel')
+    def getEditableBody_forLevel( self, theElement, theLevel=1, theTimeProfilingResults=None):
         
-        if not theTemplateName:
-            return "\n\n**No template name parameter to render getEditableBody_forLevel_WithTemplate**\n\n"
-
         if ( theElement == None):
             return "\n\n**No theElement supplied to render EditableBody**\n\n"
 
-        aTemplate   = theElement.unrestrictedTraverse( theTemplateName)
+        aTemplate   = theElement.unrestrictedTraverse( "EditableBody_i18n_view")
  
         if not aTemplate:
             return "\n\n**No template EditableBody_i18n_view.pt found to render getEditableBody**\n\n"

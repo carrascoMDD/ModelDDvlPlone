@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_I18N.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -39,37 +39,15 @@ import sys
 import traceback
 
 
-from Products.CMFCore.utils         import getToolByName
-
-
-cLookupTranslationsSentinel = object()
-
 class ModelDDvlPloneTool_Retrieval_I18N:
     """
     """
     security = ClassSecurityInfo()
 
 
- 
 
-    # used to generate GNU gettext PO catalog entries from the translations bundle (a dict of key symbol: value translation)
-    #aS= StringIO()
-    #for aTK in someTranslations.keys():
-        #aS.write("""
-    ##. Default: "%s"
-    ##: MDDChanges_inner.pt 
-    #msgid "%s"
-    #msgstr "%s"
-    
-    #""" % ( someTranslations[ aTK], aTK, someTranslations[ aTK],))
-    #logging.getLogger( 'MDD').info( aS.getvalue())
 
-    
-    
-    
 
-    
-    
 
     security.declarePrivate('fNewVoidAttributeTranslationResult')
     def fNewVoidAttributeTranslationResult(self):
@@ -155,79 +133,13 @@ class ModelDDvlPloneTool_Retrieval_I18N:
                     None
             if not aI18NDomain:
                 aI18NDomain = 'ModelDDvlPlone'
-            
-        # ACV 20091112 Never executed. Removed.
-        #if not aI18NDomain:
-            #aI18NDomain = "plone"
+                
+        if not aI18NDomain:
+            aI18NDomain = "plone"
             
         return aI18NDomain
 
 
-    
-    
-    
-    
-    
-    
-
-   
-
-
-    security.declarePublic( 'fTranslateI18NManyIntoDict')
-    def fTranslateI18NManyIntoDict( self, 
-        theContextElement,
-        theI18NDomainsStringsAndDefaults, 
-        theResultDict                   =None):
-        """Internationalization: build or update a dictionaty with the translations of all requested strings from the specified domain into the language preferred by the connected user, or return the supplied default.
-        
-        """
-        
-        unResultDict = theResultDict
-        if ( unResultDict == None):
-            unResultDict = { }
-         
-            
-        if ( theContextElement == None):
-            return unResultDict
-            
-        if not theI18NDomainsStringsAndDefaults:
-            return unResultDict
-        
-       
-        aTranslationService = getToolByName( theContextElement, 'translation_service', None)
-        if not aTranslationService:
-            return unResultDict
-        
-        unI18NDomain = self.fTranslationI18NDomain( theContextElement)
-        
-        for aDomainStringsAndDefaults in theI18NDomainsStringsAndDefaults:
-            aI18NDomain             = aDomainStringsAndDefaults[ 0] or cI18NDomainDefault
-            unasStringsAndDefaults  = aDomainStringsAndDefaults[ 1]
-            
-            for unaStringAndDefault in unasStringsAndDefaults:
-                unaString = unaStringAndDefault[ 0]
-                
-                unaCurrentTranslation = unResultDict.get( unaString, cLookupTranslationsSentinel)
-                if unaCurrentTranslation == cLookupTranslationsSentinel:
-                    
-                    unDefault = unaStringAndDefault[ 1]
-                    if unaString:
-                        aTranslation = u''
-                        if aTranslationService:
-                            aTranslation = aTranslationService.utranslate( aI18NDomain, unaString, mapping=None, context=theContextElement , target_language= None, default=unDefault)            
-                        if not aTranslation:
-                            aTranslation = self.fAsUnicode( unDefault)
-                        unResultDict[ unaString] = aTranslation
-                            
-        return unResultDict    
-        
-    
-    
-    
-    
-    
-    
-    
 
 # ###########################################
 #  I10N dates internacionalization  methods
@@ -428,6 +340,10 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         if not theMetaTypeName or ( theContextualElement == None):
                 return []
         
+        unArchetypeClass = theContextualElement.fArchetypeClassByName( theMetaTypeName)
+        if not unArchetypeClass:
+                return []
+            
         unArchetypeName             = theMetaTypeName
         unTypeDescription           = theMetaTypeName
         unPluralName                = theMetaTypeName
@@ -436,7 +352,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         unArchetypeNameMsgId        = ''
         unTypeDescriptionMsgId      = ''
         unContentIcon               = ''
-
+         
         unObjectTranslationResult = self.fNewVoidObjectTranslationResult()
         unObjectTranslationResult.update( {
             'meta_type':                    theMetaTypeName,
@@ -449,14 +365,6 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             'content_icon':                 '',   
         })
 
-        unArchetypeClass = None
-        try:
-            unArchetypeClass = theContextualElement.fArchetypeClassByName( theMetaTypeName)
-        except:
-            None
-            
-        if not unArchetypeClass:
-            unArchetypeClass = theContextualElement.__class__
             
         try:
             unArchetypeName        = unArchetypeClass.archetype_name
@@ -467,7 +375,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         except:
             None
         try:
-            unArchetypeNameMsgId   = unArchetypeClass.archetype_name_msgid            
+            unArchetypeNameMsgId    = unArchetypeClass.archetype_name_msgid            
         except:
             None            
         try:
@@ -1015,11 +923,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             
             aVocabularyDisplayList = None
             try:
-                unVocabularyMethod = None
-                try:
-                    unVocabularyMethod = getattr( theElement, unVocabularyMethodNameOrOptions)
-                except:
-                    None
+                unVocabularyMethod = theElement[  unVocabularyMethodNameOrOptions]
                 if unVocabularyMethod:
                     aVocabularyDisplayList = unVocabularyMethod()
                     
@@ -1037,7 +941,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
                             if unaOptionMsgId:
                                 # ACV 20090907 Was hacked for gvSIGtraducciones, 
                                 # at the time, the only user of the dynamic vocabularies feature
-                                unI18NModuleName = 'gvSIGi18n'
+                                unI18NModuleName = 'gvSIGtraducciones'
                                 try:
                                     unI18NModuleName = theElement.getNombreProyecto()
                                 except:
@@ -1109,17 +1013,16 @@ class ModelDDvlPloneTool_Retrieval_I18N:
                 return someBooleanOptions
             
         
-        # ACV 20100309 Needless to test for the attribute type, or should be done taking into account that the attribute may be computed - with the computed types available in the traversal config which we don't have here.
-        #unElementSchema = theElement.schema        
-        #if not( unElementSchema.has_key( theAttributeName)):
-            #return []
+        unElementSchema = theElement.schema        
+        if not( unElementSchema.has_key( theAttributeName)):
+            return []
         
-        #unElementField  = unElementSchema[ theAttributeName]
-        #if not unElementField:
-            #return []
+        unElementField  = unElementSchema[ theAttributeName]
+        if not unElementField:
+            return []
         
-        #if not ( unElementField.type == 'boolean'):
-            #return []
+        if not ( unElementField.type == 'boolean'):
+            return []
         
         aTrueTranslation = theTranslationsCaches.get( 'true_translation', '')
         if not aTrueTranslation:                
@@ -1250,27 +1153,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             return None
 
         unI18NDomain = self.fTranslationI18NDomain( None, theElement)
-        unArchetypeSchema = None
-        try:
-            unArchetypeSchema = theElement.fArchetypeSchemaByName( theElement.meta_type)
-        except:
-            None
-        if unArchetypeSchema == None:
-            try:
-                unArchetypeSchema = theElement.schema
-            except:
-                None
-            if unArchetypeSchema == None:
-                try:
-                    unArchetypeSchema = getattr( theElement.meta_type, 'schema', None)
-                except:
-                    None
-                if unArchetypeSchema == None:
-                    try:
-                        unArchetypeSchema = theElement.meta_type.schema
-                    except:
-                        None
-            
+        unArchetypeSchema = theElement.fArchetypeSchemaByName( theElement.meta_type)
         anAttributeTranslations = self.fAttributeTranslationsFromCacheOrArchetypeSchema( theElement, theElement.meta_type, unArchetypeSchema, unI18NDomain, theFieldName, theTranslationsCaches)
 
         if not( theResultDict == None) and theResultKey:
@@ -1335,8 +1218,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         if not theTypeName or not theSchema or not theI18NDomain or not theAttributeName:
             return []
             
-        unAttributeTranslationResult = self.fNewVoidAttributeTranslationResult()
-        unAttributeTranslationResult.update( {
+        unAttributeTranslationResult = {
             'label':                        theAttributeName,
             'description' :                 theAttributeName, 
             'translated_label':             theAttributeName, 
@@ -1344,7 +1226,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             'translated_description':       theAttributeName, 
             'translated_description_msgid': '', 
             'i18ndomain':                   '',
-        })
+        }
 
         unaLabel                    = theAttributeName
         unaLabelMsgId               = ''
@@ -1439,60 +1321,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     
     
     
-    security.declarePrivate( 'getTranslationsForObjectAttributeFromMsgIds')
-    def getTranslationsForObjectAttributeFromMsgIds(self, theContextualElement, theI18NDomain, theAttributeLabelMsgId, theDefaultTranslatedLabel, theAttributeDescriptionMsgId, theDefaultTranslatedDescription):
-       
-        if not theI18NDomain or not theAttributeLabelMsgId:
-            return {}
-            
-        
-        unaLabel                    = theAttributeLabelMsgId
-        unaLabelMsgId               = theAttributeLabelMsgId
-        unTranslatedLabel           = theDefaultTranslatedLabel
-        unaDescription              = theAttributeDescriptionMsgId
-        unaDescriptionMsgId         = theAttributeDescriptionMsgId
-        unTranslatedDescription     = theDefaultTranslatedDescription
-        unI18NDomain                = theI18NDomain
-        
-        unAttributeTranslationResult = self.fNewVoidAttributeTranslationResult()
-        unAttributeTranslationResult.update( {
-            'label':                        unaLabel,
-            'translated_label':             unTranslatedLabel, 
-            'translated_label_msgid':       unaLabelMsgId, 
-            'description' :                 unaDescription, 
-            'translated_description':       unTranslatedDescription, 
-            'translated_description_msgid': unaDescriptionMsgId, 
-            'i18ndomain':                   unI18NDomain,
-        })
 
-
-            
-        unTranslatedLabel = ''
-        if unaLabelMsgId:     
-            unTranslatedLabel = self.fTranslateI18N( unI18NDomain, unaLabelMsgId, unTranslatedLabel, theContextualElement)
-        if not unTranslatedLabel:
-            unTranslatedLabel = self.fAsUnicode( unaLabel, theContextualElement)
- 
-        unTranslatedDescription = ''
-        if unaDescriptionMsgId:     
-            unTranslatedDescription = self.fTranslateI18N( unI18NDomain, unaDescriptionMsgId, unTranslatedDescription, theContextualElement)
-        if not unTranslatedDescription:
-            unTranslatedDescription = self.fAsUnicode( unaLabel, unaDescription)
-              
-    
-        unAttributeTranslationResult.update( {
-            'label':                        unaLabel,
-            'translated_label':             unTranslatedLabel, 
-            'translated_label_msgid':       unaLabelMsgId, 
-            'description' :                 unaDescription, 
-            'translated_description':       unTranslatedDescription, 
-            'translated_description_msgid': unaDescriptionMsgId, 
-            'i18ndomain':                   unI18NDomain,
-        })
-     
-        return unAttributeTranslationResult 
-
-  
 
 
     security.declarePrivate('pCompleteColumnTranslations')

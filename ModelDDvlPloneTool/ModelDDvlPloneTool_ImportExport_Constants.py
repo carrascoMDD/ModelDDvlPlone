@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_ImportExport_Constants.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,103 +26,81 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
 
 
-cMinimumTimeSlice_Minimum     = 10
-cMinimumTimeSlice_Maximum     = 5000
-cYieldMilliseconds_Minimum    = 10
-cYieldMilliseconds_Maximum    = 5000
+cExportStatus_Error_MissingParameter_Element                            = 'ExportStatus_Error_MissingParameter_Element'
+cExportStatus_Error_MissingParameter_ExportTypeConfigs                  = 'ExportStatus_Error_MissingParameter_ExportTypeConfigs'
+cExportStatus_Error_Internal_MissingParameters                          = 'ExportStatus_Error_Internal_MissingParameters'
+cExportStatus_Error_Internal_EncodingErrors                             = 'ExportStatus_Error_Internal_EncodingErrors'
+cExportStatus_Error_Internal_CanNotCreateZipFile                        = 'ExportStatus_Error_Internal_CanNotCreateZipFile'
+cExportStatus_Error_Internal_NoXMLStack                                 = 'ExportStatus_Error_Internal_NoXMLStack'
+cExportStatus_Error_Internal_NoXMLDocument                              = 'ExportStatus_Error_Internal_NoXMLDocument'
+cExportStatus_Error_Internal_EncodingError_ElementMetaTypeName          = 'ExportStatus_Error_Internal_EncodingError_ElementMetaTypeName'
+cExportStatus_Error_Internal_EmptyEncodingResult_ElementMetaTypeName    = 'ExportStatus_Error_Internal_EmptyEncodingResult_ElementMetaTypeName'
+cExportStatus_Error_Internal_EncodingError_AttrName                     = 'ExportStatus_Error_Internal_EncodingError_AttrName'
+cExportStatus_Error_Internal_EmptyEncodingResult_AttrName               = 'ExportStatus_Error_Internal_EmptyEncodingResult_AttrName'
+cExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName     = 'ExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName'
+cExportStatus_Error_Internal_ObjectHasNoSchema                          = 'ExportStatus_Error_Internal_ObjectHasNoSchema'
+cExportStatus_Error_Internal_EncodingError_AggregationName              = 'ExportStatus_Error_Internal_EncodingError_AggregationName'
+cExportStatus_Error_Internal_EmptyEncodingResult_AggregationName        = 'ExportStatus_Error_Internal_EmptyEncodingResult_AggregationName'
+cExportStatus_Error_Internal_EncodingError_RelationName                 = 'ExportStatus_Error_Internal_EncodingError_RelationName'
+cExportStatus_Error_Internal_EmptyEncodingResult_RelationName           = 'ExportStatus_Error_Internal_EmptyEncodingResult_RelationName'
+cExportStatus_Error_Internal_AttributeValueAccessException              = 'ExportStatus_Error_Internal_AttributeValueAccessException'
+cExportStatus_Error_Internal_AttributeAccessorNotFound                  = 'ExportStatus_Error_Internal_AttributeAccessorNotFound'
+cExportStatus_Error_Internal_MissingZipFile                             = 'ExportStatus_Error_Internal_MissingZipFile'
+cExportStatus_Error_Export_NotAllowedInElement                          = 'ExportStatus_Error_Export_NotAllowedInElement'
 
-cExportForcedRootId = 'modeldd'
+cImportStatus_Error_MissingParameter_ContainerObject                    = 'ImportStatus_Error_MissingParameter_ContainerObject'
+cImportStatus_Error_MissingParameter_MDDImportTypeConfigs               = 'ImportStatus_Error_MissingParameter_MDDImportTypeConfigs'
+cImportStatus_Error_MissingParameter_UploadedFile                       = 'ImportStatus_Error_MissingParameter_UploadedFile'
+cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval            = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval'
+cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators             = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators'
+cImportStatus_Error_Internal_MissingTool_translation_service            = 'ImportStatus_Error_Internal_MissingTool_translation_service'
+cImportStatus_Error_Parameter_UploadedFile_NotAZip                      = 'ImportStatus_Error_Parameter_UploadedFile_NotAZip'
+cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile            = 'ImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile'
+cImportStatus_Error_EmptyXMLFile                                        = 'ImportStatus_Error_EmptyXMLFile'
+cImportStatus_Error_DecodingXMLFileContents                             = 'ImportStatus_Error_DecodingXMLFileContentst'
+cImportStatus_Error_BadXMLFile                                          = 'ImportStatus_Error_BadXMLFile'
+cImportStatus_Error_NoRootXMLElements                                   = 'ImportStatus_Error_NoRootXMLElements'
+cImportStatus_Error_Internal_NoContainerRetrieved                       = 'ImportStatus_Error_Internal_NoContainerRetrieved'
+cImportStatus_Error_Internal_Refactor_NotInitialized                    = 'ImportStatus_Error_Internal_Refactor_NotInitialized'
+cImportStatus_Error_Internal_Refactor_Failed                            = 'ImportStatus_Error_Internal_Refactor_Failed'
+cImportStatus_Error_Exception                                           = 'ImportStatus_Error_Exception'
+cImportStatus_Error_Container_NotReadable                               = 'ImportStatus_Error_Container_NotReadable'
+cImportStatus_Error_Container_NotWritable                               = 'ImportStatus_Error_Container_NotWritable'
+cImportStatus_Error_Import_NotAllowedInElement                          = 'ImportStatus_Error_Import_NotAllowedInElement'
+cImportStatus_Error_NoXMLEncoding                                       = 'ImportStatus_Error_NoXMLEncoding'
+cImportStatus_Error_XMLEncodingUnknown                                  = 'ImportStatus_Error_XMLEncodingUnknown'
 
-cMDDExportStatus_Error_NoExportTypeConfigsForObject                        = 'MDDExportStatus_Error_NoExportTypeConfigsForObject'
-
-cMDDExportStatus_Error_MissingParameter_ModelDDvlPloneTool                 = 'MDDExportStatus_Error_MissingParameter_ModelDDvlPloneTool'
-cMDDExportStatus_Error_MissingParameter_Element                            = 'ExportStatus_Error_MissingParameter_Element'
-cMDDExportStatus_Error_MissingParameter_ExportTypeConfigs                  = 'ExportStatus_Error_MissingParameter_ExportTypeConfigs'
-cMDDExportStatus_Error_Internal_MissingParameters                          = 'ExportStatus_Error_Internal_MissingParameters'
-cMDDExportStatus_Error_Internal_EncodingErrors                             = 'ExportStatus_Error_Internal_EncodingErrors'
-cMDDExportStatus_Error_Internal_CanNotCreateZipFile                        = 'ExportStatus_Error_Internal_CanNotCreateZipFile'
-cMDDExportStatus_Error_Internal_NoXMLStack                                 = 'ExportStatus_Error_Internal_NoXMLStack'
-cMDDExportStatus_Error_Internal_NoXMLDocument                              = 'ExportStatus_Error_Internal_NoXMLDocument'
-cMDDExportStatus_Error_Internal_EncodingError_ElementMetaTypeName          = 'ExportStatus_Error_Internal_EncodingError_ElementMetaTypeName'
-cMDDExportStatus_Error_Internal_EmptyEncodingResult_ElementMetaTypeName    = 'ExportStatus_Error_Internal_EmptyEncodingResult_ElementMetaTypeName'
-cMDDExportStatus_Error_Internal_EncodingError_AttrName                     = 'ExportStatus_Error_Internal_EncodingError_AttrName'
-cMDDExportStatus_Error_Internal_EmptyEncodingResult_AttrName               = 'ExportStatus_Error_Internal_EmptyEncodingResult_AttrName'
-cMDDExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName     = 'ExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName'
-cMDDExportStatus_Error_Internal_ObjectHasNoSchema                          = 'ExportStatus_Error_Internal_ObjectHasNoSchema'
-cMDDExportStatus_Error_Internal_EncodingError_AggregationName              = 'ExportStatus_Error_Internal_EncodingError_AggregationName'
-cMDDExportStatus_Error_Internal_EmptyEncodingResult_AggregationName        = 'ExportStatus_Error_Internal_EmptyEncodingResult_AggregationName'
-cMDDExportStatus_Error_Internal_EncodingError_RelationName                 = 'ExportStatus_Error_Internal_EncodingError_RelationName'
-cMDDExportStatus_Error_Internal_EmptyEncodingResult_RelationName           = 'ExportStatus_Error_Internal_EmptyEncodingResult_RelationName'
-cMDDExportStatus_Error_Internal_AttributeValueAccessException              = 'ExportStatus_Error_Internal_AttributeValueAccessException'
-cMDDExportStatus_Error_Internal_AttributeAccessorNotFound                  = 'ExportStatus_Error_Internal_AttributeAccessorNotFound'
-cMDDExportStatus_Error_Internal_MissingZipFile                             = 'ExportStatus_Error_Internal_MissingZipFile'
-cMDDExportStatus_Error_Export_NotAllowedInElement                          = 'ExportStatus_Error_Export_NotAllowedInElement'
-
-cMDDImportStatus_Error_Empty_MDDImportTypeConfigs                          = 'ImportStatus_Error_Empty_MDDImportTypeConfigs'
-cMDDImportStatus_Error_MissingParameter_ModelDDvlPloneTool                 = 'ImportStatus_Error_MissingParameter_ModelDDvlPloneTool'
-cMDDImportStatus_Error_MissingParameter_ImportContext                      = 'ImportStatus_Error_MissingParameter_ImportContext'
-cMDDImportStatus_Error_MissingParameter_theXMLDocument                     = 'ImportStatus_Error_MissingParameter_theXMLDocument'
-cMDDImportStatus_Error_MissingParameter_theXMLRootElements                 = 'ImportStatus_Error_MissingParameter_theXMLRootElements'
-cMDDImportStatus_Error_MissingParameter_ContextualElement                  = 'ImportStatus_Error_MissingParameter_ContextualElement'
-cMDDImportStatus_Error_MissingParameter_ContainerObject                    = 'ImportStatus_Error_MissingParameter_ContainerObject'
-cMDDImportStatus_Error_MissingParameter_MDDImportTypeConfigs               = 'ImportStatus_Error_MissingParameter_MDDImportTypeConfigs'
-cMDDImportStatus_Error_MissingParameter_UploadedFile                       = 'ImportStatus_Error_MissingParameter_UploadedFile'
-cMDDImportStatus_Error_MissingTool_ModelDDvlPloneTool                      = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool'
-cMDDImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval            = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval'
-cMDDImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators             = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators'
-cMDDImportStatus_Error_Internal_MissingTool_translation_service            = 'ImportStatus_Error_Internal_MissingTool_translation_service'
-cMDDImportStatus_Error_Parameter_UploadedFile_NotAZip                      = 'ImportStatus_Error_Parameter_UploadedFile_NotAZip'
-cMDDImportStatus_Error_Parameter_UploadedFile_NotAZipNotAXML               = 'ImportStatus_Error_Parameter_UploadedFile_NotAZipNotAXML'
-cMDDImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile            = 'ImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile'
-cMDDImportStatus_Error_ScanningUploadedFile                                = 'ImportStatus_Error_ScanningUploadedFile'
-cMDDImportStatus_Error_EmptyXMLFile                                        = 'ImportStatus_Error_EmptyXMLFile'
-cMDDImportStatus_Error_DecodingXMLFileContents                             = 'ImportStatus_Error_DecodingXMLFileContentst'
-cMDDImportStatus_Error_BadXMLFile                                          = 'ImportStatus_Error_BadXMLFile'
-cMDDImportStatus_Error_NoRootXMLElements                                   = 'ImportStatus_Error_NoRootXMLElements'
-cMDDImportStatus_Error_Internal_NoContainerRetrieved                       = 'ImportStatus_Error_Internal_NoContainerRetrieved'
-cMDDImportStatus_Error_Internal_Refactor_NotInitialized                    = 'ImportStatus_Error_Internal_Refactor_NotInitialized'
-cMDDImportStatus_Error_Internal_Refactor_Failed                            = 'ImportStatus_Error_Internal_Refactor_Failed'
-cMDDImportStatus_Error_Exception                                           = 'ImportStatus_Error_Exception'
-cMDDImportStatus_Error_Container_NotReadable                               = 'ImportStatus_Error_Container_NotReadable'
-cMDDImportStatus_Error_Container_NotWritable                               = 'ImportStatus_Error_Container_NotWritable'
-cMDDImportStatus_Error_Import_NotAllowedInElement                          = 'ImportStatus_Error_Import_NotAllowedInElement'
-cMDDImportStatus_Error_NoXMLEncoding                                       = 'ImportStatus_Error_NoXMLEncoding'
-cMDDImportStatus_Error_XMLEncodingUnknown                                  = 'ImportStatus_Error_XMLEncodingUnknown'
-
-cMDDNewVersionStatus_Error_Failure_Retrieving_AllVersions                  = 'NewVersionStatus_Error_Failure_Retrieving_AllVersions'
-cMDDNewVersionStatus_Error_MissingParameter_OriginalObject                 = 'NewVersionStatus_Error_MissingParameter_OriginalObject'
-cMDDNewVersionStatus_Error_ContainerReport_Missing                         = 'NewVersionStatus_Error_ContainerReport_Missing'
-cMDDNewVersionStatus_Error_ContainerReport_NotAllowed                      = 'NewVersionStatus_Error_ContainerReport_NotAllowed'
-cMDDNewVersionStatus_Error_Container_NotFound                              = 'NewVersionStatus_Error_Container_NotFound'
-cMDDNewVersionStatus_Error_Title_AlreadyExists                             = 'NewVersionStatus_Error_Title_AlreadyExists'
-cMDDNewVersionStatus_Error_Id_AlreadyExists                                = 'NewVersionStatus_Error_Id_AlreadyExists'
-cMDDNewVersionStatus_Error_VersionName_AlreadyExists                       = 'NewVersionStatus_Error_VersionName_AlreadyExists'
-cMDDNewVersionStatus_Error_MissingParameter_ContainerKind                  = 'NewVersionStatus_Error_MissingParameter_ContainerKind'
-cMDDNewVersionStatus_Error_MissingParameter_VersionName                    = 'NewVersionStatus_Error_MissingParameter_VersionName'
-cMDDNewVersionStatus_Error_MissingParameter_MDDImportTypeConfigs           = 'NewVersionStatus_Error_MissingParameter_MDDImportTypeConfigs'
-cMDDNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval        = 'NewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval'
-cMDDNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators         = 'NewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators'
-cMDDNewVersionStatus_Error_Exception                                       = 'NewVersionStatus_Error_Exception'
-cMDDNewVersionStatus_Error_Internal_NoOriginalParentRetrieved              = 'NewVersionStatus_Error_Internal_NoOriginalParentRetrieved'
-cMDDNewVersionStatus_Error_NewVersion_NotAllowedInElement                  = 'NewVersionStatus_Error_NewVersion_NotAllowedInElement'
-cMDDNewVersionStatus_Error_Original_NotReadable                            = 'NewVersionStatus_Error_Original_NotReadable'
-cMDDNewVersionStatus_Error_Container_NotWritable                           = 'NewVersionStatus_Error_Container_NotWritable'
-cMDDNewVersionStatus_Error_Internal_Refactor_NotInitialized                = 'NewVersionStatus_Error_Internal_Refactor_NotInitialized'
-cMDDNewVersionStatus_Error_Internal_Refactor_Failed                        = 'NewVersionStatus_Error_Internal_Refactor_Failed'
-cMDDNewVersionStatus_Error_Internal_NoOriginalRetrieved                    = 'NewVersionStatus_Error_Internal_NoOriginalRetrieved'
-cMDDNewVersionStatus_Error_ObjectNotCreated                                = 'NewVersionStatus_Error_ObjectNotCreated'
-cMDDNewVersionStatus_Error_CreatedObjectNotFound                           = 'NewVersionStatus_Error_CreatedObjectNotFound'
-cMDDNewVersionStatus_Error_CreatedObjectResultFaulure                      = 'NewVersionStatus_Error_CreatedObjectResultFaulure'
-cMDDNewVersionStatus_Error_Internal_MissingTool_translation_service        = 'NewVersionStatus_Error_Internal_MissingTool_translation_service'
-cMDDNewVersionStatus_Error_Internal_NoMutator_version_field_storage        = 'NewVersionStatus_Error_Internal_NoMutator_version_field_storage'
-cMDDNewVersionStatus_Error_Internal_NoMutator_version_comment_field_storage= 'NewVersionStatus_Error_Internal_NoMutator_vversion_comment_field_storage'
-
+cNewVersionStatus_Error_Failure_Retrieving_AllVersions                  = 'NewVersionStatus_Error_Failure_Retrieving_AllVersions'
+cNewVersionStatus_Error_MissingParameter_OriginalObject                 = 'NewVersionStatus_Error_MissingParameter_OriginalObject'
+cNewVersionStatus_Error_ContainerReport_Missing                         = 'NewVersionStatus_Error_ContainerReport_Missing'
+cNewVersionStatus_Error_ContainerReport_NotAllowed                      = 'NewVersionStatus_Error_ContainerReport_NotAllowed'
+cNewVersionStatus_Error_Container_NotFound                              = 'NewVersionStatus_Error_Container_NotFound'
+cNewVersionStatus_Error_Title_AlreadyExists                             = 'NewVersionStatus_Error_Title_AlreadyExists'
+cNewVersionStatus_Error_Id_AlreadyExists                                = 'NewVersionStatus_Error_Id_AlreadyExists'
+cNewVersionStatus_Error_VersionName_AlreadyExists                       = 'NewVersionStatus_Error_VersionName_AlreadyExists'
+cNewVersionStatus_Error_MissingParameter_ContainerKind                  = 'NewVersionStatus_Error_MissingParameter_ContainerKind'
+cNewVersionStatus_Error_MissingParameter_VersionName                    = 'NewVersionStatus_Error_MissingParameter_VersionName'
+cNewVersionStatus_Error_MissingParameter_MDDImportTypeConfigs           = 'NewVersionStatus_Error_MissingParameter_MDDImportTypeConfigs'
+cNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval        = 'NewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval'
+cNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators         = 'NewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators'
+cNewVersionStatus_Error_Exception                                       = 'NewVersionStatus_Error_Exception'
+cNewVersionStatus_Error_Internal_NoOriginalParentRetrieved              = 'NewVersionStatus_Error_Internal_NoOriginalParentRetrieved'
+cNewVersionStatus_Error_NewVersion_NotAllowedInElement                  = 'NewVersionStatus_Error_NewVersion_NotAllowedInElement'
+cNewVersionStatus_Error_Original_NotReadable                            = 'NewVersionStatus_Error_Original_NotReadable'
+cNewVersionStatus_Error_Container_NotWritable                           = 'NewVersionStatus_Error_Container_NotWritable'
+cNewVersionStatus_Error_Internal_Refactor_NotInitialized                = 'NewVersionStatus_Error_Internal_Refactor_NotInitialized'
+cNewVersionStatus_Error_Internal_Refactor_Failed                        = 'NewVersionStatus_Error_Internal_Refactor_Failed'
+cNewVersionStatus_Error_Internal_NoOriginalRetrieved                    = 'NewVersionStatus_Error_Internal_NoOriginalRetrieved'
+cNewVersionStatus_Error_ObjectNotCreated                                = 'NewVersionStatus_Error_ObjectNotCreated'
+cNewVersionStatus_Error_CreatedObjectNotFound                           = 'NewVersionStatus_Error_CreatedObjectNotFound'
+cNewVersionStatus_Error_CreatedObjectResultFaulure                      = 'NewVersionStatus_Error_CreatedObjectResultFaulure'
+cNewVersionStatus_Error_Internal_MissingTool_translation_service        = 'NewVersionStatus_Error_Internal_MissingTool_translation_service'
 
 cFakeUIDForPloneSite = '-P-l-o-n-e-S-i-t-e-'
 
@@ -130,37 +108,22 @@ cPloneSiteMetaTypes = [ 'Portal Site', 'Plone Site', ]
 
 
 
-cMDDXMLElementName_CommentText = '#text'
+cXMLElementName_CommentText = '#text'
 
-cMDDXMLAttributeName_PloneId   = 'ploneid'
-cMDDXMLAttributeName_PloneTitle = 'plonetitle'
-cMDDXMLAttributeName_PloneUID   = 'ploneuid'
-cMDDXMLAttributeName_PlonePath  = 'plonepath'
-cMDDXMLAttributeName_ContentType= 'contenttype'
-cMDDXMLAttributeName_IsReference  = 'isreference'
-
-cMDDXMLAttributeValue_IsReference_True = 'True'
+cXMLAttributeName_PloneId   = 'ploneid'
+cXMLAttributeName_PloneTitle = 'plonetitle'
+cXMLAttributeName_PloneUID   = 'ploneuid'
+cXMLAttributeName_PlonePath  = 'plonepath'
+cXMLAttributeName_ContentType= 'contenttype'
                 
-cMDDXMLAttributeName_IsCollection  = 'iscollection'
-cMDDXMLAttributeValue_IsCollection_True = 'True'
-
-cMDDXMLAttributeName_IsAggregation  = 'isaggregation'
-cMDDXMLAttributeValue_IsAggregation_True = 'True'
-
-cMDDXMLAttributeName_IsRelation  = 'isrelation'
-cMDDXMLAttributeValue_IsRelation_True = 'True'
 
 
-cMDDXMLPloneContentTypeValue_Text     = 'text/plain'
-cMDDXMLPloneContentTypeValue_TextRest = 'text/x-rst'
+cXMLPloneContentTypeValue_Text     = 'text/plain'
+cXMLPloneContentTypeValue_TextRest = 'text/x-rst'
 
 
-cMDDXMLFilePostfix = 'xml'
-cMDDZIPFilePostfix = '.zip'
-cMDDPythonFilePostfix = '.py'
-
-
-cMDDXMLRelatedMetaTypePostfix = '_RelRef'
+cXMLFilePostfix = 'xml'
+cZIPFilePostfix = '.zip'
 
 
 
@@ -169,26 +132,27 @@ cMDDXMLRelatedMetaTypePostfix = '_RelRef'
 
 
 
-cMDDEncodingASCII= 'ascii'
-cMDDEncodingUTF8   = 'utf-8'
-cMDDEncodingUTF16  = 'utf-16'
-cMDDEncodingLatin  = 'ISO-8859-1'
 
-cMDDEncodingUnicodeEscape   = 'unicode_escape'
+cEncodingASCII= 'ascii'
+cEncodingUTF8   = 'utf-8'
+cEncodingUTF16  = 'utf-16'
+cEncodingLatin  = 'ISO-8859-1'
+
+cEncodingUnicodeEscape   = 'unicode_escape'
 
 
-cDefaultEncodingForXMLImport = cMDDEncodingUTF8
+cDefaultEncodingForXMLImport = cEncodingUTF8
 
-cMDDEncodingErrorHandleMode_Strict = 'strict'
+cEncodingErrorHandleMode_Strict = 'strict'
 
 
 
 cUTFEncodingsForAllLanguages = [ 
-    [ cMDDEncodingUnicodeEscape, cMDDEncodingUnicodeEscape, []], 
-    [ cMDDEncodingUTF8, cMDDEncodingUTF8, []], 
+    [ cEncodingUnicodeEscape, cEncodingUnicodeEscape, []], 
+    [ cEncodingUTF8, cEncodingUTF8, []], 
     [ u'utf_7', u'U7,unicode-1-1-utf-7', []], 
      [ u'utf_8_sig', u'utf_8_sig', []], 
-    [ cMDDEncodingUTF16, cMDDEncodingUTF16, []],
+    [ cEncodingUTF16, cEncodingUTF16, []],
     [ u'utf_16_be', u'UTF-16BE', [ u'(BMP only)']], 
     [ u'utf_16_le', u'UTF-16LE', [ u'(BMP only)']], 
     [ u'utf_32_be', u'UTF-32BE', [ u'(BMP only)']], 

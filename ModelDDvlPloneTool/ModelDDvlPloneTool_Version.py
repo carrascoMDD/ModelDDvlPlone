@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Version.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
+__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -36,6 +36,8 @@ import sys
 import traceback
 import logging
 
+import transaction
+
 
 from AccessControl import ClassSecurityInfo
 
@@ -44,20 +46,20 @@ from Acquisition  import aq_inner, aq_parent
 from Products.CMFCore            import permissions
 from AccessControl.Permissions   import access_contents_information   as perm_AccessContentsInformation
 
-from Products.CMFCore.utils      import getToolByName
+from Products.CMFCore.utils import getToolByName
 
-from Products.Archetypes.utils   import shasattr
+from Products.Archetypes.utils import shasattr
 
+
+
+from MDD_RefactorComponents import MDDRefactor_NewVersion
+
+from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
 
 
 from ModelDDvlPloneTool_ImportExport_Constants import *
 
-from ModelDDvlPloneTool_Transactions           import ModelDDvlPloneTool_Transactions
-from ModelDDvlPloneTool_Retrieval              import ModelDDvlPloneTool_Retrieval
-from ModelDDvlPloneTool_Profiling              import ModelDDvlPloneTool_Profiling
-from MDDRefactor_NewVersion                    import MDDRefactor_NewVersion
-
-from ModelDDvlPloneToolSupport               import fPrettyPrint
+from ModelDDvlPloneTool_Retrieval import ModelDDvlPloneTool_Retrieval
 
 
 
@@ -68,8 +70,8 @@ cLogVersionResults = True
 
 
 
-cVersionName_UnVersioned = '-Not versioned-'
-cVersionName_MissingVersionName = '-Version Name Missing-'
+cVersionName_UnVersioned = '-u-n-v-e-r-s-i-o-n-e-d-'
+cVersionName_MissingVersionName = '-v-e-r-s-i-o-n-n-a-m-e-m-i-s-s-i-n-g-'
 
 
 cAcceptedVersionContainerMetaTypes = cPloneSiteMetaTypes + [ 'ATFolder', 'ATBTreeFolder',]
@@ -265,7 +267,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 
                 unAlreadyVisited = { }
                 
-                self.pRetrieveVersionInfo_Inner(
+                self.pInitializeVersioningInfo(
                     theTimeProfilingResults             =theTimeProfilingResults,
                     theModelDDvlPloneTool_Retrieval     =theModelDDvlPloneTool_Retrieval,
                     theRetrievePreviousVersions         =theRetrievePreviousVersions,
@@ -299,7 +301,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                     
                 unVersioningInfo.update( { 
                     'success':      False,
-                    'status':       cMDDNewVersionStatus_Error_Exception,
+                    'status':       cNewVersionStatus_Error_Exception,
                     'exception':    unInformeExcepcion,
                 })
                     
@@ -319,8 +321,8 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                                 
                 
 
-    security.declarePrivate( 'pRetrieveVersionInfo_Inner')
-    def pRetrieveVersionInfo_Inner( self,
+    security.declarePrivate( 'pInitializeVersioningInfo')
+    def pInitializeVersioningInfo( self,
         theTimeProfilingResults             =None,
         theModelDDvlPloneTool_Retrieval     =None,
         theRetrievePreviousVersions         =False,
@@ -341,9 +343,6 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
         
         if not theVersioningInfo:
             return self
-        
-        if theModelDDvlPloneTool_Retrieval == None:
-            return self        
 
         unVersionedElement = theVersioningInfo.get( 'element', None)
         if ( unVersionedElement == None):
@@ -356,7 +355,10 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             unAlreadyVisited = { }
             
         
-         
+        unModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool_Retrieval
+        if not unModelDDvlPloneTool_Retrieval:
+            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        
         
         unInterVersionUIDFieldsCache = theInterVersionUIDFieldsCache
         if ( unInterVersionUIDFieldsCache == None):
@@ -387,24 +389,22 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
         
         
         unId        = unVersionedElement.getId()
-        theVersioningInfo[ 'id']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unId, unVersionedElement)
+        theVersioningInfo[ 'id']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unId, unVersionedElement)
         
         unaURL = unVersionedElement.absolute_url()
-        if not ( unaURL[-1:] == '/'):
-            unaURL = '%s/' % unaURL                
-        theVersioningInfo[ 'url'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaURL, unVersionedElement)
+        theVersioningInfo[ 'url'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaURL, unVersionedElement)
          
         unaUID = unVersionedElement.UID()
-        theVersioningInfo[ 'UID'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaUID, unVersionedElement)
+        theVersioningInfo[ 'UID'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaUID, unVersionedElement)
          
         unTitle        = unVersionedElement.Title()
-        theVersioningInfo[ 'title']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unTitle, unVersionedElement)
+        theVersioningInfo[ 'title']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unTitle, unVersionedElement)
         
         unaDescription = unVersionedElement.Description()
-        theVersioningInfo[ 'description'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaDescription, unVersionedElement)
+        theVersioningInfo[ 'description'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaDescription, unVersionedElement)
         
         unPath        = '/'.join( unVersionedElement.getPhysicalPath())
-        theVersioningInfo[ 'path']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unPath, unVersionedElement)
+        theVersioningInfo[ 'path']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unPath, unVersionedElement)
         
         unInterVersionUID    = None
         unVersionName        = None
@@ -447,7 +447,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unInterVersionUID == None):
-                theVersioningInfo[ 'inter_version_uid'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unInterVersionUID, unVersionedElement)
+                theVersioningInfo[ 'inter_version_uid'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unInterVersionUID, unVersionedElement)
             
                     
         
@@ -479,7 +479,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unVersionName == None):
-                theVersioningInfo[ 'version'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionName, unVersionedElement)
+                theVersioningInfo[ 'version'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionName, unVersionedElement)
                 if not ( theAllVersionsByName == None):
                     if theAllVersionsByName.has_key( unVersionName):
                         raise "Duplicate_Version_Name"
@@ -510,7 +510,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unVersionComment == None):
-                theVersioningInfo[ 'version_comment'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionComment, unVersionedElement)
+                theVersioningInfo[ 'version_comment'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionComment, unVersionedElement)
         
         
             
@@ -593,9 +593,9 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                             
                             theVersioningInfo[ 'previous_versioning_infos'].append( unPreviousVersioningInfo)  
                             
-                            self.pRetrieveVersionInfo_Inner( 
+                            self.pInitializeVersioningInfo( 
                                 theTimeProfilingResults             =theTimeProfilingResults,
-                                theModelDDvlPloneTool_Retrieval     =theModelDDvlPloneTool_Retrieval,
+                                theModelDDvlPloneTool_Retrieval     =unModelDDvlPloneTool_Retrieval,
                                 theRetrievePreviousVersions         =theRecurse,
                                 theRetrieveNextVersions             =False,
                                 theRecurse                          =theRecurse,
@@ -651,9 +651,9 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                             
                             theVersioningInfo[ 'next_versioning_infos'].append( unNextVersioningInfo)  
                             
-                            self.pRetrieveVersionInfo_Inner( 
+                            self.pInitializeVersioningInfo( 
                                 theTimeProfilingResults             =theTimeProfilingResults,
-                                theModelDDvlPloneTool_Retrieval     =theModelDDvlPloneTool_Retrieval,
+                                theModelDDvlPloneTool_Retrieval     =unModelDDvlPloneTool_Retrieval,
                                 theRetrievePreviousVersions         =False,
                                 theRetrieveNextVersions             =theRecurse,
                                 theRecurse                          =theRecurse,
@@ -1181,13 +1181,6 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             unNewVersionReport = None
             try:
                 
-                # ##############################################################################
-                """Transaction Save point before import to get a clean view on the existing object network.
-                
-                """      
-                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
-                
-                
                 unNewTitle          = theNewTitle.strip()
                 unNewId             = theNewId.strip()
                 unNewVersionName    = theNewVersionName.strip()
@@ -1197,8 +1190,6 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 unNewVersionReport    = unNewVersionContext.get( 'report', {})
                 unosNewVersionErrors  = unNewVersionContext.get( 'newversion_errors', {})
                 
-                
-                
                 # ##############################################################################
                 """Check parameter with original version to copy from.
                 
@@ -1206,7 +1197,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if ( theOriginalObject == None):
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_MissingParameter_OriginalObject,
+                        'status':       cNewVersionStatus_Error_MissingParameter_OriginalObject,
                     })
                     return unNewVersionReport
                 unNewVersionContext[ 'original_object'] = theOriginalObject
@@ -1220,7 +1211,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not theModelDDvlPloneTool_Retrieval:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval,
+                        'status':       cNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval,
                     })
                     return unNewVersionReport
                 unNewVersionContext[ 'ModelDDvlPloneTool_Retrieval'] = theModelDDvlPloneTool_Retrieval
@@ -1228,7 +1219,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not theModelDDvlPloneTool_Mutators:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators,
+                        'status':       cNewVersionStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators,
                     })
                     return unNewVersionReport
                 unNewVersionContext[ 'ModelDDvlPloneTool_Mutators'] = theModelDDvlPloneTool_Mutators
@@ -1257,7 +1248,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not theModelDDvlPloneTool_Retrieval.fCheckElementPermission( theOriginalObject, permissions.View , unCheckedPermissionsCache):
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Original_NotReadable,
+                        'status':       cNewVersionStatus_Error_Original_NotReadable,
                     })
                     return unNewVersionReport
                 
@@ -1275,7 +1266,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not unAllowNewVersion:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_NewVersion_NotAllowedInElement,
+                        'status':       cNewVersionStatus_Error_NewVersion_NotAllowedInElement,
                     })
                     return unNewVersionReport
                            
@@ -1287,7 +1278,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not unNewVersionName:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_MissingParameter_VersionName,
+                        'status':       cNewVersionStatus_Error_MissingParameter_VersionName,
                     })
                     return unNewVersionReport
                 unNewVersionContext[ 'version_name'] = theOriginalObject
@@ -1301,7 +1292,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not theMDDNewVersionTypeConfigs:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_MissingParameter_MDDNewVersionTypeConfigs,
+                        'status':       cNewVersionStatus_Error_MissingParameter_MDDNewVersionTypeConfigs,
                     })
                     return unNewVersionReport
                 unNewVersionContext[ 'mdd_type_configs'] = theMDDNewVersionTypeConfigs
@@ -1317,7 +1308,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not aTranslationService:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Internal_MissingTool_translation_service,
+                        'status':       cNewVersionStatus_Error_Internal_MissingTool_translation_service,
                     })
                     return unNewVersionReport
                 unNewVersionContext[ 'translation_service'] = aTranslationService
@@ -1337,7 +1328,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if ( not unAllVersionsReport) or not unAllVersionsReport.get( 'success', False):
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Failure_Retrieving_AllVersions,
+                        'status':       cNewVersionStatus_Error_Failure_Retrieving_AllVersions,
                     })
                     return unNewVersionReport
                 
@@ -1350,7 +1341,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not ( theNewVersionContainerKind in [ 'Parent', 'Clipboard', 'Site', ]):
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_MissingParameter_ContainerKind,
+                        'status':       cNewVersionStatus_Error_MissingParameter_ContainerKind,
                     })
                     return unNewVersionReport
                 
@@ -1367,14 +1358,14 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not unContainerReport:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_ContainerReport_Missing,
+                        'status':       cNewVersionStatus_Error_ContainerReport_Missing,
                     })
                     return unNewVersionReport
                 
                 if not unContainerReport.get( 'allowed', False):
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_ContainerReport_NotAllowed,
+                        'status':       cNewVersionStatus_Error_ContainerReport_NotAllowed,
                     })
                     return unNewVersionReport
                 
@@ -1382,7 +1373,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if unContainer == None:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Container_NotFound,
+                        'status':       cNewVersionStatus_Error_Container_NotFound,
                     })
                     return unNewVersionReport
                 
@@ -1397,7 +1388,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not theModelDDvlPloneTool_Retrieval.fCheckElementPermission( unContainer, cPermissionsOnVersionContainers, unCheckedPermissionsCache):
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Container_NotWritable,
+                        'status':       cNewVersionStatus_Error_Container_NotWritable,
                     })
                     return unNewVersionReport
                 
@@ -1411,7 +1402,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if unNewTitle in unosTitlesToAvoid:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Title_AlreadyExists,
+                        'status':       cNewVersionStatus_Error_Title_AlreadyExists,
                     })
                     return unNewVersionReport
                     
@@ -1419,7 +1410,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if theNewId in unasIdsToAvoid:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Id_AlreadyExists,
+                        'status':       cNewVersionStatus_Error_Id_AlreadyExists,
                     })
                     return unNewVersionReport
                     
@@ -1435,7 +1426,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if unNewVersionName in unasExistingVersionNames:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_VersionName_AlreadyExists,
+                        'status':       cNewVersionStatus_Error_VersionName_AlreadyExists,
                     })
                     return unNewVersionReport
                                 
@@ -1477,7 +1468,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if not unCreatedVersionId:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_ObjectNotCreated,
+                        'status':       cNewVersionStatus_Error_ObjectNotCreated,
                     })
                     return unNewVersionReport
         
@@ -1492,7 +1483,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if ( unNewVersionElement == None):
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_CreatedObjectNotFound,
+                        'status':       cNewVersionStatus_Error_CreatedObjectNotFound,
                     })
                     return unNewVersionReport
                 
@@ -1506,10 +1497,10 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 
                 
                 # ##############################################################################
-                """Transaction Save point before import to get a clean view on the existing object network.
+                """Transaction Save point.
                 
                 """      
-                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
+                transaction.savepoint(optimistic=True)
                 
                 
                 # ##############################################################################
@@ -1536,12 +1527,11 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if ( not unNewVersionElementResult) or unNewVersionElementResult.get( 'object', None) == None:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_CreatedObjectResultFaulure,
+                        'status':       cNewVersionStatus_Error_CreatedObjectResultFaulure,
                     })
                     return unNewVersionReport
                 
-                # ACV 20091110. Unused. Creates a very big log entry. Removed
-                # unNewVersionReport[ 'new_version_element_result'] = unNewVersionElementResult
+                unNewVersionReport[ 'new_version_element_result'] = unNewVersionElementResult
                 
                 
                 
@@ -1571,7 +1561,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 if ( not unRefactor) or not unRefactor.vInitialized:
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Internal_Refactor_NotInitialized,
+                        'status':       cNewVersionStatus_Error_Internal_Refactor_NotInitialized,
                     })
                     return unNewVersionReport
                     
@@ -1596,7 +1586,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                             
                             unVersionFieldName = None
                             try:
-                                unVersionFieldName = unNewVersionElement.version_field_storage
+                                unVersionFieldName = unNewVersionElement.version_field
                             except:
                                 None
                             if unVersionFieldName:
@@ -1604,20 +1594,11 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                                     unVersionField = unNewVersionElementSchema[ unVersionFieldName]
                                     if unVersionField:
                                         unVersionMutator = unVersionField.getMutator( unNewVersionElement)
-                                        if unVersionMutator:
-                                            
-                                            unVersionMutator( unNewVersionName)
-                                            
-                                        else:
-                                            unNewVersionReport.update( { 
-                                                'success':      False,
-                                                'status':       cMDDNewVersionStatus_Error_Internal_NoMutator_version_field_storage,
-                                            })
-                                            return unNewVersionReport
+                                        unVersionMutator( unNewVersionName)
                                         
                             unVersionCommentFieldName = None
                             try:
-                                unVersionCommentFieldName = unNewVersionElement.version_comment_field_storage
+                                unVersionCommentFieldName = unNewVersionElement.version_comment_field
                             except:
                                 None
                             if unVersionCommentFieldName:
@@ -1625,18 +1606,8 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                                     unVersionCommentField = unNewVersionElementSchema[ unVersionCommentFieldName]
                                     if unVersionCommentField:
                                         unVersionCommentMutator = unVersionCommentField.getMutator( unNewVersionElement)
-                                        if unVersionCommentMutator:
-                                            
-                                            unVersionCommentMutator( unNewVersionComment)
-                                            
-                                        else:
-                                            unNewVersionReport.update( { 
-                                                'success':      False,
-                                                'status':       cMDDNewVersionStatus_Error_Internal_NoMutator_version_comment_field_storage,
-                                            })
-                                            return unNewVersionReport
-                                        
-                                            
+                                        unVersionCommentMutator( unNewVersionComment)
+                        
                     
                                         
                     except MDDRefactor_Version_Exception:
@@ -1646,11 +1617,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                         unaExceptionInfo = sys.exc_info()
                         unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
                         
-                        unInformeExcepcion = ''
-                        if unRefactor and unRefactor.vErrorReports:
-                            unInformeExcepcion = '%s\n' % '\n'.join( [ str( unErrorReport) for unErrorReport in unRefactor.vErrorReports])
-                        
-                        unInformeExcepcion += 'Exception during ModelDDvlPloneTool_Refactor::fNewVersion invoking MDDRefactor_NewVersion::fRefactor\n' 
+                        unInformeExcepcion = 'Exception during ModelDDvlPloneTool_Refactor::fNewVersion invoking MDDRefactor_NewVersion::fRefactor\n' 
                         unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
                         unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
                         unInformeExcepcion += unaExceptionFormattedTraceback   
@@ -1685,34 +1652,25 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 unNewVersionReport[ 'error_reports'].extend( unRefactor.vErrorReports )
                             
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
-                    
-                    ModelDDvlPloneTool_Transactions().fTransaction_Commit()
+                    transaction.commit()
     
                     unNewVersionReport.update( { 
                          'success':      True,
                     })
                     
                     if cLogVersionResults:
-                        unStringErrorReports = ''
-                        if unRefactor and unRefactor.vErrorReports:
-                            unInformeExcepcion = '%s\n' % '\n'.join( [ str( unErrorReport) for unErrorReport in unRefactor.vErrorReports])
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fNewVersion\n%s\n%s\n' % ( self.__class__.__name__, fPrettyPrint( [ unNewVersionReport, ]), unStringErrorReports))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fNewVersion\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewVersionReport, ])))
                     
                 else:
-                    ModelDDvlPloneTool_Transactions().fTransaction_Abort()
-                                    
+                    transaction.abort()
                     
                     unNewVersionReport.update( { 
                         'success':      False,
-                        'status':       cMDDNewVersionStatus_Error_Internal_Refactor_Failed,
+                        'status':       cNewVersionStatus_Error_Internal_Refactor_Failed,
                     })
-
-                    unStringErrorReports = ''
-                    if unRefactor and unRefactor.vErrorReports:
-                        unInformeExcepcion = '%s\n' % '\n'.join( [ str( unErrorReport) for unErrorReport in unRefactor.vErrorReports])
-                
+                    
                     if cLogVersionResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fNewVersion\n%s%s\n' % ( self.__class__.__name__, fPrettyPrint( [ unNewVersionReport, ]), unStringErrorReports))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fNewVersion\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewVersionReport, ])))
                     
                 return unNewVersionReport                
                 
@@ -1733,7 +1691,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                     
                 unNewVersionReport.update( { 
                     'success':      False,
-                    'status':       cMDDNewVersionStatus_Error_Exception,
+                    'status':       cNewVersionStatus_Error_Exception,
                     'exception':    unInformeExcepcion,
                 })
                     
