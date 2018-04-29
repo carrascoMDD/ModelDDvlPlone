@@ -3,7 +3,7 @@
 #
 # File: MDDFlushCachedTemplateByUniqueId.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -36,8 +36,8 @@
 
     <metal:main fill-slot="main">
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008,2009,2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
-        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+        tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+        global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
 
     <div metal:use-macro="here/document_actions/macros/document_actions">
         Document actions (print, sendto etc)
@@ -61,29 +61,29 @@
 			<a class="state-visible" id="cid_backToElement" href="#" tal:attributes="href python: '%s/' % here.absolute_url()">
 				<font size="3">
 					<strong tal:content="python: u'%s %s' % (
-						here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
-						here.ModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
+						here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
+						here.MDDModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
 				</font>
 			</a>
 			
 			&emsp;&emsp;
 			<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus' % here.absolute_url()" >
 				<font size="2">
-					<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+					<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
 				</font>
 			</a>        
 			
 			&emsp;&emsp;
 			<a class="state-visible" id="cid_CacheDiagnostics_Link" href="#" tal:attributes="href python: '%s/MDDCacheDiagnostics' % here.absolute_url()">
 				<font size="2">
-					<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheDiagnostics_action_label', 'Cache Diagnostics-',)" />
+					<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheDiagnostics_action_label', 'Cache Diagnostics-',)" />
 				</font>
 			</a>
 			
 			&emsp;&emsp;
 			<a class="state-visible" id="cid_CacheDiagnostics_Link" href="#" tal:attributes="href python: '%s/MDDInspectCache?theCacheName=%s' % ( here.absolute_url(), pCacheName,)">
 				<font size="2">
-					<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectCache_action_label', 'Inspect Cache-',)" />
+					<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectCache_action_label', 'Inspect Cache-',)" />
 				</font>
 			</a>
 		</p>
@@ -91,7 +91,7 @@
 						
 	
 		<tal:block tal:condition="python: pCacheEntryUniqueId and pFlushCacheCode">
-			<tal:block tal:define="aFlushResult python: here.ModelDDvlPlone_tool.fFlushCachedTemplateByUniqueId( here, theCacheEntryUniqueId=pCacheEntryUniqueId, theFlushDiskCache=pFlushDiskCache)" >
+			<tal:block tal:define="aFlushResult python: here.MDDModelDDvlPlone_tool.fFlushCachedTemplateByUniqueId( here, theCacheEntryUniqueId=pCacheEntryUniqueId, theFlushDiskCache=pFlushDiskCache)" >
 				<font size="3">
 					<bold>
 						<p tal:condition="aFlushResult" tal:content="python: 'SUCCESS: Cache Entry %s has been flushed from Memory %s' % ( pCacheEntryUniqueId, ( pFlushDiskCache and 'and DISK') or '',)" />

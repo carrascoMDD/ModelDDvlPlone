@@ -1,0 +1,77 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDModules.pt
+#
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en"
+      metal:use-macro="here/main_template/macros/master"
+      i18n:domain="plone">
+<body>
+
+    <metal:main fill-slot="main">
+    <tal:main-macro metal:define-macro="main"
+        tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;" >
+        
+            <div metal:use-macro="here/document_actions/macros/document_actions">
+                Document actions (print, sendto etc)
+            </div>
+    
+            <h1 tal:content="object_title" class="documentFirstHeading">
+              Title or id
+            </h1>
+    
+            <div metal:use-macro="here/document_byline/macros/byline">
+              Get the byline - contains details about author and modification date.
+            </div>
+    
+            <tal:block tal:define="
+                pClearGlobals     request/theClearGlobals | string:;
+                pClearGlobals     python: ( pClearGlobals and True) or False;
+                pClearPersistent  request/theClearPersistent | string:;
+                pClearPersistent  python: ( pClearPersistent and True) or False; 
+                unosArgs python: {
+                    'theContextualElement':          here,
+                    'theLoadModulesSpecification':   None,
+					'theLoadConstants_ModuleName':   'Products.ModelDDvlPloneTool.ModelDDvlPloneToolLoadConstants',
+					'theLoadConstants_ConstantName': 'cLoadModulesSpecification',
+                };
+
+                pModulesListReport python: here.MDDModulesList( **unosArgs)" >
+                <br/>
+				
+				<metal:block metal:use-macro="here/MDDModulesReport_i18n_view/macros/tMDDModulesReport_i18n" />
+                <br/>
+				
+            </tal:block>
+        </tal:main-macro>
+    </metal:main>
+
+</body>
+</html>
+

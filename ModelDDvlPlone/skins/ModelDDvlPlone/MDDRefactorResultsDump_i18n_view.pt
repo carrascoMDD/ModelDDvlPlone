@@ -3,7 +3,7 @@
 #
 # File: MDDRefactorResultsDump_i18n_view.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -37,14 +37,14 @@
         <tal:block tal:define="
             pRefactorReport  pRefactorReport | nothing;
             pRefactorLabel  pRefactorLabel | string:Refactor;
-            pRefactorLabelI18N python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_' + pRefactorLabel, 'ModelDDvlPlone_refactor_' + pRefactorLabel + '-')" >
+            pRefactorLabelI18N python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_' + pRefactorLabel, 'ModelDDvlPlone_refactor_' + pRefactorLabel + '-')" >
             
             <div class="portalMessage" tal:condition="pRefactorReport" >
                 <tal:block tal:condition="python: pRefactorReport.get( 'success', False) and ( pRefactorReport.get( 'num_elements_pasted', 0) + pRefactorReport.get( 'num_mdd_elements_pasted ', 0) + pRefactorReport.get( 'num_plone_elements_pasted ', 0)  + pRefactorReport.get( 'num_attributes_pasted  ', 0)  + pRefactorReport.get( 'num_links_pasted ', 0))" >
                     
-                    <p><font color="green" size="2"><strong tal:content="python: u'%s %s' % ( pRefactorLabelI18N, here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_success', 'Success-'))" /></font></p>
-                    <div tal:condition="python: pRefactorReport.get( 'status', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_status', 'Status-'), pRefactorReport.get( 'status', ''), )" /></div>
-                    <div tal:condition="python: pRefactorReport.get( 'condition', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_condition', 'Condition-'), pRefactorReport.get( 'condition', ''), )" /></div>
+                    <p><font color="green" size="2"><strong tal:content="python: u'%s %s' % ( pRefactorLabelI18N, here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_success', 'Success-'))" /></font></p>
+                    <div tal:condition="python: pRefactorReport.get( 'status', '')"><strong tal:content="python: '%s=%s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_status', 'Status-'), pRefactorReport.get( 'status', ''), )" /></div>
+                    <div tal:condition="python: pRefactorReport.get( 'condition', '')"><strong tal:content="python: '%s=%s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_condition', 'Condition-'), pRefactorReport.get( 'condition', ''), )" /></div>
                     
                     <tal:block tal:define="pException python: pRefactorReport.get( 'exception', '').strip()" 
                         tal:condition="pException">
@@ -62,9 +62,9 @@
                 
                 <tal:block tal:condition="python: not ( pRefactorReport.get( 'success', False) and ( pRefactorReport.get( 'num_elements_pasted', 0) + pRefactorReport.get( 'num_mdd_elements_pasted ', 0) + pRefactorReport.get( 'num_plone_elements_pasted ', 0)  + pRefactorReport.get( 'num_attributes_pasted  ', 0)  + pRefactorReport.get( 'num_links_pasted ', 0)))" >
                     
-                    <p><font color="red" size="2"><strong tal:content="python: u'%s %s' % ( pRefactorLabelI18N, here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_failure', 'Failure-'))" /></font></p>
-                    <div tal:condition="python: pRefactorReport.get( 'status', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_status', 'Status-'), pRefactorReport.get( 'status', ''), )" /></div>
-                    <div tal:condition="python: pRefactorReport.get( 'condition', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_condition', 'Condition-'), pRefactorReport.get( 'condition', ''), )" /></div>
+                    <p><font color="red" size="2"><strong tal:content="python: u'%s %s' % ( pRefactorLabelI18N, here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_failure', 'Failure-'))" /></font></p>
+                    <div tal:condition="python: pRefactorReport.get( 'status', '')"><strong tal:content="python: '%s=%s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_status', 'Status-'), pRefactorReport.get( 'status', ''), )" /></div>
+                    <div tal:condition="python: pRefactorReport.get( 'condition', '')"><strong tal:content="python: '%s=%s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_condition', 'Condition-'), pRefactorReport.get( 'condition', ''), )" /></div>
                     
                     <tal:block tal:define="pException python: pRefactorReport.get( 'exception', '').strip()" 
                         tal:condition="pException">
@@ -93,10 +93,10 @@
         <tal:block tal:define="
             pErrorReports      pErrorReports | nothing;
             pRefactorLabel     pRefactorLabel | string:Refactor;
-            pRefactorLabelI18N python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_' + pRefactorLabel, 'ModelDDvlPlone_refactor_' + pRefactorLabel + '-')" >           
+            pRefactorLabelI18N python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_' + pRefactorLabel, 'ModelDDvlPlone_refactor_' + pRefactorLabel + '-')" >           
     
             <tal:block tal:condition="python: len( pErrorReports)" >
-                <p tal:content="python: u'%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Errors_During', 'Errors during-'),  pRefactorLabelI18N,)," />
+                <p tal:content="python: u'%s %s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Errors_During', 'Errors during-'),  pRefactorLabelI18N,)," />
                 <table id="cid_MDDTablaRefactorErrorReports" class="listing" summary="MDDTablaRefactorErrorReports"            
                     tal:define="
                     global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even');
@@ -108,7 +108,7 @@
                             [ 'ModelDDvlPlone_error_reason',  'reason-',  ],                                    
                             [ 'ModelDDvlPlone_error_params',  'params-',  ],
                     ]]];
-                    someTranslatedLabels python: here.ModelDDvlPlone_tool.fTranslateI18NManyIntoDict( here, someTranslatedLabelsParameters)">
+                    someTranslatedLabels python: here.MDDModelDDvlPlone_tool.fTranslateI18NManyIntoDict( here, someTranslatedLabelsParameters)">
                     <thead>
                         <tr>
                             <th class="nosort" tal:content="someTranslatedLabels/ModelDDvlPlone_class_name"/>
@@ -138,7 +138,7 @@
                                             <table width="100%">
                                                 <tbody>
                                                     <tr tal:repeat="pErrorParamKey pErrorParamsKeys">
-                                                        <td tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_error_param_' + pErrorParamKey, pErrorParamKey + '-')" />
+                                                        <td tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_error_param_' + pErrorParamKey, pErrorParamKey + '-')" />
                                                         <td tal:content="python: pErrorParams.get( pErrorParamKey, '')" /> 
                                                     </tr>
                                                 </tbody>
@@ -174,12 +174,12 @@
         <tal:block tal:define="pException  pException | nothing" >
             <tal:block tal:condition="python: pException.strip()" >
                 <p>
-                    <strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_exception', 'Exception-')" />
+                    <strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_exception', 'Exception-')" />
                 </p>
                 <tal:block tal:define="pExceptionLines python: pException.strip().splitlines();
                                        pNumExceptionLines python: len( pExceptionLines);
                                        pNumTextAreaLines python: max( min( pNumExceptionLines, 18), 3)" >
-                    <textarea style="font-size: 9pt; color: red" cols="80" rows="#" name="MDDExceptionDump" id="cid_MDDExceptionDump" 
+                    <textarea readonly style="font-size: 9pt; color: red" cols="80" rows="#" name="MDDExceptionDump" id="cid_MDDExceptionDump" 
                         tal:attributes="rows pNumTextAreaLines" >
 <tal:block tal:repeat="pExceptionLine pExceptionLines" tal:content="pExceptionLine"/>   
                     </textarea>
@@ -213,8 +213,8 @@
                     [ 'ModelDDvlPlone_Bypassed',              'Bypassed-',               ],
                     [ 'ModelDDvlPlone_Failed',                'Failed-',                 ],
                 ]]];
-            someTranslatedLabels python: here.ModelDDvlPlone_tool.fTranslateI18NManyIntoDict( here, someTranslatedLabelsParameters);
-            pRefactorLabelI18N python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_' + pRefactorLabel, 'ModelDDvlPlone_refactor_' + pRefactorLabel + '-')" >           
+            someTranslatedLabels python: here.MDDModelDDvlPlone_tool.fTranslateI18NManyIntoDict( here, someTranslatedLabelsParameters);
+            pRefactorLabelI18N python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_' + pRefactorLabel, 'ModelDDvlPlone_refactor_' + pRefactorLabel + '-')" >           
     
             <tal:block tal:condition="python: pRefactorReport" >
             

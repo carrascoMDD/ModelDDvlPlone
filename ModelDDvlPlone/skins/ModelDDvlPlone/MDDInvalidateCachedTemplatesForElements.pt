@@ -3,7 +3,7 @@
 #
 # File: MDDInvalidateCachedTemplatesForElements.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -30,5 +30,5 @@
     tal:define="
         theFlushedElementsUIDs    request/ELUID;
         theAuthenticationString   request/UAUTH"
-    tal:replace="structure python: here.ModelDDvlPlone_tool.pReceiveNotification_FlushCachedTemplatesForElementsUIDs( here, theFlushedElementsUIDs, thePeerIdentificationString, thePeerAuthenticationString)" />
+    tal:replace="structure python: here.MDDModelDDvlPlone_tool.pReceiveNotification_FlushCachedTemplatesForElementsUIDs( here, theFlushedElementsUIDs, thePeerIdentificationString, thePeerAuthenticationString)" />
     

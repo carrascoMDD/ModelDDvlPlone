@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_Candidates.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -150,7 +150,12 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
         if not aRelationslib:
             return []
             
-        aRuleset = aRelationslib.getRuleset( unRelationName)
+        aRuleset = None
+        try:
+            aRuleset = aRelationslib.getRuleset( unRelationName)
+        except ValueError:
+            None
+            
         if not aRuleset:
             return []
 

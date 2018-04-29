@@ -3,7 +3,7 @@
 #
 # File: Crear_simple_i18n_view.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -53,7 +53,7 @@
                                        
             <tal:block tal:condition="python: pNewTypeName and pAggregationName" >
                 <tal:block tal:define="    
-                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();                
+                pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();                
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);                
                 unosArgs python: { 
                     'theTimeProfilingResults'     :pProfilingResults,
@@ -70,8 +70,8 @@
                     'theTranslationsCaches'       :None,
                     'theCheckedPermissionsCache'  :None,
                     'theAdditionalParams'         :None, };                      
-                    SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                    pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                     unasTraversals python: [ unaTraversal for unaTraversal in SRES[ 'traversals'] if (unaTraversal[ 'traversal_kind'] == 'aggregation') and ( unaTraversal[ 'traversal_name'] == pAggregationName)]" 
                     tal:condition="unasTraversals" >
 
@@ -88,7 +88,7 @@
                             tal:condition="unaFactory" >
                                                         
                             <tal:block tal:condition="python: not pPermiteCrear" >
-                                <br>
+                                <br/>
                                 <h2 > 
                                     <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
                                         <font color="Red">                    
@@ -112,7 +112,7 @@
      
                             </tal:block>
                             <tal:block tal:condition="python: not unaFactory" >
-                                <br>
+                                <br/>
                                 <h2 > 
                                     <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
                                         <font color="Red">                    
@@ -204,7 +204,7 @@
 											'theId'                   :pNewId, 
 											'theDescription'          :pNewDescription,
 											'theAdditionalParams'     :None, };   
-										pCrearResult python: here.ModelDDvlPlone_tool.fCrearElementoDeTipo( **unosArgs)" >
+										pCrearResult python: here.MDDModelDDvlPlone_tool.fCrearElementoDeTipo( **unosArgs)" >
 										<tal:block tal:condition="python: pCrearResult and ( pCrearResult[ 'effect'] == 'created')" >
 											<tal:block tal:define="
 												dummy python:request.response.redirect( '%sEditar/' % pCrearResult[ 'new_object_result'][ 'url']);" />

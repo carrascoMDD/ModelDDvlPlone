@@ -7,5 +7,5 @@ def initialize(context):
     context.registerClass(
         ModelDDvlPloneTool.ModelDDvlPloneTool,
         constructors = ModelDDvlPloneTool.constructors,
-        icon="skins/icon.gif"
+        icon="skins/ModelDDvlPloneTool_icon.gif"
     )

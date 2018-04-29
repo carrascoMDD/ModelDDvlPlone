@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -195,9 +195,10 @@ class ModelDDvlPloneTool_Retrieval(
             'modification_user_field':  '',
             'deletion_date_field':      '',
             'deletion_user_field':      '',
-            'is_inactive_field':          '',
+            'is_inactive_field':        '',
             'change_counter_field':     '',
             'change_log_field':         '',
+            'sources_counters_field':   '',
 
             # Audit fields values
             'creation_date':            None,
@@ -377,7 +378,9 @@ class ModelDDvlPloneTool_Retrieval(
     
     security.declarePrivate('fPortalURL')
     def fPortalURL(self, theContextualObject=None):
+        """Duplicated in ModelDDvlPloneTool_Bodies.
         
+        """        
         unContextualObject = theContextualObject
         if unContextualObject == None:
             unContextualObject = self
@@ -1967,7 +1970,7 @@ class ModelDDvlPloneTool_Retrieval(
                 try:            
                     unValue  = unAccessor()    
                 except  Exception, unaException:
-                    aLogger = logging.getLogger( 'ModelDDvlPloneTool_Retrieval::fRetrieveTraversalConfig_Relation')
+                    aLogger = logging.getLogger( 'ModelDDvlPloneTool')
                     aLogger.info( 'Error accessing element relation: meta_type=%s title=%s attribute=%s\nException:%s\n' % ( theElement.meta_type, theElement.Title(), aFieldName , str( unaException) )) 
                 
                 if not unEsMultiValued:
@@ -2852,13 +2855,19 @@ class ModelDDvlPloneTool_Retrieval(
         try:
             unResult[ 'is_inactive_field'] = theElement.is_inactive_field
         except:
-            None            
+            None        
+            
+            
         try:
             unResult[ 'change_counter_field'] = theElement.change_counter_field
         except:
             None            
         try:
             unResult[ 'change_log_field'] = theElement.change_log_field
+        except:
+            None            
+        try:
+            unResult[ 'sources_counters_field'] = theElement.sources_counters_field
         except:
             None            
         
@@ -2969,6 +2978,11 @@ class ModelDDvlPloneTool_Retrieval(
                 unResult = self.fNewResultForElement( theElement)
     
                 
+            if theAdditionalParams and theAdditionalParams.get( 'ignore_allow_read', False) and ( not unResult.get( 'allow_read', False)):
+                unResult[ 'allow_read'] = True
+                
+            if theAdditionalParams and theAdditionalParams.get( 'ignore_allow_write', False) and ( not unResult.get( 'allow_write', False)):
+                unResult[ 'allow_write'] = True
                 
                 
             aDummy = self.fMetaTypeNameTranslationsFromCache_into( 

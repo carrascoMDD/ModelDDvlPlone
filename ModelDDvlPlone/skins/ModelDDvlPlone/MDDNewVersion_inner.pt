@@ -3,7 +3,7 @@
 #
 # File: MDDNewVersion_inner.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -52,12 +52,12 @@
                                 pNewVersionContainer     request/theNewVersionContainer    | string:; 
                          global pShowEditor              python: not( pNewVersionName and pNewVersionComment and pNewTitle and pNewId and ( pNewVersionContainer in [ 'Parent', 'Clipboard', 'Site', ]));                                
                          global pErrorMessage            string:;       
-                                global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                                global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
                                 
             <tal:block tal:condition="python: pNewVersionName and pNewVersionComment and pNewTitle and pNewId and ( pNewVersionContainer in [ 'Parent', 'Clipboard', 'Site', ])" >
             
                 <tal:block tal:define="
-                    global pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    global pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                     pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                     unosArgs python: {
                         'theTimeProfilingResults' :pProfilingResults,
@@ -68,7 +68,7 @@
                         'theNewTitle'             :pNewTitle,
                         'theNewId'                :pNewId,
                         'theAdditionalParams'     :None, }; 
-                    pNewVersionReport python: here.ModelDDvlPlone_tool.fNewVersion( **unosArgs)" >
+                    pNewVersionReport python: here.MDDModelDDvlPlone_tool.fNewVersion( **unosArgs)" >
                     
                     <tal:block tal:condition="not: pNewVersionReport/success" >
                         <tal:block tal:define="pRefactorLabel string:NewVersion; pRefactorReport pNewVersionReport">
@@ -78,7 +78,7 @@
                         <br/>
                         <a href="#" tal:attributes="href python: '%s/Tabular/' % here.absolute_url()" >
                             <font size="2">
-                                <strong tal:content="python: u'%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to'), here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NewVersion_Element', 'New Version'))" />
+                                <strong tal:content="python: u'%s %s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to'), here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NewVersion_Element', 'New Version'))" />
                             </font>
                         </a>
                         <tal:block tal:define="global pShowEditor pTrue; 
@@ -98,7 +98,7 @@
                                 <br/>
                                 <a href="#" tal:attributes="href python: '%s/Tabular/' % pNewVersionElement.absolute_url()" >
                                     <font size="2">
-                                        <strong tal:content="python: u'%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navigate to'), here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NewVersion_Element', 'New Version'))" />
+                                        <strong tal:content="python: u'%s %s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navigate to'), here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NewVersion_Element', 'New Version'))" />
                                     </font>
                                 </a>
                             </tal:block>
@@ -118,14 +118,14 @@
             <tal:block tal:condition="pShowEditor" >
  
                 <tal:block tal:define="
-                    pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    pRetrievalStartTime     python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                     pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                     unosArgs python: {
                         'theTimeProfilingResults' :pProfilingResults,
                         'theVersionedElement'     :here,
                         'theAdditionalParams'     :None, };
-                    pAllVersionsReport      python: here.ModelDDvlPlone_tool.fRetrieveAllVersionsWithContainerPloneSiteAndClipboard( **unosArgs);
-                    pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
+                    pAllVersionsReport      python: here.MDDModelDDvlPlone_tool.fRetrieveAllVersionsWithContainerPloneSiteAndClipboard( **unosArgs);
+                    pRetrievalEndTime       python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();" >
                     
                     <tal:block tal:condition="not: pAllVersionsReport/success" >
                         <tal:block tal:condition="pErrorMessage" tal:content="pErrorMessage" />
@@ -143,7 +143,7 @@
                             pColumnNames            pAllVersionsReport/column_names;
                             pColumnTranslations     pAllVersionsReport/column_translations;
                             pAlowVersion            python: ( SRES and pAllVersionsReport[ 'allow_version']) or False;
-                            pIsRequiredParameter    python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_IsRequiredParameter', 'Is Required-')" >
+                            pIsRequiredParameter    python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_IsRequiredParameter', 'Is Required-')" >
                     
                             <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
                     
@@ -184,7 +184,7 @@
                                                pDrillDownPrevious pTrue;
                                                pDrillDownNext    pFalse;
                                                pPreviousOrNext string:Previous;
-                                               pPreviousOrNextTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Previous_Versions_section', 'Previous Versions-')" >
+                                               pPreviousOrNextTranslated python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Previous_Versions_section', 'Previous Versions-')" >
                                         <metal:block metal:use-macro="here/MDDVersions_inner/macros/tTablaVersiones" />   
                                     </tal:block>
         
@@ -194,7 +194,7 @@
                                                            pDrillDownNext              pFalse;
                                                            pPreviousOrNext             string:;
                                                            pPreviousOrNextTranslated   string:;
-                                                           pCurrentTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_OriginalVersion_section', 'Original Version to create new version from-')" >                                               
+                                                           pCurrentTranslated python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_OriginalVersion_section', 'Original Version to create new version from-')" >                                               
                                         <metal:block metal:use-macro="here/MDDVersions_inner/macros/tTablaVersionActual" />   
                                     </tal:block>
                                     
@@ -203,7 +203,7 @@
                                                pDrillDownPrevious pFalse;
                                                pDrillDownNext    pTrue;
                                                pPreviousOrNext string:Next;
-                                               pPreviousOrNextTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Next_Versions_section', 'Next Versions-')" >
+                                               pPreviousOrNextTranslated python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Next_Versions_section', 'Next Versions-')" >
                                        <metal:block metal:use-macro="here/MDDVersions_inner/macros/tTablaVersiones" />   
                                     </tal:block>
     
@@ -215,7 +215,7 @@
                                             pNewId    python: pNewId    or pAllVersionsReport.get( 'new_version_id','')">
                             
                                 
-                                <br>
+                                <br/>
 
                                 <h2>
                                     <font ><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_page_title">New Version-</tal:block></strong></font>

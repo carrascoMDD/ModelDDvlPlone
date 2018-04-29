@@ -1551,6 +1551,11 @@ msgid "ModelDDvlPlone_InspectCache_CacheDiskPath"
 msgstr "Ruta para Cache en Disco"
 
 
+#. Default: "For Users: Expire after (seconds)"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_ExpireAfter_ForUsers"
+msgstr "Para Usuarios: Expirar tras (segundos)"
+
 
 
 
@@ -1838,6 +1843,10 @@ msgstr "Realmente REALMENTE desea DESACTIVAR el cache"
 
 
 
+#. Default: "Error modifying the element"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Edit_Error_Object_"
+msgstr "Error modificando el elemento"
 
 #. Default: "Error modifying the element: it has been changed by other transactions while editing the form."
 #: Editar_inner.pt 
@@ -1940,6 +1949,18 @@ msgstr "UID Eliminado"
 #: MDDChanges_inner.pt 
 msgid "ModelDDvlPlone_ChangeDetail_dph"
 msgstr "Ruta Eliminado"
+
+
+#. Default: "Moved Element UID"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_muid"
+msgstr "UID Movido"
+
+#. Default: "Moved Element Path"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_mph"
+msgstr "Ruta Movido"
+
 
 
 #. Default: "Counter"
@@ -2283,4 +2304,113 @@ msgstr "esta Bloqueado contra modificaciones."
 msgid "ModelDDvlPlone_ConfirmUnlink_action_label"
 msgstr "Por favor, confirme desenlazar elemento relacionado como"
 
+
+#. Default: "Success"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Success_msgid"
+msgstr "Exito"
+
+#. Default: "Failure"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Failure_msgid"
+msgstr "Fracaso"
+
+
+
+
+#. Default: "No Tool Singletons"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_NoToolSingletons_msgid"
+msgstr "Sin Herramientas (singletons)"
+
+
+
+#. Default: "Tool Singletons"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolSingletonsNumber_msgid"
+msgstr "Herramientas (singletons)"
+
+
+#. Default: "No External Methods"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_NoExternalMethods_msgid"
+msgstr "Sin Metodos Externos"
+
+
+
+#. Default: "External Methods"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExternalMethodsNumber_msgid"
+msgstr "Metodos Externos"
+
+
+
+
+
+
+
+#. Default: "Required"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_Required_msgid"
+msgstr "Requerido"
+
+
+
+#. Default: "Status"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Status_msgid"
+msgstr "Estado"
+
+
+#. Default: "Committed"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Committed_msgid"
+msgstr "Grabado"
+
+
+#. Default: "Module"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Module_msgid"
+msgstr "Modulo"
+
+
+#. Default: "Function"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Function_msgid"
+msgstr "Funcion"
+
+
+#. Default: "Id"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Id_msgid"
+msgstr "Id"
+
+
+#. Default: "Title"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Title_msgid"
+msgstr "Titulo"
+
+
+#. Default: "Install Path"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_InstallPath_msgid"
+msgstr "Ruta de Instalacion"
+
+
+
+#. Default: "Id"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolSingleton_Id_msgid"
+msgstr "Id"
+
+#. Default: "Module"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolModule_msgid"
+msgstr "Modulo"
+
+#. Default: "Class"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolClass_msgid"
+msgstr "Clase"
 

@@ -3,7 +3,7 @@
 #
 # File: Editar_inner.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -43,11 +43,11 @@
 				pPaginaRefrescar         string:Editar;
 				pAllowRefrescar          pTrue;
 				pShowTrees               pFalse;
-				global  pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" 
+				global  pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" 
 			tal:condition="pChangeReports" >
 
             <tal:block tal:define="
-                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: { 
                     'theTimeProfilingResults'     :pProfilingResults,
@@ -64,8 +64,8 @@
                     'theTranslationsCaches'       :None,
                     'theCheckedPermissionsCache'  :None,
                     'theAdditionalParams'         :None, };    
-                SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
                 pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
                 pPermiteAbandonarEditar     pTrue;
@@ -101,7 +101,7 @@
 								&nbsp;   
 								<tal:block tal:repeat="unChangeReport pFailedObjectChangeReports" >
 									<tal:block tal:condition="not: repeat/unChangeReport/start" tal:content="string:," />
-									<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Edit_Error_Object_%s' % unChangeReport.get( 'failure', ''), unChangeReport.get( 'failure', ''))" />                                                                                                                
+									<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Edit_Error_Object_%s' % unChangeReport.get( 'failure', ''), unChangeReport.get( 'failure', ''))" />                                                                                                                
 									<tal:block tal:define="pChangeLogAfterSummaries python: unChangeReport.get( 'change_entries_after_summaries', [])"
 										tal:condition="pChangeLogAfterSummaries" >
 										<br/>
@@ -115,7 +115,7 @@
 									<tal:block tal:define="pURLRecentChanges python: unChangeReport.get( 'url_recent_changes', '')"
 										tal:condition="pURLRecentChanges" >
 										<a href="#" id="cid_MDDRecentChanges" tal:attributes="href pURLRecentChanges" >
-											<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectRecentChanges', 'See Recent Changes-')" />                                                                                                                
+											<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectRecentChanges', 'See Recent Changes-')" />                                                                                                                
 										</a>
 									</tal:block>
 								</tal:block>
@@ -145,7 +145,7 @@
 						</font>                
 					</p>
 				</div>
-                <br>
+                <br/>
 				
 				
                 <h2 tal:condition="python: not( SRES[ 'read_permission'] and SRES[ 'write_permission'])"> 
@@ -186,8 +186,8 @@
                     <tal:block tal:condition="python: ( SRES[ 'non_text_field_names'] or SRES[ 'text_field_names']) or ( not pForceExcludeId)"> 
                         <form name="edit_form" method="post" enctype="multipart/form-data" class="enableUnloadProtection" 
                             action="#" tal:attributes="action python: '%sEditar/' % SRES[ 'url']"
-							tal:define="pMillisecondsNow python: here.ModelDDvlPlone_tool.fMillisecondsNow( );
-							            pDateNow         python: here.ModelDDvlPlone_tool.fMillisecondsToDateTime( pMillisecondsNow);">
+							tal:define="pMillisecondsNow python: here.MDDModelDDvlPlone_tool.fMillisecondsNow( );
+							            pDateNow         python: here.MDDModelDDvlPlone_tool.fMillisecondsToDateTime( pMillisecondsNow);">
                             
                             <input originalvalue="#" name="UID" value="#" type="hidden"
                                 tal:attributes="originalvalue SRES/UID;value SRES/UID" >
@@ -223,7 +223,7 @@
                                     </td>
                                     <td align="baseline">     
 										&emsp; 
-										<span tal:content="python: '%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_EditOnTime_label', 'Edited on-'), pDateNow,)" />
+										<span tal:content="python: '%s %s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_EditOnTime_label', 'Edited on-'), pDateNow,)" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -241,7 +241,7 @@
 									</td>
                                     <td align="baseline" >
 										&emsp; &emsp;
-										<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_LastChange', 'Last Change-')" />
+										<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_LastChange', 'Last Change-')" />
 										&ensp;
 										<input class="noborder" originalvalue="#" name="theChgCtr" value="#" readonly style="font-size: 9pt;"  id="cid_MDDChangeCounter" 
 											size="6" maxlength="8" type="text"
@@ -250,13 +250,13 @@
 									</td>
                                     <td align="baseline"  tal:define="pValue python: SRES.get( 'modification_date', SRES.get( 'creation_date', None))" tal:condition="pValue">
 										&emsp;
-										<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangeOn', 'on-')" />
+										<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangeOn', 'on-')" />
 										&ensp;
 										<span tal:content="pValue" />
 									</td>
                                     <td align="baseline"  tal:define="pValue python: SRES.get( 'modification_user', SRES.get( 'creation_user', ''))" tal:condition="pValue">
 										&emsp;
-										<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangeBy', 'by-')" />
+										<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangeBy', 'by-')" />
 										&ensp;
 										<span tal:content="pValue" />
 									</td>
@@ -268,7 +268,7 @@
             
                             <p tal:condition="pEditId">
                                 <font color="red">
-                                    <span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_EditId_LongProcess_Warning', 'Changing an element Id is a potentially long-running process. Your Internet Browser or intermediate Gateways connections may timeout, because all contained elements are also affected by the change of the path to access them.-')" />
+                                    <span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_EditId_LongProcess_Warning', 'Changing an element Id is a potentially long-running process. Your Internet Browser or intermediate Gateways connections may timeout, because all contained elements are also affected by the change of the path to access them.-')" />
                                 </font>
                             </p>
                             <table tal:define="global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even')"

@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Cache.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #anElementUIDModulus
@@ -65,8 +65,6 @@ from MDDStringConversions                       import *
 
 from MDDLinkedList                              import MDDLinkedList, MDDLinkedNode
 
-from ModelDDvlPloneTool_Retrieval               import ModelDDvlPloneTool_Retrieval
-from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
 from ModelDDvlPloneToolSupport                  import fEvalString, fReprAsString, fMillisecondsNow, fMillisecondsToDateTime, fDateTimeNow
 
 
@@ -1584,7 +1582,7 @@ class ModelDDvlPloneTool_Cache:
 
     security.declarePrivate( 'fInitialCacheConfigs')
     def fInitialCacheConfigs(self, ):
-        """Used by instances of ModelDDvlPlone_tool to initialize the CacheConfigsHolder.
+        """Used by instances of MDDModelDDvlPlone_tool to initialize the CacheConfigsHolder.
         
         """
 
@@ -1959,6 +1957,10 @@ class ModelDDvlPloneTool_Cache:
             
         if theContextualObject == None:
             return unCacheStatusReport
+        
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if aModelDDvlPloneTool_Retrieval == None:
+            return unCacheStatusReport
 
         aCacheConfig_ElementIndependent     = theModelDDvlPloneTool.fGetCacheConfigCopy( theContextualObject, cCacheName_ElementIndependent)
         aCacheStatistics_ElementIndependent = self.fGetCacheStatisticsCopy( theModelDDvlPloneTool, theContextualObject,cCacheName_ElementIndependent)
@@ -2103,18 +2105,18 @@ class ModelDDvlPloneTool_Cache:
         if unElementoRaiz == None:
             return unCacheStatusReport
             
-        unHasManagePortalPermission = ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unElementoRaiz, permissions.ManagePortal, None )
-        unHasManagerRole            = ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unElementoRaiz, )
+        unHasManagePortalPermission = aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unElementoRaiz, permissions.ManagePortal, None )
+        unHasManagerRole            = aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unElementoRaiz, )
 
         if not cForbidCaches:
             
             unCanActivateOrDeactivate = unHasManagePortalPermission or unHasManagerRole
             if not unCanActivateOrDeactivate:
-                unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
+                unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
                 if not(  unPortalObject == None):
             
-                    unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                    unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                    unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                    unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                       
                     unCanActivateOrDeactivate = unHasManagePortalPermission or unHasManagerRole
             
@@ -2125,11 +2127,11 @@ class ModelDDvlPloneTool_Cache:
             
             unCanDiagnose = unHasManagePortalPermission or unHasManagerRole
             if not unCanDiagnose:
-                unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
+                unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
                 if not(  unPortalObject == None):
             
-                    unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                    unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                    unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                    unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                       
                     unCanDiagnose = unHasManagePortalPermission or unHasManagerRole
             
@@ -2140,11 +2142,11 @@ class ModelDDvlPloneTool_Cache:
             
             unCanInspect = unHasManagePortalPermission or unHasManagerRole
             if not unCanInspect:
-                unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
+                unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
                 if not(  unPortalObject == None):
             
-                    unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                    unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                    unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                    unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                       
                     unCanInspect = unHasManagePortalPermission or unHasManagerRole
             
@@ -2157,11 +2159,11 @@ class ModelDDvlPloneTool_Cache:
                 unCanConfigure =  unHasManagePortalPermission or unHasManagerRole
                 
                 if not unCanConfigure:
-                    unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
+                    unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
                     if not( unPortalObject == None):
                 
-                        unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                        unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                        unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                        unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                           
                         unCanConfigure = unHasManagePortalPermission or unHasManagerRole
                 
@@ -2582,7 +2584,10 @@ class ModelDDvlPloneTool_Cache:
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
             if aCacheConfigHasChanged:
-                ModelDDvlPloneTool_Transactions().fTransaction_Commit()
+                
+                aModelDDvlPloneTool_Transactions = theModelDDvlPloneTool.fModelDDvlPloneTool_Transactions( theContextualObject)
+                if not ( aModelDDvlPloneTool_Transactions == None):
+                    aModelDDvlPloneTool_Transactions.fTransaction_Commit()
    
         return [ False, 'Edit', theCacheName,]
     
@@ -2869,9 +2874,11 @@ class ModelDDvlPloneTool_Cache:
         if theContextualObject == None:
             return False
         
-
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if aModelDDvlPloneTool_Retrieval == None:
+            return False
         
-        unMemberId    = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)
+        unMemberId    = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)
      
         # ###########################################################
         """Remove all existing cached teimplates, from within a thread-safe protected critical section.
@@ -2943,9 +2950,12 @@ class ModelDDvlPloneTool_Cache:
         if theContextualObject == None:
             return False
         
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if aModelDDvlPloneTool_Retrieval == None:
+            return False
 
         
-        unMemberId    = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)
+        unMemberId    = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)
         
         someFilesToDelete = [ ]
      
@@ -3070,7 +3080,7 @@ class ModelDDvlPloneTool_Cache:
     
     
     
-    security.declareProtected( permissions.View, 'fCached_HTML')
+    security.declarePrivate( 'fCached_HTML')
     def fCached_HTML(self, theModelDDvlPloneTool, theContextualObject, theCacheEntryUniqueId, theAdditionalParams=None):
         if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
             return False
@@ -3385,6 +3395,12 @@ class ModelDDvlPloneTool_Cache:
         
         if not theFlushedElementsUIDs:
             return self
+        
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if aModelDDvlPloneTool_Retrieval == None:
+            return self
+
+        
         # ###########################################################
         """Try to flush cached content, from within a thread-safe protected critical section.
         
@@ -3423,7 +3439,6 @@ class ModelDDvlPloneTool_Cache:
         
         """
             
-        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
         
         for aFlushedElementUID in theFlushedElementsUIDs:
             
@@ -4313,7 +4328,7 @@ class ModelDDvlPloneTool_Cache:
         
         aRoleKindToIndex = cRoleKind_Anonymous
         
-        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theContextualObject, theTemplateName)
+        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theModelDDvlPloneTool, theContextualObject, theTemplateName)
         aRoleKindToIndex = aRoleKind
 
         if ( aRoleKind == cRoleKind_UserSpecific):
@@ -5213,7 +5228,17 @@ class ModelDDvlPloneTool_Cache:
             })                                    
             return aRenderResult
         
-        unMemberId = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)
+        
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if aModelDDvlPloneTool_Retrieval == None:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
+        
+        
+        unMemberId = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)
         
             
         if theVariables == None:
@@ -5281,8 +5306,15 @@ class ModelDDvlPloneTool_Cache:
             })                                    
             return aRenderResult
         
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if aModelDDvlPloneTool_Retrieval == None:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
                 
-        unMemberId = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)           
+        unMemberId = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)           
          
                     
             
@@ -5634,9 +5666,19 @@ class ModelDDvlPloneTool_Cache:
     
                 aEndMillis = fMillisecondsNow()
                 aMilliseconds = aEndMillis - aBeginMillis
-                unDurationString = '%d ms' % aMilliseconds
                 
-                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn[:]
+                if unExistingOrPromiseCacheEntry:
+                    if unExistingOrPromiseCacheEntry.vUniqueId:
+                        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+                            cMagicReplacementString_UniqueId, 
+                            str( unExistingOrPromiseCacheEntry.vUniqueId)
+                        )
+
+                        
+                unDurationString = '%d ms' % aMilliseconds
+                        
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
                     u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
                     u'%s</span>' % unDurationString
                 )
@@ -5965,7 +6007,7 @@ class ModelDDvlPloneTool_Cache:
 
         
         # ###########################################################
-        """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
+        """CRITICAL SECTION to register in the in-memory cache entry the HTML result of reading the cached file content. 
         
         """
         try:
@@ -6045,9 +6087,19 @@ class ModelDDvlPloneTool_Cache:
             u'<span>%s' % someTranslations[ 'ModelDDvlPlone_DiskCached'],
         )   
         
-        unDurationString = '%d ms' % unosMilliseconds
         
-        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn[:]
+        if unExistingOrPromiseCacheEntry:
+            if unExistingOrPromiseCacheEntry.vUniqueId:
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+                    cMagicReplacementString_UniqueId, 
+                    str( unExistingOrPromiseCacheEntry.vUniqueId)
+                )
+
+
+        unDurationString = '%d ms' % unosMilliseconds
+       
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
             u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
             u'%s</span>' % unDurationString
         )
@@ -6238,6 +6290,9 @@ class ModelDDvlPloneTool_Cache:
                 'cMagicReplacementString_Date':                    cMagicReplacementString_Date,
                 'cMagicReplacementString_CollapsibleSectionTitle': cMagicReplacementString_CollapsibleSectionTitle,
                 'cMagicReplacementString_UniqueId':                cMagicReplacementString_UniqueId,                    
+                'aCacheName':                    cCacheName_ElementIndependent,
+                'aCacheKind':                    cCacheName_ElementIndependent,
+                'aProjectName':                  aProjectName,
                 'aProjectName':                  aProjectName,
                 'aNegotiatedLanguage':           aNegotiatedLanguage,
                 'unCacheId':                     unCacheEntryUniqueId,
@@ -6261,6 +6316,7 @@ class ModelDDvlPloneTool_Cache:
                     <dd class="collapsibleContent">
                         <br/>
                         <form style="display: inline" action="%(unBaseURL)s%(unPagina)s" method="get" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheView"  value="%(aViewName)s" />
                             <input type="hidden" name="theNoCache"   value="on" />
                             <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
                             <input type="submit" value="%(ModelDDvlPlone_ShowNoFromCacheLink_label)s" 
@@ -6269,8 +6325,9 @@ class ModelDDvlPloneTool_Cache:
                                 style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
                         </form>
                         &emsp;
-                        <form style="display: inline"  action="%(unBaseURL)s/MDDFlushCachedTemplateByUniqueId/"
+                        <form style="display: inline"  action="%(unBaseURL)s%(unPagina)s/MDDFlushCachedTemplateByUniqueId/"
                             method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheView"  value="%(aViewName)s" />
                             <input type="hidden" name="theCacheEntryUniqueId"   value="%(cMagicReplacementString_UniqueId)s" />
                             <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
                             <input type="hidden" name="theCacheName" value="ElementIndependent" />
@@ -6280,8 +6337,9 @@ class ModelDDvlPloneTool_Cache:
                                 style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
                         </form>
                         &emsp;
-                        <form style="display: inline"  action="%(unBaseURL)s/MDDFlushCachedTemplateByUniqueId/"
+                        <form style="display: inline"  action="%(unBaseURL)s%(unPagina)s/MDDFlushCachedTemplateByUniqueId/"
                             method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheView"  value="%(aViewName)s" />
                             <input type="hidden" name="theCacheEntryUniqueId"   value="%(cMagicReplacementString_UniqueId)s" />
                             <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
                             <input type="hidden" name="theCacheName" value="ElementIndependent" />
@@ -6301,8 +6359,16 @@ class ModelDDvlPloneTool_Cache:
                             </thead>
                             <tbody>
                                 <tr class="odd">
+                                    <td align="left"><strong>CacheName</strong></td>
+                                    <td align="left">%(aCacheName)s</td>
+                                </tr>
+                                <tr class="even">
+                                    <td align="left"><strong>CacheKind</strong></td>
+                                    <td align="left">%(aCacheKind)s</td>
+                                </tr>
+                                <tr class="odd">
                                     <td align="left"><strong>Id</strong></td>
-                                    <td align="right">%(cMagicReplacementString_UniqueId)s</td>
+                                    <td align="left">%(cMagicReplacementString_UniqueId)s</td>
                                 </tr>
                                 <tr class="odd">
                                     <td align="left"><strong>%(ModelDDvlPlone_FilePath_label)s</strong></td>
@@ -6310,11 +6376,11 @@ class ModelDDvlPloneTool_Cache:
                                 </tr>
                                 <tr class="even">
                                     <td align="left"><strong>%(ModelDDvlPlone_Time_label)s</strong></td>
-                                    <td align="right">%(cMagicReplacementString_Milliseconds)s ms</td>
+                                    <td align="left">%(cMagicReplacementString_Milliseconds)s ms</td>
                                 </tr>
                                 <tr class="odd">
                                     <td align="left"><strong>%(ModelDDvlPlone_Len_label)s</strong></td>
-                                    <td align="right">%(cMagicReplacementString_Len)s chars</td>
+                                    <td align="left">%(cMagicReplacementString_Len)s chars</td>
                                 </tr>
                                 <tr class="even">
                                     <td align="left"><strong>%(ModelDDvlPlone_User_label)s</strong></td>
@@ -6344,7 +6410,6 @@ class ModelDDvlPloneTool_Cache:
                 <!-- ######### End collapsible  section ######### --> 
             """  % aCacheEntryValuesDict
             
-            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_UniqueId,     str( unCacheEntryUniqueId))
             unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Milliseconds, fStrGrp( unosMilliseconds))
             unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Len,          fStrGrp( len( unRenderedTemplate)))
             unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Date,         fMillisecondsToDateTime( aEndMillis).rfc822())
@@ -6439,9 +6504,17 @@ class ModelDDvlPloneTool_Cache:
             '<span>%s' % someTranslations[ 'ModelDDvlPlone_JustCached'],
         )   
         
-        unDurationString = '%d ms' % unosMilliseconds
 
-        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn[:]
+        if unExistingOrPromiseCacheEntry:
+            if unExistingOrPromiseCacheEntry.vUniqueId:
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+                    cMagicReplacementString_UniqueId, 
+                    str( unExistingOrPromiseCacheEntry.vUniqueId)
+                )
+
+        unDurationString = '%d ms' % unosMilliseconds
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
             u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
             u'%s</span>' % unDurationString
         )
@@ -6732,7 +6805,7 @@ class ModelDDvlPloneTool_Cache:
         
         aRoleKindToIndex = cRoleKind_Anonymous
         
-        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theContextualObject, theTemplateName)
+        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theModelDDvlPloneTool, theContextualObject, theTemplateName)
         aRoleKindToIndex = aRoleKind
 
         if ( aRoleKind == cRoleKind_UserSpecific):
@@ -7340,11 +7413,19 @@ class ModelDDvlPloneTool_Cache:
                     u'<span>%(ModelDDvlPlone_Cached)s' % someTranslations,
                 )   
     
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn[:]
+                if unExistingOrPromiseCacheEntry:
+                    if unExistingOrPromiseCacheEntry.vUniqueId:
+                        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+                            cMagicReplacementString_UniqueId, 
+                            str( unExistingOrPromiseCacheEntry.vUniqueId)
+                        )
+                
                 aEndMillis = fMillisecondsNow()
                 aMilliseconds = aEndMillis - aBeginMillis
                 unDurationString = '%d ms' % aMilliseconds
                 
-                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
                     u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
                     u'%s</span>' % unDurationString
                 )
@@ -7353,6 +7434,8 @@ class ModelDDvlPloneTool_Cache:
                    '%d' % aEndMillis
                 )
 
+                
+                
                 aRenderResult.update( {
                     'status':            cRenderStatus_Completed, 
                     'rendered_html':     unRenderedTemplateToReturnWithDuration,
@@ -7821,9 +7904,17 @@ class ModelDDvlPloneTool_Cache:
             u'<span>%s' % someTranslations[ 'ModelDDvlPlone_DiskCached'],
         )   
         
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn[:]
+        if unExistingOrPromiseCacheEntry:
+            if unExistingOrPromiseCacheEntry.vUniqueId:
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+                    cMagicReplacementString_UniqueId, 
+                    str( unExistingOrPromiseCacheEntry.vUniqueId)
+                )
+                
         unDurationString = '%d ms' % unosMilliseconds
         
-        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
             u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
             u'%s</span>' % unDurationString
         )
@@ -7975,16 +8066,25 @@ class ModelDDvlPloneTool_Cache:
             """Prepare internationalized strings, and info values.
                 
             """
+            unaPaginaDefault = ''
+            try:
+                unaPaginaDefault = theContextualObject.fPaginaDefault()
+            except:
+                None
+            if not unaPaginaDefault:
+                unaPaginaDefault = 'Textual'
+                
+            unViewNameWONoHeaderNoFooter = aViewName[:]
+            if aViewName.endswith( '_NoHeaderNoFooter'):
+                unViewNameWONoHeaderNoFooter = aViewName[: 0 - len( '_NoHeaderNoFooter')]
+                                                         
             unPagina = ''
-            if aViewName in [ 'Textual', 'Textual_NoHeaderNoFooter',]:
+            if unViewNameWONoHeaderNoFooter == unaPaginaDefault:
                 unPagina = '/'
-            elif aViewName in [ 'Tabular', 'Tabular_NoHeaderNoFooter',]:
-                unPagina = '/Tabular/'
-            elif aViewName.endswith( '_NoHeaderNoFooter'):
-                unPagina = '/%s/' % aViewName[: 0 - len( '_NoHeaderNoFooter')]
             else:
-                unPagina = '/%s/' % aViewName
-
+                unPagina = '/%s/' % unViewNameWONoHeaderNoFooter
+            
+                
             
         
         
@@ -8026,7 +8126,9 @@ class ModelDDvlPloneTool_Cache:
                 'cMagicReplacementString_Len':                     cMagicReplacementString_Len,
                 'cMagicReplacementString_Date':                    cMagicReplacementString_Date,
                 'cMagicReplacementString_CollapsibleSectionTitle': cMagicReplacementString_CollapsibleSectionTitle,
-                'cMagicReplacementString_UniqueId':                cMagicReplacementString_UniqueId,                    
+                'cMagicReplacementString_UniqueId':                cMagicReplacementString_UniqueId,   
+                'aCacheName':                    aCacheName,
+                'aCacheKind':                    aCacheKind,
                 'aProjectName':                  aProjectName,
                 'aNegotiatedLanguage':           aNegotiatedLanguage,
                 'unTitle':                       theModelDDvlPloneTool.fAsUnicode( theContextualObject, theContextualObject.Title()),
@@ -8059,6 +8161,7 @@ class ModelDDvlPloneTool_Cache:
                     <dd class="collapsibleContent">
                         <br/>
                         <form style="display: inline" action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheView"  value="%(aViewName)s" />
                             <input type="hidden" name="theNoCache"   value="on" />
                             <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
                             <input type="submit" value="%(ModelDDvlPlone_ShowNoFromCacheLink_label)s" 
@@ -8068,6 +8171,7 @@ class ModelDDvlPloneTool_Cache:
                         </form>
                         &emsp;
                         <form style="display: inline"  action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheView"  value="%(aViewName)s" />
                             <input type="hidden" name="theNoCache"   value="on" />
                             <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
                             <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
@@ -8078,6 +8182,7 @@ class ModelDDvlPloneTool_Cache:
                         </form>
                         &emsp;
                         <form  style="display: inline"  action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheView"  value="%(aViewName)s" />
                             <input type="hidden" name="theNoCache"   value="on" />
                             <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
                             <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
@@ -8096,7 +8201,15 @@ class ModelDDvlPloneTool_Cache:
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr class="even">
+                                    <td align="left"><strong>CacheName</strong></td>
+                                    <td align="left">%(aCacheName)s</td>
+                                </tr>
                                 <tr class="odd">
+                                    <td align="left"><strong>CacheKind</strong></td>
+                                    <td align="left">%(aCacheKind)s</td>
+                                </tr>
+                                <tr class="even">
                                     <td align="left"><strong>Id</strong></td>
                                     <td align="left">%(cMagicReplacementString_UniqueId)s</td>
                                 </tr>
@@ -8211,7 +8324,6 @@ class ModelDDvlPloneTool_Cache:
             
                         
             
-            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_UniqueId,     str( unCacheEntryUniqueId))
             unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Milliseconds, fStrGrp( unosMilliseconds))
             unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Len,          fStrGrp( len( unRenderedTemplate)))
             unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Date,         fMillisecondsToDateTime( aEndMillis).rfc822())
@@ -8307,9 +8419,18 @@ class ModelDDvlPloneTool_Cache:
             '<span>%s' % someTranslations[ 'ModelDDvlPlone_JustCached'],
         )   
         
+        
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn[:]
+        if unExistingOrPromiseCacheEntry:
+            if unExistingOrPromiseCacheEntry.vUniqueId:
+                unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+                    cMagicReplacementString_UniqueId, 
+                    str( unExistingOrPromiseCacheEntry.vUniqueId)
+                )
+        
         unDurationString = '%d ms' % unosMilliseconds
         
-        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
             u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
             u'%s</span>' % unDurationString
         )
@@ -8686,15 +8807,23 @@ class ModelDDvlPloneTool_Cache:
 
          
     security.declarePrivate( 'fGetMemberRoleKindAndUserId')
-    def fGetMemberRoleKindAndUserId(self , theContextualObject, theTemplateName):
+    def fGetMemberRoleKindAndUserId(self , theModelDDvlPloneTool, theContextualObject, theTemplateName):
     
+        if theModelDDvlPloneTool == None:
+            return None
+        
         aMembershipTool = getToolByName( theContextualObject, 'portal_membership', None)
-        if not aMembershipTool:
+        if aMembershipTool == None:
             return None
         
         unMember = aMembershipTool.getAuthenticatedMember()   
         if not unMember:
             return None
+        
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if aModelDDvlPloneTool_Retrieval == None:
+            return None
+        
         
         unMemberUserName = unMember.getUserName()
         if unMemberUserName == 'Anonymous User':
@@ -8703,19 +8832,9 @@ class ModelDDvlPloneTool_Cache:
         unMemberId = unMember.getMemberId()
         
         unElementoGetRoles = theContextualObject
-        # ###############
-        """ACV 20091217 Roles from the contextual element, hopefully the element for which the view is requested
+
         
-        """
-        #unElementoRaiz = None
-        #try:
-            #unElementoRaiz = theContextualObject.getRaiz()
-        #except:
-            #None
-        #if not ( unElementoRaiz == None):
-            #unElementoGetRoles = unElementoRaiz
-        
-        aUserRolesSet = set( ModelDDvlPloneTool_Retrieval().fGetRequestingUserRoles( unElementoGetRoles))
+        aUserRolesSet = set( aModelDDvlPloneTool_Retrieval.fGetRequestingUserRoles( unElementoGetRoles))
         if not aUserRolesSet:
             return [ cRoleKind_Anonymous, unMemberId, cZopeRole_Anonymous]
         
@@ -8873,7 +8992,7 @@ class ModelDDvlPloneTool_Cache:
     
     
        
-    security.declareProtected( permissions.ManagePortal, 'fCachesDiagnostics')
+    security.declarePrivate('fCachesDiagnostics')
     def fCachesDiagnostics(self, theModelDDvlPloneTool, theContextualObject, theCacheNames=None, theAdditionalParams=None):
     
         try:
@@ -8903,7 +9022,7 @@ class ModelDDvlPloneTool_Cache:
     
                 
        
-    security.declareProtected( permissions.ManagePortal, 'fCachesDiagnostics_WithinCriticalSection')
+    security.declarePrivate( 'fCachesDiagnostics_WithinCriticalSection')
     def fCachesDiagnostics_WithinCriticalSection(self, theModelDDvlPloneTool, theContextualObject, theCacheNames=None, theAdditionalParams=None):
     
         
@@ -9561,21 +9680,22 @@ class ModelDDvlPloneTool_Cache:
             
             allEntriesWithProblems_AllCaches.update( someEntriesWithProblems)                                    
             
+            
+        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
+        if not( aModelDDvlPloneTool_Retrieval == None):
                  
-        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            # ########################
+            """Retrieve elements name and type info from the UID catalog and check elements have been found for all entries UIDs
             
-        # ########################
-        """Retrieve elements name and type info from the UID catalog and check elements have been found for all entries UIDs
-        
-        """
-        someElementsNamesByUID = {}
-        if someUIDsElementsToRetrieve:
-            someElementsNamesByUID =  aModelDDvlPloneTool_Retrieval.fElementsNamesByUID( someUIDsElementsToRetrieve, theContextualObject)
-            
-            for anUID in someUIDsElementsToRetrieve:
-                anElementNames = someElementsNamesByUID.get( anUID, None)
-                if not anElementNames:
-                    allDiagnostics[ 'structures_UIDs_withoutElement'].add( anUID)
+            """
+            someElementsNamesByUID = {}
+            if someUIDsElementsToRetrieve:
+                someElementsNamesByUID =  aModelDDvlPloneTool_Retrieval.fElementsNamesByUID( someUIDsElementsToRetrieve, theContextualObject)
+                
+                for anUID in someUIDsElementsToRetrieve:
+                    anElementNames = someElementsNamesByUID.get( anUID, None)
+                    if not anElementNames:
+                        allDiagnostics[ 'structures_UIDs_withoutElement'].add( anUID)
                     
                
                     

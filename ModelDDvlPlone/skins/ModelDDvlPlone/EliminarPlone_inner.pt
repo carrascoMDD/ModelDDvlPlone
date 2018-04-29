@@ -1,5 +1,5 @@
 <tal:block replace="nothing">
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -37,13 +37,13 @@
                                 global pPagina                  string:Tabular;
                                 global pPaginaAnteriorPosterior string:Tabular;
                                 global pShowTrees               pFalse;
-                                global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                                global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                                 global pNeedToRedirect      pTrue" />
  
         <tal:block tal:define="pUIDToDelete  python: request.get( 'theUIDToDelete', '')" 
             tal:condition="pUIDToDelete">
             <tal:block tal:define="
-                pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalStartTime     python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults       python: ( pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: { 
                     'theTimeProfilingResults'     :pProfilingResults,
@@ -56,8 +56,8 @@
                     'theTranslationsCaches'       :None,
                     'theCheckedPermissionsCache'  :None,
                     'theAdditionalParams'         :None};                                            
-                PLONERES  python:       here.ModelDDvlPlone_tool.fRetrievePloneContent( **unosArgs);
-                pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow()"
+                PLONERES  python:       here.MDDModelDDvlPlone_tool.fRetrievePloneContent( **unosArgs);
+                pRetrievalEndTime       python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()"
                 tal:condition="PLONERES/traversals" >
                  <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
              
@@ -80,7 +80,7 @@
 
                             <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
 
-                            <br>
+                            <br/>
                             <h2 tal:condition="not: pEliminacionPermitida"> 
                                 <a  href="#" tal:attributes="href python: '%sTabular/' % PLONERES[ 'url']" class="state-visible" title="">
                                     <font color="Red">                    
@@ -155,22 +155,22 @@
         <tal:block  tal:replace="nothing">
                                 <p>
                                     <font size="2">
-                                        <strong tal:define="pDateTimeNow python: here.ModelDDvlPlone_tool.fDateTimeNow( );
-                                            pSecondsToReviewAndDelete python: here.ModelDDvlPlone_tool.fSecondsToReviewAndDelete( here);
-                                            pLatestDateToDelete python: here.ModelDDvlPlone_tool.fDateTimeAfterSeconds( pDateTimeNow, pSecondsToReviewAndDelete)">
+                                        <strong tal:define="pDateTimeNow python: here.MDDModelDDvlPlone_tool.fDateTimeNow( );
+                                            pSecondsToReviewAndDelete python: here.MDDModelDDvlPlone_tool.fSecondsToReviewAndDelete( here);
+                                            pLatestDateToDelete python: here.MDDModelDDvlPlone_tool.fDateTimeAfterSeconds( pDateTimeNow, pSecondsToReviewAndDelete)">
                                             <span tal:content="python: '%s %d %s ' % (
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
                                                 pSecondsToReviewAndDelete,
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
                                             )" />
                                             <br/>
                                             <span tal:content="python: '%s %s' % (
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
                                                 pLatestDateToDelete.rfc822(),
                                             )" />
                                             <br/>
                                             <span tal:content="python: '%s %s' % (
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
                                                 pDateTimeNow.rfc822(),
                                             )" />
                                         </strong>

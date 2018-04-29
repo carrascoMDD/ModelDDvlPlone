@@ -3,7 +3,7 @@
 #
 # File: RelationCursor_EditableBody_i18n_view.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -46,7 +46,7 @@ tal:define="
                                 global pRelationCursorName      request/theRelationCursorName  | python: None;  
                                 global pCurrentElementUID       request/theCurrentElementUID  | python: None;                                                                                              
                                 global pShowTrees       pFalse;
-                                global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" /><tal:block 
+                                global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" /><tal:block 
 tal:condition="not: pRelationCursorName" ><tal:block 
     tal:define="dummy python:request.response.redirect( '%s/Tabular/' % here.absolute_url())" /></tal:block><tal:block 
 tal:condition="pRelationCursorName" ><tal:block 
@@ -72,7 +72,7 @@ tal:condition="pRelationCursorName" ><tal:block
     tal:define="global pTreesFeatureFilter python: [ ]" /></tal:block>  
 <tal:block 
 tal:define="
-    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+    pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
     pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
     unosArgs python: {
         'theTimeProfilingResults'     :pProfilingResults,
@@ -89,8 +89,8 @@ tal:define="
         'theTranslationsCaches'       :None,
         'theCheckedPermissionsCache'  :None,
         'theAdditionalParams'         :None};
-    SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs); 
-    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+    SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs); 
+    pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
     pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
     pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
     pShowOrHideTrees pFalse; 
@@ -106,7 +106,7 @@ tal:define="
                 tal:condition="python: not( pCurrentElement and pCurrentElement[ 'object'])">no pCurrentElement</tal:block><tal:block 
                 tal:condition="python: pCurrentElement and pCurrentElement[ 'object']"><tal:block
                     tal:define="
-                        pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                        pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                         pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                         unosArgs python: { 
                             'theTimeProfilingResults'     :pProfilingResults,
@@ -123,8 +123,8 @@ tal:define="
                             'theTranslationsCaches'       :None,
                             'theCheckedPermissionsCache'  :None,
                             'theAdditionalParams'         :None};            
-                        RELRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                        pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                        RELRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                        pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                         pPermiteEditar pFalse; 
                         pPermiteEliminar pFalse; 
                         pShowOrHideTrees pTrue; 
@@ -266,7 +266,7 @@ tal:define="
         
     
         
-        <tal:block tal:content="python: '\n\n**%s**\n\n' % here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_TableOfContents_Title', 'Contents-')" />
+        <tal:block tal:content="python: '\n\n**%s**\n\n' % here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_TableOfContents_Title', 'Contents-')" />
         
         
         
@@ -335,7 +335,7 @@ tal:define="
 
 <tal:block tal:condition="not: pMDDTopTgDefined">
 <tal:block
-    tal:replace="structure python: '\n\n.. |MDDTopTg| replace:: %s\n\n.. _MDDTopTg:\n\n' % here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_GoToTOC', 'toc-')" />
+    tal:replace="structure python: '\n\n.. |MDDTopTg| replace:: %s\n\n.. _MDDTopTg:\n\n' % here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_GoToTOC', 'toc-')" />
     <tal:block tal:define="global pMDDTopTgDefined python: True" />
 </tal:block>
 
@@ -355,7 +355,7 @@ tal:define="
                 
 <tal:block tal:condition="not: pMDDTopTgDefined">
 <tal:block tal:define="global pMDDTopTgDefined python: True"
-    tal:replace="structure python: '\n\n.. |MDDTopTg| replace:: %s\n\n.. _MDDTopTg:\n\n' % here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_GoToTOC', 'toc-')" />
+    tal:replace="structure python: '\n\n.. |MDDTopTg| replace:: %s\n\n.. _MDDTopTg:\n\n' % here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_GoToTOC', 'toc-')" />
 </tal:block>
                 
                 

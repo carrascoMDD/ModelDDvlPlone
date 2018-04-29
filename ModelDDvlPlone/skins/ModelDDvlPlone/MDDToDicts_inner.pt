@@ -1,0 +1,457 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDToDicts_inner.pt
+#
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tToDictsInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        
+        <tal:block tal:define=" pTrue                    python: True;
+                                pFalse                   python: False;
+                                pPagina                  string:Tabular;
+                                pPaginaAnteriorPosterior string:Tabular;
+                                pShowTrees               pFalse;
+                                global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
+ 
+			<tal:block tal:define="
+				pPermiteAbandonarEliminar   pTrue;
+				pShowOrHideTrees            pFalse; 
+				pMostrarAnteriorPosterior   pFalse">
+				<metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+			</tal:block>
+               
+			
+			
+		
+			<tal:block tal:define="
+				global pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+				pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+				unosArgs python: {
+					'theTimeProfilingResults' :pProfilingResults,
+					'theElement'              :here, 
+					'theAdditionalParams'     :{ },
+				 }; 
+				pToDictReport      python: here.MDDModelDDvlPlone_tool.fToDicts( **unosArgs);
+				pToDictSuccess     python: pToDictReport and pToDictReport.get( 'success', False);
+				pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+				pDictsRoot         python: pToDictReport.get( 'dicts_root', None);		
+				pDownloadRequested python: request.get( 'theDownloadSource', '');
+				pDisplaySourceRequested python: request.get( 'theDisplaySource', '');
+				pDownloadSource    python: pDownloadRequested and pToDictSuccess and pDictsRoot;
+				global  pIsDownloaded      python: False" >
+					   					   
+
+				<tal:block tal:condition="python: pDownloadSource" >	   
+					<tal:block tal:define="
+						otrosArgs python: {
+							'theTimeProfilingResults' :pProfilingResults,
+							'theContextualElement'    :here,
+							'theObject'               :pDictsRoot, 
+							'theTitle'                :'%s.py' % here.Title(),
+							'theAdditionalParams'     :{ },
+						}; 
+						global pIsDownloaded python: here.MDDModelDDvlPlone_tool.fDownloadObjectPythonRepresentation( **otrosArgs)" />
+				</tal:block>
+
+
+				
+				<tal:block tal:condition="python: ( not pDownloadSource) or ( not pIsDownloaded)" >	   
+				
+					<tal:block tal:condition="python: pDownloadSource and  ( not pIsDownloaded)" >
+						<font color="red" size="3"><strong><p tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_Downloading_ToDict_Result_as_Python_Source_code', 'Downloading ToDict Result as Python Source code-')" /></strong></font>
+						<br/>
+						<br/>
+					</tal:block>
+						
+				
+					<tal:block tal:condition="not: pToDictSuccess" >
+						<font color="red" size="3"><strong><p tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_during_ToDict', 'Error during ToDict-')" /></strong></font>
+						<font color="red" size="2"><strong><p tal:content="python: pToDictReport.get( 'status', '')" /></strong></font>
+						<p tal:content="python: 'Condition: %s' % pToDictReport.get( 'condition', '')" />
+						<br/>
+						<br/>
+					</tal:block>
+						
+					<tal:block tal:condition="pToDictSuccess" >
+						<font color="red" size="3"><strong>
+							<p tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ToDict_Success', 'ToDict Success-')" />
+							<a href="#" tal:attributes="href python: '%s/MDDToDicts?theDownloadSource=true' % here.absolute_url()" >
+								Download Result Dict as Python source code
+							</a>
+							<br/>
+							<br/>
+							<a href="#" tal:attributes="href python: '%s/MDDToDicts?theDisplaySource=true' % here.absolute_url()" >
+								Display Result Dict as Python source code
+							</a>
+
+							</strong></font>
+						<br/>
+						<br/>
+					</tal:block>
+						
+					<tal:block tal:condition="not: pToDictReport" >
+						<font color="red" size="3"><strong><p tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_No_ToDict_Report', 'No ToDict Report-')" /></strong></font>
+					</tal:block>
+			   
+					<br/>
+					<br/>
+	
+					<tal:block tal:condition="pToDictReport" >
+						<table class="listing" >
+							<thead>
+								<tr>
+									<th class="nosort" />
+									<th class="nosort" />
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										<strong tal:content="string:success" />
+									</td>
+									<td>
+										<span tal:content="python: pToDictReport.get( 'success', False)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:status" />
+									</td>
+									<td>
+										<span tal:content="python: pToDictReport.get( 'status', '')" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:condition" />
+									</td>
+									<td>
+										<span tal:content="python: pToDictReport.get( 'condition', '')" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:root_meta_type" />
+									</td>
+									<td>
+										<span tal:content="python: pToDictReport.get( 'root_meta_type', '')" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:root_id" />
+									</td>
+									<td>
+										<span tal:content="python: pToDictReport.get( 'root_id', '')" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:root_title" />
+									</td>
+									<td>
+										<span tal:content="python: pToDictReport.get( 'root_title', '')" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:root_UID" />
+									</td>
+									<td>
+										<span tal:content="python: pToDictReport.get( 'root_UID', '')" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:root_physhical_path" />
+									</td>
+									<td>
+										<span tal:content="python:  pToDictReport.get( 'root_physhical_path', '').replace( '/', '/ ')" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						
+						<br/>
+						<br/>
+						
+						
+						<table class="listing" >
+							<thead>
+								<tr>
+									<th class="nosort" />
+									<th class="nosort" />
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										<strong tal:content="string:num_elements" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_elements', 0)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:num_attributes" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_attributes', 0)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:num_aggregations" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_aggregations', 0)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:num_relations" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_relations', 0)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:num_references" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_references', 0)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:num_elementrefs" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_elementrefs', 0)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:num_images" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_images', 0)" />
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<strong tal:content="string:num_files" />
+									</td>
+									<td>
+										<span tal:content="python: '%d' % pToDictReport.get( 'num_files', 0)" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+	
+						<br/>
+						<br/>
+											
+						
+						
+						<tal:block tal:define="pException python: pToDictReport.get( 'exception', [])"
+							tal:condition="pException" >
+							
+							<h2>
+								Exception
+							</h2>
+							<textarea readonly style="font-size: 8pt"  cols="80"  rows="#"
+								tal:define="pLines python: pException.splitlines()" 
+								tal:attributes="rows python: max( 2, min( len( pLines), 10))">
+<tal:block tal:repeat="pLine pLines" tal:content="pLine"/>
+</textarea>							
+							<br/>
+							<br/>
+								
+						</tal:block>
+						
+						
+						<tal:block tal:define="pErrorReports python: pToDictReport.get( 'todict_errors', [])"
+							tal:condition="pErrorReports" >
+							<br/>
+							<br/>
+							<h2>
+								Error reports
+							</h2>
+							<br/>
+							<tal:block tal:repeat="pErrorReport pErrorReports" >
+								
+								<tal:block tal:define="
+									pStackDepth python: pErrorReport.get( 'stack_depth', 0)" >
+								
+									<table cellspacing="0" cellpadding="0" frame="void" >
+										<tr>
+											<td>
+												<span tal:repeat="pIndentIndex python: range( pStackDepth)">&emsp;</span>
+											<td>
+									
+												<table class="listing" >
+													<thead>
+														<tr>
+															<th class="nosort" />
+															<th class="nosort" />
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td>
+																<strong tal:content="string:stack_depth" />
+															</td>
+															<td>
+																<span tal:content="python: '%d' % pStackDepth" />
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<strong tal:content="string:status" />
+															</td>
+															<td>
+																<span tal:content="python: pErrorReport.get( 'status', '')" />
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<strong tal:content="string:method" />
+															</td>
+															<td>
+																<span tal:content="python: pErrorReport.get( 'method', '')" />
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<strong tal:content="string:details" />
+															</td>
+															<td>
+																<span tal:content="python: pErrorReport.get( 'details', '')" />
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<strong tal:content="string:meta_type" />
+															</td>
+															<td>
+																<span tal:content="python: pErrorReport.get( 'meta_type', '')" />
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<strong tal:content="string:unAttrName" />
+															</td>
+															<td>
+																<span tal:content="python: pErrorReport.get( 'unAttrName', '')" />
+															</td>
+														</tr>
+														<tr tal:define="pAccessor python: pErrorReport.get( 'accessor', None)">
+															<td>
+																<strong tal:content="string:accessor" />
+															</td>
+															<td>
+																<span tal:condition="pAccessor" tal:content="python: str( pAccessor)" />
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<strong tal:content="string:path" />
+															</td>
+															<td>
+																<span tal:content="python: pErrorReport.get( 'path', '')" />
+															</td>
+														</tr>
+													</tbody>
+												</table>
+												
+												<tal:block  tal:define="pException python: pErrorReport.get( 'exception', '')" 
+													tal:condition="pException" >
+													<br/>
+													<br/>
+													<h3>
+														Error Exception
+													</h3>
+													<textarea readonly style="font-size: 8pt"  cols="80"  rows="#"
+														tal:define="pLines python: pException.splitlines()" 
+														tal:attributes="rows python: max( 2, min( len( pLines), 10))">
+<tal:block tal:repeat="pLine pLines" tal:content="pLine"/>
+</textarea>							
+													<br/>
+													<br/>
+												</tal:block>
+											
+											</td>
+										</tr>
+									</table>
+								</tal:block>
+								
+							</tal:block>
+							
+							<br/>
+							<br/>
+						</tal:block>					
+						
+						<tal:block tal:condition="pDisplaySourceRequested" >
+							<br/>
+							<br/>
+							<h2>
+								Dicts dump
+							</h2>
+							<p tal:content="python: str( pDictsRoot)" />
+						
+						</tal:block>
+						
+					</tal:block>
+					
+				</tal:block>
+			</tal:block>
+					
+			<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+
+		</tal:block>
+		
+      
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</body>
+</html>
+    

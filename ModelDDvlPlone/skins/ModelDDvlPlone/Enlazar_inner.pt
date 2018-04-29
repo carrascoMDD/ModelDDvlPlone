@@ -1,5 +1,5 @@
 <tal:block replace="nothing">
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -43,7 +43,7 @@
                                  pConfirmedUnlink         request/theConfirmedUnlink | python: None;
                                  pSecondsRequest          python: int( request.get( 'theSN', 0));
                                  pShowTrees               pFalse;
-                                 global pStartTime  pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                                 global pStartTime  pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
 
 
             <tal:block tal:condition="python: not pReferenceFieldName" >
@@ -73,7 +73,7 @@
                             'theReferenceFieldName'   :pReferenceFieldName, 
                             'theTargetUID'            :pLinkUID,
                             'theAdditionalParams'     :None, };
-                        aLinkResult python: here.ModelDDvlPlone_tool.fLinkToUIDReferenceFieldNamed( **unosArgs);   
+                        aLinkResult python: here.MDDModelDDvlPlone_tool.fLinkToUIDReferenceFieldNamed( **unosArgs);   
                         someLinkReports python: aLinkResult.get( 'link_reports', [])"
                         tal:condition="someLinkReports" >
                         <tal:block tal:define="pLinkReport python: someLinkReports[ 0]"
@@ -112,8 +112,8 @@
                                 'theTranslationsCaches'       :None,
                                 'theCheckedPermissionsCache'  :None,
                                 'theAdditionalParams'         :None, };                    
-                            SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                            pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                            SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                            pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                             TRAVRES python: SRES[ 'traversals_by_name'].get( pReferenceFieldName, None);
                             
                             pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
@@ -131,10 +131,10 @@
                                 'theTranslationsCaches'       :None,
                                 'theCheckedPermissionsCache'  :None,
                                 'theAdditionalParams'         :None, };    
-                            RELRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfigByUID( **unosArgs);
-                            pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                            RELRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfigByUID( **unosArgs);
+                            pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                             pPermiteDesenlazar  python: RELRES[ 'read_permission'] and RELRES[ 'write_permission']; 
-                            pMillisecondsNow python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                            pMillisecondsNow python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
                             
                             <tal:block tal:condition="python: RELRES">
                     
@@ -174,23 +174,23 @@
                                         </a>
                                     </tal:block>
                                 </h3>
-                                <p tal:define="pSecondstoReview python: here.ModelDDvlPlone_tool.fSecondsToReviewAndUnlink( here);
-                                    pDateTimeNow python: here.ModelDDvlPlone_tool.fMillisecondsToDateTime( pMillisecondsNow)">
+                                <p tal:define="pSecondstoReview python: here.MDDModelDDvlPlone_tool.fSecondsToReviewAndUnlink( here);
+                                    pDateTimeNow python: here.MDDModelDDvlPlone_tool.fMillisecondsToDateTime( pMillisecondsNow)">
                                     <font size="2">
                                         <strong>
                                             <span tal:content="python: '%s %d %s ' % (
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next-'),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next-'),
                                                 pSecondstoReview,
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
                                             )" />
                                             <br/>
                                             <span tal:content="python: '%s %s' % (
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
-                                                here.ModelDDvlPlone_tool.fDateTimeAfterSeconds(  pDateTimeNow, pSecondstoReview),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
+                                                here.MDDModelDDvlPlone_tool.fDateTimeAfterSeconds(  pDateTimeNow, pSecondstoReview),
                                             )" />
                                             <br/>
                                             <span tal:content="python: '%s %s' % (
-                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
+                                                here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
                                                 pDateTimeNow.rfc822(),
                                             )" />
                                         </strong>
@@ -212,7 +212,7 @@
                                 'theReferenceFieldName'   :pReferenceFieldName, 
                                 'theTargetUID'            :pUnlinkUID,
                                 'theAdditionalParams'     :None, };
-                            aUnlinkResult python: here.ModelDDvlPlone_tool.fUnlinkFromUIDReferenceFieldNamed( **unosArgs);
+                            aUnlinkResult python: here.MDDModelDDvlPlone_tool.fUnlinkFromUIDReferenceFieldNamed( **unosArgs);
                             someUnlinkReports python: aUnlinkResult.get( 'link_reports', [])"
                             tal:condition="someUnlinkReports" >
                             <tal:block tal:define="pUnlinkReport python: someUnlinkReports[ 0]"
@@ -229,7 +229,7 @@
         
          
                 <tal:block tal:define="
-                    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                     pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                     unosArgs python: { 
                         'theTimeProfilingResults'     :pProfilingResults,
@@ -246,8 +246,8 @@
                         'theTranslationsCaches'       :None,
                         'theCheckedPermissionsCache'  :None,
                         'theAdditionalParams'         :None, };                    
-                    SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                    pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                    pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                     TRAVRES python: SRES[ 'traversals_by_name'].get( pReferenceFieldName, None)"
                     tal:condition="python: TRAVRES and ( TRAVRES[ 'traversal_kind'] == 'relation')" >
         
@@ -264,7 +264,7 @@
         
                         <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
                        
-                        <br>
+                        <br/>
                         <h2 tal:condition="not: pPermiteEnlazar"> 
                             <a  href="#" tal:attributes="href python: '%sTabular/' % SRES[ 'url']" class="state-visible" title="">
                                 <font color="Red">                    
@@ -342,7 +342,7 @@
                             <tal:block tal:define="CANDIDATES TRAVRES/candidates" >
      
     <tal:block tal:replace="nothing">  
-    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( here [ CANDIDATES, ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+    <tal:block tal:replace="structure python: here.MDDModelDDvlPlone_tool.fPrettyPrintHTML( here [ CANDIDATES, ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.MDDModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
     </tal:block>
                           
                                 <tal:block tal:condition="not: CANDIDATES">

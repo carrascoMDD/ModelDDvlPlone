@@ -3,7 +3,7 @@
 #
 
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -38,7 +38,7 @@
             
         <tal:block tal:define="
             pVerifyOrInitResult pVerificationResult | nothing;
-            pVerifyOrInitAction string:Verify">
+            pVerifyOrInitAction pVerifyOrInitAction | string:Verify" >
             <metal:block metal:use-macro="here/MDDVerificationReport_i18n_view/macros/tMDDVerificationOrInitializationReport_i18n" />   
         </tal:block>
             
@@ -51,7 +51,7 @@
             
         <tal:block tal:define="
             pVerifyOrInitResult pInicializationResult | nothing;
-            pVerifyOrInitAction string:Initialize">
+            pVerifyOrInitAction pVerifyOrInitAction | string:Initialize" > 
             <metal:block metal:use-macro="here/MDDVerificationReport_i18n_view/macros/tMDDVerificationOrInitializationReport_i18n" />   
         </tal:block>
             
@@ -65,30 +65,36 @@
                              
     <div metal:define-macro="tMDDVerificationOrInitializationReport_i18n" >
         
-        <tal:block tal:define="
-            pVerifyOrInitResult      pVerifyOrInitResult | nothing;
-            pVerifyOrInitAction      pVerifyOrInitAction | string:Verify;
-            pVerifyOrInitActionTitle python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_VerifyOrInitializeActionTitle_%s' % pVerifyOrInitAction,   pVerifyOrInitAction,)" >
+        <tal:block 
+            i18n:domain="ModelDDvlPlone"
+            tal:define="
+                pVerifyOrInitResult      pVerifyOrInitResult | nothing;
+                pOverallSuccess          python: pVerifyOrInitResult and pVerifyOrInitResult.get( 'success', False);
+                pVerifyOrInitAction      pVerifyOrInitAction | string:Verify or Initialize-;
+                pVerifyOrInitName        pVerifyOrInitName   | string:Unknown component Name" >
        
             <h2>
-                <span tal:condition="not: pVerifyOrInitResult" >
+                <span i18n:translate="" tal:content="pVerifyOrInitAction"/>
+                &ensp;
+                <span tal:content="pVerifyOrInitName" />
+
+                <tal:block tal:condition="not: pVerifyOrInitResult" >
                     <font  color="red">
-                        <strong  tal:content="python: '%s %s' % ( pVerifyOrInitActionTitle, here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Error_NoResult_msgid',   'No result obtained -' ))" />
+                        <span i18n:translate="" tal:content="pVerifyOrInitAction"/>
+                        &ensp;
+                        <span tal:content="pVerifyOrInitName" />
+                        &ensp;
+                        <strong i18n:translate="ModelDDvlPlone_Error_NoResult_msgid" >No result obtained-</strong>
                     </font>
-                </span>
+                </tal:block>
+                
                 <tal:block tal:condition="pVerifyOrInitResult" >
-                    <span tal:define="
-                        pOverallSuccess python: pVerifyOrInitResult.get( 'success', False);
-                        pVerifyOrInitActionTitle python: '%s %s' % ( pVerifyOrInitActionTitle, pVerifyOrInitResult.get( 'title', ''),)">
-                        <span tal:content="pVerifyOrInitActionTitle" />
-                        :
-                        <font tal:condition="pOverallSuccess"  color="green">
-                           <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Success_msgid',   'Success-' )" />
-                        </font>
-                        <font tal:condition="not: pOverallSuccess" color="red">
-                           <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_msgid',   'Failure-' )" />
-                        </font>
-                    </span>
+                    <font tal:condition="pOverallSuccess"  color="green">
+                       <strong i18n:translate="ModelDDvlPlone_Success_msgid">Success-</strong>
+                    </font>
+                    <font tal:condition="not: pOverallSuccess" color="red">
+                       <strong i18n:translate="ModelDDvlPlone_Failure_msgid">Failure-</strong>
+                    </font>
                 </tal:block>    
             </h2>
             
@@ -96,36 +102,36 @@
 
             <tal:block tal:condition="pVerifyOrInitResult" >
             
-                <tal:block tal:define="pOverallSuccess python: pVerifyOrInitResult.get( 'success', False)">
-
-
-                    <p tal:define="pCondition python: pVerifyOrInitResult.get( 'condition', '')" tal:condition="pCondition">
-                        <strong tal:content="python: here.fTranslateI18N( 'gvSIGi18n', 'gvSIGi18n_VerifyOrInitialize_Status_Label',   'Condition-' )" />
-                        &ensp;
-                        <font color="red" tal:content="python: pCondition" />
+                <p tal:define="pCondition python: pVerifyOrInitResult.get( 'condition', '')" tal:condition="pCondition">
+                    <strong i18n:translate="gvSIGi18n_VerifyOrInitialize_Status_Label" >Condition-</strong>
+                    &ensp;
+                    <font color="red" tal:content="python: pCondition" />
+                </p>
+                
+                <tal:block tal:define="pException python: pVerifyOrInitResult.get( 'exception', '')" tal:condition="pException">
+                    <p>
+                        <strong i18n:translate="gvSIGi18n_VerifyOrInitialize_Exception_Label" >Exception-</strong>
                     </p>
-                    <tal:block tal:define="pException python: pVerifyOrInitResult.get( 'exception', '')" tal:condition="pException">
-                        <p>
-                            <strong tal:content="python: here.fTranslateI18N( 'gvSIGi18n', 'gvSIGi18n_VerifyOrInitialize_Exception_Label',   'Exception-' )" />
-                        </p>
-                        <textarea style="font-size: 8pt"  cols="80"  rows="#"
-                            tal:define="pExceptionLines python: pException.splitlines()" 
-                            tal:attributes="rows python: max( 2, min( len( pExceptionLines), 20))">
+                    <textarea readonly style="font-size: 8pt"  cols="80"  rows="#"
+                        tal:define="pExceptionLines python: pException.splitlines()" 
+                        tal:attributes="rows python: max( 2, min( len( pExceptionLines), 20))">
 <tal:block tal:repeat="pExceptionLine pExceptionLines" tal:content="pExceptionLine"/>
 </textarea>
- 
-                    </tal:block>
                 </tal:block>
-                
-                <tal:block tal:define="pVerifyOrInitResult_ToolSingletons python: pVerifyOrInitResult.get( 'tool_singletons', None)">
-                    <metal:block metal:use-macro="here/MDDVerificationReport_i18n_view/macros/tMDDVerificationOrInitializationReport_ToolSingletons_i18n" />   
-                </tal:block>
-                        
-                <tal:block tal:define="pVerifyOrInitResult_ExternalMethods python: pVerifyOrInitResult.get( 'external_methods', None)">
-                    <metal:block metal:use-macro="here/MDDVerificationReport_i18n_view/macros/tMDDVerificationOrInitializationReport_ExternalMethods_i18n" />   
-                </tal:block>
-                
             </tal:block>
+            
+            
+            
+            <tal:block tal:define="pVerifyOrInitResult_ToolSingletons python: pVerifyOrInitResult.get( 'tool_singletons', None)">
+                <metal:block metal:use-macro="here/MDDVerificationReport_i18n_view/macros/tMDDVerificationOrInitializationReport_ToolSingletons_i18n" />   
+            </tal:block>
+                    
+            
+            
+            <tal:block tal:define="pVerifyOrInitResult_ExternalMethods python: pVerifyOrInitResult.get( 'external_methods', None)">
+                <metal:block metal:use-macro="here/MDDVerificationReport_i18n_view/macros/tMDDVerificationOrInitializationReport_ExternalMethods_i18n" />   
+            </tal:block>
+            
         </tal:block>
         
     </div>
@@ -141,54 +147,72 @@
         <tal:block tal:define="
             unasClasesFilas  python: ('odd','even');
             pVerifyOrInitResult_ToolSingletons      pVerifyOrInitResult_ToolSingletons | nothing;
-            pVerifyOrInitAction_ToolSingletons      pVerifyOrInitAction | string:Verify;
-            pIsInitialization                       python: pVerifyOrInitAction_ToolSingletons == 'Initialize';
-            pVerifyOrInitActionTitle_ToolSingletons python: '%s %s' % ( here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_VerifyOrInitializeActionTitle_%s' % pVerifyOrInitAction_ToolSingletons,   pVerifyOrInitAction_ToolSingletons,), here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_VerifyOrInitializeSectionTitle_ToolSingletons_msgid', 'Tool Singletons',),)" >
+            pVerifyOrInitAction_ToolSingletons      pVerifyOrInitAction | string:Verify or Initialize-;
+            pIsInitialization                       python: pVerifyOrInitAction_ToolSingletons == 'Initialize'" >
        
             <h3>
-                <span tal:content="pVerifyOrInitActionTitle_ToolSingletons" />
+                <span i18n:translate="pVerifyOrInitAction_ToolSingletons" />
                 &nbsp;
+                <span i18n:translate="ModelDDvlPlone_VerifyOrInitializeSectionTitle_ToolSingletons_msgid" >Tool Singletons</span>
+                &nbsp;
+                
                 <span tal:condition="not: pVerifyOrInitResult_ToolSingletons" >
                     <font  color="red">
-                        <strong  tal:content="python: '%s %s' % ( pVerifyOrInitActionTitle_ToolSingletons, here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Error_NoResult_msgid',   'No result obtained -' ),)" />
+                        <strong i18n:translate="ModelDDvlPlone_Error_NoResult_msgid" >No result obtained-</strong>
                     </font>
                 </span>
+                
                 <tal:block tal:condition="pVerifyOrInitResult_ToolSingletons" >
                     <span tal:define="pOverallSuccess python: pVerifyOrInitResult_ToolSingletons.get( 'success', False)" >                        
                         <font tal:condition="pOverallSuccess" color="green">
-                           <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Success_msgid',   'Success-' )" />
+                           <strong i18n:translate="ModelDDvlPlone_Success_msgid" >Success-</strong>
                         </font>
                         <font tal:condition="not: pOverallSuccess" color="red">
-                           <strong tal:content="python:  here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_msgid',   'Failure-' )" />
+                           <strong i18n:translate="ModelDDvlPlone_Failure_msgid" >Failure-</strong>
                        </font>
                     </span>
                 </tal:block>    
             </h3>
 
             <tal:block tal:condition="pVerifyOrInitResult_ToolSingletons" >
+            
+            
+                <tal:block tal:define="pException python: pVerifyOrInitResult_ToolSingletons.get( 'exception', '')" tal:condition="pException">
+                    <p>
+                        <strong i18n:translate="gvSIGi18n_VerifyOrInitialize_Exception_Label" >Exception-</strong>
+                    </p>
+                    <textarea readonly style="font-size: 8pt"  cols="80"  rows="#"
+                        tal:define="pExceptionLines python: pException.splitlines()" 
+                        tal:attributes="rows python: max( 2, min( len( pExceptionLines), 20))">
+<tal:block tal:repeat="pExceptionLine pExceptionLines" tal:content="pExceptionLine"/>
+</textarea>
+                </tal:block>
+            
                         
                 <tal:block tal:define="pToolSingletons python:  pVerifyOrInitResult_ToolSingletons.get( 'tools', [])" >
                     <tal:block tal:condition="not: pToolSingletons">
                         <p>
-                            <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_NoToolSingletons_msgid',   'No Tool Singletons-' )" />
+                            <strong i18n:translate="ModelDDvlPlone_Verification_NoToolSingletons_msgid',   'No Tool Singletons-' )" />
                         </p>
                     </tal:block>
                     <tal:block tal:condition="pToolSingletons">
                         <p>
-                            <strong tal:content="python: '%d %s' % ( len( pToolSingletons), here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ToolSingletonsNumber_msgid',   'Tool Singletons-' ))" />
+                            <strong tal:content="python: '%d' %  len( pToolSingletons)" />
+                            &ensp;
+                            <strong i18n:translate="ModelDDvlPlone_Verification_ToolSingletonsNumber_msgid" >Tool Singletons-</strong>
                         </p>
                         <table tal:define="global unIndexClassFila python: 0"
                             id="id_VerificationOrInitializationReport_ToolSingletons_Table" class="listing" summary="#"  tal:attributes="summary string:Verification or Initialization Report ToolSingletons">
                             <thead>
                                 <tr >
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Success_msgid',   'Success-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_Required_msgid',   'Required-' )" />                                    
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Status_msgid',   'Status-' )" />
-                                    <th tal:condition="pIsInitialization" class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Committed_msgid',   'Committed-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ToolSingleton_Id_msgid',   'Id-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ToolModule_msgid',   'Module-' )" />                                            
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ToolClass_msgid',   'Class-' )" />                                            
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_InstallPath_msgid',   'Install Path-' )" />
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Success_msgid" >Success-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_Required_msgid" >Required-</th>                                    
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Status_msgid" >Status-</th>
+                                    <th tal:condition="pIsInitialization" class="sortable" i18n:translate="ModelDDvlPlone_Committed_msgid" >Committed-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_ToolSingleton_Id_msgid" >Id-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_ToolModule_msgid" >Module</th>                                           
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_ToolClass_msgid" >Class-</th>                                           
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_InstallPath_msgid" >Install Path-</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -196,10 +220,10 @@
                                     <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" >
                                         <td tal:define="pToolSingletonSuccess python: pToolSingleton.get( 'success', False)">
                                             <font tal:condition="pToolSingletonSuccess" color="green">
-                                                <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_True',   'True-' )" />
+                                                <strong i18n:translate="ModelDDvlPlone_True',   'True-' )"  >True</strong>
                                             </font>
                                             <font tal:condition="not: pToolSingletonSuccess" color="red">
-                                                <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_False',  'False-' )" />
+                                                <strong i18n:translate="ModelDDvlPlone_False',  'False-' )" >False</strong>
                                             </font>
                                         </td>
                                         <td tal:content="python: pToolSingleton.get( 'required', '') " />
@@ -208,7 +232,7 @@
                                         <td tal:content="python: pToolSingleton.get( 'singleton_id', '')" />
                                         <td tal:content="python: pToolSingleton.get( 'tool_module', '')" />
                                         <td tal:content="python: pToolSingleton.get( 'tool_class', '')" />
-                                        <td tal:content="python: pToolSingleton.get( 'install_path', '')" />
+                                        <td tal:content="python: '/ '.join( pToolSingleton.get( 'install_path', []))" />
                                     </tr>
                                     <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
                                 </tal:block>
@@ -237,66 +261,81 @@
         
         <tal:block tal:define="
             pVerifyOrInitResult_ExternalMethods      pVerifyOrInitResult_ExternalMethods | nothing;
-            pVerifyOrInitAction_ExternalMethods      pVerifyOrInitAction | string:Verify;
-            pIsInitialization                        python: pVerifyOrInitAction_ExternalMethods == 'Initialize';
-            pVerifyOrInitActionTitle_ExternalMethods python: '%s %s' % ( here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_VerifyOrInitializeActionTitle_%s' % pVerifyOrInitAction_ExternalMethods,   pVerifyOrInitAction_ExternalMethods,), here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_VerifyOrInitializeSectionTitle_ExternalMethods_msgid', 'External Methods',),)" >
+            pVerifyOrInitAction_ExternalMethods      pVerifyOrInitAction | string:Verify or Initialize-;
+            pIsInitialization                        python: pVerifyOrInitAction_ExternalMethods == 'Initialize'" >
        
             <h3>
-                <span tal:content="pVerifyOrInitActionTitle_ExternalMethods" />
+                <span i18n:translate="" tal:content="pVerifyOrInitAction_ExternalMethods" />
+                &ensp;
+                <span i18n:translate="ModelDDvlPlone_VerifyOrInitializeSectionTitle_ExternalMethods_msgid" >External Methods-</span>
                 &nbsp;
                 <span tal:condition="not: pVerifyOrInitResult_ExternalMethods" >
                     <font  color="red">
-                        <strong  tal:content="python: '%s %s' % ( pVerifyOrInitActionTitle_ExternalMethods, here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Error_NoResult_msgid',   'No result obtained -' ),)" />
+                        <strong  i18n:translate="ModelDDvlPlone_Error_NoResult_msgid" >No result obtained-</strong>
                     </font>
                 </span>
                 <tal:block tal:condition="pVerifyOrInitResult_ExternalMethods" >
                     <span tal:define="pOverallSuccess python: pVerifyOrInitResult_ExternalMethods.get( 'success', False)" >                        
-                        <font tal:condition="pOverallSuccess"  color="green">
-                           <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Success_msgid',   'Success-' )" />
+                        <font tal:condition="pOverallSuccess" color="green">
+                           <strong i18n:translate="ModelDDvlPlone_Success_msgid" >Success-</strong>
                         </font>
                         <font tal:condition="not: pOverallSuccess" color="red">
-                           <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_msgid',   'Failure-' )" />
-                        </font>
+                           <strong i18n:translate="ModelDDvlPlone_Failure_msgid" >Failure-</strong>
+                       </font>
                     </span>
                 </tal:block>    
             </h3>
             
             <tal:block tal:condition="pVerifyOrInitResult_ExternalMethods" >
+            
+                <tal:block tal:define="pException python: pVerifyOrInitResult_ExternalMethods.get( 'exception', '')" tal:condition="pException">
+                    <p>
+                        <strong i18n:translate="gvSIGi18n_VerifyOrInitialize_Exception_Label" >Exception-</strong>
+                    </p>
+                    <textarea readonly style="font-size: 8pt"  cols="80"  rows="#"
+                        tal:define="pExceptionLines python: pException.splitlines()" 
+                        tal:attributes="rows python: max( 2, min( len( pExceptionLines), 20))">
+<tal:block tal:repeat="pExceptionLine pExceptionLines" tal:content="pExceptionLine"/>
+</textarea>
+                </tal:block>
+            
+                 
                         
                 <tal:block tal:define="pExternalMethods python:  pVerifyOrInitResult_ExternalMethods.get( 'methods', [])" >
                     <tal:block tal:condition="not: pExternalMethods">
                         <p>
-                            <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_NoExternalMethods_msgid',   'No External Methods-' )" />
+                            <strong i18n:translate="ModelDDvlPlone_Verification_NoExternalMethods_msgid',   'No External Methods-' )" />
                         </p>
                     </tal:block>
                     <tal:block tal:condition="pExternalMethods">
                         <p>
-                            <strong tal:content="python: '%d %s' % ( len( pExternalMethods), here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ExternalMethodsNumber_msgid',   'External Methods-' ))" />
+                            <strong tal:content="python: '%d' % len( pExternalMethods)" />
+                            <strong i18n:translate="ModelDDvlPlone_Verification_ExternalMethodsNumber_msgid" >External Methods-</strong>
                         </p>
                         <table id="id_VerificationOrInitializationReport_ExternalMethods_Table" class="listing" summary="#"  tal:attributes="summary string:Verification or Initialization Report ExternalMethods">
 
                             <thead>
                                 <tr>
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Success_msgid',   'Success-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_Required_msgid',   'Required-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Status_msgid',   'Status-' )" />
-                                    <th tal:condition="pIsInitialization"  class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Committed_msgid',   'Committed-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ExtMethod_Module_msgid',   'Module-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ExtMethod_Function_msgid',   'Function-' )" />                                            
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ExtMethod_Id_msgid',   'Id-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_ExtMethod_Title_msgid',   'Title-' )" />
-                                    <th class="sortable" tal:content="python:here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Verification_InstallPath_msgid',   'Install Path-' )" />
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Success_msgid" >Success-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_Required_msgid" >Required-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Status_msgid" >Status-</th>
+                                    <th tal:condition="pIsInitialization"  class="sortable" i18n:translate="ModelDDvlPlone_Committed_msgid" >Committed-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_ExtMethod_Module_msgid" >Module-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_ExtMethod_Function_msgid" >Function-</th>                                            
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_ExtMethod_Id_msgid" >Id-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_ExtMethod_Title_msgid" >Title-</th>
+                                    <th class="sortable" i18n:translate="ModelDDvlPlone_Verification_InstallPath_msgid" >Install Path-</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr tal:repeat="pExternalMethod pExternalMethods" >
                                     <td tal:define="pExternalMethodSuccess python: pExternalMethod.get( 'success', False)">
-                                        <font tal:condition="pExternalMethodSuccess"  color="green">
-                                            <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_True',    'True-' )" />
+                                        <font tal:condition="pExternalMethodSuccess" color="green">
+                                           <strong i18n:translate="ModelDDvlPlone_Success_msgid" >Success-</strong>
                                         </font>
                                         <font tal:condition="not: pExternalMethodSuccess" color="red">
-                                            <strong tal:content="python: here.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_False',   'False-' )" />
-                                        </font>
+                                           <strong i18n:translate="ModelDDvlPlone_Failure_msgid" >Failure-</strong>
+                                       </font>
                                     </td>
                                     <td tal:content="python: pExternalMethod.get( 'required', '')" />
                                     <td tal:content="python: pExternalMethod.get( 'status', '')" />
@@ -305,7 +344,7 @@
                                     <td tal:content="python: pExternalMethod.get( 'ext_method_function', '')" />
                                     <td tal:content="python: pExternalMethod.get( 'ext_method_id', '')" />
                                     <td tal:content="python: pExternalMethod.get( 'ext_method_title', '')" />
-                                    <td tal:content="python: pExternalMethod.get( 'install_path', '')" />
+                                    <td tal:content="python: '/ '.join( pExternalMethod.get( 'install_path', []))" />
                                 </tr>
                             </tbody>
                         </table>

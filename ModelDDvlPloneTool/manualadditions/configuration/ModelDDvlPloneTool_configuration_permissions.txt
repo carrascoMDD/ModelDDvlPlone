@@ -1,0 +1,30 @@
+In addition to permissions checked at the level of individual elements,
+permissions are also enforced when attemting to use any of the tool services.
+
+Note that it is not possible to assign roles to users for the tool, in the same way that it can be done for individual elements
+(as can be done by using on any element the  folder_localrole_set.pt  (     http://localhost/bpd/oooo/folder_localrole_set))
+
+This means that the "Owner" role can not be set for users, therefore we can only tune access
+with the Anonymous/Authenticated/Member/Manager/Rewier roles
+
+ModelDDvlPloneTool_configuration_permissions.txt
+
+Using the ZMI, Must add to the Plone site an instance of ModelDDvlPloneTool.
+(select the node for the new site, use the pull down menu to select creation of a newModelDDvlPloneTool, the tool will be added to the site)
+
+Set permissions for the ModelDDvlPloneTool.instance:
+(select the node for the ModelDDvlPloneTool. instance, select the security tab)
+
+
+
+Add Portal Content               (checked for creation of new elements)
+Modify Portal Content	(checked for creation of new elements, and modification of existing elements, deletion of existing elements, linking and unlinking)
+View  			(checked to retrieve information - note: metainformation may still be returned, as names of attributes, relations, etc. but not actual data)
+
+One possible setting is:
+
+Grant Add Portal Content  and Modify Portal Content to Member and Manager
+Grant View to Anonymous
+
+Unchecking the Acquire flag for the 3 permissions (to avoid inherinting the from the parent permissions -which is the site)
+

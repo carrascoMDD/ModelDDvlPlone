@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Mutators_Plone.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -58,13 +58,8 @@ from ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
 
 from ModelDDvlPloneToolSupport          import fSecondsNow
 
+from ModelDDvlPloneTool_Mutators_Constants      import *
 
-
-cModificationKind_DeletePloneSubElement = 'DeletePloneSubElement'
-cModificationKind_MovePloneSubObject    = 'MovePloneSubObject'
-
-cModificationKind_DeletePloneSubElement_abbr = 'dpl'
-cModificationKind_MovePloneSubObject_abbr    = 'mvp'
 
 
 
@@ -106,20 +101,26 @@ class ModelDDvlPloneTool_Mutators_Plone:
 
             aDeleteReport = self.fNewVoidDeletePloneElementReport()
 
-            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             
             if theModelDDvlPloneTool == None:
                 aDeleteReport.update( { 'effect': 'error', 'failure': 'No theModelDDvlPloneTool', })
                 return aDeleteReport                 
 
+            
+            if ( theContainerElement == None)  or not theUIDToDelete or not theRequestSeconds:
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'required_parameters_missing', })
+                return aDeleteReport     
+            
             unSecondsNow = fSecondsNow()            
             if not ( (unSecondsNow >= theRequestSeconds) and ( ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theContainerElement))):
                 aDeleteReport.update(  { 'effect': 'error', 'failure': 'time_out', })
                 return aDeleteReport                     
 
-            if ( theContainerElement == None)  or not theUIDToDelete or not theRequestSeconds:
-                aDeleteReport.update(  { 'effect': 'error', 'failure': 'required_parameters_missing', })
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContainerElement)
+            if aModelDDvlPloneTool_Retrieval == None:
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'No fModelDDvlPloneTool_Retrieval', })
                 return aDeleteReport     
+            
             
             unResultadoContenedor = aModelDDvlPloneTool_Retrieval.fRetrievePloneContent( 
                 theTimeProfilingResults     =theTimeProfilingResults,
@@ -249,6 +250,7 @@ class ModelDDvlPloneTool_Mutators_Plone:
 
     security.declarePrivate( 'fMoveSubObjectPlone')
     def fMoveSubObjectPlone(self , 
+        theModelDDvlPloneTool   = None,
         theTimeProfilingResults =None,                          
         theContainerElement     =None,  
         theTraversalName        ='', 
@@ -266,10 +268,12 @@ class ModelDDvlPloneTool_Mutators_Plone:
         try:
             aMoveReport = self.fNewVoidMoveSubObjectReport()
 
-            if ( theContainerElement == None)  or not  theTraversalName or not theMovedObjectUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
+            if ( theModelDDvlPloneTool== None) or ( theContainerElement == None)  or not  theTraversalName or not theMovedObjectUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
                 return aMoveReport
 
-            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContainerElement)
+            if aModelDDvlPloneTool_Retrieval== None:
+                return aMoveReport
             
             unResult = aModelDDvlPloneTool_Retrieval.fRetrievePloneContent( 
                 theTimeProfilingResults     =theTimeProfilingResults,

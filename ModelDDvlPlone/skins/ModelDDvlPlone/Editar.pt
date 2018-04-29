@@ -3,7 +3,7 @@
 #
 # File: Editar.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -36,22 +36,22 @@
     <metal:main fill-slot="main">
     
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008,2009,2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
-        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+        tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+        global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
 
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
 
 
         <tal:block tal:define="
             global pForm request/form;
-                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: {
                     'theTimeProfilingResults' :pProfilingResults,
                     'theElement'              :here, 
                     'theNewValuesDict'        :pForm,
                     'theAdditionalParams'     :None, }; 
-            global pChangeReports python: here.ModelDDvlPlone_tool.fChangeValues( **unosArgs);
+            global pChangeReports python: here.MDDModelDDvlPlone_tool.fChangeValues( **unosArgs);
                 pChangeIdReports python: [ aChangeReport for aChangeReport in pChangeReports[ 'field_reports'] if ( aChangeReport.get( 'attribute_name', '') == 'id') and ( aChangeReport.get( 'effect', '') == 'changed')]" >
                  
             <tal:block tal:condition="pChangeIdReports">
@@ -80,7 +80,7 @@
         
                 <metal:block metal:use-macro="here/Editar_inner/macros/tEditarInner" />
         
-                <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
+                <div tal:replace="structure python: here.MDDModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
             </tal:block>    
 
         </tal:block>          

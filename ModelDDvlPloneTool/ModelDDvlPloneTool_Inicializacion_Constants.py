@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Inicializacion_Constants.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -46,14 +46,19 @@ from Products.CMFCore               import permissions
 ##code-section after-schema #fill in your manual code here
 
 
+
+
+
+
+
 cMDDInitializationPermission = permissions.ManagePortal
 
 
 
+from ModelDDvlPloneToolLoadConstants import cModelDDvlPloneToolId
 
-
-cModelDDvlPloneToolId          = 'ModelDDvlPlone_tool'
-cModelDDvlPloneConfigurationId = 'ModelDDvlPlone_configuration'
+#cModelDDvlPloneToolId          = 'MDDModelDDvlPlone_tool'
+cModelDDvlPloneConfigurationId = 'MDDModelDDvlPlone_configuration'
 
 
 
@@ -70,7 +75,12 @@ cLazyCreateToolSingletons              = True
 # UNSAFE External methods to create. Use during development, debugging, or under strict extreme development precesses. 
 #
 
+
+cMDDExtMethod_MDDInitialization                     = "MDDInitialization"
+
 cMDDExtMethod_MDDLoadModules                        = "MDDLoadModules"
+cMDDExtMethod_MDDModulesList                        = "MDDModulesList"
+
 
 cMDDExtModule_MDDZipFileExpansionUtils              = 'MDDZipFileExpansionUtils'
 
@@ -163,6 +173,22 @@ cMDDExternalMetodDefinitions = [
         'ext_method_function':       cMDDExtMethod_MDDLoadModules,
         'ext_method_id':             cMDDExtMethod_MDDLoadModules,
         'ext_method_title':          cMDDExtMethod_MDDLoadModules,
+        'install_path':              cInstallPath_PortalSkinsCustom,
+        'required':                  False,
+    },
+    {
+        'ext_method_module':         cMDDExtMethod_MDDLoadModules,
+        'ext_method_function':       cMDDExtMethod_MDDModulesList,
+        'ext_method_id':             cMDDExtMethod_MDDModulesList,
+        'ext_method_title':          cMDDExtMethod_MDDModulesList,
+        'install_path':              cInstallPath_PortalSkinsCustom,
+        'required':                  False,
+    },
+    {
+        'ext_method_module':         cMDDExtMethod_MDDInitialization,
+        'ext_method_function':       cMDDExtMethod_MDDInitialization,
+        'ext_method_id':             cMDDExtMethod_MDDInitialization,
+        'ext_method_title':          cMDDExtMethod_MDDInitialization,
         'install_path':              cInstallPath_PortalSkinsCustom,
         'required':                  False,
     },
