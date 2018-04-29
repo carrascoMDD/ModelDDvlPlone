@@ -617,6 +617,9 @@ class ModelDDvlPloneTool_Cache_EntriesAccess:
             aProjectName = cDefaultNombreProyecto
               
         
+            
+            
+            
         unElementUID = ''
         try:
             unElementUID = theContextualObject.UID()
@@ -625,9 +628,17 @@ class ModelDDvlPloneTool_Cache_EntriesAccess:
         if not unElementUID:
             return [ unaCachedEntry, unDirectory, unFilePath,]
         
-               
+        
+        
+        unElementId = ''
+        try:
+            unElementId = theContextualObject.getId()
+        except:
+            None
+        
+                    
+        unRootElementId   = ''
         unRootElementUID = ''
-        unRootElementPath = ''
         
         unRootElement = None
         try:
@@ -636,16 +647,21 @@ class ModelDDvlPloneTool_Cache_EntriesAccess:
             None
         if ( unRootElement == None):
             unRootElementUID  = unElementUID
-            unRootElementPath = unElementPath
+            unRootElementId   = unElementId
         else:
-            unRootElementPath = '/'.join( unRootElement.getPhysicalPath())
             try:
                 unRootElementUID     = unRootElement.UID()
             except:
                 None
             if not unRootElementUID:
                 unRootElementUID = unElementUID
-                unRootElementPath = unElementPath
+                
+            try:
+                unRootElementId     = unRootElement.getId()
+            except:
+                None
+            if not unRootElementId:
+                unRootElementId = unElementId
                 
                 
                 
@@ -659,8 +675,14 @@ class ModelDDvlPloneTool_Cache_EntriesAccess:
         if ( not unParsedRootElementURL[ 0]) or ( not unParsedRootElementURL[ 1]):
             return [ unaCachedEntry, unDirectory, unFilePath,]
         
-        unSchemeHostAndDomain = '%s-%s' % ( unParsedRootElementURL[ 0], unParsedRootElementURL[ 1],)
         
+        unScheme = unParsedRootElementURL[ 0]
+        unDomain = unParsedRootElementURL[ 1]
+        if not ( unScheme and unDomain):
+            return [ unaCachedEntry, unDirectory, unFilePath,]
+        
+        unDomain = unDomain.replace( ':', '-p-')
+        unSchemeHostAndDomain = '%s-%s' % ( unScheme, unDomain,)
         
         
         # ###########################################################
@@ -732,12 +754,19 @@ class ModelDDvlPloneTool_Cache_EntriesAccess:
             """Assemble the name of the directory holding all disk files with cached HTML for all entries on the element.
                 
             """            
-                    
-            aProjectPath           = os.path.join( aCacheDiskPath, aProjectName)
-            aRootUIDPath           = os.path.join( aProjectPath, unRootElementUID)
-            anElementUIDModulus    = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
-            aElementUIDModulusPath = os.path.join( aRootUIDPath, anElementUIDModulus)
-            aElementUIDPath        = os.path.join( aElementUIDModulusPath, unElementUID)
+            
+            aProjectPath               = os.path.join( aCacheDiskPath, aProjectName)
+            unRootElementIdShortened   = unRootElementId[:cMaxRootElementIdInDiscCachePath]
+            unRootElementIdShortened   = unRootElementIdShortened.replace( ' ', '_').strip()        
+            aRootElementFolderName     = '%s-%s' % ( unRootElementIdShortened, unRootElementUID,)
+            aRootUIDPath               = os.path.join( aProjectPath, aRootElementFolderName)
+            anElementUIDModulus        = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
+            aElementUIDModulusPath     = os.path.join( aRootUIDPath, anElementUIDModulus)
+            
+            unElementIdShortened       = unElementId[:cMaxElementIdInDiscCachePath]
+            unElementIdShortened       = unElementIdShortened.replace( ' ', '_').strip()
+            anElementFolderName        = '%s-%s' % ( unElementIdShortened, unElementUID,)
+            aElementUIDPath            = os.path.join( aElementUIDModulusPath, anElementFolderName)
 
             unDirectory = aElementUIDPath
             
@@ -795,11 +824,15 @@ class ModelDDvlPloneTool_Cache_EntriesAccess:
             """Assemble the name of the directory holding all disk files with cached HTML for all entries on the element.
                 
             """            
-                    
             aLanguagePath          = os.path.join( aElementUIDPath, aNegotiatedLanguage)
-            aFileName              = '%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, aRoleKindToIndex, cCacheDiskFilePostfix)
-            
-            unFilePath             = os.path.join( aLanguagePath, aFileName)
+                    
+            aViewNameShortened     = aViewName
+            if cNoHeaderNoFooterToReplaceForCachePaths in aViewName:
+                aViewNameShortened = aViewName.replace( cNoHeaderNoFooterToReplaceForCachePaths, cNoHeaderNoFooterReplacementForCachePaths)
+                
+            aFileName              = '%s-%s-%s-%s-%s%s' % ( aViewNameShortened, unRelationCursorName, unCurrentElementUID, unSchemeHostAndDomain, aRoleKindToIndex, cCacheDiskFilePostfix)
+            aFilePath              = os.path.join( aLanguagePath, aFileName)
+
             
             
             

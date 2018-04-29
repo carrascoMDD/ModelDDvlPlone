@@ -590,7 +590,7 @@ class ModelDDvlPloneTool_Cache_Render:
         unRootElementURL = unRootElement.absolute_url()
               
         unParsedRootElementURL = self.fURLParse( theModelDDvlPloneTool, theContextualObject, unRootElementURL, )
-        if ( not unParsedRootElementURL):
+        if not unParsedRootElementURL:
             aRenderResult.update( {
                 'status':           cRenderStatus_ForceRender, 
             })                                    
@@ -606,7 +606,7 @@ class ModelDDvlPloneTool_Cache_Render:
         unScheme = unParsedRootElementURL[ 0]
         unDomain = unParsedRootElementURL[ 1]
 
-        if ( not unScheme and unDomain):
+        if not ( unScheme and unDomain):
             aRenderResult.update( {
                 'status':           cRenderStatus_ForceRender, 
             })                                    
@@ -2397,7 +2397,7 @@ class ModelDDvlPloneTool_Cache_Render:
         unRootElementURL = unRootElement.absolute_url()
                     
         unParsedRootElementURL = self.fURLParse( theModelDDvlPloneTool, theContextualObject, unRootElementURL, )
-        if ( not unParsedRootElementURL):
+        if not unParsedRootElementURL:
             aRenderResult.update( {
                 'status':           cRenderStatus_ForceRender, 
             })                                    

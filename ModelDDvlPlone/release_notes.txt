@@ -1,6 +1,21 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
+v2.1.4
+
+Fixed Bug: Creation mode of cache folder cCacheDisk_ForElements_FolderCreateMode_RootUID was 077 and now correctly is 0777.
+
+Bug to fix: When the URL contains a port, then the actions to flush entries from memory or from memory and disc do not work.
+
+Bug to fix: Action in the Cache Status page, to flush disk cached pages for a cache, does not work.
+
+
+
+---------------------------
+
+|
+|
+
 v2.1.3
 
 Fixed Bug: Bug introduced in v2.1.1 Folder for Cached HTML erroneusly created under user's home, instead of the proper location under the Plone instance 'var' folder.

@@ -147,7 +147,7 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
         if theFlushDiskCache:
             if aCacheDiskEnabled:
                 someFilesToDelete = [ ]
-                self._pAllFilePathsInto( aCacheDiskPath, someFilesToDelete)
+                self._pAllFilePathsInto( aCacheDiskPath, someFilesToDelete, theModelDDvlPloneTool, theContextualObject,)
                 if someFilesToDelete:
                     self._pRemoveDiskCacheFiles(  theModelDDvlPloneTool, theContextualObject, someFilesToDelete)
             
@@ -540,9 +540,8 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
                 aCanFlushDiskCache = self.fCacheIdAllowsFlushDisk( theModelDDvlPloneTool, theContextualObject, theFlushCacheCode, theTemplateName,)
                 if aCanFlushDiskCache:
                     someFilesToDelete.append( aFilePath)
-                    self._pAllFilePathsInto( aDirectory, someFilesToDelete)
+                    self._pAllFilePathsInto( aDirectory, someFilesToDelete, theModelDDvlPloneTool, theContextualObject,)
                 
-        if theFlushDiskCache:
             if aCanFlushDiskCache:
                 if someFilesToDelete:
                     self._pRemoveDiskCacheFiles(  theModelDDvlPloneTool, theContextualObject, someFilesToDelete)
@@ -612,7 +611,7 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
 
         someDirectories= self.fDirectoriesForElement( theModelDDvlPloneTool, theContextualObject)
         for aDirectory in someDirectories:
-            self._pAllFilePathsInto( aDirectory, someFilesToDelete)
+            self._pAllFilePathsInto( aDirectory, someFilesToDelete, theModelDDvlPloneTool, theContextualObject,)
                  
         if someFilesToDelete:
             self._pRemoveDiskCacheFiles(  theModelDDvlPloneTool, theContextualObject, someFilesToDelete)
@@ -697,7 +696,7 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
             
                 someDirectories= self.fDirectoriesForElement( theModelDDvlPloneTool, anElementByUID)
                 for aDirectory in someDirectories:
-                    self._pAllFilePathsInto( aDirectory, someFilesToDelete)
+                    self._pAllFilePathsInto( aDirectory, someFilesToDelete, theModelDDvlPloneTool, theContextualObject,)
                      
 
         if someFilesToDelete:
@@ -733,13 +732,20 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
         
         someCacheNames = self.fGetCacheStoreNames( theModelDDvlPloneTool, theContextualObject, )
         
+        aCacheContainerPath = self.fCacheContainerPath( theModelDDvlPloneTool=theModelDDvlPloneTool, theContextualObject=theContextualObject)
+        if not aCacheContainerPath:
+            aCacheContainerPath = ''
+            
+        
+        
         somePathsAndCacheNames = [ ]        
         for aCacheName in someCacheNames:
             aCacheDiskPath = self.fGetCacheConfigParameter_CacheDiskPath( theModelDDvlPloneTool, theContextualObject, aCacheName)
             if aCacheDiskPath:
                 if not ( aCacheDiskPath[:-1] == os.path.sep):
                     aCacheDiskPath = '%s%s' % ( aCacheDiskPath, os.path.sep)
-                somePathsAndCacheNames.append( [ aCacheDiskPath, aCacheName, ])
+                aCacheDiskPathAbsolute = os.path.join( aCacheContainerPath, aCacheDiskPath)
+                somePathsAndCacheNames.append( [ aCacheDiskPathAbsolute, aCacheName, ])
                 
 
         for aFilePath in theFilesToDelete:
@@ -753,37 +759,33 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
             
                 if aFilePathExists:
                     
-                    aFoundCacheName = ''
-                    for aCachePath, aCacheName in somePathsAndCacheNames:
-                        if aFilePath.startswith( aCachePath):
-                            aFoundCacheName = aCacheName
-                            break
-                            
                     aFileSize = 0
                     try:
                         aFileSize  = os.path.getsize( aFilePath)
                     except:
                         None
                     if aFileSize:
-                        if aFoundCacheName:
-                            someCache_NumCharsDiskFreed[ aFoundCacheName] = someCache_NumCharsDiskFreed.get( aFoundCacheName, 0) + aFileSize
                         
-                    aTruncated = False
-                    try:
-                        aFile  = None
                         try:
-                            aFile = open( aFilePath, cCacheDisk_ElementIndependent_FileOpenTruncateMode_View, cCacheDisk_ElementIndependent_FileOpenTruncateBuffering_View)
-                            aFile.truncate( 0)
-                        finally:
-                            if aFile:
-                                aFile.close()
-                        
-                        aTruncated = True
-                                
-                        if aFoundCacheName:
-                            someCache_NumFilesCleared[ aFoundCacheName] = someCache_NumFilesCleared.get( aFoundCacheName, 0) + 1
-                    except IOError:
-                        None
+                            aFile  = None
+                            try:
+                                aFile = open( aFilePath, cCacheDisk_ElementIndependent_FileOpenTruncateMode_View, cCacheDisk_ElementIndependent_FileOpenTruncateBuffering_View)
+                                aFile.truncate( 0)
+                            finally:
+                                if aFile:
+                                    aFile.close()
+                            
+                            aFoundCacheName = ''
+                            for aCachePath, aCacheName in somePathsAndCacheNames:
+                                if aFilePath.startswith( aCachePath):
+                                    aFoundCacheName = aCacheName
+                                    break
+                            
+                            if aFoundCacheName:
+                                someCache_NumCharsDiskFreed[ aFoundCacheName] = someCache_NumCharsDiskFreed.get( aFoundCacheName, 0) + aFileSize
+                                someCache_NumFilesCleared[   aFoundCacheName] = someCache_NumFilesCleared.get(   aFoundCacheName, 0) + 1
+                        except IOError:
+                            None
                         
                         
         # ###########################################################
@@ -825,8 +827,6 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
                 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                                   
                         
-                        
-        
         return self
     
     
@@ -929,7 +929,7 @@ class ModelDDvlPloneTool_Cache_EntriesFlush:
                     except:
                         None
                     if unDirectoryExists:
-                        self._pAllFilePathsInto( aDirectory, theFilesToDelete)
+                        self._pAllFilePathsInto_withAbsoluteDirectory( aDirectory, theFilesToDelete, theModelDDvlPloneTool, theContextualObject,)
                                            
                 if not ( aProjectName and aLanguage and anElementUID and aViewName and aRelationName and aCurrentUID and aRoleKind):
                     unasEntriesToRemove.append( unaCacheEntryToFlush)

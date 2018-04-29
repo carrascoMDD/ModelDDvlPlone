@@ -160,7 +160,7 @@ cCacheDisk_ElementIndependent_FileOpenTruncateBuffering_View= 0
 
 cCacheDisk_ForElements_FolderCreateMode_Project   = 0777
 cCacheDisk_ForElements_FolderCreateMode_Language  = 0777
-cCacheDisk_ForElements_FolderCreateMode_RootUID   = 077
+cCacheDisk_ForElements_FolderCreateMode_RootUID   = 0777
 cCacheDisk_ForElements_FolderCreateMode_ElementUIDModulus = 0777
 cCacheDisk_ForElements_FolderCreateMode_ElementUID = 0777
 cCacheDisk_ForElements_FileOpenReadMode_View      = 'rb'

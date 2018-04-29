@@ -81,8 +81,8 @@ class ModelDDvlPloneTool_Cache_Disc:
     
     security.declarePrivate( 'fCacheContainerPath')
     def fCacheContainerPath(self, 
-        theModelDDvlPloneTool, 
-        theContextualObject,):
+        theModelDDvlPloneTool =None, 
+        theContextualObject   =None,):
         """Return path to contain the cache file, obtained from Zope instance global Zope configuration object.
         
         """
@@ -145,6 +145,9 @@ class ModelDDvlPloneTool_Cache_Disc:
             aProjectName = cDefaultNombreProyecto
               
         
+
+            
+            
         unElementUID = ''
         try:
             unElementUID = theContextualObject.UID()
@@ -153,7 +156,16 @@ class ModelDDvlPloneTool_Cache_Disc:
         if not unElementUID:
             return someDirectories
         
+        
+        unElementId = ''
+        try:
+            unElementId = theContextualObject.getId()
+        except:
+            None
+
+            
                
+        unRootElementId   = ''
         unRootElementUID = ''
         
         unRootElement = None
@@ -163,7 +175,7 @@ class ModelDDvlPloneTool_Cache_Disc:
             None
         if ( unRootElement == None):
             unRootElementUID  = unElementUID
-            unRootElementPath = unElementPath
+            unRootElementId   = unElementId
         else:
             try:
                 unRootElementUID     = unRootElement.UID()
@@ -171,6 +183,13 @@ class ModelDDvlPloneTool_Cache_Disc:
                 None
             if not unRootElementUID:
                 unRootElementUID = unElementUID
+                
+            try:
+                unRootElementId     = unRootElement.getId()
+            except:
+                None
+            if not unRootElementId:
+                unRootElementId = unElementId
                 
                         
         someCacheDiskPaths = [ ]
@@ -218,17 +237,24 @@ class ModelDDvlPloneTool_Cache_Disc:
 
     
         # ###########################################################
-        """Assemble the names of the directories )one per cache: for elements, and for users) holding all disk files with cached HTML for all entries on the element.
+        """Assemble the names of the directories (one per cache: for elements, and for users) holding all disk files with cached HTML for all entries on the element.
             
         """            
                 
         for aCacheDiskPath in someCacheDiskPaths:
-            aProjectPath           = os.path.join( aCacheDiskPath, aProjectName)
-            aRootUIDPath           = os.path.join( aProjectPath, unRootElementUID)
-            anElementUIDModulus    = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
-            aElementUIDModulusPath = os.path.join( aRootUIDPath, anElementUIDModulus)
-            aElementUIDPath        = os.path.join( aElementUIDModulusPath, unElementUID)
-    
+            aProjectPath               = os.path.join( aCacheDiskPath, aProjectName)
+            unRootElementIdShortened   = unRootElementId[:cMaxRootElementIdInDiscCachePath]
+            unRootElementIdShortened   = unRootElementIdShortened.replace( ' ', '_').strip()        
+            aRootElementFolderName     = '%s-%s' % ( unRootElementIdShortened, unRootElementUID,)
+            aRootUIDPath               = os.path.join( aProjectPath, aRootElementFolderName)
+            anElementUIDModulus        = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
+            aElementUIDModulusPath     = os.path.join( aRootUIDPath, anElementUIDModulus)
+            
+            unElementIdShortened       = unElementId[:cMaxElementIdInDiscCachePath]
+            unElementIdShortened       = unElementIdShortened.replace( ' ', '_').strip()
+            anElementFolderName        = '%s-%s' % ( unElementIdShortened, unElementUID,)
+            aElementUIDPath            = os.path.join( aElementUIDModulusPath, anElementFolderName)
+            
             someDirectories.append(  aElementUIDPath)
         
         return someDirectories
@@ -237,9 +263,69 @@ class ModelDDvlPloneTool_Cache_Disc:
                 
                 
 
-    
     security.declarePrivate( '_pAllFilePathsInto')
-    def _pAllFilePathsInto(self, theDirectory, theFilesToDelete):
+    def _pAllFilePathsInto(self, theDirectory, theFilesToDelete, theModelDDvlPloneTool=None, theContextualObject=None):
+        if not theDirectory:
+            return self
+        
+        if ( theFilesToDelete == None):
+            return self
+        
+        aCacheContainerPath = self.fCacheContainerPath( theModelDDvlPloneTool=theModelDDvlPloneTool, theContextualObject=theContextualObject)
+        if not aCacheContainerPath:
+            return self
+        
+        
+        aCacheDiskPathAbsolute = os.path.join( aCacheContainerPath, theDirectory)
+        
+        self._pAllFilePathsInto_withAbsoluteDirectory( aCacheDiskPathAbsolute, theFilesToDelete, theModelDDvlPloneTool=theModelDDvlPloneTool, theContextualObject=theContextualObject)
+                
+        return self
+        
+    
+
+    
+    security.declarePrivate( '_pAllFilePathsInto_withAbsoluteDirectory')
+    def _pAllFilePathsInto_withAbsoluteDirectory(self, theDirectory, theFilesToDelete, theModelDDvlPloneTool=None, theContextualObject=None):
+        if not theDirectory:
+            return self
+        
+        if ( theFilesToDelete == None):
+            return self
+        
+        aCacheDiskPathAbsolute = theDirectory
+        
+        unDirectoryExists = False
+        try:
+            unDirectoryExists = os.path.exists( aCacheDiskPathAbsolute)
+        except:
+            None
+        if not unDirectoryExists:
+            return self
+        
+        aFilesToDeleteSet = set( theFilesToDelete)
+        for unRoot, unosDirectories, unosFileNames in os.walk( aCacheDiskPathAbsolute):
+            
+            for unFileName in unosFileNames:
+                
+                unFilePath = os.path.join( unRoot, unFileName)
+                
+                if not ( unFilePath in aFilesToDeleteSet):
+                    
+                    theFilesToDelete.append( unFilePath)
+                    
+                    aFilesToDeleteSet.add( unFilePath)
+                
+        return self
+        
+
+
+    
+    
+    
+    
+    security.declarePrivate( '_pAllFilePathsInto_ORIG')
+    def _pAllFilePathsInto_ORIG(self, theDirectory, theFilesToDelete):
         if not theDirectory:
             return self
         
@@ -269,44 +355,42 @@ class ModelDDvlPloneTool_Cache_Disc:
                     aFilesToDeleteSet.add( unFilePath)
                 
         return self
+                
         
+    # ACV 20110315 UNUSED Removed.
+    #security.declarePrivate( '_pAllFilePathsInto_Filtering')
+    #def _pAllFilePathsInto_Filtering(self, theDirectory, theSubDirectoryNames, theFilesToDelete):
+        #if not theDirectory:
+            #return self
         
-        
-        
-   
-    security.declarePrivate( '_pAllFilePathsInto_Filtering')
-    def _pAllFilePathsInto_Filtering(self, theDirectory, theSubDirectoryNames, theFilesToDelete):
-        if not theDirectory:
-            return self
-        
-        if ( theFilesToDelete == None):
-            return self
+        #if ( theFilesToDelete == None):
+            #return self
         
                             
-        unDirectoryExists = False
-        try:
-            unDirectoryExists = os.path.exists( theDirectory)
-        except:
-            None
-        if not unDirectoryExists:
-            return self
+        #unDirectoryExists = False
+        #try:
+            #unDirectoryExists = os.path.exists( theDirectory)
+        #except:
+            #None
+        #if not unDirectoryExists:
+            #return self
         
-        aFilesToDeleteSet = set( theFilesToDelete)
-        for unRoot, unosDirectories, unosFileNames in os.walk( theDirectory):
+        #aFilesToDeleteSet = set( theFilesToDelete)
+        #for unRoot, unosDirectories, unosFileNames in os.walk( theDirectory):
             
-            for unFileName in unosFileNames:
+            #for unFileName in unosFileNames:
                 
-                if ( not theSubDirectoryNames) or (  unFileName in theSubDirectoryNames):
+                #if ( not theSubDirectoryNames) or (  unFileName in theSubDirectoryNames):
                 
-                    unFilePath = os.path.join( unRoot, unFileName)
+                    #unFilePath = os.path.join( unRoot, unFileName)
                     
-                    if not ( unFilePath in aFilesToDeleteSet):
+                    #if not ( unFilePath in aFilesToDeleteSet):
                         
-                        theFilesToDelete.append( unFilePath)
+                        #theFilesToDelete.append( unFilePath)
                         
-                        aFilesToDeleteSet.add( unFilePath)
+                        #aFilesToDeleteSet.add( unFilePath)
                 
-        return self
+        #return self
         
             
     
