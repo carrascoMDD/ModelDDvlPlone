@@ -44,6 +44,101 @@ Summary of use cases implemented after delivery of version 1.0 (build20090716050
 - Process steps now can record effort estimations, and timing constraints.
 
 
+|
+|
+
+------------------------------
+
+|
+|
+
+
+
+version 1.0.0.6
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+
+Change view to Tabular from menu displays Textual view instead.
+
+Error in title of new version: is not the one entered by the user  but a unique reclaculation of the original.
+
+Group actions menu and options appear not translated.
+
+Group actions menu displays cut  paste  delete actions when the element is not writtable.
+
+Redirect to the new URL of the element after changing its Id with SUC 19 Edit and change an element id.
+
+
+|
+|
+
+
+**KNOWN BUGS*
+
+Reflective method invocation should not retrieve the callable method with []
+
+|
+|
+
+
+**POSTPONED**
+
+Avoid deriving ids from titles resulting in reserved names like id  description  role  ...
+
+PROC 01 Document the model Driven architecture supported by the f
+
+Reflective method invocation should not retrieve the callable method with []
+
+SECU 01 Protect invocation of templates that are not top-leve views
+
+SUC 06extension04 Delete Version of element shall link its next with its previous versions
+
+SUC 06v2 Delete element - plug-in reponsibility on elements to contribute to the delete impact report 
+
+SUC 07 Z extension01 Link as related element found Filtering and searching list of elements candidates to be related
+
+SUC 11 zextension03 Add HTTP request response notes with result of Paste
+
+SUC 11extension02 ACCELERATED Paste an identical copy of an element as contents of other element
+
+SUC 11v2 Trigger and react to Plone copy events when Pasting or Transforming elements or Duplicating roots
+
+SUC 15 zextension01 Add versions to Export
+
+SUC 16 zextension01 Report progress while  Importing a Zipped archive
+
+SUC 17 Filter and search list of elements candidates to be related
+
+SUC 18 Report the progress of an import process
+
+SUC 21 Create Translation of a Model Instance into a new Language
+
+SUC 22refinement01 Create a new version of a CANONICAL LANGUAGE Model Instance
+
+SUC 23 Translate Most Recent Version of a non-canonical language translation
+
+SUC 25 Paste clipboard references as related with an element through a specific relation
+
+SUC11x4 Display clipboard contents before Paste an identical copy of an element as contents of other element
+
+SUC11x5 Add pasted elements to target's children collections  if can not be added directly in the target
+
+USEX 03 When in the linking related elements page  the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+USEX 04 Add to Tabular view a menu to scroll to specific section of the view
+
+USEX 05 Textual view Do not display titles of collections aggregated in an element  if there is only one collection of the kind and the collecton title is standard
+
+USEX 06 Report component versions and build in all pages
+
+USEX 09 After deleting many elements  present the Tabular view on the container element
+
 
 |
 |

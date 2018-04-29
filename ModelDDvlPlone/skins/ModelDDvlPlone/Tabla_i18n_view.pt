@@ -79,61 +79,6 @@
                                 <th tal:condition="python: pPermiteSeleccionarElementos and pPermiteModificarElementos" 
                                     class="nosort" align="left"  > 
                                     <metal:block metal:use-macro="here/MenuAccionesGrupo/macros/tMenuAccionesGrupo" />   
-                                    <tal:block tal:replace="nothing" >
-                                        <dl class="actionMenu activated" id="#" tal:attributes="id python: '%s_ActionsMenu' % pIdTabla">
-                                            <dt class="actionMenuHeader" style="display: inline">
-                                                <a tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'actions','Actions')"/>
-                                            </dt>
-                                            <dd class="actionMenuContent">
-                                                <ul>
-                                                    <li>
-                                                        <a title="#" onclick="#"
-                                                            tal:define="aCutLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'cut', 'Cut')"
-                                                            tal:attributes="title aCutLabel;
-                                                                onclick python: 'pMDDSubmit_varios( %cCut%c, %c%s%c)%c return true%c' % ( 39, 39, 39, pIdTabla, 39, 59,59,);">
-                                                            <img src="#" alt="#" title="#" 
-                                                                tal:attributes="src string:${portal_url}/cut_icon.gif; alt aCutLabel; title aCutLabel" 
-                                                                id="icon-cut" />
-                                                            <span tal:content="aCutLabel" />        
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a title="#" onclick="#"
-                                                            tal:define="aCopyLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'copy', 'Copy')"
-                                                            tal:attributes="title aCopyLabel;
-                                                                onclick python: 'pMDDSubmit_varios( %cCopy%c, %c%s%c)%c return true%c' % ( 39, 39, 39, pIdTabla, 39, 59,59,);" >
-                                                            <img src="#" alt="#" title="#" 
-                                                                tal:attributes="src string:${portal_url}/copy_icon.gif; alt aCopyLabel; title aCopyLabel" 
-                                                                id="icon-copy" />
-                                                            <span tal:content="aCopyLabel" />        
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a title="#" onclick="#" href="#"
-                                                            tal:define="aPasteLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'paste', 'Paste');
-                                                                        unaHref     string:${SRES/url}/MDDPaste"
-                                                            tal:attributes="title aPasteLabel;href unaHref" >
-                                                            <img src="#" alt="#" title="#" 
-                                                                tal:attributes="src string:${portal_url}/paste_icon.gif; alt aPasteLabel; title aPasteLabel" 
-                                                                id="icon-copy" />
-                                                            <span tal:content="aPasteLabel" />        
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a title="#" onclick="#"
-                                                            tal:define="aDeleteLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'delete', 'Delete')"
-                                                            tal:attributes="title aDeleteLabel;
-                                                                onclick python: 'pMDDSubmit_varios( %cDelete%c, %c%s%c)%c return true%c' % ( 39, 39, 39, pIdTabla, 39, 59,59,);" >
-                                                            <img src="#" alt="#" title="#" 
-                                                                tal:attributes="src string:${portal_url}/cut_icon.gif; alt aDeleteLabel; title aDeleteLabel" 
-                                                                id="icon-cut" />
-                                                            <span tal:content="aDeleteLabel" />        
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </dd>
-                                        </dl>
-                                    </tal:block>
                                 </th>
                                 <th class="nosort" align="left" tal:repeat="unColumnName TRAVRES/column_names" tal:content="python: TRAVRES[ 'column_translations'].get( unColumnName, {}).get( 'translated_label', unColumnName)" />
                             </tr>

@@ -42,32 +42,47 @@
 
 
         <tal:block tal:define="
-                 global pForm request/form;
-                        pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-                        pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-                        unosArgs python: {
-                            'theTimeProfilingResults' :pProfilingResults,
-                            'theElement'              :here, 
-                            'theNewValuesDict'        :pForm,
-                            'theAdditionalParams'     :None, }; 
-                 global pChangeReports python: here.ModelDDvlPlone_tool.fChangeValues( **unosArgs)" />
+            global pForm request/form;
+                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                unosArgs python: {
+                    'theTimeProfilingResults' :pProfilingResults,
+                    'theElement'              :here, 
+                    'theNewValuesDict'        :pForm,
+                    'theAdditionalParams'     :None, }; 
+            global pChangeReports python: here.ModelDDvlPlone_tool.fChangeValues( **unosArgs);
+                pChangeIdReports python: [ aChangeReport for aChangeReport in pChangeReports[ 'field_reports'] if ( aChangeReport.get( 'attribute_name', '') == 'id') and ( aChangeReport.get( 'effect', '') == 'changed')]" >
+                 
+            <tal:block tal:condition="pChangeIdReports">
+                <tal:block tal:define="dummy python: request.response.redirect( '%s/Editar' % here.absolute_url())" />    
+            </tal:block>    
+                 
+                 
+  
+            <tal:block tal:condition="not: pChangeIdReports">
 
-        <div metal:use-macro="here/document_actions/macros/document_actions">
-            Document actions (print, sendto etc)
-        </div>
+                <div metal:use-macro="here/document_actions/macros/document_actions">
+                    Document actions (print, sendto etc)
+                </div>
+        
+                <h1 tal:content="here/Title" class="documentFirstHeading">
+                  Title or id
+                </h1>
+        
+                <div metal:use-macro="here/document_byline/macros/byline">
+                  Get the byline - contains details about author and modification date.
+                </div>
+                
+                <tal:block tal:replace="nothing">
+                    <div tal:replace="structure python: str( here.REQUEST)" />
+                </tal:block>    
+        
+                <metal:block metal:use-macro="here/Editar_inner/macros/tEditarInner" />
+        
+                <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
+            </tal:block>    
 
-        <h1 tal:content="here/Title" class="documentFirstHeading">
-          Title or id
-        </h1>
-
-        <div metal:use-macro="here/document_byline/macros/byline">
-          Get the byline - contains details about author and modification date.
-        </div>
-
-        <metal:block metal:use-macro="here/Editar_inner/macros/tEditarInner" />
-
-        <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
-                            
+        </tal:block>          
     </tal:main-macro>
 </metal:main>
 

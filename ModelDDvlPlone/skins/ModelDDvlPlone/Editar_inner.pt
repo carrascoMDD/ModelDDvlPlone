@@ -68,8 +68,8 @@
                 pShowOrHideTrees            pFalse; 
                 pMostrarAnteriorPosterior   pTrue;
                 pForceExcludeId    pForceExcludeId | not: here/portal_properties/site_properties/visible_ids;
-                pCanRequestEditId  python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  ( not request.get( 'edit_id', ''));
-                pEditId            python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  request.get( 'edit_id', '');" >
+                pCanRequestEditId  python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  not ( request.get( 'edit_id', '') == '1');
+                pEditId            python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  ( request.get( 'edit_id', '') == '1');" >
     
                 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
     
@@ -145,7 +145,7 @@
                             <input originalvalue="#" name="UID" value="#" type="hidden"
                                 tal:attributes="originalvalue SRES/UID;value SRES/UID" >
             
-                            <input originalvalue="#" name="edit_id" originalvalue="#" value="#" type="hidden"
+                            <input originalvalue="#" name="edit_id" id="edit_id" originalvalue="#" value="#" type="hidden"
                                 tal:attributes="originalvalue python: ( pEditId and '1') or '0'; value python: ( pEditId and '1') or '0'" >
             
                             <script type="text/javascript">
@@ -207,7 +207,7 @@
                                                     <input tal:condition="pCanRequestEditId"
                                                         style="font-size: 8pt; font-style: italic; color: red; font-weight: 600" 
                                                         name="form_submit3" type="submit"  value="Edit Identifier"  i18n:domain="ModelDDvlPlone" i18n:attributes="value ModelDDvlPlone_EditIdButton_labelId" 
-                                                        onclick="document.getElementById( 'editar_id').value='1';document.forms[ 'edit_form'].submit()"/>
+                                                        onclick="document.getElementById( 'edit_id').value='1';document.forms[ 'edit_form'].submit()"/>
                                                     <tal:block tal:content="SRES/id" />
                                                 </td>
                                             </tr>                                  

@@ -30,7 +30,7 @@ __author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
-
+import os
 
 # Zope
 from OFS import SimpleItem
@@ -50,6 +50,11 @@ from DateTime import DateTime
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName, UniqueObject
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
+
+#from Products.PageTemplates.GlobalTranslationService import getGlobalTranslationService
+
+#from Products.PlacelessTranslationService.Negotiator import Negotiator
+from Products.PlacelessTranslationService.Negotiator import getLangPrefs
 
 from Acquisition  import aq_inner, aq_parent
 
@@ -113,8 +118,28 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     security.declareProtected('Manage properties', 'index_html')
     index_html = PageTemplateFile('skins/index_html', globals())
 
+    
+    
+    
+    def __init__( self):
+        self.vCachedRenderedTemplates = { }
+        
+        #"""Trying to find wich superclasses instance intialiation methods to delegate into.
+        
+        #"""
+        
+        #"""
+        #UniqueObject: __init__ method in object supertype (which just pass)
+        #PropertyManager: __init__ method in ExtensionClass supertype (which just pass)
+        
+        #Can not find up the inheritance chain any __init__ method worth to delegate to
+        
+        
+        #x: __init__ method in itself or its superclasses
+        
+        #"""
 
-
+        
 
 
 # ACV 20090325 Learned from tools generation by ArchGenXML
@@ -981,6 +1006,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
     
     
+    
+    
+    
 # #############################################################
 # Template invocation methods
 #
@@ -1020,6 +1048,91 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     
     
+
+
+    security.declareProtected( permissions.ManagePortal, 'pFlushCachedTemplates')
+    def pFlushCachedTemplates(self, theContextualObject):
+        self.vCachedRenderedTemplates = { }
+        return self
+    
+
+
+
+    security.declarePublic('fRenderTemplateOrCachedForProjectInLanguage')
+    def fRenderTemplateOrCachedForProjectInLanguage(self, theContextualObject, theTemplateName):
+        """Retrieve a previously rendered template for a project, independent of the here element, for the currently negotiared language and return the rendered HTML.
+        
+        """
+        if not theTemplateName:
+            return self.fRenderTemplate( theContextualObject, theTemplateName)
+                        
+        unNombreProyecto = ''
+        try:
+            unNombreProyecto = theContextualObject.getNombreProyecto()
+        except:
+            None
+        if not unNombreProyecto:    
+            return self.fRenderTemplate( theContextualObject, theTemplateName)
+        
+        aViewName = theTemplateName
+        if aViewName.find( '%s') >= 0:
+            aViewName = aViewName % unNombreProyecto
+            
+        if not aViewName:
+            return self.fRenderTemplate( theContextualObject, theTemplateName)
+        
+        
+        
+        aI18NDomain = ''
+        if not aI18NDomain:
+            try:
+                aI18NDomain = theContextualObject.getNombreProyecto()
+            except:
+                None
+                
+        if not aI18NDomain:
+            aI18NDomain = "plone"
+        
+        
+        #aTranslationService = getToolByName( self, 'translation_service', None)
+        #if not aTranslationService:
+            #return self.fRenderTemplate( theContextualObject, theTemplateName)
+        
+        #unGlobalTranslationService = getGlobalTranslationService()
+        #if not unGlobalTranslationService:
+            #return self.fRenderTemplate( theContextualObject, theTemplateName)
+        
+        unosPreferredLanguages = getLangPrefs( theContextualObject.REQUEST)
+        if not unosPreferredLanguages:
+            return self.fRenderTemplate( theContextualObject, theTemplateName)
+        
+        aNegotiatedLanguage = unosPreferredLanguages[ 0]   
+        if not aNegotiatedLanguage:
+            return self.fRenderTemplate( theContextualObject, theTemplateName)
+        
+        if self.vCachedRenderedTemplates:
+            someCachedRenderedTemplatesForLanguage = self.vCachedRenderedTemplates.get( aNegotiatedLanguage, {})
+            if someCachedRenderedTemplatesForLanguage:
+                aCachedRenderedTemplateForLanguage = someCachedRenderedTemplatesForLanguage.get( aViewName, '')
+                if aCachedRenderedTemplateForLanguage:
+                    return aCachedRenderedTemplateForLanguage
+                
+            
+        unRenderedTemplate = self.fRenderTemplate( theContextualObject, theTemplateName)
+        
+        someCachedRenderedTemplatesForLanguage = self.vCachedRenderedTemplates.get( aNegotiatedLanguage, None)
+        if someCachedRenderedTemplatesForLanguage == None:
+            someCachedRenderedTemplatesForLanguage = { }
+            if not self.vCachedRenderedTemplates:
+                self.vCachedRenderedTemplates = { }
+            self.vCachedRenderedTemplates[ aNegotiatedLanguage] = someCachedRenderedTemplatesForLanguage
+        someCachedRenderedTemplatesForLanguage[ aViewName] = unRenderedTemplate
+        
+        return unRenderedTemplate
+    
+    
+    
+
 
 
 
@@ -1323,7 +1436,120 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theAdditionalParams            = theAdditionalParams
         )
 
+    
+    
      
+    
+    security.declareProtected( permissions.View, 'fProductsInfo')
+    def fProductsInfo(self, 
+        theContextualObject         =None,
+        theProductNames             =None, 
+        theProductNamesNotInQuickInstaller=None,
+        theAdditionalParams         =None):
+        """Retrieve from Plone Quick Installer the information for the named products.
+        
+        """
+    
+        someProductsInfo = []
+        
+        if ( theContextualObject == None):
+            return someProductsInfo
+        
+        if not ( theProductNames or theProductNamesNotInQuickInstaller):
+            return someProductsInfo
+        
+        
+        
+        aPortalQuickInstaller = getToolByName( theContextualObject, 'portal_quickinstaller', None)
+        if ( aPortalQuickInstaller == None):
+            return someProductsInfo
+        
+        anInstanceHome  = aPortalQuickInstaller.getInstanceHome()
+        aProductsFolder = os.path.join( anInstanceHome, 'Products')
+        
+    
+        
+        someInstallableProducts = aPortalQuickInstaller.listInstallableProducts()
+        """entries like {'id':r, 
+                        'status':p.getStatus(),
+                        'hasError':p.hasError()}
+        """
+        someInstallableProductsById = dict( [ [aProduct.get('id', ''), aProduct,] for  aProduct in someInstallableProducts])
+        
+        someInstalledProducts = aPortalQuickInstaller.listInstalledProducts()
+        """entries like {'id':r, 'status':p.getStatus(),
+                        'hasError':p.hasError(),
+                        'isLocked':p.isLocked(),
+                        'isHidden':p.isHidden(),
+                        'installedVersion':p.getInstalledVersion()}
+        """
+        someInstalledProductsById = dict( [ [ aProduct.get('id', ''), aProduct,] for  aProduct in someInstalledProducts])
+    
+        
+        for aProductName in theProductNames:
+            aInstallableProduct = someInstallableProductsById.get( aProductName, {})
+            if aInstallableProduct:
+                aProductInfo = aInstallableProduct.copy()
+                aProductInfo[ 'installed'] = False
+                someProductsInfo.append( aProductInfo)
+            else:
+                aInstalledProduct = someInstalledProductsById.get( aProductName, {})
+                if aInstalledProduct:
+                    aProductInfo = aInstalledProduct.copy()
+                    aProductInfo[ 'installed'] = True
+                    someProductsInfo.append( aProductInfo)
+                else:
+                    aProductInfo = {
+                        'id':        aProductName, 
+                        'status':    False,
+                        'hasError':  True,
+                        'installed': False,
+                    }
+                    someProductsInfo.append( aProductInfo)
+                    
+                    
+        for aProductName in theProductNamesNotInQuickInstaller:
+            aFound = False
+
+            aProductPath =os.path.join( aProductsFolder, aProductName)
+            someFiles = []
+            try:
+                someFiles = os.listdir( aProductPath)
+            except OSError:
+                None
+            for aFile in someFiles:
+                if aFile.lower() == 'version.txt':
+                    aVersion = open( os.path.join( aProductPath, aFile)).read().strip()
+                    if aVersion:
+                        aProductInfo = {
+                            'id':        aProductName, 
+                            'status':    True,
+                            'hasError':  False,
+                            'installed': True,
+                            'installedVersion': aVersion,
+                        }
+                        someProductsInfo.append( aProductInfo)
+                        aFound = True
+                        break
+            if not aFound:
+                aProductInfo = {
+                    'id':        aProductName, 
+                    'status':    False,
+                    'hasError':  False,
+                    'installed': False,
+                }
+                someProductsInfo.append( aProductInfo)
+                
+                        
+        return someProductsInfo
+    
+    
+
+    
+    
+     
+    
+    
     
 
 #####################################################
