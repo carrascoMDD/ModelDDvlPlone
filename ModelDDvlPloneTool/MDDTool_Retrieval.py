@@ -384,8 +384,15 @@ class MDDTool_Retrieval:
         return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fDefaultPloneSubItemsParameters()
     
    
-   
     
+    
+    
+   
+    security.declareProtected( permissions.View, 'fGetMemberInfoForUserId')
+    def fGetMemberInfoForUserId(self, theContextualObject, theUserId):
+        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fGetMemberInfoForUserId( theContextualObject, theUserId)
+    
+       
     
 
  

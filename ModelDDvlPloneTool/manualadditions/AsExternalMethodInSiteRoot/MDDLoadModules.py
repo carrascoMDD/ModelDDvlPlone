@@ -799,7 +799,7 @@ def _fLoadModules(
                     theClearGlobals              =theClearGlobals, 
                     theClearPersistent           =theClearPersistent,
                 )
-                if not aReloadModuleResult:
+                if not ( aReloadModuleResult):
                     theLoadModulesReport[ 'theModulesWithReloadError_2'].append( aModuleNameToReload)        
                     continue
     
