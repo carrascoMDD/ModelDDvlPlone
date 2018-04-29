@@ -62,7 +62,7 @@
     
     
         
-                <tal:block tal:condition="python: pLinkUID and not pUnlinkUID" 
+                <tal:block tal:condition="python: pLinkUID and ( not pUnlinkUID)" 
                     tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >
                     
                      
@@ -86,14 +86,37 @@
                         </tal:block>                            
                     </tal:block>    
                 </tal:block>    
+                
                 <p tal:content="python: 'pConfirmedUnlink=%s' % pConfirmedUnlink" />
-                <tal:block tal:condition="python: not pLinkUID and pUnlinkUID" 
+                
+                <tal:block tal:condition="python: (not pLinkUID) and pUnlinkUID" 
                     tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >    
                     
                     <tal:block tal:condition="not: pConfirmedUnlink" >
                     
                         <tal:block 
-                            tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                            tal:define="
+                            pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                            unosArgs python: { 
+                                'theTimeProfilingResults'     :pProfilingResults,
+                                'theElement'                  :here, 
+                                'theParent'                   :None,
+                                'theParentTraversalName'      :'',
+                                'theTypeConfig'               :None, 
+                                'theAllTypeConfigs'           :None, 
+                                'theViewName'                 :'', 
+                                'theRetrievalExtents'         :[ 'traversals',  ],
+                                'theWritePermissions'         :[ 'object', 'relations', ],
+                                'theFeatureFilters'           :{ 'attrs': [ ], 'aggregations': [], 'relations': [ pReferenceFieldName, ], 'candidates_for_relations': [ pReferenceFieldName, ], }, 
+                                'theInstanceFilters'          :None,
+                                'theTranslationsCaches'       :None,
+                                'theCheckedPermissionsCache'  :None,
+                                'theAdditionalParams'         :None, };                    
+                            SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                            pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                            TRAVRES python: SRES[ 'traversals_by_name'].get( pReferenceFieldName, None);
+                            
+                            pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                             unosArgs python: { 
                                 'theTimeProfilingResults'     :pProfilingResults,
                                 'theContextualElement'        :here, 
@@ -108,12 +131,12 @@
                                 'theTranslationsCaches'       :None,
                                 'theCheckedPermissionsCache'  :None,
                                 'theAdditionalParams'         :None, };    
-                            SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfigByUID( **unosArgs);
+                            RELRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfigByUID( **unosArgs);
                             pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-                            pPermiteDesenlazar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
+                            pPermiteDesenlazar  python: RELRES[ 'read_permission'] and RELRES[ 'write_permission']; 
                             pMillisecondsNow python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
                             
-                            <tal:block tal:condition="SRES">
+                            <tal:block tal:condition="python: RELRES">
                     
                                 <h2>
                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_desenlazar_label">Unlink-</span>
@@ -136,15 +159,17 @@
                                                 &nbsp;
                                                 <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_ConfirmUnlink_action_label">Please confirm unlinking of-</span>
                                                 &nbsp;
+                                                <span tal:content="TRAVRES/traversal_translations/translated_label" />                                                
                                                 <br/>
                                                 (                    
-                                                <img src="#" tal:attributes="src python: '%s/%s' % ( here.portal_url(), SRES['content_icon'])"  
+                                                <img src="#" tal:attributes="src python: '%s/%s' % ( here.portal_url(), RELRES['content_icon'])"  
                                                      alt="" title="MetaType icon" id="icon-here" />
                                                 &nbsp;
-                                                <span tal:content="python: SRES['type_translations'][ 'translated_archetype_name'] "/>
+                                                <span tal:content="python: RELRES['type_translations'][ 'translated_archetype_name'] "/>
                                                 )
                                                 &nbsp;
-                                                <span tal:content="SRES/values_by_name/title/uvalue" />
+                                                <span tal:content="RELRES/values_by_name/title/uvalue" />
+
                                             </font>
                                         </a>
                                     </tal:block>

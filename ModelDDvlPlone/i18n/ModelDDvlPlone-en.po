@@ -2280,6 +2280,12 @@ msgid "ModelDDvlPlone_ElementLockedAgainstModifications"
 msgstr "is Locked against modifications."
 
 
+#. Default: "Por favor, confirme desenlazar elemento relacionado como"
+#: Enlazar_inner.pt 
+msgid "ModelDDvlPlone_ConfirmUnlink_action_label"
+msgstr "Please confirm unlinking of element related as"
+
+
 
 
 
