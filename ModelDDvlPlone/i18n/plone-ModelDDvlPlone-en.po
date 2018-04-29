@@ -60,3 +60,18 @@ msgstr "Versions"
 msgid "relations"
 msgstr "Tabular"
 
+
+#. Default: "Vaciar"
+#: 
+msgid "Flush"
+msgstr "Flush"
+
+
+
+#. Default: "Habilitar"
+#: 
+msgid "Enable"
+msgstr "Enable"
+
+
+

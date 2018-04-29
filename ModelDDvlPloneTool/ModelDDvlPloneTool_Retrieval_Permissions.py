@@ -55,7 +55,11 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
         return { }
     
        
+    security.declarePrivate( 'fCreateRolesCache')
+    def fCreateRolesCache( self):
+        return { }
     
+     
     
     
 

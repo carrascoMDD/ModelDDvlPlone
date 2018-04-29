@@ -76,7 +76,7 @@ from ModelDDvlPloneTool_Cache       import cUnsecureCacheFlushAcknowledgedAuthen
 
 
 
-
+from MDDRenderContext import MDDRenderContext
 
     
 cSecondsToReviewAndDelete_Minumum = 10
@@ -161,7 +161,21 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         self.vDisplayCacheHitInformation = cDisplayCacheHitInformation_Default
         self.vSecondsToReviewAndDelete   = cSecondsToReviewAndDelete_Default
     
-            
+        
+        
+        
+        
+    security.declarePrivate( 'fModelDDvlPloneTool_Retrieval')
+    def fModelDDvlPloneTool_Retrieval( self, theContextualElement):
+        return ModelDDvlPloneTool_Retrieval()
+    
+    
+    
+        
+    security.declarePublic( 'fNewRenderContext')
+    def fNewRenderContext( self, theContextualElement, theInitialParams={}):
+        
+        return MDDRenderContext( theInitialParams)
  
         
 
@@ -744,14 +758,15 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         if not unNewElementResult:
             return aCreationReport
         
-        unNewElementUID = unNewElementResult.get( 'UID', '')
-        if not unNewElementUID:
+        if not aCreationReport:
             return aCreationReport
         
-        ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, [ unNewElementUID],)
+        unosImpactedObjectsUIDs = aCreationReport.get( 'impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, unosImpactedObjectsUIDs)
             
         return aCreationReport
-            
         
         
         
@@ -785,18 +800,23 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         if not aCreationReport:
             return aCreationReport
         
+        if not aCreationReport:
+            return aCreationReport
+        
         unNewElementResult = aCreationReport.get( 'new_object_result', None)
         if not unNewElementResult:
             return aCreationReport
         
-        unNewElementUID = unNewElementResult.get( 'UID', '')
-        if not unNewElementUID:
+        if not aCreationReport:
             return aCreationReport
         
-        ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, [ unNewElementUID],)
+        unosImpactedObjectsUIDs = aCreationReport.get( 'impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, unosImpactedObjectsUIDs)
             
         return aCreationReport
-            
+       
         
         
                     
@@ -1379,6 +1399,24 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
 
       
+    
+    security.declareProtected( permissions.ManagePortal, 'pInvalidateToCreatePlone')
+    def pInvalidateToCreatePlone(self, theContainerElement):
+        """Flush templates that would be affected if a Plone element were created in the container.
+        
+        """
+        
+        unosImpactedObjectsUIDs = ModelDDvlPloneTool_Mutators().fImpactCreatePloneUIDs( theContainerElement)
+
+        if unosImpactedObjectsUIDs:
+            ModelDDvlPloneTool_Cache().pFlushCachedTemplatesForElements( self, theContainerElement, unosImpactedObjectsUIDs)
+            
+        return self
+       
+      
+    
+    
+
     
 
     security.declareProtected( permissions.ManagePortal, 'fFlushCachedTemplates')

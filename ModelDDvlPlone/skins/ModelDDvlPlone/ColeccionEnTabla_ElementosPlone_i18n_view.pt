@@ -225,18 +225,23 @@
                             <tal:block tal:condition="pPermiteCrearElementos" >
                                 <tal:block tal:condition="python: len( TRAVRES[ 'factories']) == 1">
                                     <tr tal:define="unaFactoriaElemento python: TRAVRES[ 'factories'][ 0]; 
-                                                    unTituloAccion python: u'%s %s' % (  here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] )"
+                                                    unTituloAccion python: u'%s %s' % (  here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] );
+                                                    unaHREF python: '%s/MDDCreatePloneElement/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])"
                                         class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" >
                                         <td align="center"  >
                                             <a href="#" title="#"
-                                                tal:attributes="title unTituloAccion; href python: '%screateObject/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'meta_type'])" >
+                                                tal:attributes="
+                                                    title unTituloAccion; 
+                                                    href unaHREF" >
                                                 <img src="#" title="#" alt="#"  id="icon-add"
                                                     tal:attributes="title unTituloAccion; src python: '%s/add_icon.gif' % here.portal_url()" />                                                  
                                             </a>
                                         </td>
                                         <td colspan="4" align="left">
                                             <a href="#"  title="#"
-                                                tal:attributes="title unTituloAccion; href python: '%screateObject/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])">
+                                                tal:attributes="
+                                                    title unTituloAccion;
+                                                    href unaHREF">
                                                 <tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_crear_action_label">Crear</tal:block> 
                                                     <img src="#" alt="" title="" 
                                                         tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])" />
@@ -252,7 +257,9 @@
                                             <span tal:repeat="unaFactoriaElemento TRAVRES/factories" >      
                                                 <a href="#" title="#"
                                                     tal:define="unTituloAccion python: u'%s %s' % (  here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] )"
-                                                    tal:attributes="title unTituloAccion;href python: '%screateObject/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])" >
+                                                    tal:attributes="
+                                                        title unTituloAccion;
+                                                        href python: '%s/MDDCreatePloneElement/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])" >
                                                     <img src="#" alt="" title=""
                                                         tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])">
                                                     <span tal:content=" unaFactoriaElemento/type_translations/translated_archetype_name" />
