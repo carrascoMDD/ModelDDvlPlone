@@ -32,6 +32,11 @@ __docformat__ = 'plaintext'
 
 
 
+cMinimumTimeSlice_Minimum     = 10
+cMinimumTimeSlice_Maximum     = 5000
+cYieldMilliseconds_Minimum    = 10
+cYieldMilliseconds_Maximum    = 5000
+
 cExportForcedRootId = 'modeldd'
 
 

@@ -169,6 +169,8 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
         theMDDImportTypeConfigs        =None, 
         thePloneImportTypeConfigs      =None, 
         theMappingConfigs              =None, 
+        theMinimumTimeSlice            =None,
+        theYieldTimePercent            =None,        
         theAdditionalParams            =None):
         """Import into an element a zipped archive with XML file, and any included binary content the attached files and images."
         
@@ -531,7 +533,8 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                     MDDRefactor_Import_Exception, # theExceptionToRaise,
                     True, # theAllowPartialCopies,
                     True, # theIgnorePartialLinksForMultiplicityOrDifferentOwner
-    
+                    theMinimumTimeSlice,
+                    theYieldTimePercent,        
                 )  
                 if ( not unRefactor) or not unRefactor.vInitialized:
                     unImportReport.update( { 

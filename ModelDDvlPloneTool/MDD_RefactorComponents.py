@@ -37,6 +37,9 @@ import traceback
 import logging
 
 
+import time
+
+
 from StringIO  import StringIO
 from cStringIO import StringIO   as clsFastStringIO
 
@@ -112,6 +115,7 @@ class MDDRefactor:
         theMapperInfoMgr       =None,
         theMapperMetaInfoMgr   =None, 
         theTraceabilityMgr     =None,
+        theTimeSliceMgr        =None,
         theWalker              =None, 
         theAllowMappings       =True,
         theExceptionToRaise    =None,
@@ -144,6 +148,7 @@ class MDDRefactor:
                 self.vMapperInfoMgr     = theMapperInfoMgr
                 self.vMapperMetaInfoMgr = theMapperMetaInfoMgr
                 self.vTraceabilityMgr   = theTraceabilityMgr
+                self.vTimeSliceMgr      = theTimeSliceMgr
                 self.vWalker            = theWalker
                 
                 self.vAllowMappings     = theAllowMappings
@@ -201,7 +206,8 @@ class MDDRefactor:
                 if ( self.vSourceInfoMgr == None)   or ( self.vSourceMetaInfoMgr == None)  or \
                    ( self.vTargetInfoMgr == None)   or ( self.vTargetMetaInfoMgr == None)  or \
                    ( self.vMapperInfoMgr == None)   or ( self.vMapperMetaInfoMgr == None)  or \
-                   ( self.vTraceabilityMgr == None) or ( self.vWalker == None):
+                   ( self.vTraceabilityMgr == None) or ( self.vTimeSliceMgr == None)  or \
+                   ( self.vWalker == None):
                     return self
     
     
@@ -247,6 +253,12 @@ class MDDRefactor:
                         self.vInitFailed = True
                     else:
                         self.vTraceabilityMgr.vInitialized = True
+                    
+                if self.vTimeSliceMgr and not self.vInitFailed:
+                    if not self.vTimeSliceMgr.fInitInRefactor( self):
+                        self.vInitFailed = True
+                    else:
+                        self.vTimeSliceMgr.vInitialized = True
                     
                 if self.vWalker and not self.vInitFailed:
                     if not self.vWalker.fInitInRefactor( self):
@@ -418,6 +430,20 @@ class MDDRefactor_Role_TargetMetaInfoMgr ( MDDRefactor_Role):
     
     
     
+class MDDRefactor_Role_TimeSliceMgr ( MDDRefactor_Role):
+    """
+    
+    """    
+
+    def fInitInRefactor( self, theRefactor):
+        if not MDDRefactor_Role.fInitInRefactor( self, theRefactor,):
+            return False
+        
+        return True
+    
+    
+        
+    
     
     
 class MDDRefactor_Role_TraceabilityMgr ( MDDRefactor_Role):
@@ -550,6 +576,7 @@ class MDDRefactor_Paste ( MDDRefactor):
             MDDRefactor_Paste_MapperInfoMgr(), 
             MDDRefactor_Paste_MapperMetaInfoMgr_ConvertTypes(), 
             MDDRefactor_Paste_TraceabilityMgr(), 
+            MDDRefactor_Paste_TimeSliceMgr(),
             MDDRefactor_Paste_Walker(), 
             theAllowMappings,
             theExceptionToRaise,
@@ -560,6 +587,31 @@ class MDDRefactor_Paste ( MDDRefactor):
         
         
         
+class MDDRefactor_Paste_TimeSliceMgr( MDDRefactor_Role_TimeSliceMgr):
+    """
+    
+    """
+    
+    
+    
+    def fInitInRefactor( self, theRefactor):
+        if not MDDRefactor_Role_TimeSliceMgr.fInitInRefactor( self, theRefactor,):
+            return False
+               
+        return True
+        
+    
+    
+        
+    def pTimeSlice( self,):
+        return self
+    
+    
+        
+    
+    
+    
+    
 
 class MDDRefactor_Paste_SourceInfoMgr_TraversalResult ( MDDRefactor_Role_SourceInfoMgr):
     """
@@ -3679,7 +3731,9 @@ class MDDRefactor_Import ( MDDRefactor):
         theMappingConfigs,
         theExceptionToRaise,
         theAllowPartialCopies,
-        theIgnorePartialLinksForMultiplicityOrDifferentOwner):
+        theIgnorePartialLinksForMultiplicityOrDifferentOwner,
+        theMinimumTimeSlice,
+        theYieldTimePercent):
         
         
         unInitialContextParms = {
@@ -3694,6 +3748,8 @@ class MDDRefactor_Import ( MDDRefactor):
             'target_plone_type_configs':theTargetPloneTypeConfigs,
             'target_all_type_configs':  theTargetAllTypeConfigs,
             'mapping_configs':          theMappingConfigs,
+            'minimum_time_slice':       theMinimumTimeSlice,
+            'yield_time_percent':       theYieldTimePercent,
         }
         
         MDDRefactor.__init__(
@@ -3709,6 +3765,7 @@ class MDDRefactor_Import ( MDDRefactor):
             MDDRefactor_Paste_MapperInfoMgr(), 
             MDDRefactor_Paste_MapperMetaInfoMgr_ConvertTypes(), 
             MDDRefactor_Import_TraceabilityMgr(), 
+            MDDRefactor_Import_TimeSliceMgr(),
             MDDRefactor_Paste_Walker(), 
             True, # theAllowMappings
             theExceptionToRaise,
@@ -4522,8 +4579,113 @@ class MDDRefactor_Import_SourceMetaInfoMgr_XMLElements( MDDRefactor_Role_SourceM
         return ''
                 
                 
-
     
+    
+    
+
+class MDDRefactor_Import_TimeSliceMgr( MDDRefactor_Role_TimeSliceMgr):
+    """
+    
+    """
+    
+    def __init__( self,):
+        
+        self.vSleepless             = False
+        self.vMinimumTimeSlice      = 0
+        self.vYieldTimePercent      = 0
+        self.vLastSliceMilliseconds = 0
+        
+        
+        
+
+        
+    
+    
+    def fInitInRefactor( self, theRefactor):
+        if not MDDRefactor_Role_TimeSliceMgr.fInitInRefactor( self, theRefactor,):
+            return False
+        
+        unMinimumTimeSlice = 0
+        
+        unMinimumTimeSliceStr = self.vRefactor.fGetContextParam( 'minimum_time_slice', None) 
+        if unMinimumTimeSliceStr:
+            try:
+                unMinimumTimeSlice = int( unMinimumTimeSliceStr)
+            except:
+                None
+                
+        if unMinimumTimeSlice < cMinimumTimeSlice_Minimum:
+            unMinimumTimeSlice = 0
+            
+        if unMinimumTimeSlice > cMinimumTimeSlice_Maximum:
+            unMinimumTimeSlice = cMinimumTimeSlice_Maximum
+            
+            
+            
+        unYieldTimePercent = 0
+        
+        unYieldTimePercentStr = self.vRefactor.fGetContextParam( 'yield_time_percent', None) 
+        if unYieldTimePercentStr:
+            try:
+                unYieldTimePercent = int( unYieldTimePercentStr)
+            except:
+                None
+
+        unYieldTimePercent = int( unYieldTimePercent) 
+        if unYieldTimePercent >= 100:
+            unYieldTimePercent = unYieldTimePercent % 100
+            
+        unYieldTimeFraction = ( unYieldTimePercent * 1.0 ) / 100
+        
+        if ( not unMinimumTimeSlice) or ( unYieldTimeFraction < 0.01):
+            self.vSleepless = True
+        else:
+            self.vSleepless = False
+            
+        self.vMinimumTimeSlice = unMinimumTimeSlice
+        self.vYieldTimePercent = unYieldTimeFraction
+        
+        return True
+        
+    
+    
+    
+    
+    
+        
+    def pTimeSlice( self,):
+        if self.vSleepless:
+            return self    
+        
+        unMillisNow = int( time.time() * 1000)
+        
+        if not self.vLastSliceMilliseconds:
+            self.vLastSliceMilliseconds = unMillisNow
+            return self
+        
+        unLapsedSinceLastSlice = unMillisNow - self.vLastSliceMilliseconds
+        
+        if unLapsedSinceLastSlice < self.vMinimumTimeSlice:
+            return self
+        
+        unSleepMilliseconds = ( self.vYieldTimePercent * unLapsedSinceLastSlice) / ( 1 - self.vYieldTimePercent)
+        if unSleepMilliseconds <= cYieldMilliseconds_Minimum:
+            return self
+        
+        unSleepMilliseconds = min( unSleepMilliseconds, cYieldMilliseconds_Maximum)
+        
+        unSleepSeconds = unSleepMilliseconds / 1000
+        
+        time.sleep( unSleepSeconds)
+        
+        unMillisAfter = int( time.time() * 1000)
+        
+        self.vLastSliceMilliseconds = unMillisAfter
+        
+        return self
+    
+    
+        
     
     
 
@@ -5587,6 +5749,10 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     unErrorReason = cRefactorStatus_Error_BadStackFrame
                     return False
           
+                
+                self.vRefactor.vTimeSliceMgr.pTimeSlice()
+                
+                
                 unPopulateAttributesResult = self.vRefactor.vTargetInfoMgr.fPopulateElementAttributes( theRefactorFrame.vSource, theRefactorFrame.vTarget, theRefactorFrame.vTargetTypeConfig, theRefactorFrame.vMapping, theRefactorFrame.vMustReindexTarget)
                 
                 if unPopulateAttributesResult:
@@ -6074,6 +6240,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                             
                             if not self.fPathIsSameOrParentPathOf( unSourcePath, unTargetRootPath):
                                 
+                                self.vRefactor.vTimeSliceMgr.pTimeSlice()
+
                                 self.vRefactor.vSourceInfoMgr.fDeleteSource( unSource)
                             
                          
@@ -6167,6 +6335,9 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                 
                 for unTarget in unosTargets:
                     
+                    self.vRefactor.vTimeSliceMgr.pTimeSlice()
+
+                    
                     unTargetLinked = False
                     
                     unMapping = self.vRefactor.vMapperInfoMgr.fGetMappingForTarget( unTarget)
@@ -6177,6 +6348,9 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                         unosSources = self.vRefactor.vMapperInfoMgr.fGetSourcesForTarget( unTarget)
                         
                         for unaTargetRelationTraversalConfig in unasTargetRelationTraversalConfigs:
+                            
+                            self.vRefactor.vTimeSliceMgr.pTimeSlice()
+                            
                             
                             if not unIsMoveOperation:
                                 unDoNotCopy = self.vRefactor.vTargetMetaInfoMgr.fGetDoNotCopyFromTraversalConfig( unaTargetRelationTraversalConfig)
@@ -6212,6 +6386,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                     allRelatedSourceUIDs = set()
                                     
                                     for unSource in unosSources:
+                                        
+                                        
                                         if not self.vRefactor.vSourceInfoMgr.fIsSourceOk( unSource):
                                             unErrorReason = cRefactorStatus_AggregatedSource_Not_OK
                                             if not self.vRefactor.vAllowPartialCopies:
@@ -6247,6 +6423,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                     unosRelatedSources = self.vRefactor.vSourceInfoMgr.fGetTraversalValues( unSource, unSourceTraversalNameToRetrieve, [])
                                                     if unosRelatedSources:
                                                         for unRelatedSource in unosRelatedSources:
+                                                            
+                                                            
                                                             if unRelatedSource == None:
                                                                 unErrorReason = cRefactorStatus_RelatedSource_None
                                                                 if not self.vRefactor.vAllowPartialCopies:
@@ -6295,6 +6473,9 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                     if allRelatedSources:
                                                    
                                         for unRelatedSource in unosRelatedSources:
+                                            
+                                            self.vRefactor.vTimeSliceMgr.pTimeSlice()
+                                            
                                 
                                             unosTargetsToBeRelated = self.vRefactor.vMapperInfoMgr.fGetTargetsForSource( unRelatedSource)
                                             
@@ -6305,6 +6486,9 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                 unosTargetsToBeRelatedOfRightType = [ ]
                                                 
                                                 for unTargetToBeRelated in unosTargetsToBeRelated:
+                                                    
+                                                    self.vRefactor.vTimeSliceMgr.pTimeSlice()
+                                                    
                                                     
                                                     unTargetToBeRelatedType = self.vRefactor.vTargetMetaInfoMgr.fTypeName( unTargetToBeRelated)
                                                     if ( unTargetToBeRelatedType in someRelatedTypes):                 
@@ -6326,6 +6510,9 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                         
                                                     else:
                                                         unTargetLinked = True
+                                                        
+                                                    self.vRefactor.vTimeSliceMgr.pTimeSlice()
+                                                        
                                             
                                             else:
                                                 """UNLESS the relation is accross roots, in which case the relation shall be created:
@@ -6388,7 +6575,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                             else:
                                                                 unTargetLinked = True
 
-        
+                                                            self.vRefactor.vTimeSliceMgr.pTimeSlice()
+
                     #if unTargetLinked:
                         #self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( unTarget)
      
@@ -6667,6 +6855,7 @@ class MDDRefactor_NewVersion ( MDDRefactor):
             MDDRefactor_NewVersion_MapperInfoMgr_NoConversion(), 
             MDDRefactor_NewVersion_MapperMetaInfoMgr_NoConversion(), 
             MDDRefactor_NewVersion_TraceabilityMgr(), 
+            MDDRefactor_Import_TimeSliceMgr(),
             MDDRefactor_Paste_Walker(), 
             False, # theAllowMappings
             theExceptionToRaise,
@@ -8300,6 +8489,7 @@ class MDDRefactor_NewTranslation ( MDDRefactor):
             MDDRefactor_NewTranslation_MapperInfoMgr_NoConversion(), 
             MDDRefactor_NewTranslation_MapperMetaInfoMgr_NoConversion(), 
             MDDRefactor_NewTranslation_TraceabilityMgr(), 
+            MDDRefactor_Import_TimeSliceMgr(),
             MDDRefactor_Paste_Walker(), 
             False, # theAllowMappings
             theExceptionToRaise,
