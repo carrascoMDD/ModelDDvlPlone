@@ -239,7 +239,7 @@ class ModelDDvlPloneTool_Retrieval_Utils:
     security.declarePrivate( 'prettyPrintDict')
     def prettyPrintDict(self, theOutput, theDict, theIndentLevel, theDictKeysToExclude=None, theDictKeysOrder=None, theAlreadyPrinted=None):
         theOutput.write(  cIndent *  theIndentLevel)
-        theOutput.write( '{')
+        theOutput.write( '{\n')
     
         if (not theAlreadyPrinted) or not (theDict in theAlreadyPrinted['elements']):
             if theAlreadyPrinted:
@@ -253,7 +253,7 @@ class ModelDDvlPloneTool_Retrieval_Utils:
                 if len( unaKey) > unaMaxKeyLen:
                     unaMaxKeyLen = len( unaKey)       
         
-            unaFirstKey = True
+            unaFirstKey = False
             for unaKey in unasKeys:
                 if (not theDictKeysToExclude) or not ( unaKey in theDictKeysToExclude):
                     unElement = theDict[ unaKey]

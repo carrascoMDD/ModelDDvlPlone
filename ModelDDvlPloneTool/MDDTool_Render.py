@@ -276,7 +276,7 @@ class MDDTool_Render:
         """Render a text presentation of a list with rich inner structure, where items appear in consecutive lines, and nested items appear indented under their containers, and alineated with their siblings.
         
         """
-        return self.fModelDDvlPloneToolSupport( theContextualObject).fPrettyPrint( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
+        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fPrettyPrint( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
 
 
     
@@ -292,7 +292,7 @@ class MDDTool_Render:
         return self.fModelDDvlPloneToolSupport( theContextualObject).fPrettyPrintProfilingResultHTML( theProfilingResult)
 
     
-    
+
     
     
     

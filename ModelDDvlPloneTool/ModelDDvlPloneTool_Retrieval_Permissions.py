@@ -327,4 +327,97 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
     
     
 
+
+    
+        
+    security.declarePublic( 'fGetMemberInfoForUserId')
+    def fGetMemberInfoForUserId(self,
+        theContextualObject   =None, 
+        theUserId             ='',):
+        """Member information for the user with the specified id, including the user name and the URL to the member page and to the member photograph.
+        
+        """
+        if not theUserId:
+            return { 
+                'user_id':     '',
+                'member_name': '',
+                'home_URL':    '',
+                'photo_id':    '',
+                'photo_URL':   '',
+            }
+        
+        if theContextualObject == None:
+            return { 
+                'user_id':     theUserId,
+                'member_name': theUserId,
+                'home_URL':    '',
+                'photo_id':    '',
+                'photo_URL':   '',
+            }
+        
+
+        
+        aMembershipTool = getToolByName( theContextualObject, 'portal_membership', None)
+        if not aMembershipTool:
+            return { 
+                'user_id':     theUserId,
+                'member_name': theUserId,
+                'home_URL':    '',
+                'photo_id':    '',
+                'photo_URL':   '',
+            }
+        
+        unMember = aMembershipTool.getMemberById( theUserId)   
+        if not unMember:
+            return { 
+                'user_id':     theUserId,
+                'member_name': theUserId,
+                'home_URL':    '',
+                'photo_id':    '',
+                'photo_URL':   '',
+            }
+        
+        aMemberName     = ''
+        aMemberHomeURL  = ''
+        aMemberPhoto    = None
+        aMemberPhotoId  = ''
+        aMemberPhotoURL = ''
+        
+        try:
+            aMemberName    = unMember.getProperty('fullname')
+        except:
+            None
+        
+        try:
+            aMemberHomeURL = aMembershipTool.getHomeUrl( theUserId, verifyPermission=False)
+        except:
+            None
+        
+        try:
+            aMemberPhoto   = aMembershipTool.getPersonalPortrait( theUserId)
+        except:
+            None
+        
+        if aMemberPhoto:
+            try:
+                aMemberPhotoURL = aMemberPhoto.absolute_url()
+            except:
+                None
+            try:
+                aMemberPhotoId = aMemberPhoto.getId()
+            except:
+                None
+                 
+                
+            
+        return { 
+            'user_id':     theUserId,
+            'member_name': aMemberName,
+            'home_URL':    aMemberHomeURL,
+            'photo_id':    aMemberPhotoId,
+            'photo_URL':   aMemberPhotoURL,
+        }
+        
+    
+    
         

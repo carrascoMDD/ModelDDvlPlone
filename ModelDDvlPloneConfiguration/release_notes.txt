@@ -1,6 +1,28 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
+v2.0.2
+
+---------------------------
+Fix rendering into HTML of Python data structures (lists and dicts), 
+adding a new line before the first entry of a dictionary.
+NOTE that code for rendering into HTML facility is duplicated in ModelDDvlPloneTool_Retrieval_Utils.py and ModelDDvlPloneToolSupport.py.
+Added service fGetMemberInfoForUserId to retrieve information about the member including its name, home holder URL and photo URL.
+
+
+
+V2.x
+---------------------------
+Version of the framework compatible with the 2.x versions of applications gvSIG-i18n and gvSIG-Business Process Definition.
+Numerous changes and improvements over the 1.x versions of the framework.
+
+
+
+
+---------------------------
+
+
+
 v1.0.3 in progress
 --------------------------------------
 

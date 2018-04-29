@@ -538,7 +538,7 @@ def fSortedConfigDictKeys(  theKeys, theDictKeysOrder=None):
 
 def prettyPrintDict( theOutput, theDict, theIndentLevel, theDictKeysToExclude=None, theDictKeysOrder=None, theAlreadyPrinted=None):
     theOutput.write(  cIndent *  theIndentLevel)
-    theOutput.write( '{')
+    theOutput.write( '{\n')
 
     if (not theAlreadyPrinted) or not (theDict in theAlreadyPrinted['elements']):
         if theAlreadyPrinted:
@@ -552,7 +552,7 @@ def prettyPrintDict( theOutput, theDict, theIndentLevel, theDictKeysToExclude=No
             if len( unaKey) > unaMaxKeyLen:
                 unaMaxKeyLen = len( unaKey)       
     
-        unaFirstKey = True
+        unaFirstKey = False
         for unaKey in unasKeys:
             if (not theDictKeysToExclude) or not ( unaKey in theDictKeysToExclude):
                 unElement = theDict[ unaKey]
