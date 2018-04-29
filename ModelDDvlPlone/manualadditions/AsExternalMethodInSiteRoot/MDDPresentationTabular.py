@@ -2,7 +2,7 @@
 #
 # File: MDDPresentationTabular.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -438,26 +438,6 @@ def MDDPresentationTabular(
                 break
 
 
-
-
-        # ACV 20100611 Now done in MDDInteractionTabular such that translations are available to render clipboard and action results.
-        ## #################################################################
-        #"""Retrieve localizations for internationalized strings.
-
-        #"""
-        #if theRdCtxt.fGP( 'theUITranslations', None) == None:
-            
-            #if not cExtensionsForbidden:
-                #anOk, aGo = _fMCtx( True, aRdCtxt, 'MDDExtension_InitUITranslations_Before')(  aRdCtxt)
-                #if not aGo:
-                    #break
-            #anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDInit_UITranslations_Tabular')(          aRdCtxt)
-            #if not aGo:
-                #break
-            #if not cExtensionsForbidden:
-                #anOk, aGo = _fMCtx( True, aRdCtxt, 'MDDExtension_InitUITranslations_After')(   aRdCtxt)
-                #if not aGo:
-                    #break
 
 
 

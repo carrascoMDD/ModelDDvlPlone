@@ -3,7 +3,7 @@
 #
 # File: MDDInspectCache_inner.pt
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -43,6 +43,7 @@
 			pNumEntries                  request/theNumEntries                  | string:;   
 			pProjectName                 request/theProjectName                 | string:;   
 			pLanguage                    request/theLanguage                    | string:;   
+			pRoot                        request/theRoot                        | string:;   
 			
 			global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();" >
 			
@@ -73,8 +74,14 @@
 			</p>
 
 					
-			<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDInspectCache/?theCacheName=%s' % ( here.absolute_url(), pCacheName,)"
-				tal:define="aRefreshLabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+			<a class="state-visible" id="cid_Refresh" href="#" 
+				tal:attributes="href python: '%s/MDDInspectCache/?theCacheName=%s%s' % ( here.absolute_url(), pCacheName, pParamString,)"
+				tal:define="	
+					pProjectNameParamString python: ( pProjectName and ( '&theProjectName=%s' % pProjectName)) or '';
+					pLanguageParamString    python: ( pLanguage and ( '&theLanguage=%s' % pLanguage)) or '';
+					pRootParamString        python: ( pRoot and ( '&theRoot=%s' % pRoot)) or '';
+					pParamString            python: '%s%s%s' % ( pProjectNameParamString, pLanguageParamString, pRootParamString);
+					aRefreshLabel           python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
 				<img src="#" alt="#" title="#" 
 					tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
 					id="icon-refrescar" />
@@ -95,6 +102,7 @@
 						'theNumEntries':       pNumEntries,
 						'theProjectName':      pProjectName,
 						'theLanguage':         pLanguage,
+						'theRoot':             pRoot,
 					};
 					pCacheReport python: here.MDDCacheDump( here.MDDModelDDvlPlone_tool, here, pCacheName, theAdditionalParams=pAdditionalParams)" 
 				tal:condition="pCacheReport" 
@@ -109,22 +117,7 @@
         
       
     </div>
-    
-    
-     
-    
 
-    
-	
-	
-	
-	
-	
-	
-	
-	
-	
-		
 	
 	
 	

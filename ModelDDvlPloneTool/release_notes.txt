@@ -1,10 +1,30 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
-v2.0.2
-
+v2.1.1
 ---------------------------
-Fix rendering into HTML of Python data structures (lists and dicts), 
+Cache now properly supports different schemes (http, https), host name and domain virtualization, by rendering and caching specific pages for each different scheme//host name.domain.
+
+Do not display in rendered cached pages the host server path where the cached pages directory structure is rooted. Render just the relative path.
+
+Inspection of Caches For Elements and For Users now includes an additional selection step, to choose the root element of the elements whose cached pages shall be presented in alist. 
+
+Files of pages cached on disc are now more easily identified. Added to the paths of files for pages cached on disc, the first few characters of the root id and the element id, to facilitate identifying an element's cache files on disc.
+
+Refactored service class ModelDDvlPloneTool_Cache in a number of separate classes, in separated files, to improve separation of concern, within the Cache management responsibilities.
+
+Added service to flush the entries in a cache, for a Project, a Project and Language, or a Project, Language and Root.
+
+
+v2.1RC
+---------------------------
+Added year 2011 to Copyright notice.
+
+
+
+v2.0.2
+---------------------------
+Fix rendering Python data structures (lists and dicts) as HTML, 
 adding a new line before the first entry of a dictionary.
 NOTE that code for rendering into HTML facility is duplicated in ModelDDvlPloneTool_Retrieval_Utils.py and ModelDDvlPloneToolSupport.py.
 Added service fGetMemberInfoForUserId to retrieve information about the member including its name, home holder URL and photo URL.

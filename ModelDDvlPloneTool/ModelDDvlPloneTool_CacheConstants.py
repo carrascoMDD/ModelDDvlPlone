@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_CacheConstants.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #anElementUIDModulus
@@ -171,7 +171,9 @@ cCacheDisk_ForElements_FileOpenWriteBuffering_View= 0
 
 
 
-cCacheDiskPath_Base_Default                 = os.path.join( getConfiguration().clienthome, 'mddcache')
+cCacheDiskPath_Base_Default                            = 'mddcache'
+
+cMaxElementIdInDiscCachePath                           = 16
 
 cCacheEnabled_ElementIndependent_Default               = not cForbidCaches
 cMinThresholdCharsToRelease_ElementIndependent_Default = 50 * 1000

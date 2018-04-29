@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -139,6 +139,7 @@ class ModelDDvlPloneTool_Retrieval(
             'meta_type':                '',     
             'portal_type':              '',
             'archetype_name':           '',
+            'id':                       '',
             'UID':                      '',    
             'url':                      '',                 
             'title':                    '',                   
@@ -486,6 +487,32 @@ class ModelDDvlPloneTool_Retrieval(
     
     
    
+   
+    security.declarePrivate('fNewResultForElementByUID')
+    def fNewResultForElementByUID(self, 
+        theTimeProfilingResults     =None,
+        theContextualElement        =None, 
+        theUID                      =None,):
+        """Retrieval of element results, for an element given its UID (unique identifier in the scope of the Plone site).
+        
+        """
+        
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fNewResultForElementByUID', theTimeProfilingResults)
+                      
+        try:
+            unElemento = self.fElementoPorUID( theUID, theContextualElement)
+            if ( unElemento == None):
+                return None
+            
+            unResult = self.fNewResultForElement( theContextualElement)
+            return unResult
+        
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fNewResultForElementByUID', theTimeProfilingResults)
+            
+    
 
     
     security.declarePrivate('fRetrieveTypeConfigByUID')
