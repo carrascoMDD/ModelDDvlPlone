@@ -1,0 +1,106 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+
+
+
+
+
+
+
+
+
+    <div metal:define-macro="tArbitrariosEnTabla_i18n" >
+
+
+        <tal:block tal:condition="python: pElementosReport and len( pElementosReport)"> 
+
+                 
+            <table 
+                tal:define="
+                   global unIndexClassFila python: 0;
+                   unasClasesFilas  python: ('odd','even')"
+                width="100%%" id="cid_TRAElementosArbitrarios" class="listing" summary="elementos arbitrarios">
+    
+                <thead>
+                    <tr>
+                         <th class="nosort"  align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Tipo&nbsp;</th>
+                         <th class="nosort" align="left" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_titulo_label">&nbsp;T&iacute;tulo&nbsp;</th>
+                         <th class="nosort" align="left" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_descripcion_label">&nbsp;Descripci&oacute;n&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr tal:repeat="pElementoReport python: pElementosReport"
+                      class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
+                        <tal:block tal:condition="python: not pElementoReport is None and len( pElementoReport) > 3">
+                            <tal:block tal:define="
+                                pElemento       python: pElementoReport[ 0];
+                                pMetaType       python: pElementoReport[ 1];
+                                pTitulo         python: pElementoReport[ 2];
+                                pDescripcion    python: pElementoReport[ 3];
+                                pEsColeccion    python: pElementoReport[ 4]" >
+                                <td align="left" i18n:translate="" tal:content="python: pMetaType" />
+                                <td align="left">
+                                    <span class="visualIcon contenttype-xxx" tal:attributes="class python: 'visualIcon contenttype-%s' % pElemento.portal_type.lower()">
+                                        <h4>
+                                            <a href="#" tal:attributes="href python: '%s/Tabular' % pElemento.absolute_url()"
+                                                class="state-visible visualIconPadding" title="">
+                                                <tal:block tal:condition="python: pEsColeccion">
+                                                    <span i18n:translate="" tal:content="python: pTitulo" />
+                                                </tal:block>
+                                                <tal:block tal:condition="python: not pEsColeccion">
+                                                    <span tal:content="python: pTitulo" />
+                                                </tal:block>
+                                            </a>
+                                        </h4>
+                                    </span>
+                                </td>
+                                <td align="left" tal:content="python: pDescripcion" />
+                            </tal:block>
+                            <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
+                        </tal:block>
+                    </tr>
+                </tbody>
+            </table>
+            <br/> 
+        </tal:block>
+    </div>
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
+

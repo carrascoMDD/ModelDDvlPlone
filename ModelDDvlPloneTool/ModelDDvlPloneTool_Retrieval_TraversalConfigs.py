@@ -703,3 +703,39 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
     
        
     
+    
+    
+
+  
+
+    security.declarePublic('objectValuesTraversalConfig')
+    def objectValuesTraversalConfig( self):
+        return {   
+            'aggregation_name':     'objectValues',
+            'columns':              [ 'title', 'description', ],
+            'contains_collections': False,
+            'tabular_tree':         False,
+            'subitems':             [
+                {   'portal_types': [ 'object', ],
+                    'extension':    'NonTextAttrsOneParagraph',
+                    'divider':      [ 'Before', ],
+                    'attrs':        [
+                        {   'name': 'title',
+                            'kind': 'Data',
+                            'type': 'String',
+                        },
+                        {   'name': 'archetype_name',
+                            'kind': 'Meta',
+                            'type': 'String',
+                        },
+                        {   'name':     'description',
+                            'kind':     'Data',
+                            'type':     'Text',
+                            'optional': True,
+                        },
+                    ],
+                },
+            ],
+        }
+     
+       

@@ -39,6 +39,9 @@ import sys
 import traceback
 
 
+from Products.CMFCore.utils         import getToolByName
+
+
 class ModelDDvlPloneTool_Retrieval_I18N:
     """
     """
@@ -133,13 +136,75 @@ class ModelDDvlPloneTool_Retrieval_I18N:
                     None
             if not aI18NDomain:
                 aI18NDomain = 'ModelDDvlPlone'
-                
-        if not aI18NDomain:
-            aI18NDomain = "plone"
+            
+        # ACV 20091112 Never executed. Removed.
+        #if not aI18NDomain:
+            #aI18NDomain = "plone"
             
         return aI18NDomain
 
 
+    
+    
+    
+    
+    
+    
+
+   
+
+
+    security.declarePublic( 'fTranslateI18NManyIntoDict')
+    def fTranslateI18NManyIntoDict( self, 
+        theContextElement,
+        theI18NDomainsStringsAndDefaults, 
+        theResultDict                   =None):
+        """Internationalization: build or update a dictionaty with the translations of all requested strings from the specified domain into the language preferred by the connected user, or return the supplied default.
+        
+        """
+        
+        unResultDict = theResultDict
+        if ( unResultDict == None):
+            unResultDict = { }
+         
+            
+        if ( theContextElement == None):
+            return unResultDict
+            
+        if not theI18NDomainsStringsAndDefaults:
+            return unResultDict
+        
+       
+        aTranslationService = getToolByName( theContextElement, 'translation_service', None)
+        if not aTranslationService:
+            return unResultDict
+        
+        unI18NDomain = self.fTranslationI18NDomain( theContextElement)
+        
+        for aDomainStringsAndDefaults in theI18NDomainsStringsAndDefaults:
+            aI18NDomain             = aDomainStringsAndDefaults[ 0] or cI18NDomainDefault
+            unasStringsAndDefaults  = aDomainStringsAndDefaults[ 1]
+            
+            for unaStringAndDefault in unasStringsAndDefaults:
+                unaString = unaStringAndDefault[ 0]
+                unDefault = unaStringAndDefault[ 1]
+                if unaString:
+                    aTranslation = u''
+                    if aTranslationService:
+                        aTranslation = aTranslationService.utranslate( aI18NDomain, unaString, mapping=None, context=theContextElement , target_language= None, default=unDefault)            
+                    if not aTranslation:
+                        aTranslation = self.fAsUnicode( unDefault)
+                    unResultDict[ unaString] = aTranslation
+                        
+        return unResultDict    
+        
+    
+    
+    
+    
+    
+    
+    
 
 # ###########################################
 #  I10N dates internacionalization  methods
@@ -1218,7 +1283,8 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         if not theTypeName or not theSchema or not theI18NDomain or not theAttributeName:
             return []
             
-        unAttributeTranslationResult = {
+        unAttributeTranslationResult = self.fNewVoidAttributeTranslationResult()
+        unAttributeTranslationResult.update( {
             'label':                        theAttributeName,
             'description' :                 theAttributeName, 
             'translated_label':             theAttributeName, 
@@ -1226,7 +1292,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             'translated_description':       theAttributeName, 
             'translated_description_msgid': '', 
             'i18ndomain':                   '',
-        }
+        })
 
         unaLabel                    = theAttributeName
         unaLabelMsgId               = ''
@@ -1321,7 +1387,60 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     
     
     
+    security.declarePrivate( 'getTranslationsForObjectAttributeFromMsgIds')
+    def getTranslationsForObjectAttributeFromMsgIds(self, theContextualElement, theI18NDomain, theAttributeLabelMsgId, theDefaultTranslatedLabel, theAttributeDescriptionMsgId, theDefaultTranslatedDescription):
+       
+        if not theI18NDomain or not theAttributeLabelMsgId:
+            return {}
+            
+        
+        unaLabel                    = theAttributeLabelMsgId
+        unaLabelMsgId               = theAttributeLabelMsgId
+        unTranslatedLabel           = theDefaultTranslatedLabel
+        unaDescription              = theAttributeDescriptionMsgId
+        unaDescriptionMsgId         = theAttributeDescriptionMsgId
+        unTranslatedDescription     = theDefaultTranslatedDescription
+        unI18NDomain                = theI18NDomain
+        
+        unAttributeTranslationResult = self.fNewVoidAttributeTranslationResult()
+        unAttributeTranslationResult.update( {
+            'label':                        unaLabel,
+            'translated_label':             unTranslatedLabel, 
+            'translated_label_msgid':       unaLabelMsgId, 
+            'description' :                 unaDescription, 
+            'translated_description':       unTranslatedDescription, 
+            'translated_description_msgid': unaDescriptionMsgId, 
+            'i18ndomain':                   unI18NDomain,
+        })
 
+
+            
+        unTranslatedLabel = ''
+        if unaLabelMsgId:     
+            unTranslatedLabel = self.fTranslateI18N( unI18NDomain, unaLabelMsgId, unTranslatedLabel, theContextualElement)
+        if not unTranslatedLabel:
+            unTranslatedLabel = self.fAsUnicode( unaLabel, theContextualElement)
+ 
+        unTranslatedDescription = ''
+        if unaDescriptionMsgId:     
+            unTranslatedDescription = self.fTranslateI18N( unI18NDomain, unaDescriptionMsgId, unTranslatedDescription, theContextualElement)
+        if not unTranslatedDescription:
+            unTranslatedDescription = self.fAsUnicode( unaLabel, unaDescription)
+              
+    
+        unAttributeTranslationResult.update( {
+            'label':                        unaLabel,
+            'translated_label':             unTranslatedLabel, 
+            'translated_label_msgid':       unaLabelMsgId, 
+            'description' :                 unaDescription, 
+            'translated_description':       unTranslatedDescription, 
+            'translated_description_msgid': unaDescriptionMsgId, 
+            'i18ndomain':                   unI18NDomain,
+        })
+     
+        return unAttributeTranslationResult 
+
+  
 
 
     security.declarePrivate('pCompleteColumnTranslations')

@@ -1,0 +1,69 @@
+<tal:block replace="nothing">
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+
+<div metal:define-macro="tReferenciasPlone_EditableBody_i18n" >
+
+<tal:block tal:define="
+    pTrue           python: True;
+    pFalse          python: False;
+    pSiempre        pSiempre | pFalse;
+    pTodosElementos pTodosElementos | python: []">
+        
+    <tal:block tal:condition="python: pSiempre or len( pTodosElementos) > 0 ">
+
+|
+|
+   
+**<tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_referenciasplone_section_msgid">Referencias a otros elementos Plone</tal:block>**
+                
+        <tal:block tal:repeat="pElemento python: pTodosElementos" >
+            <tal:block tal:condition="python: not pElemento is None">
+* <tal:block
+                tal:content="structure python: u'`%s %c%s/%c`__' %  ( here.fAsUnicode( pElemento.Title()) , 60, pElemento.absolute_url(), 62)"/> (*<tal:block 
+                tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  '', pElemento.meta_type, '')" />*) . <tal:block tal:repeat="unaLineaTexto python:  here.fAsUnicode( pElemento.Description()).strip().splitlines()"><tal:block 
+    tal:content="python: here.fAsUnicode( unaLineaTexto.strip())" /></tal:block>
+            </tal:block> 
+        </tal:block> 
+    </tal:block> 
+</tal:block> 
+
+</div>
+
+
+
+
+
+
+
+
+
+</body>
+</html>
+

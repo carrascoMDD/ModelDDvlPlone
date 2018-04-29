@@ -209,4 +209,113 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
     
     
     
+
+ 
+
+    # #############################################################
+    """User and Role access methods.
     
+    """
+
+        
+        
+    security.declarePublic( 'fRoleQuery_IsAnyRol')
+    def fRoleQuery_IsAnyRol( self, theRolesUsuario, theElement=None):
+        return len( self.fWhichRoles( theRolesUsuario, theElement)) > 0
+  
+    
+    
+    
+
+    
+    security.declarePublic( 'fIsRoles')
+    def fWhichRoles( self, theRolesUsuario, theElement):
+        if not theRolesUsuario:
+            return set()
+        
+        if theElement == None:
+            return set()
+        
+        unosRolesUsuario = theRolesUsuario
+        if not ( unosRolesUsuario.__class__.__name__ in [ 'list', 'tuple', ]):
+            unosRolesUsuario = [ unosRolesUsuario,]
+            
+        todosRolesPoseidos = set( self.fGetRequestingUserRoles( theElement))
+        
+        unosRoles = set( unosRolesUsuario).intersection(  todosRolesPoseidos)
+        
+        return unosRoles
+    
+              
+              
+
+
+    security.declarePublic( 'fGetRequestingUserRoles')
+    def fGetRequestingUserRoles(self, theElement):
+        if theElement == None:
+            return []
+        
+        unUser = self.fGetRequestingUserObject( theElement)
+        if not unUser:
+            return []
+        
+        unosRoles = self.fGetRolesForUserObject( unUser, theElement)
+        return unosRoles
+    
+
+    
+    security.declarePrivate( 'fGetRequestingUserObject')
+    def fGetRequestingUserObject(self, theContextualObject):
+        unaRequest = theContextualObject.REQUEST
+        if not unaRequest:
+            return None
+        
+        unUser = unaRequest.get("AUTHENTICATED_USER", None)
+        return unUser
+
+    
+    
+    security.declarePrivate( 'fGetRolesForUserObject')
+    def fGetRolesForUserObject(self, theUserObject, theElement):
+        if theElement == None:
+            return set()
+        unosRoles = theUserObject.getRolesInContext( theElement)
+        if not unosRoles:
+            return set()
+        return set( unosRoles)
+    
+
+
+    
+        
+    security.declarePublic( 'fGetMemberId')
+    def fGetMemberId(self, theContextualObject ):
+        """Connected user Membership 
+        
+        """
+        if theContextualObject == None:
+            return ''
+        
+        aMembershipTool = getToolByName( theContextualObject, 'portal_membership', None)
+        if not aMembershipTool:
+            return ''
+        
+        unMember = aMembershipTool.getAuthenticatedMember()   
+
+        if not unMember:
+            return ''
+        
+        if unMember.getUserName() == 'Anonymous User':
+            unMemberId = unMember.getUserName()
+        else:
+            unMemberId = unMember.getMemberId()   
+            
+        return unMemberId
+        
+    
+    
+        
+    
+    
+
+        

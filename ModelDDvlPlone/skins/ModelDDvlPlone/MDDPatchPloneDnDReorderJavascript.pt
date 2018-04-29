@@ -1,0 +1,166 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDPatchPloneDnDReorderJavascript.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tPatchPloneDnDReorderJavascript" >
+        <tal:block 
+            tal:define="global gPatchPloneDnDReorderJavascriptScriptRendered gPatchPloneDnDReorderJavascriptScriptRendered | python: False"
+            tal:condition="not: gPatchPloneDnDReorderJavascriptScriptRendered" >
+            <tal:block tal:define="global gPatchPloneDnDReorderJavascriptScriptRendered python: True" >
+                <script type="text/javascript">
+                    <!--
+                        function pPatchPloneDnDReorderDoUp( ) {
+                            ploneDnDReorder.table = cssQuery("table#sortable")[0];
+                            if (!ploneDnDReorder.table)
+                                return;
+                            ploneDnDReorder.rows = cssQuery("table#sortable > tr," +
+                                                            "table#sortable > tbody > tr");
+                            var targets = cssQuery("table#sortable > tr > td," +
+                                                   "table#sortable > tbody > tr > td");
+                            for (var i=0; i<targets.length; i++) {
+                                if (hasClassName(targets[i], 'notDraggable'))
+                                    continue;
+                                targets[i].onmousedown=ploneDnDReorder.doDown;
+                                targets[i].onmouseup=fFunctionPatch_ploneDnDReorder_doUp;
+                                if (hasClassName(targets[i], 'draggingHook'))
+                                    continue;
+                                addClassName(targets[i], "draggingHook");
+                            }
+                        }
+                        
+                        function fFunctionPatch_ploneDnDReorder_doUp(e) {
+                            if (!e) var e = window.event; // IE compatibility
+                            if (!ploneDnDReorder.dragging)
+                                return;
+                            removeClassName(ploneDnDReorder.dragging, "dragging");
+                            ploneDnDReorder.updatePositionOnServer();
+                            ploneDnDReorder.dragging._position = null;
+                            try {
+                                delete ploneDnDReorder.dragging._position;
+                            } catch(e) {}
+                            ploneDnDReorder.dragging = null;
+                            for (var i=0; i<ploneDnDReorder.rows.length; i++)
+                                ploneDnDReorder.rows[i].onmousemove = null;
+                            return false;
+                        }
+                        
+                        function fReplacementFor_ploneDnDReorder_updatePositionOnServer() {
+                            var delta = ploneDnDReorder.getPos(ploneDnDReorder.dragging) - ploneDnDReorder.dragging._position;
+                        
+                            if (delta == 0) // nothing changed
+                                return;
+                            var req = new XMLHttpRequest();
+                            req.open("POST", "MDDMoveItem", true);
+                            req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                            req.send("item_id="+ploneDnDReorder.dragging.id+"&delta:int="+delta);
+                        }
+                        
+                        
+                        // registerPloneFunction( pPatchPloneDnDReorderDoUp);
+                        
+                    //  -->
+                </script>
+            </tal:block>                
+        </tal:block>
+    
+                                    
+        <dl class="actionMenu activated" id="#" tal:attributes="id python: '%s_ActionsMenu' % pIdTabla"
+            tal:define="pTrue python: True; pTrue python: False;
+                pPermiteCopiarElementos           pPermiteCopiarElementos   | pTrue;
+                pPermiteCortarElementos           pPermiteEliminarElementos   | pFalse;
+                pPermitePegarElementos            pPermiteCrearElementos    | pFalse;
+                pPermiteEliminarElementos         pPermiteEliminarElementos | pFalse" >
+            <dt class="actionMenuHeader" style="display: inline">
+                <a tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'heading_actions','Actions-')"/>
+            </dt>
+            <dd class="actionMenuContent">
+                <ul>
+                    <li tal:condition="pPermiteCortarElementos">
+                        <a title="#" onclick="#"
+                            tal:define="aCutLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'Cut', 'Cut-')"
+                            tal:attributes="title aCutLabel;
+                                onclick python: 'pMDDSubmit_varios( %cCut%c, %c%s%c)%c return true%c' % ( 39, 39, 39, pIdTabla, 39, 59,59,);">
+                            <img src="#" alt="#" title="#" 
+                                tal:attributes="src string:${portal_url}/cut_icon.gif; alt aCutLabel; title aCutLabel" 
+                                id="icon-cut" />
+                            <span tal:content="aCutLabel" />        
+                        </a>
+                    </li>
+                    <li tal:condition="pPermiteCopiarElementos">
+                        <a title="#" onclick="#"
+                            tal:define="aCopyLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'Copy', 'Copy-')"
+                            tal:attributes="title aCopyLabel;
+                                onclick python: 'pMDDSubmit_varios( %cCopy%c, %c%s%c)%c return true%c' % ( 39, 39, 39, pIdTabla, 39, 59,59,);" >
+                            <img src="#" alt="#" title="#" 
+                                tal:attributes="src string:${portal_url}/copy_icon.gif; alt aCopyLabel; title aCopyLabel" 
+                                id="icon-copy" />
+                            <span tal:content="aCopyLabel" />        
+                        </a>
+                    </li>
+                    <li  tal:condition="pPermitePegarElementos">
+                        <a title="#" href="#" 
+                            tal:define="aPasteLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'Paste', 'Paste-');
+                                        unaHref     string:${SRES/url}/object_paste"
+                            tal:attributes="title aPasteLabel;  href unaHref" >
+                            <img src="#" alt="#" title="#" 
+                                tal:attributes="src string:${portal_url}/paste_icon.gif; alt aPasteLabel; title aPasteLabel" 
+                                id="icon-copy" />
+                            <span tal:content="aPasteLabel" />        
+                        </a>
+                    </li>
+                    <li  tal:condition="pPermiteEliminarElementos">
+                        <a title="#" onclick="#"
+                            tal:define="aDeleteLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'Delete', 'Delete-')"
+                            tal:attributes="title aDeleteLabel;
+                                onclick python: 'pMDDSubmit_varios( %cDelete%c, %c%s%c)%c return true%c' % ( 39, 39, 39, pIdTabla, 39, 59,59,);" >
+                            <img src="#" alt="#" title="#" 
+                                tal:attributes="src string:${portal_url}/cut_icon.gif; alt aDeleteLabel; title aDeleteLabel" 
+                                id="icon-cut" />
+                            <span tal:content="aDeleteLabel" />        
+                        </a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+                                        
+    </div>        
+
+
+
+
+
+
+
+</body>
+</html>
+
+

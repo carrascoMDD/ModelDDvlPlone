@@ -1,0 +1,625 @@
+ModelDDvlPlone RELEASE NOTES
+============================
+
+|
+|
+
+Summary of use cases implemented after delivery of version 1.0 (build200907160507)
+==================================================================================
+
+- Paste copies of elements. Paste identical copies when possible, or refactor into a type appropriate for the container.
+  For example, in the gvSIGbpd application, 
+  pasting a Business Rule, in a Collection of Business Rules shall yield a new Business Rule,
+  yet pasting it into a Business Policies Collection shall yield a new Business Policy.
+
+- Export an element as .zip archives with information in a character encoded (utf8) .xml file, 
+  and plone binary content as separate files.
+
+- Import into an element as .zip archives with .xml file and binary content.
+
+- Audit information is recorded on elements as the user and date/time of creation, modification and deletion.
+  There is an still unused feature to avoid truly deleting elements,
+  but leave them flagged as deleted.
+  
+- Copy/Cut/Delete multiple aggregated elements.
+  The user interface for collections now presents to the user
+  check boxes to select elements to which an action shall apply,
+  and a menu to triger the action.
+  
+- Move elements to a different collection by Cut/Paste.
+
+- New link to refresh the Tabular and Textual views.
+
+- Standard Plone actions and factories are intercepted or aliased
+  to maintain a tight model driven control on the application information.
+  
+- The Id of an element can be edited in the element editor,
+  with the field protected with an additional button
+  that the user shall click to gain edit access to de Id field.
+  
+- Create a new Version as a copy of a whole model, 
+  maintaining traceability links from elements in the new version 
+  to elements in the previous version.  
+  
+- Process steps now can record effort estimations, and timing constraints.
+
+- Allows to reorder by drag and drop all contained elements in an element
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+
+version 1.0.0.7 - ongoing work in trunk
+---------------------------------------
+
+|
+|
+
+
+**RESOLVED**
+
+Error in HTML link URL in Textual view for Plone ATLink elements
+
+META04 Add metaattribute to Attributes to specify a value for which the attribute shall not be presented in the Textual view
+
+SUC 26 Reorder aggregated elements by drag and drop
+
+USEX 03 When in the linking related elements page  the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+USEX 10 In Textual view  display collection names as the localized archetype name  when the collection name is the same as the archetype name
+
+USEX 11 In Textual view  hide aggregation traversal title of aggregations containing collections when there is only one collection
+
+USEX 12 In Textual view  display the descriptions of collections
+
+
+
+
+
+
+|
+|
+
+
+**KNOWN BUGS*
+
+Reflective method invocation should not retrieve the callable method with []
+
+|
+|
+
+
+**POSTPONED**
+
+As in version 1.0.0.6
+
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+
+version 1.0.0.6
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+
+Change view to Tabular from menu displays Textual view instead.
+
+Error in title of new version: is not the one entered by the user  but a unique reclaculation of the original.
+
+Group actions menu and options appear not translated.
+
+Group actions menu displays cut  paste  delete actions when the element is not writtable.
+
+Redirect to the new URL of the element after changing its Id with SUC 19 Edit and change an element id.
+
+USEX 09 After deleting many elements, present the Tabular view on the container element
+
+
+|
+|
+
+
+**KNOWN BUGS*
+
+Reflective method invocation should not retrieve the callable method with []
+
+|
+|
+
+
+**POSTPONED**
+
+Avoid deriving ids from titles resulting in reserved names like id  description  role  ...
+
+PROC 01 Document the model Driven architecture supported by the f
+
+Reflective method invocation should not retrieve the callable method with []
+
+SECU 01 Protect invocation of templates that are not top-leve views
+
+SUC 06extension04 Delete Version of element shall link its next with its previous versions
+
+SUC 06v2 Delete element - plug-in reponsibility on elements to contribute to the delete impact report 
+
+SUC 07 Z extension01 Link as related element found Filtering and searching list of elements candidates to be related
+
+SUC 11 zextension03 Add HTTP request response notes with result of Paste
+
+SUC 11extension02 ACCELERATED Paste an identical copy of an element as contents of other element
+
+SUC 11v2 Trigger and react to Plone copy events when Pasting or Transforming elements or Duplicating roots
+
+SUC 15 zextension01 Add versions to Export
+
+SUC 16 zextension01 Report progress while  Importing a Zipped archive
+
+SUC 17 Filter and search list of elements candidates to be related
+
+SUC 18 Report the progress of an import process
+
+SUC 21 Create Translation of a Model Instance into a new Language
+
+SUC 22refinement01 Create a new version of a CANONICAL LANGUAGE Model Instance
+
+SUC 23 Translate Most Recent Version of a non-canonical language translation
+
+SUC 25 Paste clipboard references as related with an element through a specific relation
+
+SUC11x4 Display clipboard contents before Paste an identical copy of an element as contents of other element
+
+SUC11x5 Add pasted elements to target's children collections  if can not be added directly in the target
+
+USEX 03 When in the linking related elements page  the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+USEX 04 Add to Tabular view a menu to scroll to specific section of the view
+
+USEX 05 Textual view Do not display titles of collections aggregated in an element  if there is only one collection of the kind and the collecton title is standard
+
+USEX 06 Report component versions and build in all pages
+
+USEX 09 After deleting many elements  present the Tabular view on the container element
+
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+
+version 1.0.0.5
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+
+
+During Cut/paste on same container: Title and Id number-postfixed to avoid duplicates (while no duplicate would be caused) SUC 24 
+Move elements to a different container
+
+Error Exception during SUC 22 Create a new version of a Model Instance  bug in fGetTraversalValues retrieval relations not multivalued
+
+Incomplete copy/cut - paste  import and new version operations commit their partial results and do not report the errors
+
+SUC 11extension04 Manage traceability links when copying or moving
+
+SUC 16 zextension03 After Import redirect to tabular view  or on 
+
+
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+
+version 1.0.0.4
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+
+Bug in v1.0.0.3: syntax error in MDD_RefactorComponents.py affecting import
+
+Error in Textual view with backward or forward quotes or ordinal 
+
+Error when attempting to cut and the element is locked against modifications.
+
+Error when importing collections with titles with non-ascii characters
+
+Possible error in Copy or Cut group action tests for cb_isMoveable even if the operation is copy and not cut
+
+Unhandled Exception when creating of an element by selecting a plone factory action from the object menu 
+
+
+|
+|
+
+**KNOWN BUGS*
+
+
+Change view to Tabular from menu displays Textual view instead
+
+Error in title of new version: is not the one entered by the user, but a unique reclaculation of the original.
+
+Redirect to the new URL of the element after changing its Id with SUC 19 Edit and change an element id
+
+Reflective method invocation should not retrieve the callable method with []
+
+
+|
+|
+
+
+**POSTPONED**
+
+Change view to Tabular from menu displays Textual view instead
+
+Error in title of new version: is not the one entered by the user  but a unique reclaculation of the original.
+
+PROC 01 Document the model Driven architecture supported by the f
+
+Reflective method invocation should not retrieve the callable method with []
+
+SECU 01 Protect invocation of templates that are not top-leve views
+
+SUC 07 Z extension01 Link as related element found Filtering and searching list of elements candidates to be related
+
+SUC 11 zextension03 Add HTTP request response notes with result of Paste
+
+SUC 11extension02 ACCELERATED Paste an identical copy of an element as contents of other element
+
+SUC 11v2 Trigger and react to Plone copy events when Pasting or Transforming elements or Duplicating roots
+
+SUC 15 zextension01 Add versions to Export
+
+SUC 16 zextension01 Report progress while  Importing a Zipped archive
+
+SUC 16 zextension02 Merge first collections and override default names
+
+SUC 16 zextension03 Present report after Import
+
+SUC 17 Filter and search list of elements candidates to be related
+
+SUC 18 Report the progress of an import process
+
+SUC 21 Create Translation of a Model Instance into a new Language
+
+SUC 22refinement01 Create a new version of a CANONICAL LANGUAGE Model Instance
+
+SUC 23 Translate Most Recent Version of a non-canonical language translation
+
+SUC 25 Paste clipboard references as related with an element through a specific relation
+
+SUC11x4 Display clipboard contents before Paste an identical copy of an element as contents of other element
+
+SUC11x5 Add pasted elements to target's children collections  if can not be added directly in the target
+
+USEX 03 When in the linking related elements page  the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+USEX 04 Add to Tabular view a menu to scroll to specific section of the view
+
+USEX 05 Textual view Do not display titles of collections aggregated in an element  if there is only one collection of the kind and the collecton title is standard
+
+USEX 06 Report component versions and build in all pages
+
+USEX 09 After deleting many elements  present the Tabular view on the container element
+
+|
+|
+
+**KNOWN BUGS**
+
+
+Error in template when manually creating an status report
+
+Error Table titles one more column than body when element not changeable
+
+Error when rendering the page informing that the Export has been performed
+
+IBWR01 Opera: Translations Screen error in columns layout because lack of support for HTML rowspan
+
+IMPO 08 Does not initialize or present Status Reports before and after import
+
+IMPO Copy Language : Estimate correctly the number of expected write operations
+
+IMPO Create missing Translations : Report the number of created translations
+
+Reflective method invocation should not retrieve the callable method with []
+
+UITR Translations page::Reference Language Selector::Names of languages not well known to Plone are not shown
+
+|
+|
+
+------------------------------
+
+|
+|
+
+version 1.0.0.3
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+|
+|
+
+ADMI03 Uninstall ModelDDvlPlone Plone Product
+
+AUDI 00 Automatically support element fields for creation/modificaton/deletion user and date  and active state
+
+Error Derived  composite strings in the Textual view does not convert its element strings to Unicode
+
+Error when importing .zip with more than one .xml file (SUC 16)
+
+META 01v2 Type metaattribute factory_enablers with arguments
+
+META 02 Type metaattribute fields_order&lt;#&gt; range extended from 1-6 to 0-10
+
+META 03 Type metaattribute to disable the edition of the id for a type
+
+Paste does not override paste target element  always creates contained elements (SUC 11 Paste)
+
+Shall not present Delete links for elements with any nested content without Delete permission
+
+SUC 06change Do not report as affected the elements related only thorugh derived relations
+
+SUC 06extension02 Delete MULTIPLE elements
+
+SUC 11extension01 Merge collections on Paste an identical copy of an element as contents of other element
+
+SUC 12 Duplicate a root element and its contents
+
+SUC 16v02 Import onto an element a Zipped archive with ENCODED XML file and binary contents
+
+SUC 19 Edit and change an element id
+
+SUC 19v2 Make harder for the user to Rename element  changing id
+
+SUC 19v3 Edition of the id shall not be allowed for certain types
+
+SUC 22 Create a new version of a Model Instance
+
+SUC 24 Move elements to a different container
+
+SUC 24zextension01 Select multiple elements to Copy or Move elements to a different container
+
+USEX 07 Add to Tabular view a link to refresh the view
+
+USEX 08 Conflicting default Plone actions must be intercepted  aliased  or disabled
+
+
+|
+|
+
+**KNOWN BUGS**
+
+
+Change view to Tabular from menu displays Textual view instead
+
+Reflective method invocation should not retrieve the callable method with []
+
+Unhandled Exception when creating of an element by selecting a plone factory action from the object menu 
+
+
+|
+|
+
+
+**POSTPONED**
+
+SUC 21 Create Translation of a Model Instance into a new Language
+
+Avoid deriving ids from titles resulting in reserved names like id  description  role  ...
+
+SUC 06v2 Delete element - plug-in reponsibility on elements to contribute to the delete impact report 
+
+Change view to Tabular from menu displays Textual view instead
+
+PROC 01 Document the model Driven architecture supported by the f
+
+Reflective method invocation should not retrieve the callable method with []
+
+SECU 01 Protect invocation of templates that are not top-leve views
+
+SUC 07 Z extension01 Link as related element found Filtering and searching list of elements candidates to be related
+
+SUC 11 zextension03 Add HTTP request response notes with result of Paste
+
+SUC 11extension02 ACCELERATED Paste an identical copy of an element as contents of other element
+
+SUC 11v2 Trigger and react to Plone copy events when Pasting or Transforming elements or Duplicating roots
+
+SUC 15 zextension01 Add versions to Export
+
+SUC 16 zextension01 Report progress while  Importing a Zipped archive
+
+SUC 16 zextension02 Merge first collections and override default names
+
+SUC 16 zextension03 Present report after Import
+
+SUC 17 Filter and search list of elements candidates to be related
+
+SUC 18 Report the progress of an import process
+
+SUC 22refinement01 Create a new version of a CANONICAL LANGUAGE Model Instance
+
+SUC 23 Translate Most Recent Version of a non-canonical language translation
+
+SUC 25 Paste clipboard references as related with an element through a specific relation
+
+SUC11x4 Display clipboard contents before Paste an identical copy of an element as contents of other element
+
+Unhandled Exception when creating of an element by selecting a plone factory action from the object menu 
+
+USEX 03 When in the linking related elements page  the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+USEX 04 Add to Tabular view a menu to scroll to specific section of the view
+
+USEX 05 Textual view Do not display titles of collections aggregated in an element  if there is only one collection of the kind and the collecton title is standard
+
+USEX 06 Report component versions and build in all pages
+
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+version 1.0.0.2
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+
+Plone content not copied in UC 11 Paste and UC 13 Create transformed element
+
+USEX 01 Attached File: add link to navigate to the Plone element for the file
+
+SUC 16 Import onto an element a Zipped archive with XML file and binary contents
+
+SUC 15 Export an element and its contens a Zipped archive with XML file and binary contents
+
+Reflective method invocation should not retrieve the callable method with []
+
+Retrieval of aggregated element just created by its ID should not use [theID] to retrieve the element
+
+Fails  SUC 06extension Delete element of Plone type
+
+Plone content not imported in UC 16 Paste
+
+SUC 19 Rename element (change id and/or title)
+
+
+|
+|
+
+**KNOWN BUGS**
+
+Reflective method invocation should not retrieve the callable method with []
+
+Unhandled Exception when creating of an element by selecting a plone factory action from the object menu 
+
+Change view to Tabular from menu displays Textual view instead
+
+
+|
+|
+
+
+**POSTPONED**
+
+ADMI04 Uninstall Relations Plone Product avoiding plone site relations action error
+
+AUDI 01 Keep a log of changes made to elements
+
+AUDI 02 Review the log of changes made to elements
+
+AUDI 03 Restore element attributes, aggregatios or relations to a previous value
+
+Avoid deriving ids from titles resulting in reserved names like id, description, role, ...
+
+PLAT01 Port to Plone 3.x
+
+SUC 06change Do not report as affected the elements related only thorugh derived relations
+
+SUC 06v2 Delete element - plug-in reponsibility on elements to contribute to the delete impact report 
+
+SUC 07 Z extension01 Link as related element found Filtering and searching list of elements candidates to be related
+
+SUC 11v2 Trigger and react to Plone copy events when Pasting or Transforming elements or Duplicating roots
+
+SUC 12 Duplicate a root element and its contents creating traceability links
+
+SUC 16 zextension01 Report progress while  Importing a Zipped archive
+
+SUC 17 Filter and search list of elements candidates to be related
+
+SUC 18 Report the progress of an import process
+
+SUC 19 Rename element (change id and/or title)
+
+USEX 02 When in the Edit page, the link to navigate to the container shall link to the edit page of the container (not the Tabular view).
+
+USEX 03 When in the linking related elements page, the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+version 1.0.0.1
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+INSTR 01 Postpone initialization of traversal result dictionaries by element Id, UID, and traversal name
+META 01 Type metaattribute factory_enablers
+PERF 01 AdditionalParameter to inhibit translation of types and features
+UC 11 Paste an identical copy of an element as contents of other
+UC 13 Create a new element from a transformed element of a different type
+
+ModelDDvlPloneTool_Mutators.py::fCrearElementoDeTipo 
+	Changed 'create' to 'created' in  unNewCollectionCreateResult[ 'effect'] == 'created'
+
+
+|
+|
+
+------------------------------
+
+

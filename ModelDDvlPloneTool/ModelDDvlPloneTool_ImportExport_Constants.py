@@ -32,6 +32,9 @@ __docformat__ = 'plaintext'
 
 
 
+cExportForcedRootId = 'modeldd'
+
+
 cExportStatus_Error_MissingParameter_Element                            = 'ExportStatus_Error_MissingParameter_Element'
 cExportStatus_Error_MissingParameter_ExportTypeConfigs                  = 'ExportStatus_Error_MissingParameter_ExportTypeConfigs'
 cExportStatus_Error_Internal_MissingParameters                          = 'ExportStatus_Error_Internal_MissingParameters'
@@ -61,6 +64,7 @@ cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval            = 'Impor
 cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators             = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators'
 cImportStatus_Error_Internal_MissingTool_translation_service            = 'ImportStatus_Error_Internal_MissingTool_translation_service'
 cImportStatus_Error_Parameter_UploadedFile_NotAZip                      = 'ImportStatus_Error_Parameter_UploadedFile_NotAZip'
+cImportStatus_Error_Parameter_UploadedFile_NotAZipNotAXML               = 'ImportStatus_Error_Parameter_UploadedFile_NotAZipNotAXML'
 cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile            = 'ImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile'
 cImportStatus_Error_EmptyXMLFile                                        = 'ImportStatus_Error_EmptyXMLFile'
 cImportStatus_Error_DecodingXMLFileContents                             = 'ImportStatus_Error_DecodingXMLFileContentst'
@@ -101,6 +105,9 @@ cNewVersionStatus_Error_ObjectNotCreated                                = 'NewVe
 cNewVersionStatus_Error_CreatedObjectNotFound                           = 'NewVersionStatus_Error_CreatedObjectNotFound'
 cNewVersionStatus_Error_CreatedObjectResultFaulure                      = 'NewVersionStatus_Error_CreatedObjectResultFaulure'
 cNewVersionStatus_Error_Internal_MissingTool_translation_service        = 'NewVersionStatus_Error_Internal_MissingTool_translation_service'
+cNewVersionStatus_Error_Internal_NoMutator_version_field_storage        = 'NewVersionStatus_Error_Internal_NoMutator_version_field_storage'
+cNewVersionStatus_Error_Internal_NoMutator_version_comment_field_storage= 'NewVersionStatus_Error_Internal_NoMutator_vversion_comment_field_storage'
+
 
 cFakeUIDForPloneSite = '-P-l-o-n-e-S-i-t-e-'
 
@@ -115,7 +122,18 @@ cXMLAttributeName_PloneTitle = 'plonetitle'
 cXMLAttributeName_PloneUID   = 'ploneuid'
 cXMLAttributeName_PlonePath  = 'plonepath'
 cXMLAttributeName_ContentType= 'contenttype'
+cXMLAttributeName_IsReference  = 'isreference'
+
+cXMLAttributeValue_IsReference_True = 'True'
                 
+cXMLAttributeName_IsCollection  = 'iscollection'
+cXMLAttributeValue_IsCollection_True = 'True'
+
+cXMLAttributeName_IsAggregation  = 'isaggregation'
+cXMLAttributeValue_IsAggregation_True = 'True'
+
+cXMLAttributeName_IsRelation  = 'isrelation'
+cXMLAttributeValue_IsRelation_True = 'True'
 
 
 cXMLPloneContentTypeValue_Text     = 'text/plain'
@@ -125,6 +143,8 @@ cXMLPloneContentTypeValue_TextRest = 'text/x-rst'
 cXMLFilePostfix = 'xml'
 cZIPFilePostfix = '.zip'
 
+
+cXMLRelatedMetaTypePostfix = '_RelRef'
 
 
 

@@ -39,10 +39,13 @@ import logging
 import transaction
 
 from StringIO import StringIO
+from cStringIO import StringIO   as clsFastStringIO
 
 from zipfile import ZipFile
 
 from xml.dom.minidom import parseString as gfParseStringAsXMLDocument
+from xml.dom.minidom import parse       as gfParseFileAsXMLDocument
+
 from xml.dom.minidom import Document
 from xml.dom.minidom import Element
 from xml.dom.minidom import Node
@@ -177,17 +180,30 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
             unImportReport = None
             try:
                 
+                # ##############################################################################
+                """Transaction Save point before import to get a clean view on the existing object network.
+                
+                """      
+                transaction.savepoint(optimistic=True)
+                
+                
                 unImportContext   = self.fNewVoidImportContext()
                 unImportReport    = unImportContext.get( 'report', {})
                 unosImportErrors  = unImportContext.get( 'import_errors', {})
                 
                 
+                # ##############################################################################
+                """Check parameters.
+                
+                """
                 if ( theContainerObject == None):
                     unImportReport.update( { 
                         'success':      False,
                         'status':       cImportStatus_Error_MissingParameter_ContainerObject,
                     })
                     return unImportReport
+                
+                unImportReport[ 'container_object'] = theContainerObject
                     
                 unImportContext[ 'container_object'] = theContainerObject
         
@@ -261,13 +277,27 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 unImportContext[ 'translation_service'] = aTranslationService
                 
                    
+                
+                
+                
                 # ##############################################################################
-                """Verify that the uploaded file is a zip archive, or fail.
+                """Analyze uploaded file.
                 
                 """      
+                
+                otherFileNames = [ ]
+                unXMLDocument = None
+
                 unIsZip = False
                 unZipFile = None
+                
+                
+                # ##############################################################################
+                """Verify that the uploaded file is a zip archive, or an xml file, or fail.
+                
+                """      
                 try:
+                    theUploadedFile.seek( 0)
                     unZipFile = ZipFile( theUploadedFile)  
                 except:
                     None
@@ -275,98 +305,122 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                     # Error if True
                     if not( unZipFile.testzip()):
                         unIsZip = True
-               
-                if not unIsZip:
-                    unImportReport.update( { 
-                        'success':      False,
-                        'status':       cImportStatus_Error_Parameter_UploadedFile_NotAZip,
-                    })
-                    return unImportReport
+ 
                 
                 
-                # ##############################################################################
-                """Find the first .xml file in the tree of files of the zip archive, or fail.
-                
-                """      
-                someXMLFileNamesAndPathsLength = [ ]
-                
-                unXMLPostfix = '.%s' % cXMLFilePostfix.lower()
-                anXMLFullFileName = ''                
-                anXMLBaseName = ''                
-                someFileNames = unZipFile.namelist()
-                for aFullFileName in someFileNames:
-                            
-                    aBaseName = os.path.basename( aFullFileName)
-                    if aBaseName:
-                        aBaseNameLower = aBaseName.lower()
-                        aBaseNamePostfix = os.path.splitext(  aBaseNameLower)[ 1]
-                        if aBaseNamePostfix == unXMLPostfix:
-                            anXMLBaseName     = aBaseName
-                            someXMLFileNamesAndPathsLength.append( [ aFullFileName, len( aFullFileName.split( '/'))])
-    
-                if not someXMLFileNamesAndPathsLength:
-                    unImportReport.update( { 
-                        'success':      False,
-                        'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
-                    })
-                    return unImportReport
-                            
-                someSortedXMLFileNamesAndPathsLength = sorted( someXMLFileNamesAndPathsLength, lambda aObj, otherObj: cmp( aObj[1], otherObj[ 1]))
-                anXMLFullFileName = someSortedXMLFileNamesAndPathsLength[ 0][ 0]
-                   
-                if not anXMLFullFileName:
-                    unImportReport.update( { 
-                        'success':      False,
-                        'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
-                    })
-                    return unImportReport
-                
-                
-                # ##############################################################################
-                """Get all files in the zip archive other than the .xml file.
-                
-                """      
-                otherFileNames = [ ]
-                for aFullFileName in someFileNames:
-                    if not ( aFullFileName == anXMLFullFileName):   
-                        otherFileNames.append( aFullFileName)
-                        
-                                    
-                # ##############################################################################
-                """Read contents of first .xml file in the zip archive, or fail.
-                
-                """      
-                unXMLBuffer = self.fZipFileElementContent( unZipFile, anXMLFullFileName)
-                if len( unXMLBuffer) < 1:
-                    unImportReport.update( { 
-                        'success':      False,
-                        'status':       cImportStatus_Error_EmptyXMLFile,
-                        'filename':     anXMLFullFileName,
-                    })
-                    return unImportReport
-                
-           
-                
-                
-                # ##############################################################################
-                """Parse encoded contents of .xml file as an XML DOM tree, or fail. The values are encoded as specified in the top meta-element of the xml file.
-                
-                """      
-                unXMLDocument = None
-                try:
-                    unXMLDocument = gfParseStringAsXMLDocument( unXMLBuffer)
-                except:
-                    None
+                if unIsZip:
+
                     
-                if not unXMLDocument:
-                    unImportReport.update( { 
-                        'success':      False,
-                        'status':       cImportStatus_Error_BadXMLFile,
-                        'filename':     anXMLFullFileName,
-                    })
-                    return unImportReport
+                    # ##############################################################################
+                    """Find the first .xml file in the tree of files of the zip archive, or fail.
+                    
+                    """      
+                    someXMLFileNamesAndPathsLength = [ ]
+                    
+                    unXMLPostfix = '.%s' % cXMLFilePostfix.lower()
+                    anXMLFullFileName = ''                
+                    anXMLBaseName = ''                
+                    someFileNames = unZipFile.namelist()
+                    for aFullFileName in someFileNames:
+                                
+                        aBaseName = os.path.basename( aFullFileName)
+                        if aBaseName:
+                            aBaseNameLower = aBaseName.lower()
+                            aBaseNamePostfix = os.path.splitext(  aBaseNameLower)[ 1]
+                            if aBaseNamePostfix == unXMLPostfix:
+                                anXMLBaseName     = aBaseName
+                                someXMLFileNamesAndPathsLength.append( [ aFullFileName, len( aFullFileName.split( '/'))])
+        
+                    if not someXMLFileNamesAndPathsLength:
+                        unImportReport.update( { 
+                            'success':      False,
+                            'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
+                        })
+                        return unImportReport
+                                
+                    someSortedXMLFileNamesAndPathsLength = sorted( someXMLFileNamesAndPathsLength, lambda aObj, otherObj: cmp( aObj[1], otherObj[ 1]))
+                    anXMLFullFileName = someSortedXMLFileNamesAndPathsLength[ 0][ 0]
+                       
+                    if not anXMLFullFileName:
+                        unImportReport.update( { 
+                            'success':      False,
+                            'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
+                        })
+                        return unImportReport
+                    
+                    
+                    # ##############################################################################
+                    """Get all files in the zip archive other than the .xml file.
+                    
+                    """      
+                    for aFullFileName in someFileNames:
+                        if not ( aFullFileName == anXMLFullFileName):   
+                            otherFileNames.append( aFullFileName)
+                            
+                                        
+                    # ##############################################################################
+                    """Read contents of first .xml file in the zip archive, or fail.
+                    
+                    """      
+                    unXMLBuffer = self.fZipFileElementContent( unZipFile, anXMLFullFileName)
+                    if len( unXMLBuffer) < 1:
+                        unImportReport.update( { 
+                            'success':      False,
+                            'status':       cImportStatus_Error_EmptyXMLFile,
+                            'filename':     anXMLFullFileName,
+                        })
+                        return unImportReport
+                    
+               
+                    
+                    
+                    # ##############################################################################
+                    """Parse encoded contents of .xml file as an XML DOM tree, or fail. The values are encoded as specified in the top meta-element of the xml file.
+                    
+                    """      
+                    unXMLDocument = None
+                    try:
+                        unXMLDocument = gfParseStringAsXMLDocument( unXMLBuffer)
+                    except:
+                        None
+                        
+                    if not unXMLDocument:
+                        unImportReport.update( { 
+                            'success':      False,
+                            'status':       cImportStatus_Error_BadXMLFile,
+                            'filename':     anXMLFullFileName,
+                        })
+                        return unImportReport
+                    
+                    
+                else:
+                        
+                    # ##############################################################################
+                    """Attempt Parse encoded contents of .xml file as an XML DOM tree, or fail. The values are encoded as specified in the top meta-element of the xml file.
+                    
+                    """      
+                    try:
+                        theUploadedFile.seek( 0)
+                        unXMLDocument = gfParseFileAsXMLDocument( theUploadedFile)
+                    except:
+                        None
+                        
+                    if not unXMLDocument:
+                        unImportReport.update( { 
+                            'success':      False,
+                            'status':       cImportStatus_Error_Parameter_UploadedFile_NotAZipNotAXML,
+                        })
+                        return unImportReport
+                
+                    
                 unImportContext[ 'xml_document'] = unXMLDocument
                 
+
+                
+                # ##############################################################################
+                """Not really used anymore, as the values in the XML DOM tree are delievered already decoded into unicode, even if the contents of .xml file are encoded as specified in the top meta-element of the xml file.
+                
+                """      
                 unXMLEncoding = unXMLDocument.encoding
                 if not unXMLEncoding:
                     unXMLEncoding = cDefaultEncodingForXMLImport
@@ -382,7 +436,11 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                     return unImportReport
                 
                
+                
              
+                # ##############################################################################
+                """Get roots of the XML DOM tree
+                """      
                 
                 unosXMLRootElements = unXMLDocument.childNodes
                 if not unosXMLRootElements:
@@ -395,6 +453,8 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 
                 unImportContext[ 'xml_roots'] = unosXMLRootElements
                     
+                
+                
                 
                 
                 # ##############################################################################
@@ -416,6 +476,10 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 unImportContext[ 'container_object_result'] = unContainerObjecResult
         
                 
+                # ##############################################################################
+                """Verify import can be performed on target object, and the object is readable and writtable.
+                
+                """      
                 unAllowImport = unContainerObjecResult.get( 'allow_import', True)
                 if not unAllowImport:
                     unImportReport.update( { 
@@ -440,13 +504,14 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                     })
                     return unImportReport
                 
+                
+                
+                
                  
                 # ##############################################################################
                 """Traverse parsed XML DOM tree and create or update application elements from XML node data.
                 
                 """      
-    
-               
                 unRefactor = MDDRefactor_Import( 
                     theModelDDvlPloneTool,
                     theModelDDvlPloneTool_Retrieval,
@@ -477,7 +542,7 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 
                 
                 # ##############################################################################
-                """Transaction Save point.
+                """Transaction Save point before import to get a clean view on the existing object network.
                 
                 """      
                 transaction.savepoint(optimistic=True)
@@ -534,19 +599,20 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 unImportReport[ 'error_reports'].extend( unRefactor.vErrorReports )
                  
                 
+                transaction.commit()
+                if cLogImportResults:
+                    logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                    
                     
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
-                    transaction.commit()
     
                     unImportReport.update( { 
                          'success':      True,
                     })
-                    
                     if cLogImportResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED COMPLETED: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
                     
                 else:
-                    transaction.abort()
                     
                     unImportReport.update( { 
                         'success':      False,
@@ -554,7 +620,7 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                     })
                     
                     if cLogImportResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED WITH ERRORS during: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
                     
                     
                 return unImportReport        
@@ -565,7 +631,7 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 unaExceptionInfo = sys.exc_info()
                 unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
                 
-                unInformeExcepcion = 'Exception during fImport\n' 
+                unInformeExcepcion = 'Exception during fImport (before start writting or after committing changes)\n' 
                 unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
                 unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
                 unInformeExcepcion += unaExceptionFormattedTraceback   

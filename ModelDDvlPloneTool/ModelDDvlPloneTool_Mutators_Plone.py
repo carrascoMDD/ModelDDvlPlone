@@ -63,6 +63,7 @@ class ModelDDvlPloneTool_Mutators_Plone:
    
     security.declarePrivate(   'fEliminarElementoPlone')
     def fEliminarElementoPlone(self , 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,                          
         theContainerElement     =None, 
         theUIDToDelete          =None, 
@@ -77,11 +78,20 @@ class ModelDDvlPloneTool_Mutators_Plone:
 
         try:
 
+            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            
+            if theModelDDvlPloneTool == None:
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'No theModelDDvlPloneTool', })
+                return aDeleteReport                 
+
+            unSecondsNow = ModelDDvlPloneTool_Retrieval().fSecondsNow()            
+            if not ( (unSecondsNow >= theRequestSeconds) and ( ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theContainerElement))):
+                anActionReport = { 'effect': 'error', 'failure': 'time_out', }
+                return anActionReport                     
+
             if ( theContainerElement == None)  or not theUIDToDelete or not theRequestSeconds:
                 anActionReport = { 'effect': 'error', 'failure': 'required_parameters_missing', }
                 return anActionReport     
-            
-            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             
             unResultadoContenedor = aModelDDvlPloneTool_Retrieval.fRetrievePloneContent( 
                 theTimeProfilingResults     =theTimeProfilingResults,
@@ -133,10 +143,6 @@ class ModelDDvlPloneTool_Mutators_Plone:
                 anActionReport = { 'effect': 'error', 'failure': 'target_id_retrieval_failure', 'parent_traversal_name': unTraversalName, }
                 return anActionReport     
 
-            unSecondsNow = unResultadoContenedor[ 'seconds_now']
-            if not ( (unSecondsNow >= theRequestSeconds) and ( ( unSecondsNow - theRequestSeconds) < self.fSecondsToReviewAndDelete( theContainerElement))):
-                anActionReport = { 'effect': 'error', 'failure': 'time_out', 'parent_traversal_name': unTraversalName, }
-                return anActionReport                     
     
             if not ( unResultadoContenedor[ 'read_permission'] and unResultadoContenedor[ 'write_permission'] and unElementResult[ 'read_permission'] and unElementResult[ 'write_permission']):
                 anActionReport = { 'effect': 'error', 'failure': 'no_delete_permission', }

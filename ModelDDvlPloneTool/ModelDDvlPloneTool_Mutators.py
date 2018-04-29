@@ -47,6 +47,10 @@ from AccessControl      import ClassSecurityInfo
 
 from Products.Archetypes.utils import shasattr
 
+from Products.Archetypes.config import REFERENCE_CATALOG, UID_CATALOG
+
+
+
 from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 
@@ -66,10 +70,6 @@ from ModelDDvlPloneTool_Permissions_Definitions       import *
 
 
 
-cSecondsToReviewAndDeleteDefault = 30
-
-
-
 
 
 
@@ -79,17 +79,363 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     security = ClassSecurityInfo()
 
 
-    def fSecondsToReviewAndDelete( self, theContextualElement):
-        return cSecondsToReviewAndDeleteDefault
-    
-
 
  
-# #############################################################
-# Generic attribute mutators by name
-# 
+    # #############################################################
+    """Generic attribute mutators by name
+    
+    """
 
 
+    
+    
+    security.declarePrivate( 'fNewVoidChangeValuesReport')
+    def fNewVoidChangeValuesReport( self,):
+        aReport = {
+            'object_reports':        [],
+            'impacted_objects_UIDs': [],
+            'field_reports':         [],
+            'field_reports_by_name': {},
+        } 
+        return aReport
+ 
+   
+    
+    
+    security.declarePrivate( 'pImpactChangeValuesIntoReport')
+    def pImpactChangeValuesIntoReport( self, theChangedElement, theChangeReport):
+
+        if theChangeReport == None:
+            return self
+        
+        #unosImpactedObjects     = theChangeReport[ 'impacted_objects']
+        unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
+        
+        if theChangedElement == None:
+            return self
+        #if not ( theChangedElement in unosImpactedObjects):
+            #unosImpactedObjects.append( theChangedElement)
+
+        unaUIDChangedElement = ''
+        try:
+            unaUIDChangedElement = theChangedElement.UID()
+        except:
+            None
+        if unaUIDChangedElement:
+            if not ( unaUIDChangedElement in unosImpactedObjectsUIDs):
+                unosImpactedObjectsUIDs.append( unaUIDChangedElement)
+        
+
+        aMustImpactContainerAndOwner = False
+        aMustImpactPreviousAndNext   = False
+        aMustImpactOwnedContents     = False
+        aMustImpactAllContents       = False
+        aMustImpactAllRelated        = False
+        aMustImpactAllRelatedContainerAndOwners = False
+        
+        
+        someFieldReports = theChangeReport.get( 'field_reports')   
+        for aReportForField in someFieldReports:
+            anAttributeName = aReportForField.get( 'attribute_name', '')
+            if anAttributeName:
+                if aReportForField.get( 'effect', '') == 'changed':
+                    
+                    if anAttributeName.lower() == 'id':
+                        aMustImpactContainerAndOwner = True
+                        aMustImpactPreviousAndNext   = True
+                        aMustImpactOwnedContents     = True
+                        aMustImpactAllContents       = True
+                        aMustImpactAllRelated        = True
+                        aMustImpactAllRelatedContainerAndOwners = True
+                        break
+                    
+                    if anAttributeName.lower() == 'title':
+                        aMustImpactContainerAndOwner = True
+                        aMustImpactPreviousAndNext   = True
+                        aMustImpactOwnedContents     = True
+                        aMustImpactAllContents       = True
+                        aMustImpactAllRelated        = True
+                        aMustImpactAllRelatedContainerAndOwners = True
+                        break
+                    
+                    if anAttributeName.lower() == 'description':
+                        aMustImpactContainerAndOwner = True
+                        aMustImpactPreviousAndNext   = True
+                        aMustImpactOwnedContents     = True
+                        aMustImpactAllRelated        = True
+                        aMustImpactAllRelatedContainerAndOwners = True
+                        continue
+                        
+                    aMustImpactAllRelated                   = True
+                    aMustImpactAllRelatedContainerAndOwners = True
+                   
+                
+        if aMustImpactContainerAndOwner or aMustImpactPreviousAndNext:
+            
+            unContenedor = self.fImpactChangedContenedorYPropietario_IntoReport( theChangedElement, theChangeReport)
+
+            if not ( ( unContenedor == None) or ( unContenedor == theChangedElement)):
+                
+                if aMustImpactPreviousAndNext:
+                    
+                    unosSiblings = unContenedor.objectValues()
+                    
+                    if theChangedElement in unosSiblings:
+                        
+                        unIndexChangedElement = unosSiblings.index( theChangedElement)
+
+                        unosSiblingsToImpact = [ ]
+                        if ( unIndexChangedElement == 0) or ( unIndexChangedElement == (len( unosSiblings) - 1)):
+                            unosSiblingsToImpact = unosSiblings[:]
+                        else:
+                            unosSiblingsToImpact = [ unosSiblings[ unIndexChangedElement - 1], unosSiblings[ unIndexChangedElement + 1], ]
+                            
+                        for unSiblingToImpact in unosSiblingsToImpact:
+                            
+                            #if not ( unSiblingToImpact in unosImpactedObjects):
+                                #unosImpactedObjects.append( unSiblingToImpact)
+                            
+                            unaUIDSiblingToImpact = ''
+                            try:
+                                unaUIDSiblingToImpact = unSiblingToImpact.UID()
+                            except:
+                                None
+                            if unaUIDSiblingToImpact:
+                                if not ( unaUIDSiblingToImpact in unosImpactedObjectsUIDs):
+                                    unosImpactedObjectsUIDs.append( unaUIDSiblingToImpact)
+                
+                                    
+        if aMustImpactAllContents or aMustImpactOwnedContents:
+            
+            self.pImpactChangeValuesIntoReport_RecurseContents( theChangedElement, theChangeReport, aMustImpactAllContents)
+            
+            
+        if aMustImpactAllRelated and unaUIDChangedElement:
+                
+            aReferenceCatalog = getToolByName( theChangedElement, REFERENCE_CATALOG, None)
+            
+            if aReferenceCatalog:
+                
+                someRelationsNotPropagatingViewInvalidation = []
+                try:
+                    someRelationsNotPropagatingViewInvalidation = theChangedElement.fRelationsNotPropagatingViewInvalidation( )
+                except:
+                    None
+                if not someRelationsNotPropagatingViewInvalidation:
+                    someRelationsNotPropagatingViewInvalidation = []
+                
+                allRelatedUIDs = []
+                
+                aTargetCatalogSearch = { 'sourceUID'  : unaUIDChangedElement,}
+                aTargetsResults = aReferenceCatalog.searchResults( **aTargetCatalogSearch)
+                for aTargetResult  in aTargetsResults:
+                    aRelationName = aTargetResult[ 'relationship']
+                    if not ( aRelationName in someRelationsNotPropagatingViewInvalidation):                   
+                        aTargetUID = aTargetResult[ 'targetUID']
+                        if not ( aTargetUID in unosImpactedObjectsUIDs):
+                            unosImpactedObjectsUIDs.append( aTargetUID)
+                        if not ( aTargetUID in allRelatedUIDs):
+                            allRelatedUIDs.append( aTargetUID)
+                        
+                aSourceCatalogSearch = { 'targetUID'  : unaUIDChangedElement,}
+                aSourcesResults = aReferenceCatalog.searchResults( **aSourceCatalogSearch)
+                for aSourceResult  in aSourcesResults:
+                    aRelationName = aSourceResult[ 'relationship']
+                    if not ( aRelationName in someRelationsNotPropagatingViewInvalidation):                   
+                        aSourceUID = aSourceResult[ 'sourceUID']
+                        if not ( aSourceUID in unosImpactedObjectsUIDs):
+                            unosImpactedObjectsUIDs.append( aSourceUID)
+                        if not ( aSourceUID in allRelatedUIDs):
+                            allRelatedUIDs.append( aSourceUID)
+
+                            
+                if aMustImpactAllRelatedContainerAndOwners:
+                    
+                    aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()                
+                    
+                    for aRelatedUID in allRelatedUIDs:
+                        aRelatedElement = aModelDDvlPloneTool_Retrieval.fElementoPorUID( aRelatedUID, theChangedElement)
+                        if not ( aRelatedElement == None):
+                            
+                            #if not ( aRelatedElement in unosImpactedObjects):
+                                #unosImpactedObjects.append( aRelatedElement)
+                                    
+                            unVoid = self.fImpactChangedContenedorYPropietario_IntoReport( aRelatedElement, theChangeReport)
+                            
+                            
+        return self
+    
+    
+    
+    
+    
+   
+    security.declarePrivate( 'pImpactChangeValuesIntoReport_RecurseContents')
+    def pImpactChangeValuesIntoReport_RecurseContents( self, theChangedElement, theChangeReport, theImpactAllContents=False):
+
+        if theChangeReport == None:
+            return self
+        
+        #unosImpactedObjects     = theChangeReport[ 'impacted_objects']
+        unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
+        
+        unosContentsElements = []
+        try:
+            unosContentsElements = theChangedElement.objectValues()
+        except:
+            None
+        
+        if not unosContentsElements:
+            return self
+        
+        for unContentElement in unosContentsElements:
+                    
+            #if not ( unContentElement in unosImpactedObjects):
+                #unosImpactedObjects.append( unContentElement)
+            
+            unaUIDContentElement = ''
+            try:
+                unaUIDContentElement = unContentElement.UID()
+            except:
+                None
+            if unaUIDContentElement:
+                if not ( unaUIDContentElement in unosImpactedObjectsUIDs):
+                    unosImpactedObjectsUIDs.append( unaUIDContentElement)
+                    
+            unEsColeccion = False
+            try:
+                unEsColeccion = unContentElement.getEsColeccion()
+            except:
+                None
+
+            if theImpactAllContents or unEsColeccion:
+                
+                unosSubContentsElements = unContentElement.objectValues()
+                
+                if unosSubContentsElements:
+                    
+                    for unSubContentElement in unosSubContentsElements:
+                                
+                        #if not ( unSubContentElement in unosImpactedObjects):
+                            #unosImpactedObjects.append( unSubContentElement)
+                        
+                        unaUIDSubContentElement = ''
+                        try:
+                            unaUIDSubContentElement = unSubContentElement.UID()
+                        except:
+                            None
+                        if unaUIDSubContentElement:
+                            if not ( unaUIDSubContentElement in unosImpactedObjectsUIDs):
+                                unosImpactedObjectsUIDs.append( unaUIDSubContentElement)
+                                
+                        if theImpactAllContents:
+                            self.pImpactChangeValuesIntoReport_RecurseContents(  unSubContentElement, theChangeReport, True)                           
+            
+        return self
+                                
+                                
+    
+
+    
+    
+    
+    security.declarePrivate( 'fImpactChangedContenedorYPropietario_IntoReport')
+    def fImpactChangedContenedorYPropietario_IntoReport( self, theChangedElement, theChangeReport, ):
+
+        if theChangeReport == None:
+            return None
+        
+        unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
+        
+        unContenedor = None
+        try:
+            unContenedor = theChangedElement.getContenedor()
+        except:
+            None
+        if  not ( ( unContenedor == None) or ( unContenedor == theChangedElement)):
+            unaUIDContenedor = ''
+            try:
+                unaUIDContenedor = unContenedor.UID()
+            except:
+                None
+            if unaUIDContenedor:
+                if not ( unaUIDContenedor in unosImpactedObjectsUIDs):
+                    unosImpactedObjectsUIDs.append( unaUIDContenedor)
+                    
+    
+        unPropietario = None
+        try:
+            unPropietario = theChangedElement.getPropietario()
+        except:
+            None
+        if not ( ( unPropietario == None) or ( unPropietario == unContenedor)  or ( unPropietario == theChangedElement)):
+
+            unaUIDPropietario = ''
+            try:
+                unaUIDPropietario = unPropietario.UID()
+            except:
+                None
+            if unaUIDPropietario:
+                if not ( unaUIDPropietario in unosImpactedObjectsUIDs):
+                    unosImpactedObjectsUIDs.append( unaUIDPropietario)
+                    
+                 
+        unosPropagateDeleteImpactTo = None
+        try:
+            unosPropagateDeleteImpactTo = theChangedElement.propagate_delete_impact_to
+        except:
+            None
+
+            
+            
+        if unosPropagateDeleteImpactTo:
+            
+            for unPropagateDeleteImpactTo in unosPropagateDeleteImpactTo:
+                
+                if unPropagateDeleteImpactTo:
+                    
+                    unPropagateStep = unPropagateDeleteImpactTo[ 0]
+                    if unPropagateStep == 'contenedor_contenedorYPropietario':
+                        
+                        if not ( unContenedor == None):
+                            
+                            unContenedor_Contenedor = None
+                            try:
+                                unContenedor_Contenedor = unContenedor.getContenedor()
+                            except:
+                                None
+                            
+                            if not ( unContenedor_Contenedor == None):   
+                                unaUIDContenedor_Contenedor = ''
+                                try:
+                                    unaUIDContenedor_Contenedor = unContenedor_Contenedor.UID()
+                                except:
+                                    None
+                                if unaUIDContenedor_Contenedor:
+                                    if not ( unaUIDContenedor_Contenedor in unosImpactedObjectsUIDs):
+                                        unosImpactedObjectsUIDs.append( unaUIDContenedor_Contenedor)
+                            
+                            
+                            unContenedor_Propietario = None
+                            try:
+                                unContenedor_Propietario = unContenedor.getPropietario()
+                            except:
+                                None
+                            
+                            if not ( unContenedor_Propietario == None):   
+                                unaUIDContenedor_Propietario = ''
+                                try:
+                                    unaUIDContenedor_Propietario = unContenedor_Propietario.UID()
+                                except:
+                                    None
+                                if unaUIDContenedor_Propietario:
+                                    if not ( unaUIDContenedor_Propietario in unosImpactedObjectsUIDs):
+                                        unosImpactedObjectsUIDs.append( unaUIDContenedor_Propietario)
+                                
+        return unContenedor
+                                    
+    
+            
     security.declarePrivate( 'fChangeValues')
     def fChangeValues(self , 
         theTimeProfilingResults =None,
@@ -146,14 +492,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
             unAnyAttributeChanged = False
             
-            someObjectReports = []
-            someFieldReports = []
-            aFieldReportsByName = {}
-            aReport = {
-                'object_reports':        someObjectReports,
-                'field_reports':         someFieldReports,
-                'field_reports_by_name': aFieldReportsByName,
-            }        
+            aReport = self.fNewVoidChangeValuesReport()
+            someObjectReports   = aReport.get( 'object_reports')
+            someFieldReports    = aReport.get( 'field_reports')
+            aFieldReportsByName = aReport.get( 'field_reports_by_name')
             
             if not unResult.get( 'read_permission', False):
                 aReportForObject = { 'effect': 'error', 'failure': 'object_read_permission',}
@@ -431,6 +773,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 
             if unAnyAttributeChanged:
                 
+                self.pImpactChangeValuesIntoReport( theElement, aReport)
+                
                 self.pSetAudit_Modification( theElement)       
                 
                 try:
@@ -456,9 +800,19 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 # Content order mutators
 #
 
-
-    security.declarePrivate( 'pMoveSubObject')
-    def pMoveSubObject(self , 
+                
+    security.declarePrivate( 'fNewVoidLinkReport')
+    def fNewVoidMoveSubObjectReport( self,):
+        aReport = {
+            'impacted_objects_UIDs':   [],
+        } 
+        return aReport
+    
+  
+    
+    
+    security.declarePrivate( 'fMoveSubObject')
+    def fMoveSubObject(self , 
         theTimeProfilingResults =None,
         theContainerElement     =None,  
         theTraversalName        =None, 
@@ -470,12 +824,14 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         """
 
         if not ( theTimeProfilingResults == None):
-            self.pProfilingStart( 'pMoveSubObject', theTimeProfilingResults)
+            self.pProfilingStart( 'fMoveSubObject', theTimeProfilingResults)
 
         try:
 
+            aMoveReport = self.fNewVoidMoveSubObjectReport()
+            
             if ( theContainerElement == None)  or not  theTraversalName or not theMovedObjectId or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
-                return self
+                return aMoveReport
                         
             aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             unResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
@@ -495,22 +851,22 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 theAdditionalParams         =theAdditionalParams                
             )
             if not unResult:
-                return self
+                return aMoveReport
         
             if not (  unResult[ 'read_permission'] and unResult[ 'write_permission']):
-                return self
+                return aMoveReport
     
             aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResult, [ 'traversals',])
 
             unTraversalResult =  unResult[ 'traversals_by_name'].get( theTraversalName, None)
             if not unTraversalResult:
-                return self
+                return aMoveReport
 
             if not (  unTraversalResult[ 'traversal_kind'] == 'aggregation'):
-                return self
+                return aMoveReport
                 
             if not (  unTraversalResult[ 'read_permission'] and unTraversalResult[ 'write_permission']):
-                return self
+                return aMoveReport
     
             someAllContainedObjects = theContainerElement.objectValues()
             
@@ -557,17 +913,19 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     
             if unResultToMove and not ( unDelta == None):
                 if not ( unResultToMove[ 'read_permission'] and unResultToMove[ 'write_permission']):
-                    return self
+                    return aMoveReport
+                
+                self.pImpactMoveSubObjectIntoReport( theContainerElement, someContainedObjects, aMoveReport)
                 
                 theContainerElement.moveObjectsByDelta( [ theMovedObjectId, ], unDelta)
 
                 self.pSetAudit_Modification( theContainerElement)       
 
-          
+            return aMoveReport
        
         finally:
             if not ( theTimeProfilingResults == None):
-                self.pProfilingEnd( 'pMoveSubObject', theTimeProfilingResults)
+                self.pProfilingEnd( 'fMoveSubObject', theTimeProfilingResults)
     
         
         
@@ -575,20 +933,54 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         
 
 
+   
+    
+    security.declarePrivate( 'pImpactMoveSubObjectIntoReport')
+    def pImpactMoveSubObjectIntoReport( self, theContainerElement, theContainedObjects, theMoveReport):
+ 
+        if ( theContainerElement == None) or ( not theContainedObjects) or ( not theMoveReport):
+            return self
+    
+         
+        unosImpactedObjectsUIDs = theMoveReport[ 'impacted_objects_UIDs']
+        
+        unaUIDContainerElement = None
+        try:
+            unaUIDContainerElement = theContainerElement.UID()
+        except:
+            None
+        if unaUIDContainerElement:
+            if not ( unaUIDContainerElement in unosImpactedObjectsUIDs):
+                unosImpactedObjectsUIDs.append( unaUIDContainerElement)
+
+        for aContainedObject in theContainedObjects:
+            if not ( aContainedObject == None):
+                unaUIDContainedObject = None
+                try:
+                    unaUIDContainedObject = aContainedObject.UID()
+                except:
+                    None
+                if unaUIDContainedObject:
+                    if not ( unaUIDContainedObject in unosImpactedObjectsUIDs):
+                        unosImpactedObjectsUIDs.append( unaUIDContainedObject)
+
+        return self
+    
+            
         
         
         
                 
         
  
-# #############################################################
-# Relation order mutators
-#
+    # #############################################################
+    # Relation order mutators
+    #
 
 
 
-    security.declarePrivate( 'pMoveReferencedObject')
-    def pMoveReferencedObject(self , 
+    security.declarePrivate( 'fMoveReferencedObject')
+    def fMoveReferencedObject(self , 
         theTimeProfilingResults =None,
         theSourceElement        =None,  
         theReferenceFieldName   =None, 
@@ -597,7 +989,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         theAdditionalParams     =None):        
  
         if not ( theTimeProfilingResults == None):
-            self.pProfilingStart( 'pMoveReferencedObject', theTimeProfilingResults)
+            self.pProfilingStart( 'fMoveReferencedObject', theTimeProfilingResults)
 
         try:
 
@@ -702,8 +1094,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             someToConnect    = [ [ aSourceUID, anUID, unRelationship] for anUID in someToLink]
             someToDisconnect = [ [ aSourceUID, anUID, unRelationship] for anUID in someToUnlink]
                             
+            
+            self.pImpactMoveReferencedObjectIntoReport( theSourceElement, someRelatedResults, aMoveReport)
+            
+
             gRelationsProcessor.process( aRelationsLibrary, connect= [],            disconnect=someToDisconnect)
             gRelationsProcessor.process( aRelationsLibrary, connect= someToConnect, disconnect=[])
+
             
             self.pSetAudit_Modification( theSourceElement)       
             
@@ -711,13 +1108,59 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         finally:
             if not ( theTimeProfilingResults == None):
-                self.pProfilingEnd( 'pMoveReferencedObject', theTimeProfilingResults)
-      
+                self.pProfilingEnd( 'fMoveReferencedObject', theTimeProfilingResults)
+
+                
+                
+    security.declarePrivate( 'pImpactMoveReferencedObjectIntoReport')
+    def pImpactMoveReferencedObjectIntoReport( self, theSourceElement, theRelatedResults, theMoveReport):
+ 
+        if ( theSourceElement == None) or ( not theRelatedResults) or ( not theMoveReport):
+            return self
     
+        unosImpactedObjectsUIDs = theMoveReport[ 'impacted_objects_UIDs']
 
-
-
-
+        unaUIDSourceElement = None
+        try:
+            unaUIDSourceElement = theSourceElement.UID()
+        except:
+            None
+        if unaUIDSourceElement:
+            if not ( unaUIDSourceElement in unosImpactedObjectsUIDs):
+                unosImpactedObjectsUIDs.append( unaUIDSourceElement)
+                
+        unContenedorSource = self.fImpactChangedContenedorYPropietario_IntoReport( theSourceElement, theMoveReport)
+        
+        for aRelatedResult in theRelatedResults:
+            anObject = aRelatedResult.get( 'object', None)
+            if not ( anObject == None):
+                anUID = anObject.UID()
+                if anUID:
+                    if not ( anUID in unosImpactedObjectsUIDs):
+                        unosImpactedObjectsUIDs.append( anUID)
+                        
+        return self
+    
+            
+            
+            
+    
+    
+    
+                
+                
+    security.declarePrivate( 'fNewVoidLinkReport')
+    def fNewVoidLinkReport( self,):
+        aReport = {
+            'impacted_objects_UIDs':   [],
+            'source_object_reports':    [],
+            'target_object_reports':    [],
+            'link_reports':             [],
+        } 
+        return aReport
+    
+  
+ 
 
 
     security.declarePrivate( 'fLinkToUIDReferenceFieldNamed')
@@ -740,15 +1183,12 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if not theSourceElement or not theReferenceFieldName or not theTargetUID:
                 return None
       
-            someSourceObjectReports = []
-            someTargetObjectReports = []
-            someLinkReports = []
-            aFieldReportsByName = {}
-            aReport = {
-                'source_object_reports':    someSourceObjectReports,
-                'target_object_reports':    someTargetObjectReports,
-                'link_reports':             someLinkReports,
-            }      
+            aReport = self.fNewVoidLinkReport()
+            someSourceObjectReports = aReport[ 'source_object_reports']
+            someTargetObjectReports = aReport[ 'target_object_reports']
+            someLinkReports         = aReport[ 'link_reports']
+            aFieldReportsByName     = {}
+     
             
             unSchema = theSourceElement.schema
             if not unSchema.has_key( theReferenceFieldName):
@@ -927,9 +1367,16 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     aReportForLink = { 'effect': 'error', 'failure': 'getToolByName RELATIONS_LIBRARY',}
                     someLinkReports.append( aReportForLink)
                     return aReport
-                    
-                gRelationsProcessor.process( aRelationsLibrary, connect=[( unSourceElementUID, theTargetUID, unRelationName ), ], disconnect=[])
 
+                
+                
+                
+                gRelationsProcessor.process( aRelationsLibrary, connect=[( unSourceElementUID, theTargetUID, unRelationName ), ], disconnect=[])
+                
+                self.pImpactLinkIntoReport( theSourceElement, unSourceElementUID, theReferenceFieldName, unRelationName, unTargetElement, theTargetUID, aReport)
+
+                
+                
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
                     if not ( unSourceObject == None):
@@ -938,14 +1385,20 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 if not unaTargetTraversalResult.get( 'dependency_supplier', False):
                     unTargetObject = unTargetElementResult.get( 'object', None)
                     if not ( unTargetObject == None):
-                        self.pSetAudit_Modification( unTargetObject)       
+                        self.pSetAudit_Modification( unTargetObject)
+                 
                         
                 aReportForLink = { 'effect': 'linked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName}
                 someLinkReports.append( aReportForLink)
                 return aReport
 
             else:
+                
                 theSourceElement.addReference( unTargetElement, unRelationName)
+                
+                self.pImpactReferenceIntoReport( theSourceElement, unSourceElementUID, theReferenceFieldName, unRelationName, aReport)
+
+                
                 
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
@@ -961,11 +1414,73 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if not ( theTimeProfilingResults == None):
                 self.pProfilingEnd( 'fLinkToUIDReferenceFieldNamed', theTimeProfilingResults)
 
-    
+                
+                
 
+    
+   
+    
+    security.declarePrivate( 'pImpactLinkIntoReport')
+    def pImpactLinkIntoReport( self, theSourceElement, theSourceElementUID, theReferenceFieldName, theRelationName, theTargetElement, theTargetElementUID, theChangeReport):
+ 
+        if ( theSourceElement == None) or ( theTargetElement == None) or ( not theSourceElementUID) or ( not theTargetElementUID) or (not theChangeReport):
+            return self
+    
+        unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
+
+        if not ( theSourceElementUID in unosImpactedObjectsUIDs):
+            unosImpactedObjectsUIDs.append( theSourceElementUID)
+            
+        unContenedorSource = self.fImpactChangedContenedorYPropietario_IntoReport( theSourceElement, theChangeReport)
+        
+        
+        if not ( theTargetElementUID in unosImpactedObjectsUIDs):
+            unosImpactedObjectsUIDs.append( theTargetElementUID)
+            
+        unContenedorTarget = self.fImpactChangedContenedorYPropietario_IntoReport( theTargetElement, theChangeReport)
+
+        return self
+    
+            
+            
+            
+            
+            
+            
+            
+    
+    
+    
+    
+    security.declarePrivate( 'pImpactReferenceIntoReport')
+    def pImpactReferenceIntoReport( self, theSourceElement, theSourceElementUID, theReferenceFieldName, theRelationName, theReport):
+ 
+        if ( theSourceElement == None) or ( not theSourceElementUID) or ( not theTargetElementUID) or (not theChangeReport):
+            return self
+    
+         
+        unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
+        
+        if theSourceElement == None:
+            return self
+        
+        if not ( theSourceElementUID in unosImpactedObjectsUIDs):
+            unosImpactedObjectsUIDs.append( theSourceElementUID)
+            
+        unContenedorSource = self.fImpactChangedContenedorYPropietario_IntoReport( theSourceElement, theChangeReport)
+        
+        return self
+    
+        
+    
+    
                   
        
- 
+    security.declarePrivate( 'fNewVoidUnlinkReport')
+    def fNewVoidUnlinkReport( self,):
+        return self.fNewVoidLinkReport()
+    
+   
 
 
 
@@ -988,15 +1503,14 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if not theSourceElement or not theReferenceFieldName or not theTargetUID:
                 return None
       
-            someSourceObjectReports = []
-            someTargetObjectReports = []
-            someLinkReports = []
-            aFieldReportsByName = {}
-            aReport = {
-                'source_object_reports':    someSourceObjectReports,
-                'target_object_reports':    someTargetObjectReports,
-                'link_reports':             someLinkReports,
-            }      
+            
+            
+            aReport = self.fNewVoidUnlinkReport()
+            someSourceObjectReports = aReport[ 'source_object_reports']
+            someTargetObjectReports = aReport[ 'target_object_reports']
+            someLinkReports         = aReport[ 'link_reports']
+            aFieldReportsByName     = {}
+                 
             
             unSchema = theSourceElement.schema
             if not unSchema.has_key( theReferenceFieldName):
@@ -1159,8 +1673,14 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     someLinkReports.append( aReportForLink)
                     return aReport
                     
+                
+                self.pImpactUnLinkIntoReport( theSourceElement, unSourceElementUID, theReferenceFieldName, unRelationName, unTargetElement, theTargetUID, aReport)
+                
+                
                 gRelationsProcessor.process( aRelationsLibrary, connect=[], disconnect=[( unSourceElementUID, theTargetUID, unRelationName ), ])
 
+                
+                
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
                     if not ( unSourceObject == None):
@@ -1176,7 +1696,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 return aReport
 
             else:
+                
+                
                 theSourceElement.deleteReference( unTargetElement, unRelationName)
+                                
+                self.pImpactReferenceIntoReport( theSourceElement, unSourceElementUID, theReferenceFieldName, unRelationName, aReport)
+                
+                
                                 
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
@@ -1194,8 +1720,12 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
     
 
+                
+                
                   
-       
+    security.declarePrivate( 'pImpactUnLinkIntoReport')
+    def pImpactUnLinkIntoReport( self, theSourceElement, theSourceElementUID, theReferenceFieldName, theRelationName, theTargetElement, theTargetElementUID, theChangeReport):
+        return self.pImpactLinkIntoReport( theSourceElement, theSourceElementUID, theReferenceFieldName, theRelationName, theTargetElement, theTargetElementUID, theChangeReport)
  
        
  
@@ -1205,19 +1735,28 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     
     
-# #############################################################
-# Creation methods
-#
+    # #############################################################
+    # Creation methods
+    #
 
             
  
             
+    security.declarePrivate( 'fAreVisibleIds')
+    def fAreVisibleIds(self,):
+        """here/portal_properties/site_properties/visible_ids
+        
+        """
+        pass
             
+                             
+                             
     security.declarePrivate( 'fCrearElementoDeTipo')
     def fCrearElementoDeTipo(self, 
         theTimeProfilingResults =None,
         theContainerElement      =None, 
         theTypeName             ='', 
+        theId                   =None,
         theTitle                ='', 
         theDescription          ='',
         theAdditionalParams     =None,
@@ -1331,9 +1870,17 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 anActionReport = { 'effect': 'error', 'failure': 'content_type_not_allowed', }
                 return anActionReport     
                                 
-            aNewId = unTitle.lower()
-            aNewId.replace(" ", "-")
-    
+            
+            if theId:
+                aNewId = theId
+                aNewId.replace(" ", "-")
+            else:
+                aNewId = unTitle.lower()
+
+            if unTranslationService:
+                aNewId = unTranslationService.encode( aNewId)
+
+     
             aPloneTool = getToolByName( theContainerElement, 'plone_utils', None)
             if aPloneTool  and  shasattr( aPloneTool, 'normalizeString'):
                 aNewId = aPloneTool.normalizeString( aNewId)
@@ -1443,6 +1990,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                     theTimeProfilingResults =theTimeProfilingResults,
                                     theContainerElement     =aNewObject, 
                                     theTypeName             =unTypeName, 
+                                    theId                   =None,
                                     theTitle                =unNewTitle, 
                                     theDescription          ='',
                                     theAdditionalParams     =theAdditionalParams)                                             
@@ -1478,17 +2026,30 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     
     
+    security.declarePrivate( 'fNewVoidDeleteElementReport')
+    def fNewVoidDeleteElementReport( self,):
+        aReport = {
+            'parent_traversal_name':   '',
+            'impact_report':           None,
+            #'impacted_objects':        [],
+            'impacted_objects_UIDs':   [],
+            'effect':                  'error', 
+            'failure':                 'Not executed',
+        } 
+        return aReport
     
+     
     
     security.declarePrivate(   'fEliminarElemento')
     def fEliminarElemento(self , 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,                          
         theElement              =None, 
         theIdToDelete           =None, 
         theUIDToDelete          =None, 
         theRequestSeconds       =None, 
         theAdditionalParams     =None):        
-        """Delete an element and all its contents, givn its UID and matching Id, if the time lapsed is within the acceptable interval.
+        """Delete an element and all its contents, given its UID and matching Id, if the time lapsed is within the acceptable interval.
         
         """
 
@@ -1496,45 +2057,61 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             self.pProfilingStart( 'fEliminarElemento', theTimeProfilingResults)
 
         try:
-
-            if ( theElement == None) or not theIdToDelete or not theUIDToDelete or not theRequestSeconds:
-                anActionReport = { 'effect': 'error', 'failure': 'required_parameters_missing', }
-                return anActionReport     
-                
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             
+            aDeleteReport = self.fNewVoidDeleteElementReport()
+            
+            if theModelDDvlPloneTool == None:
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'No theModelDDvlPloneTool', })
+                return aDeleteReport                 
+
+            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+                        
+            unSecondsNow = unModelDDvlPloneTool_Retrieval.fSecondsNow()            
+            if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theElement)):
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'time_out', })
+                return aDeleteReport                 
+    
+            if ( theElement == None) or ( not theIdToDelete) or ( not theUIDToDelete) or ( not theRequestSeconds):
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'required_parameters_missing', })
+                return aDeleteReport     
+                
             unTargetElement = unModelDDvlPloneTool_Retrieval.fElementoPorUID( theUIDToDelete, theElement)
             if not unTargetElement:
-                anActionReport = { 'effect': 'error', 'failure': 'get_by_uid_failure', }
-                return anActionReport     
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'get_by_uid_failure', })
+                return aDeleteReport    
+
                             
             unElementDeleteImpactReport = unModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
+                theModelDDvlPloneTool   =theModelDDvlPloneTool,
                 theTimeProfilingResults =theTimeProfilingResults,
                 theElement              =unTargetElement,
                 theAdditionalParams     =theAdditionalParams
             )
 
             if not unElementDeleteImpactReport:
-                anActionReport = { 'effect': 'error', 'failure': 'impact_report_retrieval_failure', }
-                return anActionReport  
-                
-            unSecondsNow = unElementDeleteImpactReport[ 'seconds_now']
-            if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < self.fSecondsToReviewAndDelete( theElement)):
-                anActionReport = { 'effect': 'error', 'failure': 'time_out', }
-                return anActionReport                 
-    
-            if not unElementDeleteImpactReport[ 'here'][ 'container_element'][ 'object'] == theElement:
-                anActionReport = { 'effect': 'error', 'failure': 'wrong_container_element', }
-                return anActionReport  
-                        
-            if not unElementDeleteImpactReport[ 'delete_permission']:
-                anActionReport = { 'effect': 'error', 'failure': 'no_delete_permission', }
-                return anActionReport     
-                    
-            unaIdAEliminar = unElementDeleteImpactReport[ 'here'][ 'id']
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'internal_impact_report_retrieval_failure', })
+                return aDeleteReport  
             
-                  
+            
+            
+                            
+            if not ( unElementDeleteImpactReport[ 'here'][ 'container_element'][ 'object'] == theElement):
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'wrong_container_element', })
+                return aDeleteReport  
+                        
+            unaIdAEliminar = unElementDeleteImpactReport[ 'here'][ 'id']
+            if unaIdAEliminar == theElement:
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'internal_no_element_id', })
+                return aDeleteReport  
 
+            if not unElementDeleteImpactReport[ 'delete_permission']:
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'no_delete_permission', })
+                return aDeleteReport     
+                    
+            
+            
+            self.pImpactDeleteImpactReportIntoReport( unTargetElement, unElementDeleteImpactReport, aDeleteReport)
+                  
             self.pSetAudit_Modification( theElement)     
             
             # ACV We are not really keeping defunct objects at this time, so we do not expend the effort on object that shall be gone immediately.
@@ -1542,19 +2119,95 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
          
             theElement.manage_delObjects( [ unaIdAEliminar, ])
-            
-            anActionReport = { 'effect': 'deleted', 'parent_traversal_name': unElementDeleteImpactReport[ 'parent_traversal_name'], 'impact_report': unElementDeleteImpactReport,}
-            return anActionReport     
+           
+            aDeleteReport.update( { 
+                'effect':                'deleted', 
+                'parent_traversal_name': unElementDeleteImpactReport[ 'parent_traversal_name'], 
+                'impact_report':         unElementDeleteImpactReport,
+            })
+            return aDeleteReport     
     
         finally:
             if not ( theTimeProfilingResults == None):
                 self.pProfilingEnd( 'fEliminarElemento', theTimeProfilingResults)
 
                 
+         
+                
+                
+                
+
+   
+    
+    security.declarePrivate( 'pImpactDeleteImpactReportIntoReport')
+    def pImpactDeleteImpactReportIntoReport( self, theElement, theElementDeleteImpactReport, theDeleteReport):
+ 
+        if ( theElement == None) or ( not theElementDeleteImpactReport) or ( not theDeleteReport):
+            return self
+    
+        unosElementsToBeDeleted, unosRelatedElements = ModelDDvlPloneTool_Retrieval().fObjectsToDeleteAndRelated_FromImpactReport( theElementDeleteImpactReport)
+        
+        
+        unosImpactedObjectsUIDs = theDeleteReport[ 'impacted_objects_UIDs']
+        
+        
+        unaUIDDeletedElement = None
+        try:
+            unaUIDDeletedElement = theElement.UID()
+        except:
+            None
+        if unaUIDDeletedElement:
+            if not ( unaUIDDeletedElement in unosImpactedObjectsUIDs):
+                unosImpactedObjectsUIDs.append( unaUIDDeletedElement)
+                
+        unContenedorSource = self.fImpactChangedContenedorYPropietario_IntoReport( theElement, theDeleteReport)
+        
+        
+        for unElementToBeDeleted in unosElementsToBeDeleted:
+            
+            unaUIDToBeDeleted = None
+            try:
+                unaUIDToBeDeleted = unElementToBeDeleted.UID()
+            except:
+                None
+            if unaUIDToBeDeleted:
+                if not ( unaUIDToBeDeleted in unosImpactedObjectsUIDs):
+                    unosImpactedObjectsUIDs.append( unaUIDToBeDeleted)
+            
+                
+                
+        for unRelatedElement in unosRelatedElements:
+            
+            unaUIDRelated = None
+            try:
+                unaUIDRelated = unRelatedElement.UID()
+            except:
+                None
+            if unaUIDRelated:
+                if not ( unaUIDRelated in unosImpactedObjectsUIDs):
+                    unosImpactedObjectsUIDs.append( unaUIDRelated)
+                    
+                                                        
+            unContenedorSource = self.fImpactChangedContenedorYPropietario_IntoReport( unRelatedElement, theDeleteReport)
+        
+        return self
+                    
+                
+                
+    
+    
+    
+    
+    
+    
+    
+    
+    
                 
      
     security.declarePrivate(   'fEliminarVariosElementos')
-    def fEliminarVariosElementos(self , 
+    def fEliminarVariosElementos(self ,
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,                          
         theContainerElement     =None, 
         theIdsToDelete          =None, 
@@ -1570,6 +2223,15 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
+            if theModelDDvlPloneTool == None:
+                return [  { 'effect': 'error', 'failure': 'No theModelDDvlPloneTool', }, ]
+
+            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            
+            unSecondsNow = unModelDDvlPloneTool_Retrieval.fSecondsNow()            
+            if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theContainerElement)):
+                return [ { 'effect': 'error', 'failure': 'time_out', },]
+ 
             if ( theContainerElement == None) or not theRequestSeconds:
                 return [ { 'effect': 'error', 'failure': 'required_parameters_missing: theContainerElement or theRequestSeconds', },]                
             
@@ -1589,13 +2251,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if not ( len( someIdsToDelete) == unNumUIDsToDelete):
                 return [ { 'effect': 'error', 'failure': 'not same number of Ids UIDs in delete elements request', },]
             
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
-            
-            unSecondsNow = unModelDDvlPloneTool_Retrieval.getSecondsNow()            
 
-            if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < self.fSecondsToReviewAndDelete( theContainerElement)):
-                return [ { 'effect': 'error', 'failure': 'time_out', },]
- 
             someElementDeleteReports = [ ]
             someElementsToDelete     = [ ]
             
@@ -1622,6 +2278,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             for anElementUID, anElementId, unElementToDelete in someElementsToDelete:
                               
                 unElementDeleteImpactReport = unModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
+                    theModelDDvlPloneTool   =theModelDDvlPloneTool,
                     theTimeProfilingResults =theTimeProfilingResults,
                     theElement              =unElementToDelete,
                     theAdditionalParams     =theAdditionalParams
@@ -1721,7 +2378,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         if aMembershipTool:
             unMember = aMembershipTool.getAuthenticatedMember()   
             if unMember:
-                unMemberId = unMember.getMemberId()   
+                if unMember.getUserName() == 'Anonymous User':
+                    unMemberId = unMember.getUserName()
+                else:
+                    unMemberId = unMember.getMemberId()   
     
         unAhora = DateTime()
     
