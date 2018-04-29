@@ -4,6 +4,89 @@ ModelDDvlPlone RELEASE NOTES
 |
 |
 
+Summary of use cases implemented after delivery of version 1.0 (build200907160507)
+==================================================================================
+
+- Paste copies of elements. Paste identical copies when possible, or refactor into a type appropriate for the container.
+  For example, in the gvSIGbpd application, 
+  pasting a Business Rule, in a Collection of Business Rules shall yield a new Business Rule,
+  yet pasting it into a Business Policies Collection shall yield a new Business Policy.
+
+- Export an element as .zip archives with information in a character encoded (utf8) .xml file, 
+  and plone binary content as separate files.
+
+- Import into an element as .zip archives with .xml file and binary content.
+
+- Audit information is recorded on elements as the user and date/time of creation, modification and deletion.
+  There is an still unused feature to avoid truly deleting elements,
+  but leave them flagged as deleted.
+  
+- Copy/Cut/Delete multiple aggregated elements.
+  The user interface for collections now presents to the user
+  check boxes to select elements to which an action shall apply,
+  and a menu to triger the action.
+  
+- Move elements to a different collection by Cut/Paste.
+
+- New link to refresh the Tabular and Textual views.
+
+- Standard Plone actions and factories are intercepted or aliased
+  to maintain a tight model driven control on the application information.
+  
+- The Id of an element can be edited in the element editor,
+  with the field protected with an additional button
+  that the user shall click to gain edit access to de Id field.
+  
+- Create a new Version as a copy of a whole model, 
+  maintaining traceability links from elements in the new version 
+  to elements in the previous version.  
+  
+- Process steps now can record effort estimations, and timing constraints.
+
+
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+
+version 1.0.0.5
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+
+
+During Cut/paste on same container: Title and Id number-postfixed to avoid duplicates (while no duplicate would be caused) SUC 24 
+Move elements to a different container
+
+Error Exception during SUC 22 Create a new version of a Model Instance  bug in fGetTraversalValues retrieval relations not multivalued
+
+Incomplete copy/cut - paste  import and new version operations commit their partial results and do not report the errors
+
+SUC 11extension04 Manage traceability links when copying or moving
+
+SUC 16 zextension03 After Import redirect to tabular view  or on 
+
+
+
+|
+|
+
+------------------------------
+
+|
+|
+
 
 
 version 1.0.0.4
@@ -102,6 +185,29 @@ USEX 06 Report component versions and build in all pages
 
 USEX 09 After deleting many elements  present the Tabular view on the container element
 
+|
+|
+
+**KNOWN BUGS**
+
+
+Error in template when manually creating an status report
+
+Error Table titles one more column than body when element not changeable
+
+Error when rendering the page informing that the Export has been performed
+
+IBWR01 Opera: Translations Screen error in columns layout because lack of support for HTML rowspan
+
+IMPO 08 Does not initialize or present Status Reports before and after import
+
+IMPO Copy Language : Estimate correctly the number of expected write operations
+
+IMPO Create missing Translations : Report the number of created translations
+
+Reflective method invocation should not retrieve the callable method with []
+
+UITR Translations page::Reference Language Selector::Names of languages not well known to Plone are not shown
 
 |
 |

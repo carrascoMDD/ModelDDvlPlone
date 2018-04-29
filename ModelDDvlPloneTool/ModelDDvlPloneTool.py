@@ -1069,6 +1069,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
                 
         return ModelDDvlPloneTool_Import().fImport( 
             theTimeProfilingResults        =theTimeProfilingResults,
+            theModelDDvlPloneTool          =self,
             theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
             theModelDDvlPloneTool_Mutators =ModelDDvlPloneTool_Mutators(),
             theContainerObject             =theContainerObject, 
@@ -1099,7 +1100,8 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         unAllVersionsReport =  aModelDDvlPloneTool_Version.fRetrieveAllVersions( 
             theTimeProfilingResults        =theTimeProfilingResults,
             theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
-            theVersionedElement            =theVersionedElement, 
+            theVersionedElement            =theVersionedElement,
+            theAllVersionsReport           =None,
             theAdditionalParams            =theAdditionalParams
         )
 
@@ -1114,7 +1116,44 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         return unAllVersionsReport
 
     
+    
+    
+    
+
    
+    security.declareProtected( permissions.View, 'fRetrieveAllVersionsWithContainerPloneSiteAndClipboard')
+    def fRetrieveAllVersionsWithContainerPloneSiteAndClipboard(self, 
+        theTimeProfilingResults     =None,
+        theVersionedElement          =None, 
+        theAdditionalParams         =None):
+        """Retrieve all versions of a model root, classified as the direct previous and next versions, and all others recursively previous and next versions."
+        
+        """
+   
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        aModelDDvlPloneTool_Version   = ModelDDvlPloneTool_Version()
+        
+                
+        unAllVersionsReport =  aModelDDvlPloneTool_Version.fRetrieveAllVersionsWithContainerPloneSiteAndClipboard( 
+            theTimeProfilingResults        =theTimeProfilingResults,
+            theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
+            theVersionedElement            =theVersionedElement, 
+            theAdditionalParams            =theAdditionalParams
+        )
+
+
+        if not unAllVersionsReport:
+            return {}
+        
+        unVersionedElementResult = unAllVersionsReport.get( 'versioned_element_result', None)
+        if unVersionedElementResult:
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unVersionedElementResult)
+        
+        return unAllVersionsReport
+
+        
+    
+    
     
     security.declareProtected( permissions.View, 'fNewVersion')
     def fNewVersion(self, 
@@ -1137,6 +1176,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
                 
         return ModelDDvlPloneTool_Version().fNewVersion( 
             theTimeProfilingResults        =theTimeProfilingResults,
+            theModelDDvlPloneTool          =self,
             theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
             theModelDDvlPloneTool_Mutators =ModelDDvlPloneTool_Mutators(),
             theOriginalObject              =theOriginalObject, 
@@ -1150,11 +1190,12 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theAdditionalParams            =theAdditionalParams
         )
 
-    
+
+   
 
     
        
-    security.declareProtected( permissions.AddPortalContent, 'fGroupAction')
+    security.declareProtected( permissions.View, 'fGroupAction')
     def fGroupAction(self, 
         theTimeProfilingResults     =None,
         theContainerObject          =None, 
@@ -1212,6 +1253,42 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         
     
+    security.declareProtected( permissions.AddPortalContent, 'fObjectPaste')
+    def fObjectPaste(self, 
+        theTimeProfilingResults     =None,
+        theContainerObject          =None, 
+        theAdditionalParams         =None):
+        
+        """Invoked from template MDDPaste, used as an alias to the object_paste action.
+        Paste into an element the elements previously copied (references held in the clipboard internet browser cookie), and all its contents, reproducing between the copied elements the relations between the original elements.        
+        Cookies have not yet been decoded into objects to paste.
+        Preferred to the alternative of fPaste below ( transparently paste from usual plone action), to deliver a detailed report of the paste operation and any possible errors. or objects not pasted.
+        
+        """
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        
+        someMDDCopyTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs(   theContainerObject)        
+        somePloneCopyTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theContainerObject)        
+        someMappingConfigs       =  aModelDDvlPloneTool_Retrieval.getMappingConfigs(       theContainerObject)        
+                
+        return ModelDDvlPloneTool_Refactor().fObjectPaste( 
+            theTimeProfilingResults        = theTimeProfilingResults,
+            theModelDDvlPloneTool          = self,
+            theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators = ModelDDvlPloneTool_Mutators(),
+            theContainerObject             = theContainerObject, 
+            theMDDCopyTypeConfigs          = someMDDCopyTypeConfigs, 
+            thePloneCopyTypeConfigs        = somePloneCopyTypeConfigs, 
+            theMappingConfigs              = someMappingConfigs, 
+            theAdditionalParams            = theAdditionalParams
+        )
+        
+
+    
+    
+    
+    
     
     security.declareProtected( permissions.AddPortalContent, 'fPaste')
     def fPaste(self, 
@@ -1220,8 +1297,10 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theObjectsToPaste           =None,
         theIsMoveOperation          =False,
         theAdditionalParams         =None):
-        """Paste into an element the elements previously copied (references held in the clipboard internet browser cookie), and all its contents, reproducing between the copied elements the relations between the original elements.        
-        
+        """Delegated from the to-be container element of pasted elements, method pHandle_manage_pasteObjects, invoked by elements manage_pasteObjects.
+        Cookes have already been decoded into objects to paste.
+        Paste into an element the elements previously copied (references held in the clipboard internet browser cookie), and all its contents, reproducing between the copied elements the relations between the original elements.        
+        This allows to transparently paste from usual plone action, but does not deliver a detailed report of the paste operation and any possible errors, or objects not pasted.
         """
         
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
@@ -1232,6 +1311,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
                 
         return ModelDDvlPloneTool_Refactor().fPaste( 
             theTimeProfilingResults        = theTimeProfilingResults,
+            theModelDDvlPloneTool          = self,
             theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
             theModelDDvlPloneTool_Mutators = ModelDDvlPloneTool_Mutators(),
             theContainerObject             = theContainerObject, 

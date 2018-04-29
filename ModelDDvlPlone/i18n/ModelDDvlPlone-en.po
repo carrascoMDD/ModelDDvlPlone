@@ -878,7 +878,7 @@ msgid "ModelDDvlPlone_Import_action_mayTakeLongToExecute"
 msgstr  "The import process may take a long time to execute. Your browser or intermediate proxies may time-out."
 
 
-#. Default: "Editar Identidad"
+#. Default: "Editar Identidad"ModelDDvlPlone_IsRequiredParameter
 #: Editar_inner.pt
 msgid "ModelDDvlPlone_EditIdButton_labelId"
 msgstr  "Edit Identifier"
@@ -925,3 +925,178 @@ msgstr  "Portal"
 msgid "ModelDDvlPlone_NotAllowed"
 msgstr  "Not Allowed"
 
+
+#. Default: "Es Requerido"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_IsRequiredParameter"
+msgstr  "Is Required"
+
+#. Default: "Versiones Anteriores"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_Previous_Versions_section"
+msgstr  "Previous Versions"
+
+
+#. Default: "Versiones Siguientes"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_Next_Versions_section"
+msgstr  "Next Versions"
+
+
+#. Default: "Version Original para nueva version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_OriginalVersion_section"
+msgstr  "Original Version for the new version"
+
+
+#. Default: "New Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_page_title"
+msgstr  "New Version"
+
+
+
+#. Default: "El proceso de creacion de una nueva version puede ser largo. El tiempo de espera de su navegador o pasarelas intermedias pueden expirar."
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_mayTakeLongToExecute"
+msgstr  "The New Version creation process may take a long time to execute. Your browser or intermediate proxies may time-out."
+
+
+#. Default: "Contenedor para la Nueva Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Container_section_title"
+msgstr  "Container for the New Version"
+
+
+
+#. Default: "La nueva version se creara dentro del contenedor especificado. Puede ser una carpeta copiada previamente en el portapapeles por el usuario, o la carpeta o sitio Plone contendor del original para la nueva version."
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Container_section_help"
+msgstr  "The New Version shall be created inside the specified container. It may be a Folder previously copied by the user into the clipboard (), or the Folder or Plone Site container of the original version."
+
+
+
+#. Default: "si desea crear la nueva version dentro de otro elemento, por favor navegue hasta el elemento y copielo en el portapapeles. Despues solicite otra vez la creacion de nueva version."
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Container_ChooseOther_help"
+msgstr  "if you want to create the new Version inside another element, please navigate to the Folder  and copy it into the clipboard, then request again the creation of the new version."
+
+#. Default: "No hay Contenedor disponible para la Nueva Version. Por favor, copie la carpeta deseada como contenedor en el portapapeles."
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_ThereIsNoContainer"
+msgstr  "There is no Container available for the New Version.  Please copy the desired container Folder into the CLIPBOARD"
+
+
+#. Default: "Nombre de la Nueva Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_newversion_label"
+msgstr  "New Version name"
+
+
+#. Default: "Introduzca un nombre unico de version a crear."
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_enterVersionName"
+msgstr  "Enter unique a name for the new Version to Create."
+
+
+#. Default: "Comentario acerca de la Nueva Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_newversioncomment_label"
+msgstr  "Comment for new Version"
+
+#. Default: "Introduzca un comentario explicando la razon por la que crea la nueva version."
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_enterVersionComment"
+msgstr  "Enter a comment explaining the reason for the new Version to Create."
+
+
+#. Default: "Titulo del elemento raiz de la Nueva Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_newtitle_label"
+msgstr  "Title for root element of new Version"
+
+
+#. Default: "Introduzca un titulo para el elemento raiz de la Nueva Version a crear"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_enterTitle"
+msgstr  "Enter a Title for the root element of the new Version to Create."
+
+
+#. Default: "Identificador del elemento raiz de la Nueva Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_newid_label"
+msgstr  "Id for root element of new Version"
+
+
+#. Default: "Introduzca la identidad para el elemento raiz de la Nueva Version a crear"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_action_enterId"
+msgstr  "Enter the Id for the root element of the new Version to Create."
+
+
+
+#. Default: "No puede utilizar ninguno de los titulos siguientes:"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Titles_toAvoid"
+msgstr  "You can not use any of the following titles:"
+
+
+
+#. Default: "No puede utilizar ninguna de las identidades siguientes:"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Ids_toAvoid"
+msgstr  "You can not use any of the following Ids:"
+
+
+#. Default: "Pegar"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_refactor_Paste"
+msgstr  "Paste"
+
+
+#. Default: "Importar"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_refactor_Import"
+msgstr  "Import"
+
+
+#. Default: "Nueva Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_refactor_NewVersion"
+msgstr  "New Version"
+
+#. Default: "Exito"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_success"
+msgstr  "Success"
+
+
+#. Default: "Fallo"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_failure"
+msgstr  "Failure"
+
+
+#. Default: "Estado"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_paste_status"
+msgstr  "Status"
+
+#. Default: "Condicion"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_paste_condition"
+msgstr  "Condition"
+
+
+
+#. Default: "Nueva Version"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Element"
+msgstr  "New Version"
+
+
+
+#. Default: "Version actual"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_CurrentVersion_section"
+msgstr  "Current version"

@@ -44,9 +44,12 @@ from Acquisition                        import aq_inner
 
 
 
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
   
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
+
+#from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+#from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
 
 
 

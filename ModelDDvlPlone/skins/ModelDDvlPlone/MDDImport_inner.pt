@@ -86,7 +86,25 @@
 						'theContainerObject'       :here, 
 						'theUploadedFile'         :pUploadedFile,
 						'theAdditionalParams'     :None, }; 
-					pExportReport python: here.ModelDDvlPlone_tool.fImport( **unosArgs)" >
+					pImportReport python: here.ModelDDvlPlone_tool.fImport( **unosArgs)" >
+					
+                    <tal:block tal:condition="not: pImportReport/success" >
+                        <font color="red" size="3"><strong><p tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_during_Import', 'Error during import-')" /></strong></font>
+                        <font color="red" size="2"><strong><p tal:content="python: pImportReport.get( 'status', '')" /></strong></font>
+                        <tal:block tal:define="pRefactorLabel string:Import; pRefactorReport pImportReport">
+                            <metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDRefactorResultsDump_i18n_view" />   
+                        </tal:block>
+                    </tal:block>
+                    <tal:block tal:condition="pImportReport/success" >
+                        <tal:block tal:define="pRefactorLabel string:Import; pRefactorReport pImportReport">
+                            <metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDRefactorResultsDump_i18n_view" />   
+                        </tal:block>
+						<tal:block tal:replace="nothing">
+							<tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular' % here.absolute_url())" />
+	                    </tal:block>
+                    </tal:block>
+					
+					
 				</tal:block>
 
 			</tal:block>

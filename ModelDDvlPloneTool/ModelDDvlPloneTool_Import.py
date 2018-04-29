@@ -36,6 +36,8 @@ import sys
 import traceback
 import logging
 
+import transaction
+
 from StringIO import StringIO
 
 from zipfile import ZipFile
@@ -56,12 +58,19 @@ from ModelDDvlPloneTool_ImportExport_Constants import *
 
 
 
+from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+
+
 
 cLogExceptions = True
+cLogImportResults = True
+
+class MDDRefactor_Import_Exception( Exception): pass
 
 
 
-class ModelDDvlPloneTool_Import:
+
+class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
     """
     """
     security = ClassSecurityInfo()
@@ -148,6 +157,7 @@ class ModelDDvlPloneTool_Import:
     security.declarePrivate( 'fImport')
     def fImport( self,
         theTimeProfilingResults        =None,
+        theModelDDvlPloneTool          =None, 
         theModelDDvlPloneTool_Retrieval=None,
         theModelDDvlPloneTool_Mutators =None,
         theContainerObject             =None, 
@@ -160,370 +170,426 @@ class ModelDDvlPloneTool_Import:
         
         """
 
-        unImportReport = None
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fImport', theTimeProfilingResults)
+                      
         try:
-            
-            unImportContext   = self.fNewVoidImportContext()
-            unImportReport    = unImportContext.get( 'report', {})
-            unosImportErrors  = unImportContext.get( 'import_errors', {})
-            
-            
-            if ( theContainerObject == None):
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_MissingParameter_ContainerObject,
-                })
-                return unImportReport
-                
-            unImportContext[ 'container_object'] = theContainerObject
-    
-            if not theUploadedFile:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_MissingParameter_UploadedFile,
-                })
-                return unImportReport
-            
-            unImportContext[ 'uploaded_file'] = theUploadedFile
-            
-            
-            if not theMDDImportTypeConfigs:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_MissingParameter_MDDImportTypeConfigs,
-                })
-                return unImportReport
-            unImportContext[ 'mdd_type_configs'] = theMDDImportTypeConfigs
-    
-            somePloneImportTypeConfigs = thePloneImportTypeConfigs
-            if not somePloneImportTypeConfigs:
-                somePloneImportTypeConfigs = {}
-            unImportContext[ 'plone_type_configs'] = somePloneImportTypeConfigs
-            
-            
-            someMappingConfigs = theMappingConfigs
-            if not someMappingConfigs:
-                someMappingConfigs = []
-            unImportContext[ 'mapping_configs'] = someMappingConfigs
-
-            
-            allImportTypeConfigs = somePloneImportTypeConfigs.copy()
-            allImportTypeConfigs.update( theMDDImportTypeConfigs)
-            unImportContext[ 'all_copy_type_configs'] = allImportTypeConfigs
-            
-            if not theModelDDvlPloneTool_Retrieval:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval,
-                })
-                return unImportReport
-            unImportContext[ 'ModelDDvlPloneTool_Retrieval'] = theModelDDvlPloneTool_Retrieval
-            
-            unCheckedPermissionsCache = theModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
-            unImportContext[ 'checked_permissions_cache'] = unCheckedPermissionsCache
-            
-            if not theModelDDvlPloneTool_Mutators:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators,
-                })
-                return unImportReport
-            unImportContext[ 'ModelDDvlPloneTool_Mutators'] = theModelDDvlPloneTool_Mutators
-            
-            if theAdditionalParams:
-                unImportContext[ 'additional_params'].update( theAdditionalParams)
-            
-            # ##############################################################################
-            """Retrieve translation_service tool to handle the input encoding.
-            
-            """
-            aTranslationService = getToolByName( theContainerObject, 'translation_service', None)      
-            if not aTranslationService:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Internal_MissingTool_translation_service,
-                })
-                return unImportReport
-            unImportContext[ 'translation_service'] = aTranslationService
-            
-               
-            # ##############################################################################
-            """Verify that the uploaded file is a zip archive, or fail.
-            
-            """      
-            unIsZip = False
-            unZipFile = None
+            unImportReport = None
             try:
-                unZipFile = ZipFile( theUploadedFile)  
-            except:
-                None
-            if unZipFile:
-                # Error if True
-                if not( unZipFile.testzip()):
-                    unIsZip = True
-           
-            if not unIsZip:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Parameter_UploadedFile_NotAZip,
-                })
-                return unImportReport
-            
-            
-            # ##############################################################################
-            """Find the first .xml file in the tree of files of the zip archive, or fail.
-            
-            """      
-            someXMLFileNamesAndPathsLength = [ ]
-            
-            unXMLPostfix = '.%s' % cXMLFilePostfix.lower()
-            anXMLFullFileName = ''                
-            anXMLBaseName = ''                
-            someFileNames = unZipFile.namelist()
-            for aFullFileName in someFileNames:
-                        
-                aBaseName = os.path.basename( aFullFileName)
-                if aBaseName:
-                    aBaseNameLower = aBaseName.lower()
-                    aBaseNamePostfix = os.path.splitext(  aBaseNameLower)[ 1]
-                    if aBaseNamePostfix == unXMLPostfix:
-                        anXMLBaseName     = aBaseName
-                        someXMLFileNamesAndPathsLength.append( [ aFullFileName, len( aFullFileName.split( '/'))])
-
-            if not someXMLFileNamesAndPathsLength:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
-                })
-                return unImportReport
-                        
-            someSortedXMLFileNamesAndPathsLength = sorted( someXMLFileNamesAndPathsLength, lambda aObj, otherObj: cmp( aObj[1], otherObj[ 1]))
-            anXMLFullFileName = someSortedXMLFileNamesAndPathsLength[ 0][ 0]
-               
-            if not anXMLFullFileName:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
-                })
-                return unImportReport
-            
-            
-            # ##############################################################################
-            """Get all files in the zip archive other than the .xml file.
-            
-            """      
-            otherFileNames = [ ]
-            for aFullFileName in someFileNames:
-                if not ( aFullFileName == anXMLFullFileName):   
-                    otherFileNames.append( aFullFileName)
+                
+                unImportContext   = self.fNewVoidImportContext()
+                unImportReport    = unImportContext.get( 'report', {})
+                unosImportErrors  = unImportContext.get( 'import_errors', {})
+                
+                
+                if ( theContainerObject == None):
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_MissingParameter_ContainerObject,
+                    })
+                    return unImportReport
                     
-                                
-            # ##############################################################################
-            """Read contents of first .xml file in the zip archive, or fail.
-            
-            """      
-            unXMLBuffer = self.fZipFileElementContent( unZipFile, anXMLFullFileName)
-            if len( unXMLBuffer) < 1:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_EmptyXMLFile,
-                    'filename':     anXMLFullFileName,
-                })
-                return unImportReport
-            
-            
-            ## ##############################################################################
-            #"""Decode the contents of .xml file into unicode, or fail.
-            
-            #"""      
-            #unUnicodeXMLBuffer = u''
-            #try:
-                #unUnicodeXMLBuffer = unXMLBuffer.decode( cXMLEncodingUTF8)
-            #except UnicodeDecodeError:
-                #None
+                unImportContext[ 'container_object'] = theContainerObject
+        
+                if not theUploadedFile:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_MissingParameter_UploadedFile,
+                    })
+                    return unImportReport
                 
-            #if len( unUnicodeXMLBuffer) < 1:
-                #unImportReport.update( { 
-                    #'success':      False,
-                    #'status':       cImportStatus_Error_DecodingXMLFileContents,
-                    #'filename':     anXMLFullFileName,
-                #})
-                #return unImportReport
+                unImportContext[ 'uploaded_file'] = theUploadedFile
                 
-            
-            ## ##############################################################################
-            #"""Parse unicode contents of .xml file as an XML DOM tree, or fail.
-            
-            #"""  
-            
-            
-            
-            # ##############################################################################
-            """Parse encoded contents of .xml file as an XML DOM tree, or fail. The values are encoded as specified in the top meta-element of the xml file.
-            
-            """      
-            unXMLDocument = None
-            try:
-                unXMLDocument = gfParseStringAsXMLDocument( unXMLBuffer)
-            except:
-                None
                 
-            if not unXMLDocument:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_BadXMLFile,
-                    'filename':     anXMLFullFileName,
-                })
-                return unImportReport
-            unImportContext[ 'xml_document'] = unXMLDocument
-            
-            unXMLEncoding = unXMLDocument.encoding
-            if not unXMLEncoding:
-                #unImportReport.update( { 
-                    #'success':      False,
-                    #'status':       cImportStatus_Error_NoXMLEncoding,
-                    #'filename':     anXMLFullFileName,
-                #})
-                #return unImportReport
-                unXMLEncoding = cDefaultEncodingForXMLImport
-            
-            unImportContext[ 'xml_encoding'] = unXMLEncoding
-               
-            if not ( unXMLEncoding in cAllEncodingNames):
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_XMLEncodingUnknown,
-                    'filename':     anXMLFullFileName,
-                })
-                return unImportReport
-            
-           
-         
-            
-            unosXMLRootElements = unXMLDocument.childNodes
-            if not unosXMLRootElements:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_NoRootXMLElements,
-                    'filename':     anXMLFullFileName,
-                })
-                return unImportReport
-            
-            unImportContext[ 'xml_roots'] = unosXMLRootElements
+                if not theMDDImportTypeConfigs:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_MissingParameter_MDDImportTypeConfigs,
+                    })
+                    return unImportReport
+                unImportContext[ 'mdd_type_configs'] = theMDDImportTypeConfigs
+        
+                somePloneImportTypeConfigs = thePloneImportTypeConfigs
+                if not somePloneImportTypeConfigs:
+                    somePloneImportTypeConfigs = {}
+                unImportContext[ 'plone_type_configs'] = somePloneImportTypeConfigs
                 
-            
-            
-            # ##############################################################################
-            """Retrieve original object result.
-            
-            """      
-            unContainerObjecResult = self.fRetrieveContainer( 
-                theTimeProfilingResults     =theTimeProfilingResults,
-                theImportContext            =unImportContext,
-            )
-            
-            if (not unContainerObjecResult) or ( unContainerObjecResult.get( 'object', None) == None):
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Internal_NoContainerRetrieved,
-                })
-                return unImportReport
-            
-            unImportContext[ 'container_object_result'] = unContainerObjecResult
+                
+                someMappingConfigs = theMappingConfigs
+                if not someMappingConfigs:
+                    someMappingConfigs = []
+                unImportContext[ 'mapping_configs'] = someMappingConfigs
     
-            
-            unAllowImport = unContainerObjecResult.get( 'allow_import', True)
-            if not unAllowImport:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Import_NotAllowedInElement,
-                })
-                return unImportReport
-            
-            unContainerReadPermission = unContainerObjecResult.get( 'read_permission', False)
-            if not unContainerReadPermission:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Container_NotReadable,
-                })
-                return unImportReport
                 
-            unContainerWritePermission = unContainerObjecResult.get( 'write_permission', False)
-            if not unContainerWritePermission:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Container_NotWritable,
-                })
-                return unImportReport
-            
+                allImportTypeConfigs = somePloneImportTypeConfigs.copy()
+                allImportTypeConfigs.update( theMDDImportTypeConfigs)
+                unImportContext[ 'all_copy_type_configs'] = allImportTypeConfigs
+                
+                if not theModelDDvlPloneTool_Retrieval:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval,
+                    })
+                    return unImportReport
+                unImportContext[ 'ModelDDvlPloneTool_Retrieval'] = theModelDDvlPloneTool_Retrieval
+                
+                unCheckedPermissionsCache = theModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
+                unImportContext[ 'checked_permissions_cache'] = unCheckedPermissionsCache
+                
+                if not theModelDDvlPloneTool_Mutators:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators,
+                    })
+                    return unImportReport
+                unImportContext[ 'ModelDDvlPloneTool_Mutators'] = theModelDDvlPloneTool_Mutators
+                
+                if theAdditionalParams:
+                    unImportContext[ 'additional_params'].update( theAdditionalParams)
+                
+                # ##############################################################################
+                """Retrieve translation_service tool to handle the input encoding.
+                
+                """
+                aTranslationService = getToolByName( theContainerObject, 'translation_service', None)      
+                if not aTranslationService:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Internal_MissingTool_translation_service,
+                    })
+                    return unImportReport
+                unImportContext[ 'translation_service'] = aTranslationService
+                
+                   
+                # ##############################################################################
+                """Verify that the uploaded file is a zip archive, or fail.
+                
+                """      
+                unIsZip = False
+                unZipFile = None
+                try:
+                    unZipFile = ZipFile( theUploadedFile)  
+                except:
+                    None
+                if unZipFile:
+                    # Error if True
+                    if not( unZipFile.testzip()):
+                        unIsZip = True
+               
+                if not unIsZip:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Parameter_UploadedFile_NotAZip,
+                    })
+                    return unImportReport
+                
+                
+                # ##############################################################################
+                """Find the first .xml file in the tree of files of the zip archive, or fail.
+                
+                """      
+                someXMLFileNamesAndPathsLength = [ ]
+                
+                unXMLPostfix = '.%s' % cXMLFilePostfix.lower()
+                anXMLFullFileName = ''                
+                anXMLBaseName = ''                
+                someFileNames = unZipFile.namelist()
+                for aFullFileName in someFileNames:
+                            
+                    aBaseName = os.path.basename( aFullFileName)
+                    if aBaseName:
+                        aBaseNameLower = aBaseName.lower()
+                        aBaseNamePostfix = os.path.splitext(  aBaseNameLower)[ 1]
+                        if aBaseNamePostfix == unXMLPostfix:
+                            anXMLBaseName     = aBaseName
+                            someXMLFileNamesAndPathsLength.append( [ aFullFileName, len( aFullFileName.split( '/'))])
+    
+                if not someXMLFileNamesAndPathsLength:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
+                    })
+                    return unImportReport
+                            
+                someSortedXMLFileNamesAndPathsLength = sorted( someXMLFileNamesAndPathsLength, lambda aObj, otherObj: cmp( aObj[1], otherObj[ 1]))
+                anXMLFullFileName = someSortedXMLFileNamesAndPathsLength[ 0][ 0]
+                   
+                if not anXMLFullFileName:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
+                    })
+                    return unImportReport
+                
+                
+                # ##############################################################################
+                """Get all files in the zip archive other than the .xml file.
+                
+                """      
+                otherFileNames = [ ]
+                for aFullFileName in someFileNames:
+                    if not ( aFullFileName == anXMLFullFileName):   
+                        otherFileNames.append( aFullFileName)
+                        
+                                    
+                # ##############################################################################
+                """Read contents of first .xml file in the zip archive, or fail.
+                
+                """      
+                unXMLBuffer = self.fZipFileElementContent( unZipFile, anXMLFullFileName)
+                if len( unXMLBuffer) < 1:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_EmptyXMLFile,
+                        'filename':     anXMLFullFileName,
+                    })
+                    return unImportReport
+                
+           
+                
+                
+                # ##############################################################################
+                """Parse encoded contents of .xml file as an XML DOM tree, or fail. The values are encoded as specified in the top meta-element of the xml file.
+                
+                """      
+                unXMLDocument = None
+                try:
+                    unXMLDocument = gfParseStringAsXMLDocument( unXMLBuffer)
+                except:
+                    None
+                    
+                if not unXMLDocument:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_BadXMLFile,
+                        'filename':     anXMLFullFileName,
+                    })
+                    return unImportReport
+                unImportContext[ 'xml_document'] = unXMLDocument
+                
+                unXMLEncoding = unXMLDocument.encoding
+                if not unXMLEncoding:
+                    unXMLEncoding = cDefaultEncodingForXMLImport
+                
+                unImportContext[ 'xml_encoding'] = unXMLEncoding
+                   
+                if not ( unXMLEncoding in cAllEncodingNames):
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_XMLEncodingUnknown,
+                        'filename':     anXMLFullFileName,
+                    })
+                    return unImportReport
+                
+               
              
-            # ##############################################################################
-            """Traverse parsed XML DOM tree and create or update application elements from XML node data.
-            
-            """      
-
-           
-            unRefactor = MDDRefactor_Import( 
-                unZipFile, 
-                otherFileNames,
-                unXMLDocument,
-                unXMLEncoding,
-                unosXMLRootElements,
-                theContainerObject, 
-                unContainerObjecResult, 
-                theMDDImportTypeConfigs,
-                somePloneImportTypeConfigs,
-                allImportTypeConfigs, 
-                someMappingConfigs,
-            )  
-            if ( not unRefactor) or not unRefactor.vInitialized:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Internal_Refactor_NotInitialized,
-                })
-                return unImportReport
                 
-            unRefactorResult = unRefactor.fRefactor()
-            
-            if unRefactorResult:
-                unImportReport.update( { 
-                     'success':      True,
-                })
-            else:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_Internal_Refactor_Failed,
-                })
+                unosXMLRootElements = unXMLDocument.childNodes
+                if not unosXMLRootElements:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_NoRootXMLElements,
+                        'filename':     anXMLFullFileName,
+                    })
+                    return unImportReport
                 
-            
-            return unImportReport        
-        
-        
-       
-        except:
-            unaExceptionInfo = sys.exc_info()
-            unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
-            
-            unInformeExcepcion = 'Exception during fImport\n' 
-            unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            unInformeExcepcion += unaExceptionFormattedTraceback   
-                     
-            if not unImportReport:
-                unImportReport = { }
-                
-            unImportReport.update( { 
-                'success':      False,
-                'status':       cImportStatus_Error_Exception,
-                'exception':    unInformeExcepcion,
-            })
-                
-            if cLogExceptions:
-                logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
-            return unImportReport
+                unImportContext[ 'xml_roots'] = unosXMLRootElements
                     
-        return { 'success': False, }
+                
+                
+                # ##############################################################################
+                """Retrieve original object result.
+                
+                """      
+                unContainerObjecResult = self.fRetrieveContainer( 
+                    theTimeProfilingResults     =theTimeProfilingResults,
+                    theImportContext            =unImportContext,
+                )
+                
+                if (not unContainerObjecResult) or ( unContainerObjecResult.get( 'object', None) == None):
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Internal_NoContainerRetrieved,
+                    })
+                    return unImportReport
+                
+                unImportContext[ 'container_object_result'] = unContainerObjecResult
+        
+                
+                unAllowImport = unContainerObjecResult.get( 'allow_import', True)
+                if not unAllowImport:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Import_NotAllowedInElement,
+                    })
+                    return unImportReport
+                
+                unContainerReadPermission = unContainerObjecResult.get( 'read_permission', False)
+                if not unContainerReadPermission:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Container_NotReadable,
+                    })
+                    return unImportReport
+                    
+                unContainerWritePermission = unContainerObjecResult.get( 'write_permission', False)
+                if not unContainerWritePermission:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Container_NotWritable,
+                    })
+                    return unImportReport
+                
+                 
+                # ##############################################################################
+                """Traverse parsed XML DOM tree and create or update application elements from XML node data.
+                
+                """      
+    
+               
+                unRefactor = MDDRefactor_Import( 
+                    theModelDDvlPloneTool,
+                    theModelDDvlPloneTool_Retrieval,
+                    theModelDDvlPloneTool_Mutators,
+                    unZipFile, 
+                    otherFileNames,
+                    unXMLDocument,
+                    unXMLEncoding,
+                    unosXMLRootElements,
+                    theContainerObject, 
+                    unContainerObjecResult, 
+                    theMDDImportTypeConfigs,
+                    somePloneImportTypeConfigs,
+                    allImportTypeConfigs, 
+                    someMappingConfigs,
+                    MDDRefactor_Import_Exception, # theExceptionToRaise,
+                    True, # theAllowPartialCopies,
+                    True, # theIgnorePartialLinksForMultiplicityOrDifferentOwner
+    
+                )  
+                if ( not unRefactor) or not unRefactor.vInitialized:
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Internal_Refactor_NotInitialized,
+                    })
+                    return unImportReport
+                
+                
+                
+                # ##############################################################################
+                """Transaction Save point.
+                
+                """      
+                transaction.savepoint(optimistic=True)
+                
+                                
+                
+                unHuboRefactorException  = False
+                unHuboException  = False
+                unRefactorResult = False
+                try:
+                    
+                    try:
+                        unRefactorResult = unRefactor.fRefactor()
+                    
+                    except MDDRefactor_Import_Exception:
+                        
+                        unHuboRefactorException = True
+                        
+                        unaExceptionInfo = sys.exc_info()
+                        unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
+                        
+                        unInformeExcepcion = 'Exception during ModelDDvlPloneTool_Refactor::fImport invoking MDDRefactor_Import::fRefactor\n' 
+                        unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                        unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                        unInformeExcepcion += unaExceptionFormattedTraceback   
+                        
+                        unImportReport[ 'exception'] = unInformeExcepcion
+                                 
+                        if cLogExceptions:
+                            logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
+                        
+                except:
+                    unHuboException = True
+                    raise
+                                
+                
+                unImportReport.update( {
+                    'num_elements_pasted':         unRefactor.vNumElementsPasted,
+                    'num_mdd_elements_pasted':     unRefactor.vNumMDDElementsPasted,
+                    'num_plone_elements_pasted':   unRefactor.vNumPloneElementsPasted,
+                    'num_attributes_pasted':       unRefactor.vNumAttributesPasted,
+                    'num_links_pasted':            unRefactor.vNumLinksPasted,
+                    'num_elements_failed':         unRefactor.vNumElementsFailed,
+                    'num_mdd_elements_failed':     unRefactor.vNumMDDElementsFailed,
+                    'num_plone_elements_failed':   unRefactor.vNumPloneElementsFailed,
+                    'num_attributes_failed':       unRefactor.vNumAttributesFailed,
+                    'num_links_failed':            unRefactor.vNumLinksFailed,
+                    'num_elements_bypassed':       unRefactor.vNumElementsBypassed,
+                    'num_mdd_elements_bypassed':   unRefactor.vNumMDDElementsBypassed,
+                    'num_plone_elements_bypassed': unRefactor.vNumPloneElementsBypassed,
+                    'num_attributes_bypassed':     unRefactor.vNumAttributesBypassed,
+                    'num_links_bypassed':          unRefactor.vNumLinksBypassed,
+                })
+                unImportReport[ 'error_reports'].extend( unRefactor.vErrorReports )
+                 
+                
+                    
+                if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
+                    transaction.commit()
+    
+                    unImportReport.update( { 
+                         'success':      True,
+                    })
+                    
+                    if cLogImportResults:
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                    
+                else:
+                    transaction.abort()
+                    
+                    unImportReport.update( { 
+                        'success':      False,
+                        'status':       cImportStatus_Error_Internal_Refactor_Failed,
+                    })
+                    
+                    if cLogImportResults:
+                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                    
+                    
+                return unImportReport        
+            
+            
+           
+            except:
+                unaExceptionInfo = sys.exc_info()
+                unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
+                
+                unInformeExcepcion = 'Exception during fImport\n' 
+                unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                unInformeExcepcion += unaExceptionFormattedTraceback   
+                         
+                if not unImportReport:
+                    unImportReport = { }
+                    
+                unImportReport.update( { 
+                    'success':      False,
+                    'status':       cImportStatus_Error_Exception,
+                    'exception':    unInformeExcepcion,
+                })
+                    
+                if cLogExceptions:
+                    logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
+                
+                return unImportReport
+                        
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fImport', theTimeProfilingResults)
+            
+    
+               
             
 
 

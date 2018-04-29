@@ -36,6 +36,11 @@ import sys
 import traceback
 import logging
 
+import transaction
+
+from Acquisition        import aq_inner, aq_parent
+
+
 from OFS             import Moniker        
 from OFS.CopySupport import CopyError
 
@@ -54,8 +59,17 @@ from ModelDDvlPloneTool_Refactor_Constants import *
 
 from MDD_RefactorComponents import MDDRefactor_Paste
 
+
+from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+
+
+
 cLogExceptions = True
 
+
+
+
+class MDDRefactor_Paste_Exception( Exception): pass
 
 
     
@@ -64,7 +78,7 @@ cLogExceptions = True
 # ######################################################
     
 
-class ModelDDvlPloneTool_Refactor:
+class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
     """
     """
     security = ClassSecurityInfo()
@@ -98,6 +112,7 @@ class ModelDDvlPloneTool_Refactor:
             'container_object':         None,
             'objects_to_paste':         [],
             'is_move_operation':        False,
+            'ModelDDvlPloneTool':       None,
             'ModelDDvlPloneTool_Retrieval': None,
             'ModelDDvlPloneTool_Mutators': None,
             'checked_permissions_cache': None,
@@ -107,13 +122,6 @@ class ModelDDvlPloneTool_Refactor:
             'mapping_configs':          [],
             'additional_params':        self.fTraversalSourcesAdditionalParams(),
             'report':                   self.fNewVoidPasteReport(),
-            #'source_frames':            [ ],
-            #'source_elements':          [ ],
-            #'source_elements_by_UID':   { },
-            #'source_stack':             [ ],
-            #'target_elements':          [ ],
-            #'target_elements_by_UID':   { },
-            #'target_stack':             [ ],
         }
         return unContext
     
@@ -129,10 +137,17 @@ class ModelDDvlPloneTool_Refactor:
             'num_elements_pasted':      0,
             'num_mdd_elements_pasted':  0,
             'num_plone_elements_pasted': 0,
+            'num_elements_failed':      0,
+            'num_mdd_elements_failed':  0,
+            'num_plone_elements_failed': 0,
+            'num_elements_bypassed':      0,
+            'num_mdd_elements_bypassed':  0,
+            'num_plone_elements_bypassed': 0,
             'error_reports':            [ ],
         }
         return unInforme
     
+                
     
     
     
@@ -167,8 +182,11 @@ class ModelDDvlPloneTool_Refactor:
                 if unElemento.wl_isLocked():
                     raise ResourceLockedError, 'Object "%s" is locked via WebDAV' % '/'.join( unElemento.getPhysicalPath())
     
-                if not unElemento.cb_isMoveable():
+                if theIsCut and not unElemento.cb_isMoveable():
                     raise CopyError, self.fExceptionDialog_MoveNotSupported( theModelDDvlPloneTool, theContainerObject) 
+                
+                if ( not theIsCut)  and not unElemento.cb_isCopyable():
+                    raise CopyError, self.fExceptionDialog_CopyNotSupported( theModelDDvlPloneTool, theContainerObject) 
                 
                 unMoniker = Moniker.Moniker( unElemento)
                 
@@ -219,7 +237,11 @@ class ModelDDvlPloneTool_Refactor:
         return quote( compress( dumps( theData), 9))        
         
     
-    
+    security.declarePrivate( 'fClipboardDecode')
+    def fClipboardDecode( self, theClipboard):
+        return loads(decompress(unquote( theClipboard)))        
+        
+     
     
     security.declarePrivate( 'fExceptionDialog_NoItemsSpecified')
     def fExceptionDialog_NoItemsSpecified( self, theModelDDvlPloneTool, theContextualElement):
@@ -244,45 +266,102 @@ class ModelDDvlPloneTool_Refactor:
         )    
         return aMessageDialog
         
+    
+    
+    
+    security.declarePrivate( 'fExceptionDialog_CopyNotSupported')
+    def fExceptionDialog_CopyNotSupported( self, theModelDDvlPloneTool, theContextualElement):
+        
+        aMessageDialog =MessageDialog(
+            title    = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'Copy not supported','Move not supported'),
+            message  = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'Object can not be copied: %s', 'Object can not be copied: %s') % '/'.join( theContextualElement.getPhysicalPath()),
+            action ='Tabular'
+        )    
+        return aMessageDialog
+    
+        
 
-    # From Zope/lib/python/OFS/CopySupport.py  class CopyContainer
-    #
-    #def manage_cutObjects(self, ids=None, REQUEST=None):
-        #"""Put a reference to the objects named in ids in the clip board"""
-        #if ids is None and REQUEST is not None:
-            #return eNoItemsSpecified
-        #elif ids is None:
-            #raise ValueError, 'ids must be specified'
-
-        #if type(ids) is type(''):
-            #ids=[ids]
-        #oblist=[]
-        #for id in ids:
-            #ob=self._getOb(id)
-
-            #if ob.wl_isLocked():
-                #raise ResourceLockedError, 'Object "%s" is locked via WebDAV' % ob.getId()
-
-            #if not ob.cb_isMoveable():
-                #raise CopyError, eNotSupported % escape(id)
-            #m=Moniker.Moniker(ob)
-            #oblist.append(m.dump())
-        #cp=(1, oblist)
-        #cp=_cb_encode(cp)
-        #if REQUEST is not None:
-            #resp=REQUEST['RESPONSE']
-            #resp.setCookie('__cp', cp, path='%s' % cookie_path(REQUEST))
-            #REQUEST['__cp'] = cp
-            #return self.manage_main(self, REQUEST)
-        #return cp
         
         
+    security.declarePrivate( 'fObjectPaste')
+    def fObjectPaste( self,
+        theTimeProfilingResults     =None,
+        theModelDDvlPloneTool       = None,
+        theModelDDvlPloneTool_Retrieval= None,
+        theModelDDvlPloneTool_Mutators= None,
+        theContainerObject          =None, 
+        theIsMoveOperation          =False,
+        theMDDCopyTypeConfigs       =None, 
+        thePloneCopyTypeConfigs     =None, 
+        theMappingConfigs           =None, 
+        theAdditionalParams         =None):
+
+        aPasteReport = self.fNewVoidPasteReport()
+        
+        aRequest = theContainerObject.REQUEST
+        if not aRequest:
+            return aPasteReport
+        
+        if not aRequest.has_key('__cp'):
+            return aPasteReport
+            
+        aClipboard = aRequest['__cp']
+        
+        if aClipboard is None:
+            return aPasteReport
+             
+        try:
+            anOperation, someMonikerDatas = self.fClipboardDecode( aClipboard) # _cb_decode(cp)
+        except:
+            return aPasteReport
+
+    
+        someObjects = []
+        anApplication = theContainerObject.getPhysicalRoot()
+        for aMonikerData in someMonikerDatas:
+            aMoniker= Moniker.loadMoniker( aMonikerData)
+            anObject = None
+            try:
+                anObject = aMoniker.bind( anApplication)
+            except:
+                None
+            # Do not verify here
+            # self._verifyObjectPaste(ob, validate_src=op+1)
+            if not ( anObject == None):
+                someObjects.append( anObject)
+        # End of code copied from class CopyContainer
+            
+        someObjectsToPaste = someObjects[:]
+        
+        unIsMoveOperation = anOperation == 1
+        
+        unPasteReport = self.fPaste( 
+            theTimeProfilingResults        = theTimeProfilingResults,
+            theModelDDvlPloneTool          = theModelDDvlPloneTool,
+            theModelDDvlPloneTool_Retrieval= theModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators = theModelDDvlPloneTool_Mutators,
+            theContainerObject             = theContainerObject, 
+            theObjectsToPaste              = someObjectsToPaste,
+            theIsMoveOperation             = unIsMoveOperation,
+            theMDDCopyTypeConfigs          = theMDDCopyTypeConfigs, 
+            thePloneCopyTypeConfigs        = thePloneCopyTypeConfigs, 
+            theMappingConfigs              = theMappingConfigs, 
+            theAdditionalParams            = theAdditionalParams
+        )
+        
+        return unPasteReport
+        
+        
+        
+    
+    
         
         
         
     security.declarePrivate( 'fPaste')
     def fPaste( self,
         theTimeProfilingResults     =None,
+        theModelDDvlPloneTool       = None,
         theModelDDvlPloneTool_Retrieval= None,
         theModelDDvlPloneTool_Mutators= None,
         theContainerObject          =None, 
@@ -296,190 +375,316 @@ class ModelDDvlPloneTool_Refactor:
         
         """
         
-        unPasteReport = None
-        try:      
-            unPasteContext = self.fNewVoidPasteContext()
-            unPasteReport  = unPasteContext.get( 'report', {})
-            
-            unPasteContext[ 'is_move_operation'] = ( theIsMoveOperation and True) or False
-             
-            if ( theContainerObject == None):
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_MissingParameter_ContainerElement,
-                })
-                return unRefactorReport
-            
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fPaste', theTimeProfilingResults)
+                      
+        try:
+            unPasteReport = None
+            try:      
+                unPasteContext = self.fNewVoidPasteContext()
+                unPasteReport  = unPasteContext.get( 'report', {})
                 
-            unPasteContext[ 'container_object'] = theContainerObject
-    
-            
-            
-            if ( theObjectsToPaste == None) or ( len( theObjectsToPaste) < 1):
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_MissingParameter_ObjectsToPaste,
-                })
-                return unRefactorReport
-            unPasteContext[ 'objects_to_paste'] = theObjectsToPaste
-            
-    
-            if not theMDDCopyTypeConfigs:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_MissingParameter_MDDCopyTypeConfigs,
-                })
-                return unPasteReport
-            unPasteContext[ 'mdd_copy_type_configs'] = theMDDCopyTypeConfigs
-            
-            somePloneCopyTypeConfigs = thePloneCopyTypeConfigs
-            if not somePloneCopyTypeConfigs:
-                somePloneCopyTypeConfigs = {}
-            unPasteContext[ 'plone_copy_type_configs'] = somePloneCopyTypeConfigs
-    
-            someMappingConfigs = theMappingConfigs
-            if not someMappingConfigs:
-                someMappingConfigs = []
-            unPasteContext[ 'mapping_configs'] = someMappingConfigs
-
-            allCopyTypeConfigs = somePloneCopyTypeConfigs.copy()
-            allCopyTypeConfigs.update( theMDDCopyTypeConfigs)
-            unPasteContext[ 'all_copy_type_configs'] = allCopyTypeConfigs
-            
-            if not theModelDDvlPloneTool_Retrieval:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_MissingTool_ModelDDvlPloneTool_Retrieval,
-                })
-                return unPasteReport
-            unPasteContext[ 'ModelDDvlPloneTool_Retrieval'] = theModelDDvlPloneTool_Retrieval
-            
-            unCheckedPermissionsCache = theModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
-            unPasteContext[ 'checked_permissions_cache'] = unCheckedPermissionsCache
-            
-            if not theModelDDvlPloneTool_Mutators:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_MissingTool_ModelDDvlPloneTool_Mutators,
-                })
-                return unPasteReport
-            unPasteContext[ 'ModelDDvlPloneTool_Mutators'] = theModelDDvlPloneTool_Mutators
-            
-            
-            if theAdditionalParams:
-                unPasteContext[ 'additional_params'].update( theAdditionalParams)
+                # ##############################################################################
+                """Transaction  Commit. Even if no change should have been performed.
                 
-            
-            # ##############################################################################
-            """Retrieve original object result.
-            
-            """      
-            unContainerObjecResult = self.fRetrieveContainer( 
-                theTimeProfilingResults     =theTimeProfilingResults,
-                thePasteContext             =unPasteContext,
-            )
-            
-            if (not unContainerObjecResult) or ( unContainerObjecResult.get( 'object', None) == None):
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_Internal_NoContainerRetrieved,
-                })
-                return unPasteReport
-    
-            unAllowPaste = unContainerObjecResult.get( 'allow_paste', True)
-            if not unAllowPaste:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_NotAllowedInElement,
-                })
-                return unRefactorReport
-            
-            unContainerReadPermission = unContainerObjecResult.get( 'read_permission', False)
-            if not unContainerReadPermission:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_Container_NotReadable,
-                })
-                return unPasteReport
+                """      
+                transaction.commit()
                 
-            unContainerWritePermission = unContainerObjecResult.get( 'write_permission', False)
-            if not unContainerWritePermission:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_Container_NotWritable,
-                })
-                return unPasteReport
                 
-            
-            someSources = self.fRetrieveSourceElements( 
-                theTimeProfilingResults     =theTimeProfilingResults,
-                thePasteContext             =unPasteContext,
-                theCheckDeletePermission   =theIsMoveOperation,
-            )
-            
-            if not someSources:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_Internal_NoSourcesRetrieved,
-                })
-                return unPasteReport
-    
-            
-            unRefactor = MDDRefactor_Paste( 
-                theIsMoveOperation,
-                someSources, 
-                theContainerObject, 
-                unContainerObjecResult, 
-                allCopyTypeConfigs, 
-                someMappingConfigs,
-            )  
-            if ( not unRefactor) or not unRefactor.vInitialized:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_Internal_Refactor_NotInitialized,
-                })
-                return unPasteReport
                 
-            unRefactorResult = unRefactor.fRefactor()
-            
-            if unRefactorResult:
-                unPasteReport.update( { 
-                     'success':      True,
-                })
-            else:
-                unPasteReport.update( { 
-                    'success':      False,
-                    'status':       cRefactorStatus_Error_Paste_Internal_Refactor_Failed,
-                })
-                
-            
-            return unPasteReport
+                if ( theContainerObject == None):
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_MissingParameter_ContainerElement,
+                    })
+                    return unPasteReport
+                unPasteContext[ 'container_object'] = theContainerObject
         
-        except:
-            unaExceptionInfo = sys.exc_info()
-            unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
-            
-            unInformeExcepcion = 'Exception during fPaste\n' 
-            unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            unInformeExcepcion += unaExceptionFormattedTraceback   
-                     
-            if not unPasteReport:
-                unPasteReport = { }
                 
-            unPasteReport.update( { 
-                'success':      False,
-                'status':       cRefactorStatus_Error_Paste_Exception,
-                'exception':    unInformeExcepcion,
-            })
+                if ( theObjectsToPaste == None) or ( len( theObjectsToPaste) < 1):
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_MissingParameter_ObjectsToPaste,
+                    })
+                    return unPasteReport
                 
-            if cLogExceptions:
-                logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
-            return unPasteReport
+                
+                
+                unIsMoveOperation = ( theIsMoveOperation and True) or False
+                
+                unPasteContext[ 'is_move_operation'] = unIsMoveOperation
+                
+                # ACV 20091006 fixed
+                # BUG: During Cut/paste on same container: Title and Id number-postfixed to avoid duplicates (while no duplicate would be caused) SUC 24 Move elements to a different container
+                #
+                someObjectsToPaste = []
+                if not unIsMoveOperation:
+                    someObjectsToPaste = theObjectsToPaste[:]
                     
-        return { 'success': False, }
+                else:                    
+                    for unObjectToPaste in theObjectsToPaste:
+                        if not ( unObjectToPaste == None):
+                            
+                            if unObjectToPaste == theContainerObject:
+                                continue
+                            
+                            unObjectToPasteParent = aq_parent( aq_inner( unObjectToPaste)) 
+        
+                            if not ( unObjectToPasteParent == None):
+                                if not( unObjectToPasteParent == theContainerObject):
+                                    someObjectsToPaste.append( unObjectToPaste)
+                                    
+                    if not someObjectsToPaste:
+                        unPasteReport.update( { 
+                            'success':      False,
+                            'status':       cRefactorStatus_Ignored_Cut_Paste_SameSourceAndTarget_or_ObjectsPastedInSame_Container,
+                        })
+                        return unPasteReport
+                
+                unPasteContext[ 'objects_to_paste'] = someObjectsToPaste
+                   
+        
+                if not theMDDCopyTypeConfigs:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_MissingParameter_MDDCopyTypeConfigs,
+                    })
+                    return unPasteReport
+                unPasteContext[ 'mdd_copy_type_configs'] = theMDDCopyTypeConfigs
+                
+                somePloneCopyTypeConfigs = thePloneCopyTypeConfigs
+                if not somePloneCopyTypeConfigs:
+                    somePloneCopyTypeConfigs = {}
+                unPasteContext[ 'plone_copy_type_configs'] = somePloneCopyTypeConfigs
+        
+                someMappingConfigs = theMappingConfigs
+                if not someMappingConfigs:
+                    someMappingConfigs = []
+                unPasteContext[ 'mapping_configs'] = someMappingConfigs
     
+                allCopyTypeConfigs = somePloneCopyTypeConfigs.copy()
+                allCopyTypeConfigs.update( theMDDCopyTypeConfigs)
+                unPasteContext[ 'all_copy_type_configs'] = allCopyTypeConfigs
+                
+                if not theModelDDvlPloneTool:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_MissingTool_ModelDDvlPloneTool,
+                    })
+                    return unPasteReport
+                unPasteContext[ 'ModelDDvlPloneTool'] = theModelDDvlPloneTool
+                
+                if not theModelDDvlPloneTool_Retrieval:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_MissingTool_ModelDDvlPloneTool_Retrieval,
+                    })
+                    return unPasteReport
+                unPasteContext[ 'ModelDDvlPloneTool_Retrieval'] = theModelDDvlPloneTool_Retrieval
+                
+                unCheckedPermissionsCache = theModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
+                unPasteContext[ 'checked_permissions_cache'] = unCheckedPermissionsCache
+                
+                if not theModelDDvlPloneTool_Mutators:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_MissingTool_ModelDDvlPloneTool_Mutators,
+                    })
+                    return unPasteReport
+                unPasteContext[ 'ModelDDvlPloneTool_Mutators'] = theModelDDvlPloneTool_Mutators
+                
+                
+                if theAdditionalParams:
+                    unPasteContext[ 'additional_params'].update( theAdditionalParams)
+                    
+                
+                # ##############################################################################
+                """Retrieve original object result.
+                
+                """      
+                unContainerObjecResult = self.fRetrieveContainer( 
+                    theTimeProfilingResults     =theTimeProfilingResults,
+                    thePasteContext             =unPasteContext,
+                )
+                
+                if (not unContainerObjecResult) or ( unContainerObjecResult.get( 'object', None) == None):
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_Internal_NoContainerRetrieved,
+                    })
+                    return unPasteReport
+        
+                unAllowPaste = unContainerObjecResult.get( 'allow_paste', True)
+                if not unAllowPaste:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_NotAllowedInElement,
+                    })
+                    return unPasteReport
+                
+                unContainerReadPermission = unContainerObjecResult.get( 'read_permission', False)
+                if not unContainerReadPermission:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_Container_NotReadable,
+                    })
+                    return unPasteReport
+                    
+                unContainerWritePermission = unContainerObjecResult.get( 'write_permission', False)
+                if not unContainerWritePermission:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_Container_NotWritable,
+                    })
+                    return unPasteReport
+                    
+                
+                someSources = self.fRetrieveSourceElements( 
+                    theTimeProfilingResults     =theTimeProfilingResults,
+                    thePasteContext             =unPasteContext,
+                    theCheckDeletePermission   =theIsMoveOperation,
+                )
+                
+                if not someSources:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_Internal_NoSourcesRetrieved,
+                    })
+                    return unPasteReport
+        
+                
+                
+                
+                unRefactor = MDDRefactor_Paste( 
+                    theModelDDvlPloneTool,
+                    theModelDDvlPloneTool_Retrieval,
+                    theModelDDvlPloneTool_Mutators,
+                    theIsMoveOperation,
+                    someSources, 
+                    theContainerObject, 
+                    unContainerObjecResult, 
+                    allCopyTypeConfigs, 
+                    someMappingConfigs,
+                    True, # theAllowMappings
+                    MDDRefactor_Paste_Exception,
+                    True, # theAllowPartialCopies
+                    True, # theIgnorePartialLinksForMultiplicityOrDifferentOwner
+                )  
+                if ( not unRefactor) or not unRefactor.vInitialized:
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_Internal_Refactor_NotInitialized,
+                    })
+                    return unPasteReport
+    
+                # ##############################################################################
+                """Transaction Save point.
+                
+                """      
+                transaction.savepoint(optimistic=True)
+                
+                unHuboRefactorException  = False
+                unHuboException  = False
+                unRefactorResult = False
+                try:
+                    
+                    try:
+                        unRefactorResult = unRefactor.fRefactor()
+                    
+                    except MDDRefactor_Paste_Exception:
+                        
+                        unHuboRefactorException = True
+                        
+                        unaExceptionInfo = sys.exc_info()
+                        unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
+                        
+                        unInformeExcepcion = 'Exception during ModelDDvlPloneTool_Refactor::fPaste invoking MDDRefactor_Paste::fRefactor\n' 
+                        unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                        unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                        unInformeExcepcion += unaExceptionFormattedTraceback   
+                        
+                        unPasteReport[ 'exception'] = unInformeExcepcion
+                                 
+                        if cLogExceptions:
+                            logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
+                        
+                except:
+                    unHuboException = True
+                    raise
+                    
+                
+                unPasteReport.update( {
+                    'num_elements_pasted':         unRefactor.vNumElementsPasted,
+                    'num_mdd_elements_pasted':     unRefactor.vNumMDDElementsPasted,
+                    'num_plone_elements_pasted':   unRefactor.vNumPloneElementsPasted,
+                    'num_attributes_pasted':       unRefactor.vNumAttributesPasted,
+                    'num_links_pasted':            unRefactor.vNumLinksPasted,
+                    'num_elements_failed':         unRefactor.vNumElementsFailed,
+                    'num_mdd_elements_failed':     unRefactor.vNumMDDElementsFailed,
+                    'num_plone_elements_failed':   unRefactor.vNumPloneElementsFailed,
+                    'num_attributes_failed':       unRefactor.vNumAttributesFailed,
+                    'num_links_failed':            unRefactor.vNumLinksFailed,
+                    'num_elements_bypassed':       unRefactor.vNumElementsBypassed,
+                    'num_mdd_elements_bypassed':   unRefactor.vNumMDDElementsBypassed,
+                    'num_plone_elements_bypassed': unRefactor.vNumPloneElementsBypassed,
+                    'num_attributes_bypassed':     unRefactor.vNumAttributesBypassed,
+                    'num_links_bypassed':          unRefactor.vNumLinksBypassed,
+                })
+                unPasteReport[ 'error_reports'].extend( unRefactor.vErrorReports )
+                            
+                if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
+                    transaction.commit()
+    
+                    unPasteReport.update( { 
+                         'success':      True,
+                    })
+                    
+                    if cLogPasteResults:
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                    
+                else:
+                    transaction.abort()
+                    
+                    unPasteReport.update( { 
+                        'success':      False,
+                        'status':       cRefactorStatus_Error_Paste_Internal_Refactor_Failed,
+                    })
+                    
+                    if cLogPasteResults:
+                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                    
+                return unPasteReport
+            
+            except:
+                unaExceptionInfo = sys.exc_info()
+                unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
+                
+                unInformeExcepcion = 'Exception during ModelDDvlPloneTool_Refactor::fPaste\n' 
+                unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                unInformeExcepcion += unaExceptionFormattedTraceback   
+                         
+                if not unPasteReport:
+                    unPasteReport = self.fNewVoidPasteReport()
+                    
+                unPasteReport[ 'error_reports'].append( unInformeExcepcion)
+                    
+                unPasteReport.update( { 
+                    'success':      False,
+                    'status':       cRefactorStatus_Error_Paste_Exception,
+                    'exception':    unInformeExcepcion,
+                })
+                    
+                if cLogExceptions:
+                    logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
+                
+                return unPasteReport
+                        
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fPaste', theTimeProfilingResults)
+            
+        
     
     
    
@@ -531,69 +736,50 @@ class ModelDDvlPloneTool_Refactor:
         """
         
         """
-        
-        try:
-            if not thePasteContext:
-                return None
-           
-            if not theSourceObject:
-                return None
-           
-            allCopyTypeConfigs = thePasteContext.get( 'all_copy_type_configs', {})
-            if not allCopyTypeConfigs:
-                return None
-                            
-            someAdditionalParams = thePasteContext.get(  'additional_params', None)
-            
-            aModelDDvlPloneTool_Retrieval = thePasteContext.get( 'ModelDDvlPloneTool_Retrieval', None)
-            if not aModelDDvlPloneTool_Retrieval:
-                return None
-            
-            unCheckedPermissionsCache = thePasteContext.get( 'checked_permissions_cache', None)
-            
-            unasWritePermissions = [ ]
-            if theCheckDeletePermission:
-                unasWritePermissions.append( 'delete')
-            
-            unElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
-                theTimeProfilingResults     = theTimeProfilingResults,
-                theElement                  = theSourceObject, 
-                theParent                   = None,
-                theParentTraversalName      = '',
-                theTypeConfig               = None, 
-                theAllTypeConfigs           = allCopyTypeConfigs, 
-                theViewName                 = '', 
-                theRetrievalExtents         = [ 'tree', ],
-                theWritePermissions         = unasWritePermissions,
-                theFeatureFilters           =None, 
-                theInstanceFilters          =None,
-                theTranslationsCaches       =None,
-                theCheckedPermissionsCache  =unCheckedPermissionsCache,
-                theAdditionalParams         =someAdditionalParams
-            )
-            if not unElementResult or not( unElementResult.get( 'object', None) == theSourceObject):
-                return None
+    
+        if not thePasteContext:
+            return None
+       
+        if not theSourceObject:
+            return None
+       
+        allCopyTypeConfigs = thePasteContext.get( 'all_copy_type_configs', {})
+        if not allCopyTypeConfigs:
+            return None
                         
+        someAdditionalParams = thePasteContext.get(  'additional_params', None)
         
-            return unElementResult
+        aModelDDvlPloneTool_Retrieval = thePasteContext.get( 'ModelDDvlPloneTool_Retrieval', None)
+        if not aModelDDvlPloneTool_Retrieval:
+            return None
         
-        except:
-            unaExceptionInfo = sys.exc_info()
-            unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
-            
-            unInformeExcepcion = 'Exception during fPaste fRetrieveSource_MDD\n' 
-            unInformeExcepcion += 'source object %s\n' % str( theSourceObject) 
-            unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            unInformeExcepcion += unaExceptionFormattedTraceback   
-                     
-            if cLogExceptions:
-                logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
+        unCheckedPermissionsCache = thePasteContext.get( 'checked_permissions_cache', None)
+        
+        unasWritePermissions = [ ]
+        if theCheckDeletePermission:
+            unasWritePermissions.append( 'delete')
+        
+        unElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            theTimeProfilingResults     = theTimeProfilingResults,
+            theElement                  = theSourceObject, 
+            theParent                   = None,
+            theParentTraversalName      = '',
+            theTypeConfig               = None, 
+            theAllTypeConfigs           = allCopyTypeConfigs, 
+            theViewName                 = '', 
+            theRetrievalExtents         = [ 'tree', ],
+            theWritePermissions         = unasWritePermissions,
+            theFeatureFilters           =None, 
+            theInstanceFilters          =None,
+            theTranslationsCaches       =None,
+            theCheckedPermissionsCache  =unCheckedPermissionsCache,
+            theAdditionalParams         =someAdditionalParams
+        )
+        if not unElementResult or not( unElementResult.get( 'object', None) == theSourceObject):
             return None
                     
-        return None    
     
+        return unElementResult
 
    
 
@@ -666,65 +852,47 @@ class ModelDDvlPloneTool_Refactor:
         
         """
         
-        try:
-            if not thePasteContext:
-                return None
-           
-            if not theTargetObject:
-                return None
-           
-            allCopyTypeConfigs = thePasteContext.get( 'all_copy_type_configs', {})
-            if not allCopyTypeConfigs:
-                return None
-                            
-            someAdditionalParams = thePasteContext.get(  'additional_params', None)
-            
-            aModelDDvlPloneTool_Retrieval = thePasteContext.get( 'ModelDDvlPloneTool_Retrieval', None)
-            if not aModelDDvlPloneTool_Retrieval:
-                return None
-            
-            unCheckedPermissionsCache = thePasteContext.get( 'checked_permissions_cache', None)
-            
-            unElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
-                theTimeProfilingResults     = theTimeProfilingResults,
-                theElement                  = theTargetObject, 
-                theParent                   = None,
-                theParentTraversalName      = '',
-                theTypeConfig               = None, 
-                theAllTypeConfigs           = allCopyTypeConfigs, 
-                theViewName                 = '', 
-                theRetrievalExtents         = [ 'traversals', ],
-                theWritePermissions         =[ 'object', 'add', 'add_collection', 'aggregations', ],
-                theFeatureFilters           =None, 
-                theInstanceFilters          =None,
-                theTranslationsCaches       =None,
-                theCheckedPermissionsCache  =unCheckedPermissionsCache,
-                theAdditionalParams         =someAdditionalParams
-            )
-            if not unElementResult or not( unElementResult.get( 'object', None) == theTargetObject):
-                return None
+
+        if not thePasteContext:
+            return None
+       
+        if not theTargetObject:
+            return None
+       
+        allCopyTypeConfigs = thePasteContext.get( 'all_copy_type_configs', {})
+        if not allCopyTypeConfigs:
+            return None
                         
+        someAdditionalParams = thePasteContext.get(  'additional_params', None)
         
-            return unElementResult
+        aModelDDvlPloneTool_Retrieval = thePasteContext.get( 'ModelDDvlPloneTool_Retrieval', None)
+        if not aModelDDvlPloneTool_Retrieval:
+            return None
         
-        except:
-            unaExceptionInfo = sys.exc_info()
-            unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
-            
-            unInformeExcepcion = 'Exception during fPaste fRetrieveContainer_MDD\n' 
-            unInformeExcepcion += 'source object %s\n' % str( theTargetObject) 
-            unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            unInformeExcepcion += unaExceptionFormattedTraceback   
-                     
-            if cLogExceptions:
-                logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
+        unCheckedPermissionsCache = thePasteContext.get( 'checked_permissions_cache', None)
+        
+        unElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            theTimeProfilingResults     = theTimeProfilingResults,
+            theElement                  = theTargetObject, 
+            theParent                   = None,
+            theParentTraversalName      = '',
+            theTypeConfig               = None, 
+            theAllTypeConfigs           = allCopyTypeConfigs, 
+            theViewName                 = '', 
+            theRetrievalExtents         = [ 'traversals', ],
+            theWritePermissions         =[ 'object', 'add', 'add_collection', 'aggregations', ],
+            theFeatureFilters           =None, 
+            theInstanceFilters          =None,
+            theTranslationsCaches       =None,
+            theCheckedPermissionsCache  =unCheckedPermissionsCache,
+            theAdditionalParams         =someAdditionalParams
+        )
+        if not unElementResult or not( unElementResult.get( 'object', None) == theTargetObject):
             return None
                     
-        return None    
     
-
+        return unElementResult
+        
    
 
     

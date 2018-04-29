@@ -1,0 +1,283 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDVersions_inner.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+    
+    
+    
+    
+    <div metal:define-macro="tVersionsInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        
+        <tal:block tal:define="global unasClasesFilas  python: ('odd','even');
+                                pTrue                    python: True;
+                                pFalse                   python: False;
+                                pPagina                  string:Tabular;
+                                pPaginaAnteriorPosterior string:Tabular;
+                                pShowTrees               pFalse;
+                         global pErrorMessage            string:;       
+                                pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+            
+            <tal:block tal:define="
+                pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                unosArgs python: {
+                    'theTimeProfilingResults' :pProfilingResults,
+                    'theVersionedElement'     :here,
+                    'theAdditionalParams'     :None, };
+                pAllVersionsReport      python: here.ModelDDvlPlone_tool.fRetrieveAllVersions( **unosArgs);
+                pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
+                
+                <tal:block tal:condition="not: pAllVersionsReport/success" >
+                    <tal:block tal:condition="pErrorMessage" tal:content="pErrorMessage" />
+                    <br/>
+                    Error in fRetrieveAllVersions
+                    <br/>                    
+                </tal:block>
+                
+                
+                <tal:block tal:condition="pAllVersionsReport/success" >
+                
+                    <tal:block tal:define="
+                        pOriginalVersionInfo    pAllVersionsReport/original_version_info;
+                        SRES                    pAllVersionsReport/versioned_element_result;
+                        pColumnNames            pAllVersionsReport/column_names;
+                        pColumnTranslations     pAllVersionsReport/column_translations;
+                        pAlowVersion            python: ( SRES and pAllVersionsReport[ 'allow_version']) or False;
+                        pIsRequiredParameter    python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_IsRequiredParameter', 'Is Required-')" >
+                
+                        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+                
+                                        
+                        <tal:block tal:define="
+                            pShowOrHideTrees            pFalse; 
+                            pMostrarAnteriorPosterior   pFalse">
+                            <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+                        </tal:block>
+                              
+                        
+                        
+                        <p tal:condition="pErrorMessage" >
+                            <font size="3"  color="red"><strong><tal:block tal:content="pErrorMessage" /></strong></font>
+                        </p>
+                        <br/>
+                        
+                        <tal:block tal:define="pVersionInfos               python:  [ pOriginalVersionInfo,];
+                                               pDrillDownPrevious          pFalse;
+                                               pDrillDownNext              pFalse;
+                                               pPreviousOrNext             string:;
+                                               pPreviousOrNextTranslated   string:;
+                                               pCurrentTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentVersion_section', 'Current version-')" >
+                                               
+                            <metal:block metal:use-macro="here/MDDVersions_inner/macros/tTablaVersionActual" />   
+                        </tal:block>
+                        
+                        
+                        <tal:block tal:define="pVersionInfos pOriginalVersionInfo/previous_versioning_infos;
+                                   pDrillDownPrevious pTrue;
+                                   pDrillDownNext    pFalse;
+                                   pPreviousOrNext string:Previous;
+                                   pPreviousOrNextTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Previous_Versions_section', 'Previous Versions-')" >
+                            <metal:block metal:use-macro="here/MDDVersions_inner/macros/tTablaVersiones" />   
+                        </tal:block>
+
+
+                        
+                        
+                        <tal:block tal:define="pVersionInfos pOriginalVersionInfo/next_versioning_infos;
+                                   pDrillDownPrevious pFalse;
+                                   pDrillDownNext    pTrue;
+                                   pPreviousOrNext string:Previous;
+                                   pPreviousOrNextTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Next_Versions_section', 'Next Versions-')" >
+                           <metal:block metal:use-macro="here/MDDVersions_inner/macros/tTablaVersiones" />   
+                        </tal:block>
+
+   
+                    </tal:block>
+                </tal:block>
+                      
+            </tal:block>
+        
+        </tal:block>
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+      
+    </div>
+    
+    
+    
+    
+    
+    
+    
+
+    <div metal:define-macro="tTablaVersionActual" >
+        <br>
+        <h2 tal:define="pCurrentTranslated pCurrentTranslated | string:Current" >
+            <font ><strong tal:content="pCurrentTranslated"/></font>
+        </h2>
+       
+        <table width="100%%" id="#"  class="listing" summary="#"  
+            tal:attributes="id python: 'cid_MDDVersionOriginal';summary string: This Version ${SRES/values_by_name/title/uvalue} " >
+                
+            <thead>
+                <tr>
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'version', {}).get( 'translated_label', 'version')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'title', {}).get( 'translated_label', 'title')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'id', {}).get( 'translated_label', 'id')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'path', {}).get( 'translated_label', 'path')" />
+                </tr>
+            </thead>
+            <tbody tal:define="pIndent python: ('&nbsp%c' % 59) * 4; pIndentLevel python: 0; global unIndexClassFila python: 0;">
+            
+                <metal:block metal:use-macro="here/MDDVersions_inner/macros/tFilasVersion" />   
+                                       
+            </tbody>
+
+        </table>
+        <br/>
+    </div>
+    
+    
+        
+      
+    
+    <div metal:define-macro="tTablaVersiones" >
+        <br>
+        <h2>
+            <font ><strong><tal:block tal:content="pPreviousOrNextTranslated"/></strong></font>
+        </h2>
+        <br/>
+       
+        <table width="100%%" id="#"  class="listing" summary="#"  
+            tal:attributes="id python: 'cid_MDDVersiones%s' % pPreviousOrNext;summary string: ${pPreviousOrNext} Versions ${SRES/values_by_name/title/uvalue} " >
+                
+            <thead>
+                <tr>
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'version', {}).get( 'translated_label', 'version')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'title', {}).get( 'translated_label', 'title')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'id', {}).get( 'translated_label', 'id')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'path', {}).get( 'translated_label', 'path')" />
+                </tr>
+            </thead>
+            <tbody tal:define="pIndent python: (('&nbsp%c' % 59) * 4); pIndentLevel python: 0; global unIndexClassFila python: 0;">
+            
+                <metal:block metal:use-macro="here/MDDVersions_inner/macros/tFilasVersion" />   
+                                       
+            </tbody>
+
+        </table>
+        <br/>
+    </div>
+    
+    
+    
+    
+    
+
+        
+    <div metal:define-macro="tFilasVersion" >
+        <tal:block tal:define=" 
+            
+            pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')">
+            
+            <tal:block tal:repeat="pVersionInfo pVersionInfos">         
+                <tal:block tal:condition="pVersionInfo/success"  >
+                    <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]" >
+                        <td class="nosort" align="left" 
+                            tal:define="pTitle python: pVersionInfo.get( 'title', ''); pVersion python: pVersionInfo.get( 'version', '')">
+                            <a  name="#" href="#" title="#"
+                                    tal:define="
+                                        unTitle python: '%s %s version %s' % ( pNavegarALabel, pTitle, pVersion)"
+                                    tal:attributes="
+                                        name string:elemento-${pVersionInfo/UID};
+                                        href python: '%s/MDDVersions' % (pVersionInfo[ 'url']); 
+                                        title unTitle"                                                                            
+                                    class="state-visible" > 
+                                    <h4>
+                                        <span tal:condition="pIndentLevel" tal:replace="structure python: pIndent * pIndentLevel" />
+                                        <span class="state-visible" tal:content="pVersionInfo/version" />
+                                    </h4>
+                            </a>
+                        </td>      
+                        <td class="nosort" align="left" tal:define="pTitle python: pVersionInfo.get( 'title', ''); pVersion python: pVersionInfo.get( 'version', '')" >
+                            <a  name="#" href="#" title="#"
+                                    tal:define="
+                                        unTitle python: '%s %s version %s' % ( pNavegarALabel, pTitle, pVersion)"
+                                    tal:attributes="
+                                        name string:elemento-${pVersionInfo/UID};
+                                        href python: '%s/Tabular' % (pVersionInfo[ 'url']); 
+                                        title unTitle"                                                                            
+                                    class="state-visible" > 
+                                    <h4>
+                                        <span class="state-visible" tal:content="pTitle" />
+                                    </h4>
+                            </a>
+                        </td>
+                        <td class="nosort" align="left" tal:content="python: pVersionInfo.get( 'id', '')" />
+                        <td class="nosort" align="left" tal:content="python: pVersionInfo.get( 'path', '')" />
+                        <tal:block tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
+                    </tr>
+                    
+                    <tal:block tal:define="pIndentLevel python: pIndentLevel + 1" tal:condition="pDrillDownPrevious">
+                        <tal:block tal:define="pVersionInfos pVersionInfo/previous_versioning_infos;
+                                pDrillDownPrevious pTrue;
+                                pDrillDownNext    pFalse" >
+
+                            <metal:block metal:use-macro="here/MDDVersions_inner/macros/tFilasVersion" />   
+                        </tal:block>      
+                    </tal:block>
+                    
+                    <tal:block tal:define="pIndentLevel python: pIndentLevel + 1" tal:condition="pDrillDownNext">
+                        <tal:block tal:define="pVersionInfos pVersionInfo/next_versioning_infos;
+                               pDrillDownPrevious   pFalse;
+                               pDrillDownNext pTrue" >
+
+                            <metal:block metal:use-macro="here/MDDVersions_inner/macros/tFilasVersion" />   
+                        </tal:block>      
+                    </tal:block>
+                    
+                    
+                </tal:block>
+            </tal:block>      
+        
+        </tal:block>
+
+    </div>    
+            
+        
+     
+    
+</body>
+</html>
+    

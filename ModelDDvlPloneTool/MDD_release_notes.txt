@@ -48,45 +48,6 @@ Summary of use cases implemented after delivery of version 1.0 (build20090716050
 |
 |
 
-------------------------------
-
-|
-|
-
-
-
-version 1.0.0.5
----------------
-
-|
-|
-
-
-**RESOLVED**
-
-
-
-During Cut/paste on same container: Title and Id number-postfixed to avoid duplicates (while no duplicate would be caused) SUC 24 
-Move elements to a different container
-
-Error Exception during SUC 22 Create a new version of a Model Instance  bug in fGetTraversalValues retrieval relations not multivalued
-
-Incomplete copy/cut - paste  import and new version operations commit their partial results and do not report the errors
-
-SUC 11extension04 Manage traceability links when copying or moving
-
-SUC 16 zextension03 After Import redirect to tabular view  or on 
-
-
-
-|
-|
-
-------------------------------
-
-|
-|
-
 
 
 version 1.0.0.4

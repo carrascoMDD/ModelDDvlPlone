@@ -36,6 +36,7 @@ import sys
 import traceback
 import logging
 
+import transaction
 
 
 from AccessControl import ClassSecurityInfo
@@ -53,6 +54,8 @@ from Products.Archetypes.utils import shasattr
 
 from MDD_RefactorComponents import MDDRefactor_NewVersion
 
+from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+
 
 from ModelDDvlPloneTool_ImportExport_Constants import *
 
@@ -61,6 +64,11 @@ from ModelDDvlPloneTool_Retrieval import ModelDDvlPloneTool_Retrieval
 
 
 cLogExceptions = True
+
+cLogVersionResults = True
+
+
+
 
 cVersionName_UnVersioned = '-u-n-v-e-r-s-i-o-n-e-d-'
 cVersionName_MissingVersionName = '-v-e-r-s-i-o-n-n-a-m-e-m-i-s-s-i-n-g-'
@@ -77,7 +85,15 @@ cPermissionsOnVersionContainers = [
     permissions.ModifyPortalContent,
 ]
 
-class ModelDDvlPloneTool_Version:
+
+
+
+class MDDRefactor_Version_Exception( Exception): pass
+
+
+
+
+class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
     """
     """
     security = ClassSecurityInfo()
@@ -453,22 +469,22 @@ class ModelDDvlPloneTool_Version:
             unVersionNameFieldsCache[ unVersionedElementMetaType] = unVersionField
         
         
-            
-        unVersionAccessor = unVersionField.getAccessor( unVersionedElement)
-        if not unVersionAccessor:
-            return self
         unVersionName = None
-        try:
-            unVersionName = unVersionAccessor()
-        except:
-            None
-        if not ( unVersionName == None):
-            theVersioningInfo[ 'version'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionName, unVersionedElement)
-            if not ( theAllVersionsByName == None):
-                if theAllVersionsByName.has_key( unVersionName):
-                    raise "Duplicate_Version_Name"
-                theAllVersionsByName[ unVersionName] = theVersioningInfo
-            
+        if unVersionField:    
+            unVersionAccessor = unVersionField.getAccessor( unVersionedElement)
+            if not unVersionAccessor:
+                return self
+            try:
+                unVersionName = unVersionAccessor()
+            except:
+                None
+            if not ( unVersionName == None):
+                theVersioningInfo[ 'version'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionName, unVersionedElement)
+                if not ( theAllVersionsByName == None):
+                    if theAllVersionsByName.has_key( unVersionName):
+                        raise "Duplicate_Version_Name"
+                    theAllVersionsByName[ unVersionName] = theVersioningInfo
+                
   
         unVersionCommentField = unVersionCommentFieldsCache.get( unVersionedElementMetaType, None)
         if not unVersionCommentField:
@@ -657,18 +673,19 @@ class ModelDDvlPloneTool_Version:
             else:
                 theVersioningInfo[ 'version'] = cVersionName_MissingVersionName
                 
-                
-       
             
         theVersioningInfo[ 'success'] = True
 
         return self
     
     
+    
+    
+    
                 
     
-    security.declarePrivate( 'fRetrieveAllVersions')
-    def fRetrieveAllVersions( self,
+    security.declarePrivate( 'fRetrieveAllVersionsWithContainerPloneSiteAndClipboard')
+    def fRetrieveAllVersionsWithContainerPloneSiteAndClipboard( self,
         theTimeProfilingResults        =None,
         theModelDDvlPloneTool_Retrieval=None,
         theVersionedElement             =None, 
@@ -678,7 +695,7 @@ class ModelDDvlPloneTool_Version:
         """
         
         if not ( theTimeProfilingResults == None):
-            self.pProfilingStart( 'fRetrieveAllVersions', theTimeProfilingResults)
+            self.pProfilingStart( 'fRetrieveAllVersionsWithContainerPloneSiteAndClipboard', theTimeProfilingResults)
                       
         try:
             unAllVersionsReport = { 'success': False, }  
@@ -726,10 +743,178 @@ class ModelDDvlPloneTool_Version:
                     return unAllVersionsReport
                     
                 
+                unVoid = self.fRetrieveAllVersions( 
+                    theTimeProfilingResults        =theTimeProfilingResults,
+                    theModelDDvlPloneTool_Retrieval=theModelDDvlPloneTool_Retrieval,
+                    theVersionedElement            =theVersionedElement, 
+                    theAllVersionsReport           =unAllVersionsReport,
+                    theAdditionalParams            =theAdditionalParams,
+                )
+                
+                if not unAllVersionsReport or not unAllVersionsReport.get( 'success', False):
+                    return unAllVersionsReport
+                
+                
+                unCheckedPermissionsCache = theModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
+                
+                                    
+                # ##############################################################
+                """Retrieve the parent of current version and check if it may be a candidate to contain the new version.
+                
+                """
+                unParentElement = aq_parent( aq_inner( theVersionedElement))
+                if not ( unParentElement == None):
+                    unParentCandidateContainerReport = self.fRetrieveCandidateVersionContainerReport( theModelDDvlPloneTool_Retrieval, theVersionedElement, unParentElement, theVersionedElement.getId(), theVersionedElement.Title(), unCheckedPermissionsCache,)
+                    if unParentCandidateContainerReport.get( 'allowed', False):
+                        unAllVersionsReport[ 'parent_container_report'] = unParentCandidateContainerReport
+                            
+                                 
+                
+                        
+                        
+                # ##############################################################
+                """Retrieve first element from CLIPBOARD and check if it may be a candidate to contain the new version.
+                
+                """
+                
+                unosElementosFromClipboard = theModelDDvlPloneTool_Retrieval.fClipboardCookieElements( theVersionedElement.REQUEST, theVersionedElement)
+                if unosElementosFromClipboard:
+                    
+                    for unElementoFromClipboard in unosElementosFromClipboard:
+                        if not ( unElementoFromClipboard == None):
+                            
+                            if unAllVersionsReport[ 'parent_container_report'] and ( unElementoFromClipboard == unAllVersionsReport[ 'parent_container_report'].get( 'element', None)):
+                                unAllVersionsReport[ 'clipboard_container_report'] = unAllVersionsReport[ 'parent_container_report']
+                                break
+                            
+                            else:
+                                unClipboardCandidateContainerReport = self.fRetrieveCandidateVersionContainerReport( theModelDDvlPloneTool_Retrieval, theVersionedElement, unElementoFromClipboard, theVersionedElement.getId(), theVersionedElement.Title(), unCheckedPermissionsCache,)
+                                if unClipboardCandidateContainerReport.get( 'allowed', False):
+                                    unAllVersionsReport[ 'clipboard_container_report'] = unClipboardCandidateContainerReport
+                                    break
+                                    
+                # ##############################################################
+                """Retrieve Plone Site and check if it may be a candidate to contain the new version.
+                
+                """
+                       
+                unSite = theModelDDvlPloneTool_Retrieval.fPortalRoot( theVersionedElement)
+                if not ( unSite == None):
+                    if unAllVersionsReport[ 'parent_container_report'] and ( unSite == unAllVersionsReport[ 'parent_container_report'].get( 'element', None)):
+                        unAllVersionsReport[ 'site_container_report'] = unAllVersionsReport[ 'parent_container_report']
+                    elif unAllVersionsReport[ 'clipboard_container_report'] and ( unSite == unAllVersionsReport[ 'clipboard_container_report'].get( 'element', None)):
+                        unAllVersionsReport[ 'site_container_report'] = unAllVersionsReport[ 'clipboard_container_report']
+                    else:
+                        unSiteCandidateContainerReport = self.fRetrieveCandidateVersionContainerReport( theModelDDvlPloneTool_Retrieval, theVersionedElement, unSite, theVersionedElement.getId(), theVersionedElement.Title(), unCheckedPermissionsCache)
+                        if unSiteCandidateContainerReport.get( 'allowed', False):
+                            unAllVersionsReport[ 'site_container_report'] = unSiteCandidateContainerReport
+                        
+                    
+                unAllVersionsReport[ 'success'] = True
+                
+                return unAllVersionsReport
+                          
+                
+            except:
+                unaExceptionInfo = sys.exc_info()
+                unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                
+                unInformeExcepcion = 'Exception during fRetrieveAllVersionsWithContainerPloneSiteAndClipboard\n' 
+                unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                unInformeExcepcion += unaExceptionFormattedTraceback   
+                         
+                if not unAllVersionsReport:
+                    unAllVersionsReport = { }
+
+                unAllVersionsReport.update( { 
+                    'success':      False,
+                    'status':       'Exception',
+                    'exception':    unInformeExcepcion,
+                })
+                    
+                if cLogExceptions:
+                    logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
+                
+                return unAllVersionsReport
+                        
+            return  unAllVersionsReport     
+        
+         
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fRetrieveAllVersionsWithContainerPloneSiteAndClipboard', theTimeProfilingResults)
+            
+    
+               
+    
+        
+                
+    
+    
+                
+    
+    security.declarePrivate( 'fRetrieveAllVersions')
+    def fRetrieveAllVersions( self,
+        theTimeProfilingResults        =None,
+        theModelDDvlPloneTool_Retrieval=None,
+        theVersionedElement             =None, 
+        theAllVersionsReport           =None,
+        theAdditionalParams            =None):
+        """Create a new version of the original object which shall be a root, with the new version name as given as parameter, as a whole object network copy of the source root object and its contents."
+        
+        """
+        
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fRetrieveAllVersions', theTimeProfilingResults)
+                      
+        try:
+            # ##############################################################
+            """Prepare result structure.
+            
+            """
+            unAllVersionsReport = theAllVersionsReport
+            if not unAllVersionsReport:
+                unAllVersionsReport = self.fNewVoidAllVersionsReport()
+                
+            unAllVersionsReport.update( { 'success': False, })
+            
+            try:
+                
+                # ##############################################################
+                """Check for element to create a new version from.
+                
+                """
+                if ( theVersionedElement == None):
+                    return unAllVersionsReport
+                unAllVersionsReport[ 'versioned_element'] = theVersionedElement
+                
+                
                 
                 
                 # ##############################################################
-                """Retrieve traversal results for element to create new version from.
+                """Assert whether the element can be versioned.
+                
+                """
+                unVersionPermission = False
+                try:
+                    unVersionPermission = theVersionedElement.fAllowVersion()
+                except:
+                    None
+                unAllVersionsReport[ 'allow_version'] = unVersionPermission  
+
+                
+                
+                # ##############################################################
+                """Check for necessary parameters.
+                
+                """
+                if not theModelDDvlPloneTool_Retrieval:
+                    return unAllVersionsReport
+                    
+                
+               # ##############################################################
+                """Retrieve traversal results for versioned element 
                 
                 """
                 unTranslationsCaches      = theModelDDvlPloneTool_Retrieval.fCreateTranslationsCaches()
@@ -779,56 +964,6 @@ class ModelDDvlPloneTool_Version:
                 unAllVersionsReport[ 'column_translations'] = someDefaultColumnTranslations
                     
                 
-                 
-                                    
-                # ##############################################################
-                """Retrieve the parent of current version and check if it may be a candidate to contain the new version.
-                
-                """
-                unParentElement = aq_parent( aq_inner( theVersionedElement))
-                if not ( unParentElement == None):
-                    unParentCandidateContainerReport = self.fRetrieveCandidateVersionContainerReport( theModelDDvlPloneTool_Retrieval, theVersionedElement, unParentElement, theVersionedElement.getId(), theVersionedElement.Title(), unCheckedPermissionsCache,)
-                    if unParentCandidateContainerReport.get( 'allowed', False):
-                        unAllVersionsReport[ 'parent_container_report'] = unParentCandidateContainerReport
-                            
-                                 
-                
-                        
-                        
-                # ##############################################################
-                """Retrieve first element from CLIPBOARD and check if it may be a candidate to contain the new version.
-                
-                """
-                
-                unosElementosFromClipboard = theModelDDvlPloneTool_Retrieval.fClipboardCookieElements( theVersionedElement.REQUEST, theVersionedElement)
-                if unosElementosFromClipboard:
-                    
-                    for unElementoFromClipboard in unosElementosFromClipboard:
-                        if not ( unElementoFromClipboard == None):
-                            
-                            if unAllVersionsReport[ 'parent_container_report'] and ( unElementoFromClipboard == unAllVersionsReport[ 'parent_container_report'].get( 'element', None)):
-                                unAllVersionsReport[ 'clipboard_container_report'] = unAllVersionsReport[ 'parent_container_report']
-                                break
-                            
-                            else:
-                                unClipboardCandidateContainerReport = self.fRetrieveCandidateVersionContainerReport( theModelDDvlPloneTool_Retrieval, theVersionedElement, unElementoFromClipboard, theVersionedElement.getId(), theVersionedElement.Title(), unCheckedPermissionsCache,)
-                                if unClipboardCandidateContainerReport.get( 'allowed', False):
-                                    unAllVersionsReport[ 'clipboard_container_report'] = unClipboardCandidateContainerReport
-                                    break
-                                    
-                       
-                unSite = theModelDDvlPloneTool_Retrieval.fPortalRoot( theVersionedElement)
-                if not ( unSite == None):
-                    if unAllVersionsReport[ 'parent_container_report'] and ( unSite == unAllVersionsReport[ 'parent_container_report'].get( 'element', None)):
-                        unAllVersionsReport[ 'site_container_report'] = unAllVersionsReport[ 'parent_container_report']
-                    elif unAllVersionsReport[ 'clipboard_container_report'] and ( unSite == unAllVersionsReport[ 'clipboard_container_report'].get( 'element', None)):
-                        unAllVersionsReport[ 'site_container_report'] = unAllVersionsReport[ 'clipboard_container_report']
-                    else:
-                        unSiteCandidateContainerReport = self.fRetrieveCandidateVersionContainerReport( theModelDDvlPloneTool_Retrieval, theVersionedElement, unSite, theVersionedElement.getId(), theVersionedElement.Title(), unCheckedPermissionsCache)
-                        if unSiteCandidateContainerReport.get( 'allowed', False):
-                            unAllVersionsReport[ 'site_container_report'] = unSiteCandidateContainerReport
-                        
-                    
                 # ##############################################################
                 """Retrieve current version info, and version infos for all previous and next versions, as a tree.
                 
@@ -896,7 +1031,11 @@ class ModelDDvlPloneTool_Version:
     
                
     
-        
+                        
+                
+                
+                
+                
 
     security.declarePrivate( 'fRetrieveCandidateVersionContainerReport')
     def fRetrieveCandidateVersionContainerReport( self, 
@@ -1019,6 +1158,7 @@ class ModelDDvlPloneTool_Version:
     security.declarePrivate( 'fNewVersion')
     def fNewVersion( self,
         theTimeProfilingResults        =None,
+        theModelDDvlPloneTool          =None,
         theModelDDvlPloneTool_Retrieval=None,
         theModelDDvlPloneTool_Mutators =None,
         theOriginalObject              =None, 
@@ -1179,7 +1319,7 @@ class ModelDDvlPloneTool_Version:
                 """Retrieve all the versioning information, from the original element and all its previous and next versions.
                 
                 """      
-                unAllVersionsReport = self.fRetrieveAllVersions(
+                unAllVersionsReport = self.fRetrieveAllVersionsWithContainerPloneSiteAndClipboard(
                     theTimeProfilingResults        =theTimeProfilingResults,
                     theModelDDvlPloneTool_Retrieval=theModelDDvlPloneTool_Retrieval,
                     theVersionedElement            =theOriginalObject, 
@@ -1356,6 +1496,11 @@ class ModelDDvlPloneTool_Version:
                 unNewVersionReport[ 'new_version_element'] = unNewVersionElement
                 
                 
+                # ##############################################################################
+                """Transaction Save point.
+                
+                """      
+                transaction.savepoint(optimistic=True)
                 
                 
                 # ##############################################################################
@@ -1396,8 +1541,13 @@ class ModelDDvlPloneTool_Version:
                 """Traverse source elements network and create copy linked with new version traceability links.
                 
                 """      
-                
+        
+
+
                 unRefactor = MDDRefactor_NewVersion( 
+                    theModelDDvlPloneTool,
+                    theModelDDvlPloneTool_Retrieval,
+                    theModelDDvlPloneTool_Mutators,
                     theOriginalObject, 
                     unNewVersionElement, 
                     unNewVersionElementResult,
@@ -1406,6 +1556,7 @@ class ModelDDvlPloneTool_Version:
                     theMDDNewVersionTypeConfigs,
                     somePloneNewVersionTypeConfigs,
                     allNewVersionTypeConfigs, 
+                    MDDRefactor_Version_Exception
                 )  
                 if ( not unRefactor) or not unRefactor.vInitialized:
                     unNewVersionReport.update( { 
@@ -1414,27 +1565,121 @@ class ModelDDvlPloneTool_Version:
                     })
                     return unNewVersionReport
                     
-                unRefactorResult = unRefactor.fRefactor()
                 
-                if unRefactorResult:
+                unHuboRefactorException  = False
+                unHuboException  = False
+                unRefactorResult = False
+                try:
+                    
+                    try:
+                        unRefactorResult = unRefactor.fRefactor()
+                        
+                        unNewVersionElement.setTitle( unNewTitle)
+                        unNewVersionElement.reindexObject()
+                        
+                        unNewVersionElementSchema = None
+                        try:
+                            unNewVersionElementSchema = unNewVersionElement.schema
+                        except:
+                            None
+                        if unNewVersionElementSchema:
+                            
+                            unVersionFieldName = None
+                            try:
+                                unVersionFieldName = unNewVersionElement.version_field
+                            except:
+                                None
+                            if unVersionFieldName:
+                                if unNewVersionElementSchema.has_key( unVersionFieldName):
+                                    unVersionField = unNewVersionElementSchema[ unVersionFieldName]
+                                    if unVersionField:
+                                        unVersionMutator = unVersionField.getMutator( unNewVersionElement)
+                                        unVersionMutator( unNewVersionName)
+                                        
+                            unVersionCommentFieldName = None
+                            try:
+                                unVersionCommentFieldName = unNewVersionElement.version_comment_field
+                            except:
+                                None
+                            if unVersionCommentFieldName:
+                                if unNewVersionElementSchema.has_key( unVersionCommentFieldName):
+                                    unVersionCommentField = unNewVersionElementSchema[ unVersionCommentFieldName]
+                                    if unVersionCommentField:
+                                        unVersionCommentMutator = unVersionCommentField.getMutator( unNewVersionElement)
+                                        unVersionCommentMutator( unNewVersionComment)
+                        
+                    
+                                        
+                    except MDDRefactor_Version_Exception:
+                        
+                        unHuboRefactorException = True
+                        
+                        unaExceptionInfo = sys.exc_info()
+                        unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
+                        
+                        unInformeExcepcion = 'Exception during ModelDDvlPloneTool_Refactor::fNewVersion invoking MDDRefactor_NewVersion::fRefactor\n' 
+                        unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                        unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                        unInformeExcepcion += unaExceptionFormattedTraceback   
+                        
+                        unNewVersionReport[ 'exception'] = unInformeExcepcion
+                                 
+                        if cLogExceptions:
+                            logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
+                        
+                except:
+                    unHuboException = True
+                    raise
+                    
+                
+                unNewVersionReport.update( {
+                    'num_elements_pasted':         unRefactor.vNumElementsPasted,
+                    'num_mdd_elements_pasted':     unRefactor.vNumMDDElementsPasted,
+                    'num_plone_elements_pasted':   unRefactor.vNumPloneElementsPasted,
+                    'num_attributes_pasted':       unRefactor.vNumAttributesPasted,
+                    'num_links_pasted':            unRefactor.vNumLinksPasted,
+                    'num_elements_failed':         unRefactor.vNumElementsFailed,
+                    'num_mdd_elements_failed':     unRefactor.vNumMDDElementsFailed,
+                    'num_plone_elements_failed':   unRefactor.vNumPloneElementsFailed,
+                    'num_attributes_failed':       unRefactor.vNumAttributesFailed,
+                    'num_links_failed':            unRefactor.vNumLinksFailed,
+                    'num_elements_bypassed':       unRefactor.vNumElementsBypassed,
+                    'num_mdd_elements_bypassed':   unRefactor.vNumMDDElementsBypassed,
+                    'num_plone_elements_bypassed': unRefactor.vNumPloneElementsBypassed,
+                    'num_attributes_bypassed':     unRefactor.vNumAttributesBypassed,
+                    'num_links_bypassed':          unRefactor.vNumLinksBypassed,
+                })
+                unNewVersionReport[ 'error_reports'].extend( unRefactor.vErrorReports )
+                            
+                if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
+                    transaction.commit()
+    
                     unNewVersionReport.update( { 
                          'success':      True,
                     })
+                    
+                    if cLogVersionResults:
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fNewVersion\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewVersionReport, ])))
+                    
                 else:
+                    transaction.abort()
+                    
                     unNewVersionReport.update( { 
                         'success':      False,
                         'status':       cNewVersionStatus_Error_Internal_Refactor_Failed,
                     })
                     
-                #logging.getLogger( 'ModelDDvlPlone').info( 'unNewVersionElement %s  getContadoresDeFuentes() %s' % ( '/'.join( unNewVersionElement.getPhysicalPath()), unNewVersionElement.getContadoresDeFuentes(), ))
+                    if cLogVersionResults:
+                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fNewVersion\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewVersionReport, ])))
+                    
+                return unNewVersionReport                
                 
-                return unNewVersionReport        
-            
-            
-           
+                
+                
+          
             except:
                 unaExceptionInfo = sys.exc_info()
-                unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
                 
                 unInformeExcepcion = 'Exception during fNewVersion\n' 
                 unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 

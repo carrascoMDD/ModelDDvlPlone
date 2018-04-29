@@ -111,7 +111,7 @@
                                                     <li>
                                                         <a title="#" onclick="#" href="#"
                                                             tal:define="aPasteLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'plone', 'paste', 'Paste');
-                                                                        unaHref     string:${SRES/url}/object_paste"
+                                                                        unaHref     string:${SRES/url}/MDDPaste"
                                                             tal:attributes="title aPasteLabel;href unaHref" >
                                                             <img src="#" alt="#" title="#" 
                                                                 tal:attributes="src string:${portal_url}/paste_icon.gif; alt aPasteLabel; title aPasteLabel" 

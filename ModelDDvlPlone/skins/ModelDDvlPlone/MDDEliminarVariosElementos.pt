@@ -111,9 +111,7 @@
     
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
     
-        <tal:block tal:replace="nothing" >
-            <tal:block tal:define="dummy python: request.response.redirect( pRedirectURL)" />    
-        </tal:block>
+        <tal:block tal:define="dummy python: request.response.redirect( pRedirectURL)" />    
     
         <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
                            

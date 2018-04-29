@@ -41,13 +41,39 @@ msgstr ""
 
 
 #. Default: "Exportar"
-#: TRAArquetipo
+#: 
 msgid "Export"
 msgstr "Export"
 
 #. Default: "Importar"
-#: TRAArquetipo
+#: 
 msgid "Import"
 msgstr "Import"
+
+#. Default: "Nueva Version"
+#: 
+msgid "New Version"
+msgstr "New Version"
+
+
+#. Default: "Nueva Traduccion"
+#: 
+msgid "New Translation"
+msgstr "New Translation"
+
+#. Default: "Versiones"
+#: 
+msgid "Versions"
+msgstr "Versions"
+
+#. Default: "Tabular"
+#: 
+msgid "Relations"
+msgstr "Tabular"
+
+#. Default: "Tabular"
+#: 
+msgid "relations"
+msgstr "Tabular"
 
 

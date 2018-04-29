@@ -35,19 +35,38 @@
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
  
  
-        <tal:block tal:define="
-            pForm request/form;
-            pGroupAction         python: pForm.get( 'theGroupAction');
-            pGroupUIDs           python: pForm.get( 'theUIDs');
-            pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-            pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-            unosArgs python: {
-            'theTimeProfilingResults' :pProfilingResults,
-            'theContainerObject'      :here, 
-            'theGroupAction'          :pGroupAction,
-            'theGroupUIDs'            :pGroupUIDs,
-            'theAdditionalParams'     :None, }; 
-            pChangeReports python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" />
+        <tal:block tal:define="pPasteRequested pPasteRequested | nothing">
+            <tal:block tal:condition="pPasteRequested">
+                <tal:block tal:define="
+                    pForm request/form;
+                    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                    unosArgs python: {
+                    'theTimeProfilingResults' :pProfilingResults,
+                    'theContainerObject'      :here, 
+                    'theAdditionalParams'     :None, }; 
+                    pRefactorReport python: here.ModelDDvlPlone_tool.fObjectPaste( **unosArgs)" >
+                    <tal:block tal:define="pRefactorLabel string:Paste">
+                        <metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDRefactorResultsDump_i18n_view" />   
+                    </tal:block>
+               </tal:block>
+            </tal:block>
+            <tal:block tal:condition="not: pPasteRequested">
+                <tal:block tal:define="
+                    pForm request/form;
+                    pGroupAction         python: pForm.get( 'theGroupAction', '');
+                    pGroupUIDs           python: pForm.get( 'theUIDs', []);
+                    pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                    unosArgs python: {
+                    'theTimeProfilingResults' :pProfilingResults,
+                    'theContainerObject'      :here, 
+                    'theGroupAction'          :pGroupAction,
+                    'theGroupUIDs'            :pGroupUIDs,
+                    'theAdditionalParams'     :None, }; 
+                    pGroupActionReport python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" />
+            </tal:block>
+        </tal:block>
  
         
 

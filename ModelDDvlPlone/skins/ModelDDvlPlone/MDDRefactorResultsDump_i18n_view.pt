@@ -1,0 +1,162 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDRefactorResultsDump_i18n_view.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tMDDRefactorResultsDump_i18n_view" >
+        <tal:block tal:define="pRefactorReport  pRefactorReport | nothing" >
+            <tal:block tal:condition="pRefactorReport" >
+                <tal:block tal:define="pRefactorLabel  pRefactorLabel | string:Refactor;
+                    pRefactorLabelI18N python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_' + pRefactorLabel, 'ModelDDvlPlone_refactor_' + pRefactorLabel + '-')" >
+                    <tal:block tal:condition="python: pRefactorReport.get( 'success', False)" >
+                        <p><font color="green" size="2"><strong tal:content="python: u'%s %s' % ( pRefactorLabelI18N, here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_success', 'Success-'))" /></font></p>
+                        <div tal:condition="python: pRefactorReport.get( 'status', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_status', 'Status-'), pRefactorReport.get( 'status', ''), )" /></div>
+                        <div tal:condition="python: pRefactorReport.get( 'condition', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_condition', 'Condition-'), pRefactorReport.get( 'condition', ''), )" /></div>
+                        <tal:block tal:define="pException python: pRefactorReport.get( 'exception', '').strip()" 
+                            tal:condition="pException">
+                            <metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDExceptionDump_i18n_view" />   
+                        </tal:block>
+                        <tal:block tal:define="pErrorReports python: pRefactorReport.get( 'error_reports', '')">
+                            <metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDErrorReportsDump_i18n_view" />   
+                        </tal:block>
+                    </tal:block>
+                    <tal:block tal:condition="python: not pRefactorReport.get( 'success', False)" >
+                        <p><font color="red" size="2"><strong tal:content="python: u'%s %s' % ( pRefactorLabelI18N, here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_failure', 'Failure-'))" /></font></p>
+                        <div tal:condition="python: pRefactorReport.get( 'status', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_status', 'Status-'), pRefactorReport.get( 'status', ''), )" /></div>
+                        <div tal:condition="python: pRefactorReport.get( 'condition', '')"><strong tal:content="python: '%s=%s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_paste_condition', 'Condition-'), pRefactorReport.get( 'condition', ''), )" /></div>
+                        <tal:block tal:define="pException python: pRefactorReport.get( 'exception', '').strip()" 
+                            tal:condition="pException">
+                            <metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDExceptionDump_i18n_view" />   
+                        </tal:block>
+                        <tal:block tal:define="pErrorReports python: pRefactorReport.get( 'error_reports', '')">
+                            <metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDErrorReportsDump_i18n_view" />   
+                        </tal:block>
+                    </tal:block>
+                </tal:block>    
+                <br/>
+            </tal:block>    
+        </tal:block>    
+    </div>
+    
+
+
+    
+
+
+    <div metal:define-macro="tMDDErrorReportsDump_i18n_view" >
+    
+        <tal:block tal:define="pErrorReports  pErrorReports | nothing" 
+            tal:condition="python: len( pErrorReports)" >
+            <p tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_Errors', 'ModelDDvlPlone_refactor_Errors-')" />
+            <table width="100%%" id="cid_MDDTablaRefactorErrorReports" class="listing" summary="MDDTablaRefactorErrorReports"            
+                tal:define="
+                global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even');
+                    pClassLabel          python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_class_name', 'class-');
+                    pMethodLabel         python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_method_name', 'method-');
+                    pErrorStatusLabel    python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_error_status', 'status-');
+                    pReasonLabel         python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_error_reason', 'reason-');
+                    pErrorParamsLabel    python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_error_params', 'params-')">
+                <thead>
+                    <tr>
+                        <th tal:content="pClassLabel"/>
+                        <th tal:content="pMethodLabel"/>
+                        <th tal:content="pErrorStatusLabel"/>
+                        <th tal:content="pReasonLabel"/>                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tal:block tal:repeat="pErrorReport pErrorReports" >
+                        <tal:block tal:define="pClassName    python: pErrorReport.get( 'theclass', '');
+                                               pMethodName   python: pErrorReport.get( 'method', '');
+                                               pErrorStatus  python: pErrorReport.get( 'status', '');
+                                               pErrorReason  python: pErrorReport.get( 'reason', '');
+                                               pErrorParams  python: pErrorReport.get( 'params', []);" >
+                            <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
+                                <td tal:content="pClassName" />
+                                <td tal:content="pMethodName" />
+                                <td tal:content="pErrorStatus" />
+                                <td tal:content="pErrorReason" />
+                            </tr>
+                            <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+                                tal:condition="pErrorParams">
+                                <td colspan="4" tal:define="pErrorParamsKeys python: pErrorParams.keys()[:];
+                                    void python: pErrorParamsKeys.sort()">
+                                    <table width="100%">
+                                        <tbody>
+                                            <tr tal:repeat="pErrorParamKey pErrorParamsKeys">
+                                                <td tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refactor_error_param_' + pErrorParamKey, pErrorParamKey + '-')" />
+                                                <td tal:content="python: pErrorParams.get( pErrorParamKey, '')" /> 
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>                            
+                            </tr>
+                        </tal:block>   
+                        <tal:block tal:define="global unIndexClassFila python: unIndexClassFila + 1" />
+                    </tal:block>                            
+                </tbody>                        
+            </table>
+        </tal:block>    
+    </div>
+    
+    
+    
+
+    
+
+
+    <div metal:define-macro="tMDDExceptionDump_i18n_view" >
+        <tal:block tal:define="pException  pException | nothing" >
+            <tal:block tal:condition="python: pException.strip()" >
+                <p>
+                    <strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_exception', 'Exception-')" />
+                </p>
+                <tal:block tal:define="pExceptionLines python: pException.strip().splitlines();
+                                       pNumExceptionLines python: len( pExceptionLines);
+                                       pNumTextAreaLines python: min( max( pNumExceptionLines, 18), 3)" >
+                    <textarea style="font-size: 9pt;" cols="80" rows="#" name="MDDExceptionDump" id="cid_MDDExceptionDump" 
+                        tal:attributes="rows pNumTextAreaLines" ><tal:block tal:repeat="pExceptionLine pExceptionLines"><tal:block tal:content="pExceptionLine">
+                        </tal:block> </tal:block>    
+                    </textarea>
+                    <br/>
+                 </tal:block>    
+            </tal:block>    
+        </tal:block>    
+    </div>
+    
+    
+    
+    
+</body>
+</html>
+    
