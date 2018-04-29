@@ -59,6 +59,7 @@ from ModelDDvlPloneTool_Import      import ModelDDvlPloneTool_Import
 from ModelDDvlPloneTool_Retrieval   import ModelDDvlPloneTool_Retrieval
 from ModelDDvlPloneTool_Bodies      import ModelDDvlPloneTool_Bodies                
 from ModelDDvlPloneTool_Mutators    import ModelDDvlPloneTool_Mutators   
+from ModelDDvlPloneTool_Refactor    import ModelDDvlPloneTool_Refactor
 
 
 
@@ -204,8 +205,10 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
                 
-        return ModelDDvlPloneTool_Retrieval().fRetrieveTypeConfig( 
+        unElementResult =  aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
             theTimeProfilingResults     =theTimeProfilingResults,
             theElement                  =theElement, 
             theParent                   =theParent,
@@ -221,7 +224,13 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theCheckedPermissionsCache  =theCheckedPermissionsCache,
             theAdditionalParams         =theAdditionalParams
         )
-
+        
+        if not unElementResult:
+            return unElementResult
+        
+        aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
+        
+        return unElementResult
 
 
 
@@ -241,7 +250,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
                 
-        return ModelDDvlPloneTool_Retrieval().fRetrieveTypeConfigByUID( 
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+                
+        unElementResult =  aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfigByUID( 
             theTimeProfilingResults     =theTimeProfilingResults,
             theContextualElement        =theContextualElement, 
             theUID                      =theUID, 
@@ -257,8 +268,16 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theAdditionalParams         =theAdditionalParams
         )
 
+        if not unElementResult:
+            return unElementResult
+        
+        aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
 
+        return unElementResult
 
+    
+    
+    
 
     security.declareProtected( permissions.View, 'fRetrieveElementoBasicInfoAndTranslations')
     def fRetrieveElementoBasicInfoAndTranslations(self, 
@@ -273,7 +292,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
         
-        return ModelDDvlPloneTool_Retrieval().fRetrieveElementoBasicInfoAndTranslations( 
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+
+        unElementResult =  aModelDDvlPloneTool_Retrieval.fRetrieveElementoBasicInfoAndTranslations( 
             theTimeProfilingResults     =theTimeProfilingResults,
             theContainerElement         =theContainerElement, 
             thePloneSubItemsParameters  =thePloneSubItemsParameters, 
@@ -285,6 +306,12 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theCheckedPermissionsCache  =theCheckedPermissionsCache,
             theAdditionalParams         =theAdditionalParams
         )
+        if not unElementResult:
+            return unElementResult
+        
+        aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
+
+        return unElementResult
 
 
 
@@ -303,7 +330,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
 
-        return ModelDDvlPloneTool_Retrieval().fRetrievePloneContent( 
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+
+        unElementResult =  aModelDDvlPloneTool_Retrieval.fRetrievePloneContent( 
             theTimeProfilingResults     =theTimeProfilingResults,
             theContainerElement         =theContainerElement, 
             thePloneSubItemsParameters  =thePloneSubItemsParameters, 
@@ -316,6 +345,12 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theAdditionalParams         =theAdditionalParams
         )
     
+        if not unElementResult:
+            return unElementResult
+        
+        aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
+
+        return unElementResult
 
     
     
@@ -367,12 +402,23 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theElement              =None,
         theAdditionalParams     =None):
         
-        return ModelDDvlPloneTool_Retrieval().fDeleteImpactReport( 
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        unDeleteImpactReport =  aModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
             theTimeProfilingResults =theTimeProfilingResults,
             theElement              =theElement,
             theAdditionalParams     =theAdditionalParams 
         )
         
+        if not unDeleteImpactReport:
+            return unDeleteImpactReport
+        
+        unElementResult =  unDeleteImpactReport.get( 'here', {})
+        if not unElementResult:
+            return unDeleteImpactReport
+        
+        aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
+        
+        return unDeleteImpactReport
         
         
         
@@ -826,6 +872,35 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
       
     
+    
+    
+    
+    security.declareProtected( permissions.AddPortalContent, 'fPaste')
+    def fPaste(self, 
+        theTimeProfilingResults     =None,
+        theContainerObject          =None, 
+        theObjectsToPaste           =None,
+        theAdditionalParams         =None):
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        
+        someMDDCopyTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs( theContainerObject)        
+        somePloneCopyTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theContainerObject)        
+        someMappingConfigs       =  aModelDDvlPloneTool_Retrieval.getMappingConfigs( theContainerObject)        
+                
+        return ModelDDvlPloneTool_Refactor().fPaste( 
+            theTimeProfilingResults        = theTimeProfilingResults,
+            theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators = ModelDDvlPloneTool_Mutators(),
+            theContainerObject             = theContainerObject, 
+            theObjectsToPaste              = theObjectsToPaste,
+            theMDDCopyTypeConfigs          = someMDDCopyTypeConfigs, 
+            thePloneCopyTypeConfigs        = somePloneCopyTypeConfigs, 
+            theMappingConfigs              = someMappingConfigs, 
+            theAdditionalParams            = theAdditionalParams
+        )
+
+     
     
 
 #####################################################

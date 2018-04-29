@@ -119,7 +119,7 @@ class ModelDDvlPloneTool_Import:
         unosImportErrors  = unImportContext.get( 'import_errors', {})
         
         
-        if not theObject:
+        if ( theObject == None):
             unImportReport.update( { 
                 'success':      False,
                 'status':       cImportStatus_Error_MissingParameter_Element,
@@ -342,7 +342,7 @@ class ModelDDvlPloneTool_Import:
         
         """
 
-        if ( not theObject) or ( not theImportContext) or ( not theTranslationService) or ( theImportErrors == None):
+        if ( theObject == None) or ( not theImportContext) or ( not theTranslationService) or ( theImportErrors == None):
             theImportErrors.append( { 
                 'success':      False,
                 'status':       cImportStatus_Error_Internal_MissingParameters,
@@ -404,7 +404,7 @@ class ModelDDvlPloneTool_Import:
         
         """
 
-        if ( not theObject) or ( not theZipFile) or ( not theXMLDocument) or ( not theXMLElement) or ( not theAllImportTypeConfigs) or ( not theImportContext) or ( not theTranslationService) or ( theImportErrors == None):
+        if ( theObject == None) or ( not theZipFile) or ( not theXMLDocument) or ( not theXMLElement) or ( not theAllImportTypeConfigs) or ( not theImportContext) or ( not theTranslationService) or ( theImportErrors == None):
             theImportErrors.append( { 
                 'success':      False,
                 'status':       cImportStatus_Error_Internal_MissingParameters,
@@ -423,7 +423,7 @@ class ModelDDvlPloneTool_Import:
             return True
 
         # ##############################################################################
-        """Retrieve imported element type fromd node name.
+        """Retrieve imported element type from node name.
         
         """
         anImportedTypeName = theXMLElement.nodeName
@@ -907,7 +907,7 @@ class ModelDDvlPloneTool_Import:
         
         """
 
-        if ( not theContextualObject) or ( not theAllImportTypeConfigs) or ( not theOutputEncoding) or ( theEncodedNamesCache == None) or ( theEncodingErrors == None):
+        if ( theContextualObject == None) or ( not theAllImportTypeConfigs) or ( not theOutputEncoding) or ( theEncodedNamesCache == None) or ( theEncodingErrors == None):
             return False
         
         

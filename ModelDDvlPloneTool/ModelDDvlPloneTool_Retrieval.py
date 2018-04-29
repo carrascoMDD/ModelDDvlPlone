@@ -59,7 +59,7 @@ cKnownWritePermissionTargets = [ 'object', 'add', 'add_collection', 'delete', 'a
 cKnownFeatureFilterKeys      = [ 'types', 'attrs', 'aggregations', 'relations', 'relations_without_element_details', 'candidates_for_relations', 'do_not_recurse_collections']
 cKnownInstanceFilterKeys     = [ 'UIDs', ]
 cKnownRetrievalExtents       = [ 'traversals', 'tree',  'owner', 'cursor', 'relation_cursors', 'dynamic_vocabularies',]
-
+cKnownAdditionalParams       = [ 'Do_Not_Translate', 'Retrieve_Minimal_Related_Results', ]
 
 
 
@@ -77,7 +77,162 @@ class ModelDDvlPloneTool_Retrieval(
     """
     security = ClassSecurityInfo()
 
+    
+    security.declarePrivate('pBuildResultDicts')
+    def pBuildResultDicts(self, theResult, theWhichDicts=None):
+        if not theResult:
+            return self
+        
+        if ( theWhichDicts == None) or ( 'owner_element' in theWhichDicts):
+            anOwnerResult = theResult.get( 'owner_element', None)
+            if anOwnerResult:
+                self.pBuildResultDicts_ElementValues( anOwnerResult)            
+            
+        if ( theWhichDicts == None) or ( 'container_element' in theWhichDicts):
+            aContainerResult = theResult.get( 'container_element', None)
+            if aContainerResult:
+                self.pBuildResultDicts_ElementValues( aContainerResult)
+                
+        if ( theWhichDicts == None) or ( 'cursor' in theWhichDicts):
+            aCursorResult = theResult.get( 'cursor', None)
+            if aCursorResult:
+                aFirstElementResult = aCursorResult.get( 'first_element', None)
+                if aFirstElementResult:
+                    self.pBuildResultDicts_ElementValues( aFirstElementResult)
+                    
+                aLastElementResult = aCursorResult.get( 'last_element', None)
+                if aLastElementResult:
+                    self.pBuildResultDicts_ElementValues( aLastElementResult)
+    
+                aPreviousElementResult = aCursorResult.get( 'previous_element', None)
+                if aPreviousElementResult:
+                    self.pBuildResultDicts_ElementValues( aPreviousElementResult)
+    
+                aNextElementResult = aCursorResult.get( 'next_element', None)
+                if aNextElementResult:
+                    self.pBuildResultDicts_ElementValues( aNextElementResult)
+                    
+        if ( theWhichDicts == None) or ( 'values' in theWhichDicts):
+            self.pBuildResultDicts_ElementValues(     theResult)
+            
+        if ( theWhichDicts == None) or ( 'traversals' in theWhichDicts):
+            self.pBuildResultDicts_ElementTraversals( theResult)    
+            
+        return self
+    
+        
+        
+    
+    security.declarePrivate('pBuildResultDicts_Element')
+    def pBuildResultDicts_Element(self, theResult):
+        if not theResult:
+            return self
+        
+        self.pBuildResultDicts_ElementValues(     theResult)
+        self.pBuildResultDicts_ElementTraversals( theResult)
 
+        return self
+    
+    
+    
+    
+    
+    security.declarePrivate('pBuildResultDicts_ElementValues')
+    def pBuildResultDicts_ElementValues(self, theResult):
+        if not theResult:
+            return self
+
+        someValuesResults    = theResult.get( 'values',     None)
+                 
+        if someValuesResults:
+            someValuesByName = theResult.get( 'values_by_name', None)
+            if someValuesByName == None:
+                someValuesByName = { }
+                theResult[ 'values_by_name'] = someValuesByName
+
+            for aValueResult in someValuesResults:
+                anAttributeName = aValueResult.get( 'attribute_name', '')
+                if anAttributeName:
+                    someValuesByName[ anAttributeName] = aValueResult
+                    
+                    someSubValuesResults = aValueResult.get( 'sub_values', None)
+                    if someSubValuesResults:
+                        someSubValuesByName = aValueResult.get( 'sub_values_by_name', None)
+                        if someSubValuesByName == None:
+                            someSubValuesByName = { }
+                            aValueResult[ 'sub_values_by_name'] = someSubValuesByName
+                    
+                        for aSubValueResult in someSubValuesResults:
+                            aSubValueName = aSubValueResult.get( 'attribute_name', '')
+                            if aSubValueName:
+                                someSubValuesByName[ aSubValueName ] = aSubValueResult
+            
+        return self
+    
+    
+    
+    
+    security.declarePrivate('pBuildResultDicts_ElementTraversals')
+    def pBuildResultDicts_ElementTraversals(self, theResult):
+        if not theResult:
+            return self
+
+        someTraversalResults = theResult.get( 'traversals', None)
+                 
+        if someTraversalResults:
+            someTraversalsByName = theResult.get( 'traversals_by_name', None)
+            if someTraversalsByName == None:
+                someTraversalsByName = { }
+                theResult[ 'traversals_by_name'] = someTraversalsByName
+            
+            for aTraversalResult in someTraversalResults:
+                aTraversalName = aTraversalResult.get( 'traversal_name', '')
+                if aTraversalName:
+                    someTraversalsByName[ aTraversalName] = aTraversalResult
+    
+                someElementsResults = aTraversalResult.get( 'elements', [])
+                if someElementsResults:
+                    
+                    someElementsById = aTraversalResult.get( 'elements_by_id', [])  
+                    if someElementsById == None:
+                        someElementsById = { }
+                        aTraversalResult[ 'elements_by_id'] = someElementsById
+    
+                    someElementsByUID = aTraversalResult.get( 'elements_by_UID', [])  
+                    if someElementsByUID == None:
+                        someElementsByUID = { }
+                        aTraversalResult[ 'elements_by_UID'] = someElementsByUID
+                        
+                    for anElementResult in someElementsResults:
+                        anElementId = anElementResult.get( 'id', '')
+                        if anElementId:
+                            someElementsById[ anElementId] = anElementResult
+                        
+                        anElementUID = anElementResult.get( 'UID', '')
+                        if anElementUID:
+                            someElementsByUID[ anElementUID] = anElementResult
+                
+                        self.pBuildResultDicts_Element( anElementResult)
+                        
+                aTraversalConfig = aTraversalResult.get( 'traversal_config', {})
+                if aTraversalConfig:
+                    aRelationName = aTraversalConfig.get( 'relation_name', '')
+                    if aRelationName:
+                        
+                        aCandidatesTraversalResult = aTraversalResult.get( 'candidates', [])
+                        if aCandidatesTraversalResult:
+                            
+                            someCandidateElementsResults = aCandidatesTraversalResult.get( 'elements', [])
+                            if someCandidateElementsResults:
+                                
+                                for aCandidateElementResult in someCandidateElementsResults:                                        
+                                    self.pBuildResultDicts_Element( aCandidateElementResult)
+                                
+        
+        return self
+    
+        
+    
     
     security.declarePrivate('fNewVoidElementResult')
     def fNewVoidElementResult(self):
@@ -115,6 +270,8 @@ class ModelDDvlPloneTool_Retrieval(
             'add_collection_permission': False,
             'delete_permission':        False,
             'factory_methods':          None,
+            'factory_enablers':         None,
+            'allow_paste':              True,
         }
         return unResult   
     
@@ -294,7 +451,7 @@ class ModelDDvlPloneTool_Retrieval(
             self.pProfilingStart( 'fRetrieveTypeConfig', theTimeProfilingResults)
                       
         try:
-            if not theElement:
+            if ( theElement == None):
                 return None
 
             unTranslationsCaches        = theTranslationsCaches
@@ -302,7 +459,7 @@ class ModelDDvlPloneTool_Retrieval(
                 unTranslationsCaches = self.fCreateTranslationsCaches()
                 
             unCheckedPermissionsCache   = theCheckedPermissionsCache
-            if not unCheckedPermissionsCache:
+            if ( unCheckedPermissionsCache == None):
                 unCheckedPermissionsCache = self.fCreateCheckedPermissionsCache()
                 
                 
@@ -471,7 +628,7 @@ class ModelDDvlPloneTool_Retrieval(
 
         try:
 
-            if not theElement:
+            if ( theElement == None):
                 return None
          
             unResult = theResult
@@ -485,7 +642,8 @@ class ModelDDvlPloneTool_Retrieval(
                 theCheckedPermissionsCache  =theCheckedPermissionsCache, 
                 theResult                   =unResult,
                 theParentTraversalResult    =theParentTraversalResult,
-                theWritePermissions         =theWritePermissions
+                theWritePermissions         =theWritePermissions,
+                theAdditionalParams         =theAdditionalParams,
             )
     
             unCanReturnValues       = unResult[ 'read_permission']
@@ -505,7 +663,8 @@ class ModelDDvlPloneTool_Retrieval(
             unResult[ 'type_config']  =  unTypeConfig 
             
                                 
-            aDummy    = self.fMetaTypeNameTranslationsFromCache_into( theElement.meta_type, theTranslationsCaches, unResult, theElement)
+            # ACV OJO 20090901 It is already done in fRetrieveElementoBasicInfoAndTranslations above
+            # aDummy    = self.fMetaTypeNameTranslationsFromCache_into( theElement.meta_type, theTranslationsCaches, unResult, theElement)
     
             if unTypeConfig.has_key( 'attrs'):
                 someAttributeConfigs =  unTypeConfig.get( 'attrs', [])
@@ -600,7 +759,7 @@ class ModelDDvlPloneTool_Retrieval(
 
         try:
 
-            if not theElement or not theAttributeConfigs or (theResult == None):
+            if ( theElement == None) or not theAttributeConfigs or (theResult == None):
                 return self
     
             if theResult.has_key( 'text_field_names'):
@@ -627,12 +786,20 @@ class ModelDDvlPloneTool_Retrieval(
             else:
                 someResultValues = [ ]
                 theResult[ 'values'] = someResultValues
+                
+            someAlreadyRetrievedAttributeNames = set()
+            for aResultValue in someResultValues:
+                anAttributeName = aResultValue.get( 'attribute_name', '')
+                if anAttributeName:
+                    someAlreadyRetrievedAttributeNames.add( anAttributeName)
+                
     
-            if theResult.has_key( 'values_by_name'):
-                aResultValuesByNameDict = theResult[ 'values_by_name']
-            else:
-                aResultValuesByNameDict = { }
-                theResult[ 'values_by_name'] = aResultValuesByNameDict
+            # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+            #if theResult.has_key( 'values_by_name'):
+                #aResultValuesByNameDict = theResult[ 'values_by_name']
+            #else:
+                #aResultValuesByNameDict = { }
+                #theResult[ 'values_by_name'] = aResultValuesByNameDict
                             
             someFilteredAttributeNames = [ anAttributeConfig[ 'name'] for anAttributeConfig in theAttributeConfigs]
             if theFeatureFilters and theFeatureFilters.has_key( 'attrs'):
@@ -646,7 +813,7 @@ class ModelDDvlPloneTool_Retrieval(
                 someNotExcludedFieldNames =  []
                 for unAttributeConfig in theAttributeConfigs:
                     unAttributeName     = unAttributeConfig[ 'name']
-                    if unAttributeName in someFilteredAttributeNames:
+                    if ( unAttributeName in someFilteredAttributeNames) :
                         unExcludeFromViews  = unAttributeConfig.get( 'exclude_from_views', [])
                         if( not unExcludeFromViews or not ( theViewName in unExcludeFromViews)):               
                             someNotExcludedFieldNames.append( unAttributeName)
@@ -656,7 +823,10 @@ class ModelDDvlPloneTool_Retrieval(
             for unAttributeConfig in theAttributeConfigs:
                 unAttributeName     = unAttributeConfig[ 'name']
                 if unAttributeName in someNotExcludedFieldNames:
-                    if not aResultValuesByNameDict.has_key( unAttributeName) and not ( unAttributeName in someFieldNames):
+                    # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                    # was:
+                    # if not aResultValuesByNameDict.has_key( unAttributeName) and not ( unAttributeName in someFieldNames):
+                    if not ( unAttributeName in someFieldNames) and not ( unAttributeName in someAlreadyRetrievedAttributeNames):
                         unKind          = ''
                         if unAttributeConfig.has_key(  'kind'):
                             unKind = unAttributeConfig[ 'kind']
@@ -664,10 +834,12 @@ class ModelDDvlPloneTool_Retrieval(
                             someFieldsAndConfigsToRetrieve.append( [ unAttributeName, unAttributeConfig, ])
                             someFieldNames.append( unAttributeName)
                                 
-            if (not aResultValuesByNameDict.has_key( 'description')) and not ( 'description' in someFieldNames):
-                someFieldsToRetrieve= [ [ 'description', None, ], ] + someFieldsToRetrieve
-            if (not aResultValuesByNameDict.has_key( 'title'))       and not ( 'title'       in someFieldNames):
-                someFieldsToRetrieve= [ [ 'title', None, ], ]       + someFieldsToRetrieve
+            # ACV 20090901 Code below was obsolete, but never executed because the dict had description and title
+            # now Dict population is postponed until completion of retrieval by services layer
+            #if (not aResultValuesByNameDict.has_key( 'description')) and not ( 'description' in someFieldNames):
+                #someFieldsToRetrieve= [ [ 'description', None, ], ] + someFieldsToRetrieve
+            #if (not aResultValuesByNameDict.has_key( 'title'))       and not ( 'title'       in someFieldNames):
+                #someFieldsToRetrieve= [ [ 'title', None, ], ]       + someFieldsToRetrieve
                             
             someValuesResults  = self.fRetrieveValoresYTraduccionesAtributos( 
                 theTimeProfilingResults         =theTimeProfilingResults,
@@ -695,7 +867,11 @@ class ModelDDvlPloneTool_Retrieval(
                     someResultFieldNames.append( unAttributeName)
                     someResultValues.append( unValueResult)    
     
-                    aResultValuesByNameDict[ unAttributeName] = unValueResult 
+                    # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+                    # the dictionaries will be compiled at the completion of the retrieval
+                    # in method pBuildDictResults_Element
+                    #
+                    # aResultValuesByNameDict[ unAttributeName] = unValueResult 
                                      
             return self
         
@@ -739,7 +915,7 @@ class ModelDDvlPloneTool_Retrieval(
 
         try:
 
-            if not theElement or not theTraversalConfigs or (theResult == None):
+            if ( theElement == None) or not theTraversalConfigs or (theResult == None):
                 return self
             
             if theResult.has_key( 'traversals'):
@@ -830,7 +1006,12 @@ class ModelDDvlPloneTool_Retrieval(
             for unTraversalResult in someTraversalResults:
                 unTraversalName = unTraversalResult.get('traversal_name', '')
                 if unTraversalName:
-                    aResultTraversalsByNameDict[ unTraversalName] = unTraversalResult  
+                    # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+                    # the dictionaries will be compiled at the completion of the retrieval
+                    # in method pBuildDictResults_Element
+                    #
+                    # aResultTraversalsByNameDict[ unTraversalName] = unTraversalResult  
+                    
                     if not ( unTraversalName in someResultTraversalNames):
                         someResultTraversalNames.append( unTraversalName)
                    
@@ -881,6 +1062,7 @@ class ModelDDvlPloneTool_Retrieval(
             if not theTraversalConfig:
                 return {}
             
+            
             aFieldName         = theTraversalConfig.get( 'aggregation_name', '') or ''
             if not aFieldName:
                 return {}
@@ -921,7 +1103,14 @@ class ModelDDvlPloneTool_Retrieval(
                         unTraversalResult[ 'write_permission'] = unWritePermission     
                 
                         
-            aDummy = self.fAttributeTranslationsFromCache( theElement, aFieldName, theTranslationsCaches, unTraversalResult, 'traversal_translations')                                         
+            aDummy = self.fAttributeTranslationsFromCache( 
+                theElement            = theElement,
+                theFieldName          = aFieldName, 
+                theTranslationsCaches = theTranslationsCaches,
+                theResultDict         = unTraversalResult, 
+                theResultKey          = 'traversal_translations',
+                theAdditionalParams   = theAdditionalParams,
+            )                                         
     
             someSubitems   = theTraversalConfig.get( 'subitems', []) or []
             if not someSubitems:
@@ -949,14 +1138,24 @@ class ModelDDvlPloneTool_Retrieval(
             if unMultiplicityHigher > 0:
                 unTraversalResult[ 'multiplicity_higher'] = unMultiplicityHigher                                           
 
-            someColumnNames = theTraversalConfig.get( 'columns', []) or []    
-            unTraversalResult[ 'column_names'] = someColumnNames
-                       
-            if theFeatureFilters:
-                unosFeatureFilters = theFeatureFilters.copy()
-            else:
-                unosFeatureFilters = {}
-            unosFeatureFilters[ 'attrs'] = someColumnNames
+            # ACV 20090905 If no columns specified in traversal config, then do not restrict attributes to retrieve
+            someColumnNames = theTraversalConfig.get( 'columns', None)     
+            unosFeatureFilters = {}
+            if not someColumnNames:
+                unTraversalResult[ 'column_names'] = []
+            else:           
+                unTraversalResult[ 'column_names'] = someColumnNames
+                if theFeatureFilters:
+                    unosFeatureFilters = theFeatureFilters.copy()
+                else:
+                    unosFeatureFilters = {}
+                unosAttrsFilters = unosFeatureFilters.get( 'attrs', None)
+                if not unosAttrsFilters:
+                    unosFeatureFilters[ 'attrs'] = someColumnNames[:]
+                else:
+                    for unColumnName in someColumnNames:
+                        if not ( unColumnName in unosAttrsFilters):
+                            unosAttrsFilters.append( unColumnName)
      
             someElementFactoryNames = []
             
@@ -999,12 +1198,41 @@ class ModelDDvlPloneTool_Retrieval(
                 someAcceptedPortalTypes = somePortalTypes[:]
                 if unosComputedTypes:
                     someAcceptedPortalTypes = [ unTypeName for unTypeName in unosComputedTypes if unTypeName in somePortalTypes]
+                 
+                someEnabledPortalTypes = [ ]
+                
+                unosFactoryEnablers = theTraversedObjectResult.get( 'factory_enablers', {})
+                if not unosFactoryEnablers:
+                    someEnabledPortalTypes = someAcceptedPortalTypes[:]
                     
-                for unPortalTypeName in someAcceptedPortalTypes:
+                else:
+                    for unPortalTypeName in someAcceptedPortalTypes:
+                        unTypeIsEnabled = True
+                        
+                        unFactoryEnablerMethodName = unosFactoryEnablers.get( unPortalTypeName, '')
+                        if unFactoryEnablerMethodName:
+                            unFactoryEnablerMethod = None
+                            try:
+                                unFactoryEnablerMethod = theElement[ unFactoryEnablerMethodName]
+                            except:
+                                None
+                            if unFactoryEnablerMethod:
+                                unTypeIsEnabled = False
+                                try:
+                                    unTypeIsEnabled = unFactoryEnablerMethod( unPortalTypeName)
+                                except:
+                                    None
+                                    
+                        if unTypeIsEnabled:
+                            someEnabledPortalTypes.append( unPortalTypeName)    
+                        
+                    
+                    
+                for unPortalTypeName in someEnabledPortalTypes:
                     if not ( unPortalTypeName in someElementFactoryNames): 
                         someElementFactoryNames.append( unPortalTypeName)
                   
-                for unPortalTypeName in someAcceptedPortalTypes:
+                for unPortalTypeName in someEnabledPortalTypes:
                     if not unTypeName in unosTodosTiposAceptados:
                         unosTodosTiposAceptados.append( unPortalTypeName)
                             
@@ -1035,23 +1263,43 @@ class ModelDDvlPloneTool_Retrieval(
                                 )
                                 if unElementResult and unElementResult[ 'read_permission']:
                                     unasElementResults.append( unElementResult)
-
-                                    unTraversalResult[ 'elements_by_UID'][ unElementResult[ 'UID']] = unElementResult
-                                    unTraversalResult[ 'elements_by_id' ][ unElementResult[ 'id' ]] = unElementResult
+                                    # ACV 20090901 Removed to avoid producing huge traversal result dumps
+                                    # because each element result is included 3 times (in the ordered collection, and the two dicts)
+                                    # which is compounded when traversing a tree
+                                    # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+                                    # the dictionaries will be compiled at the completion of the retrieval
+                                    # in method pBuildDictResults_Element
+                                    #
+                                    #unTraversalResult[ 'elements_by_UID'][ unElementResult[ 'UID']] = unElementResult
+                                    #unTraversalResult[ 'elements_by_id' ][ unElementResult[ 'id' ]] = unElementResult
                                     
                                     if unContainsCollections:
                                         someAggegationSubTraversals = [ unTraversalRes for unTraversalRes in unElementResult[ 'traversals'] if unTraversalRes[ 'traversal_kind'] == 'aggregation' and unTraversalRes[ 'num_elements'] > 0]
                                         if not  unHasGrandChildren:
                                             unHasGrandChildren = len( someAggegationSubTraversals) > 0 
                                         for unTraversalRes in someAggegationSubTraversals:
-                                            unTranslatedSubAggregationName = unTraversalRes[ 'traversal_translations'][ 'translated_label']
-                                            if not ( unTranslatedSubAggregationName in unasTodosSubAggregationsTranslations):
+                                            unTranslatedSubAggregationName = unTraversalRes.get( 'traversal_translations', {}).get( 'translated_label', '')
+                                            if unTranslatedSubAggregationName and not ( unTranslatedSubAggregationName in unasTodosSubAggregationsTranslations):
                                                 unasTodosSubAggregationsTranslations.append( unTranslatedSubAggregationName)
-                    self.pFactoryNamesAndTranslations_into( theElement, someElementFactoryNames, theTranslationsCaches, unTraversalResult)   
+                    
+                    self.pFactoryNamesAndTranslations_into( 
+                        theContextElement      = theElement, 
+                        theTypeNames           = someElementFactoryNames, 
+                        theTranslationsCaches  = theTranslationsCaches, 
+                        theResult              = unTraversalResult,
+                        theAdditionalParams    = theAdditionalParams,
+                    )   
                     if theTraversalConfig.has_key( 'factory_views') and theTraversalConfig[ 'factory_views']:
                         unTraversalResult[ 'factory_views'] = theTraversalConfig[ 'factory_views'].copy()
     
-            self.pCompleteColumnTranslations( theElement, unTraversalResult, unosTodosTiposAceptados, theTranslationsCaches, theTimeProfilingResults)
+            self.pCompleteColumnTranslations( 
+                theTimeProfilingResults= theTimeProfilingResults,
+                theContextualElement   = theElement, 
+                theTraversalResult     = unTraversalResult, 
+                theTypeNames           = unosTodosTiposAceptados, 
+                theTranslationsCaches  = theTranslationsCaches,
+                theAdditionalParams    = theAdditionalParams,
+            )
             
             unTraversalResult[ 'num_elements'] = len( unasElementResults)
             
@@ -1100,7 +1348,7 @@ class ModelDDvlPloneTool_Retrieval(
         theWritePermissions         =None, 
         theFeatureFilters           =None, 
         theInstanceFilters          =None,
-        theAdditionalParams         =False):
+        theAdditionalParams         =None):
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveTraversalConfig_Relation', theTimeProfilingResults)
@@ -1109,6 +1357,8 @@ class ModelDDvlPloneTool_Retrieval(
 
             if not theTraversalConfig:
                 return {}
+            
+            unRetrieveMinimalResult = theAdditionalParams and ( theAdditionalParams.get( 'Retrieve_Minimal_Related_Results', False) == True)
             
             aFieldName         = theTraversalConfig.get( 'relation_name', '') or ''
             if not aFieldName:
@@ -1204,7 +1454,14 @@ class ModelDDvlPloneTool_Retrieval(
             unosTiposElementos = self.getTiposCandidatosReferenceFieldNamed( theElement, aFieldName)
             
                         
-            aDummy = self.fAttributeTranslationsFromCache( theElement, aFieldName, theTranslationsCaches, unTraversalResult, 'traversal_translations')                                         
+            aDummy = self.fAttributeTranslationsFromCache( 
+                theElement            = theElement,
+                theFieldName          = aFieldName, 
+                theTranslationsCaches = theTranslationsCaches,
+                theResultDict         = unTraversalResult, 
+                theResultKey          = 'traversal_translations',
+                theAdditionalParams   = theAdditionalParams,
+            )                                         
     
             someRelatedItems   = theTraversalConfig.get( 'related_types', []) or []
             if not someRelatedItems:
@@ -1283,32 +1540,47 @@ class ModelDDvlPloneTool_Retrieval(
                                     aNumElements = len( someElements)
                                     for unIndexElemento in range( aNumElements):
                                         unElemento = someElements[ unIndexElemento]
-                                        unElementResult = self.fRetrieveTypeConfig_recursive( 
-                                            theTimeProfilingResults     =theTimeProfilingResults,
-                                            theResult                   =None, 
-                                            theElement                  =unElemento, 
-                                            theParent                   =theElement,
-                                            theParentTraversalName      =aFieldName,
-                                            theCanReturnValues          =unCanReturnValues, 
-                                            theViewName                 =theViewName,
-                                            theRetrievalExtents         =unRetrievalExtents, 
-                                            theTypeConfig               =unRelatedItemsTypeConfig, 
-                                            theAllTypeConfigs           =theAllTypeConfigs, 
-                                            theParentTraversalResult    =unTraversalResult, 
-                                            theTranslationsCaches       =theTranslationsCaches, 
-                                            theCheckedPermissionsCache  =theCheckedPermissionsCache, 
-                                            theWritePermissions         =theWritePermissions, 
-                                            theFeatureFilters           =unosFeatureFilters, 
-                                            theInstanceFilters          =theInstanceFilters,
-                                            theAdditionalParams         =theAdditionalParams
-                                        )
+                                        if unRetrieveMinimalResult:
+                                            unElementResult = self.fNewResultForElement( unElemento)
+                                            
+                                            if unCanReturnValues:
+                                                unReadPermission = self.fCheckTypeReadPermission( unElemento, [ permissions.View ], theCheckedPermissionsCache)
+                                                unElementResult[ 'read_permission'] = unReadPermission
+
+                                            
+                                        else:
+                                            unElementResult = self.fRetrieveTypeConfig_recursive( 
+                                                theTimeProfilingResults     =theTimeProfilingResults,
+                                                theResult                   =None, 
+                                                theElement                  =unElemento, 
+                                                theParent                   =theElement,
+                                                theParentTraversalName      =aFieldName,
+                                                theCanReturnValues          =unCanReturnValues, 
+                                                theViewName                 =theViewName,
+                                                theRetrievalExtents         =unRetrievalExtents, 
+                                                theTypeConfig               =unRelatedItemsTypeConfig, 
+                                                theAllTypeConfigs           =theAllTypeConfigs, 
+                                                theParentTraversalResult    =unTraversalResult, 
+                                                theTranslationsCaches       =theTranslationsCaches, 
+                                                theCheckedPermissionsCache  =theCheckedPermissionsCache, 
+                                                theWritePermissions         =theWritePermissions, 
+                                                theFeatureFilters           =unosFeatureFilters, 
+                                                theInstanceFilters          =theInstanceFilters,
+                                                theAdditionalParams         =theAdditionalParams
+                                            )
                                         
                                         
                                         if unElementResult and unElementResult[ 'read_permission']:
                                             unosElementResults.append( unElementResult)
-
-                                            unTraversalResult[ 'elements_by_UID'][ unElementResult[ 'UID']] = unElementResult
-                                            unTraversalResult[ 'elements_by_id' ][ unElementResult[ 'id' ]] = unElementResult
+                                            # ACV 20090901 Removed to avoid producing huge traversal result dumps
+                                            # because each element result is included 3 times (in the ordered collection, and the two dicts)
+                                            # which is compounded when traversing a tree
+                                            # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+                                            # the dictionaries will be compiled at the completion of the retrieval
+                                            # in method pBuildDictResults_Element
+                                            #
+                                            #unTraversalResult[ 'elements_by_UID'][ unElementResult[ 'UID']] = unElementResult
+                                            #unTraversalResult[ 'elements_by_id' ][ unElementResult[ 'id' ]] = unElementResult
                                         
                                     if theRetrievalExtents and ( 'relation_cursors' in theRetrievalExtents):
                                         unNumResults = len( unosElementResults) 
@@ -1348,7 +1620,14 @@ class ModelDDvlPloneTool_Retrieval(
                         if not unTypeName in unosTodosTiposAceptados:
                             unosTodosTiposAceptados.append( unTypeName)
     
-            self.pCompleteColumnTranslations( theElement, unTraversalResult, unosTodosTiposAceptados, theTranslationsCaches, theTimeProfilingResults)
+            self.pCompleteColumnTranslations( 
+                theTimeProfilingResults= theTimeProfilingResults,
+                theContextualElement   = theElement, 
+                theTraversalResult     = unTraversalResult, 
+                theTypeNames           = unosTodosTiposAceptados, 
+                theTranslationsCaches  = theTranslationsCaches,
+                theAdditionalParams    = theAdditionalParams,
+            )
                                     
                                     
             if theFeatureFilters and ( aFieldName in theFeatureFilters.get( 'candidates_for_relations', [])):
@@ -1402,7 +1681,7 @@ class ModelDDvlPloneTool_Retrieval(
 
         try:
 
-            if not theElement:
+            if ( theElement == None):
                 return None
             
             someElementValues = []
@@ -1433,7 +1712,14 @@ class ModelDDvlPloneTool_Retrieval(
                         if unWritePermission:
                             unValueResult[ 'write_permission'] = unWritePermission   
     
-                aDummy = self.fAttributeTranslationsFromCache( theElement, unAttributeName, theTranslationsCaches, unValueResult, 'attribute_translations')                                         
+                aDummy = self.fAttributeTranslationsFromCache( 
+                    theElement            = theElement,
+                    theFieldName          = unAttributeName, 
+                    theTranslationsCaches = theTranslationsCaches,
+                    theResultDict         = unValueResult, 
+                    theResultKey          = 'attribute_translations',
+                    theAdditionalParams   = theAdditionalParams,
+                )                                         
                 
                 unElementSchema = theElement.schema
                 if unElementSchema.has_key( unAttributeName):
@@ -1469,13 +1755,15 @@ class ModelDDvlPloneTool_Retrieval(
                         if unElementFieldType == 'selection':
                                                                                     
                             aDummy = self.fVocabularyOptionsAndValueTranslationFromCache_into(  
-                                theElement, 
-                                unCanReturnValues, 
-                                unRawValue,
-                                unAttributeName, 
-                                theRetrievalExtents,
-                                theTranslationsCaches, 
-                                unValueResult)     
+                                theElement             =theElement, 
+                                theCanReturnValues     =unCanReturnValues, 
+                                theValue               =unRawValue, 
+                                theAttributeName       =unAttributeName, 
+                                theRetrievalExtents    =theRetrievalExtents,
+                                theTranslationsCaches  =theTranslationsCaches, 
+                                theResultDict          =unValueResult,
+                                theAdditionalParams    =theAdditionalParams,
+                            )
                                    
                         elif unElementFieldType in[  'string', 'text']:
                             
@@ -1490,7 +1778,8 @@ class ModelDDvlPloneTool_Retrieval(
                                    unRawValue,
                                    unAttributeName, 
                                    theTranslationsCaches, 
-                                   unValueResult)
+                                   unValueResult,
+                                   theAdditionalParams)
                             
                         elif unElementFieldType == 'integer':
                             unValueResult[ 'uvalue']            = self.fAsUnicode( str( unRawValue), theElement)
@@ -1540,7 +1829,7 @@ class ModelDDvlPloneTool_Retrieval(
 
         try:
 
-            if not theElement:
+            if ( theElement == None):
                 return None
             
             unResultCursor = self.fNewVoidCursorResult()
@@ -1765,11 +2054,27 @@ class ModelDDvlPloneTool_Retrieval(
         if unFactoryMethods:
             unResult[ 'factory_methods'] = unFactoryMethods
  
+        unFactoryEnablers = ''
+        try:
+            unFactoryEnablers = theElement.factory_enablers   
+        except:
+            None            
+        if unFactoryEnablers:
+            unResult[ 'factory_enablers'] = unFactoryEnablers
+
+        unAllowPaste = True
+        try:
+            unAllowPaste = theElement.fAllowPaste()
+        except:
+            None            
+        if unAllowPaste:
+            unResult[ 'allow_paste'] = True
+
         return unResult   
 
 
                 
-                
+
                 
 
 
@@ -1791,14 +2096,20 @@ class ModelDDvlPloneTool_Retrieval(
 
         try:
         
-            if not theElement:
+            if ( theElement == None):
                 return None
             
             unResult = theResult
             if not unResult:    
                 unResult = self.fNewResultForElement( theElement)
     
-            aDummy = self.fMetaTypeNameTranslationsFromCache_into( theElement.meta_type, theTranslationsCaches, unResult, theElement)
+            aDummy = self.fMetaTypeNameTranslationsFromCache_into( 
+                theMetaTypeName        =theElement.meta_type, 
+                theTranslationsCaches  =theTranslationsCaches, 
+                theResultDict          =unResult, 
+                theContextualElement   =theElement,
+                theAdditionalParams    =theAdditionalParams,
+            )
                                     
             unReadPermission = self.fCheckTypeReadPermission( theElement, [ permissions.View ], theCheckedPermissionsCache)
             unResult[ 'read_permission'] = unReadPermission
@@ -1870,7 +2181,13 @@ class ModelDDvlPloneTool_Retrieval(
         if not unResult:
             return None
     
-        aDummy    = self.fMetaTypeNameTranslationsFromCache_into( theElement.meta_type, theTranslationsCaches, unResult, theElement)
+        aDummy    = self.fMetaTypeNameTranslationsFromCache_into( 
+            theMetaTypeName        =theElement.meta_type, 
+            theTranslationsCaches  =theTranslationsCaches, 
+            theResultDict          =unResult, 
+            theContextualElement   =theElement,
+            theAdditionalParams    =None,
+        )
     
         return unResult
     
@@ -1886,14 +2203,27 @@ class ModelDDvlPloneTool_Retrieval(
     
     
     security.declarePrivate( 'pFactoryNamesAndTranslations_into')
-    def pFactoryNamesAndTranslations_into(self, theContextElement, theTypeNames, theTranslationsCaches, theResult):
+    def pFactoryNamesAndTranslations_into(self, 
+        theContextElement      = None, 
+        theTypeNames           = None, 
+        theTranslationsCaches  = None, 
+        theResult              = None,
+        theAdditionalParams    = None):
+        
+        
         if not theResult:
             return self
                 
         someFactoryNamesAndTranslations = [ ]                                            
         for unPortalTypeName in theTypeNames:
             
-            unPortalTypeTranslations = self.fMetaTypeNameTranslationsFromCache_into( unPortalTypeName, theTranslationsCaches, None, theContextElement )
+            unPortalTypeTranslations = self.fMetaTypeNameTranslationsFromCache_into( 
+                theMetaTypeName        =unPortalTypeName, 
+                theTranslationsCaches  =theTranslationsCaches, 
+                theResultDict          =None, 
+                theContextualElement   =theContextElement,
+                theAdditionalParams    =theAdditionalParams,
+            )
             unContentIcon    = ''
             unArchetypeName  = ''
             if unPortalTypeTranslations:
@@ -1949,7 +2279,7 @@ class ModelDDvlPloneTool_Retrieval(
 # 
     security.declarePrivate( 'fElementoPorUID')
     def fElementoPorUID( self, theUID, theContextualElement):
-        if not theUID or not theContextualElement:
+        if not theUID or ( theContextualElement == None):
             return None
             
         unPortalCatalog = getToolByName( theContextualElement, 'uid_catalog')

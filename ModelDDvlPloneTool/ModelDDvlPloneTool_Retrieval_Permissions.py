@@ -61,7 +61,7 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
 
     security.declarePrivate( 'fCheckElementPermission')
     def fCheckElementPermission(self, theObject, thePermissionsToCheck, theCheckedPermissionsCache ):
-        if not theObject:
+        if ( theObject == None):
             return False
         
         if not thePermissionsToCheck:
@@ -105,7 +105,7 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
     
     security.declarePrivate( 'fCheckTypeReadPermission')
     def fCheckTypeReadPermission(self, theObject,  thePermissionsToCheck=[], theCheckedPermissionsCache=[]):
-        if not theObject:
+        if ( theObject == None):
             return False
 
         unasPermissionsToCheck = thePermissionsToCheck[:]
@@ -124,7 +124,7 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
     
     security.declarePrivate( 'fCheckTypeWritePermission')
     def fCheckTypeWritePermission(self, theObject, thePermissionsToCheck=[], theCheckedPermissionsCache=[]):
-        if not theObject:
+        if ( theObject == None):
             return False
 
         unasPermissionsToCheck = thePermissionsToCheck[:]
@@ -145,7 +145,7 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
         
     security.declarePrivate( 'fCheckFieldReadPermission')
     def fCheckFieldReadPermission(self, theObject, theFieldName, thePermissionsToCheck=[], theCheckedPermissionsCache=[]):
-        if not theObject or not theFieldName:
+        if ( theObject == None) or not theFieldName:
             return False
 
         unasPermissionsToCheck = thePermissionsToCheck[:]
@@ -173,7 +173,7 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
     
     security.declarePrivate( 'fCheckFieldWritePermission')
     def fCheckFieldWritePermission(self, theObject, theFieldName, thePermissionsToCheck=[], theCheckedPermissionsCache=[]):
-        if not theObject or not theFieldName:
+        if ( theObject == None) or not theFieldName:
             return False
         
         unasPermissionsToCheck = thePermissionsToCheck[:]

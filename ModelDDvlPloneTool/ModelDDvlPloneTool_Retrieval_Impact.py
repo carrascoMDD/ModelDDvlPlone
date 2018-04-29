@@ -59,7 +59,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
 
         try:
 
-            if not theElement:
+            if ( theElement == None):
                 return None
                               
             unRootResult = self.fRetrieveTypeConfig( 
@@ -163,6 +163,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
     
             someObjectValues = unElement.objectValues()
             someObjectValuesPendingToReport = someObjectValues[:]
+            someObjectValuesPendingToReport = [ anObject for anObject in someObjectValuesPendingToReport if not (  anObject.__class__.__name__ == 'ZCatalog')]
             
             someTraversalResults = theRootResult[ 'traversals']
             for unTraversalResult in someTraversalResults:
@@ -267,7 +268,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                 
         try:
 
-            if not theContainerElement or not theElements or not theContainerReport:
+            if ( theContainerElement == None) or not theElements or not theContainerReport:
                 return self
                 
             someArchetypeClassNames = []
@@ -391,7 +392,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                     aReport = {
                         'here':                     aResult,
                         'included':                 [],
-                        'parent_traversal_name':    aSubItemsParameter[ 'traversal_name'],
+                        'parent_traversal_name':    '',
                         'plone':                    []
                     }                
                     theContainerReport[ 'plone'].append( aReport)

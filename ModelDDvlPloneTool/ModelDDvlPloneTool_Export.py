@@ -117,7 +117,7 @@ class ModelDDvlPloneTool_Export:
         unExportReport  = unExportContext.get( 'report', {})
         
         
-        if not theObject:
+        if ( theObject == None):
             unExportReport.update( { 
                 'success':      False,
                 'status':       cExportStatus_Error_MissingParameter_Element,
@@ -284,7 +284,7 @@ class ModelDDvlPloneTool_Export:
         
         """
 
-        if ( not theObject) or ( not theExportContext) or ( not theTranslationService) or ( theExportErrors == None):
+        if ( theObject == None) or ( not theExportContext) or ( not theTranslationService) or ( theExportErrors == None):
             theExportErrors.append( { 
                 'success':      False,
                 'status':       cExportStatus_Error_Internal_MissingParameters,
@@ -347,7 +347,7 @@ class ModelDDvlPloneTool_Export:
         
         """
 
-        if ( not theObject) or ( not theAllExportTypeConfigs) or ( not theExportContext) or ( not theTranslationService) or ( theEncodedNamesCache == None) or ( theExportErrors == None):
+        if ( theObject == None) or ( not theAllExportTypeConfigs) or ( not theExportContext) or ( not theTranslationService) or ( theEncodedNamesCache == None) or ( theExportErrors == None):
             theExportErrors.append( { 
                 'success':      False,
                 'status':       cExportStatus_Error_Internal_MissingParameters,
@@ -877,7 +877,7 @@ class ModelDDvlPloneTool_Export:
         
         """
 
-        if ( not theContextualObject) or ( not theAllExportTypeConfigs) or ( not theOutputEncoding) or ( theEncodedNamesCache == None) or ( theEncodingErrors == None):
+        if ( theContextualObject == None) or ( not theAllExportTypeConfigs) or ( not theOutputEncoding) or ( theEncodedNamesCache == None) or ( theEncodingErrors == None):
             return False
         
         

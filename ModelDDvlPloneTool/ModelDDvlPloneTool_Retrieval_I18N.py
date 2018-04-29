@@ -91,7 +91,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         if not theString:
             return ''
 
-        if not theContextualElement:
+        if ( theContextualElement == None) :
             return theDefault
 
         aI18NDomain = self.fTranslationI18NDomain( theI18NDomain, theContextualElement)
@@ -150,7 +150,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
 
         aDefaultTranslation = str( theMonthNumber)
 
-        if not theContextualElement:
+        if ( theContextualElement == None) :
             return aDefaultTranslation
         
         aTranslationService = None
@@ -184,7 +184,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         aDefaultTranslation = str( theDayOfWeek)
         
 
-        if not theContextualElement:
+        if ( theContextualElement == None) :
             return aDefaultTranslation
         
         aTranslationService = None
@@ -220,7 +220,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     def fMonthsVocabularyTranslations( self,  theContextualElement):
         
         
-        if not theContextualElement:
+        if ( theContextualElement == None) :
             return []
 
         aTranslationService = None
@@ -248,7 +248,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     security.declarePrivate( 'fTranslateAllDaysOfWeek')
     def fDaysOfWeekVocabularyTranslations( self,  theContextualElement):
                 
-        if not theContextualElement:
+        if ( theContextualElement == None) :
             return []
 
         aTranslationService = None
@@ -331,7 +331,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     security.declarePrivate( 'getTranslationsFromMetaTypeName')
     def getTranslationsFromMetaTypeName(self, theMetaTypeName, theContextualElement):
         
-        if not theMetaTypeName or not theContextualElement:
+        if not theMetaTypeName or ( theContextualElement == None):
                 return []
         
         unArchetypeClass = theContextualElement.fArchetypeClassByName( theMetaTypeName)
@@ -420,7 +420,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
 
     security.declarePrivate( 'getAttributeTranslationResultFromDomainAndMsgids')
     def getAttributeTranslationResultFromDomainAndMsgids(self, theI18NDomain, theLabelMsgId, theLabelDefault, theDescriptionMsgId, theDescriptionDefault, theContextualObject):
-        if not theI18NDomain or not theLabelMsgId or not theContextualObject:
+        if not theI18NDomain or not theLabelMsgId or ( theContextualObject == None):
             return None
         
         aLabelDefault = theLabelDefault
@@ -455,7 +455,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     
     security.declarePrivate( 'getPloneTypeTranslationResultFromMsgIdMetatypeAndArchetype')
     def getPloneTypeTranslationResultFromMsgIdMetatypeAndArchetype(self, theMsgId, theMetaType, theArchetypeName, theContextualObject):
-        if not theMsgId or not theMetaType or not theContextualObject:
+        if not theMsgId or not theMetaType or ( theContextualObject == None):
             return None
         
         unTypeTranslation = self.fNewVoidObjectTranslationResult()
@@ -555,7 +555,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     security.declarePrivate( 'getTranslationsForObjectAttribute')
     def getTranslationsForObjectAttribute(self, theObject, theAttributeName):
        
-        if not theObject or not theAttributeName:
+        if ( theObject == None) or not theAttributeName:
             return []
             
         unAttributeTranslationResult = {
@@ -647,7 +647,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     security.declarePrivate( 'getTranslationsForVocabulary')
     def getTranslationsForVocabulary(self, theElement, theAttributeName): 
 
-        if not theElement:
+        if ( theElement == None):
             return None
         
         unElementSchema = theElement.schema
@@ -701,7 +701,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         theTranslationsCaches, 
         theResultDict):
         
-        if not theElement:
+        if ( theElement == None):
             return None
             
         unElementSchema = theElement.schema
@@ -795,17 +795,19 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     
     security.declarePrivate( 'fVocabularyOptionsAndValueTranslationFromCache_into')
     def fVocabularyOptionsAndValueTranslationFromCache_into(self, 
-        theElement, 
-        theCanReturnValues, 
-        theValue, 
-        theAttributeName, 
-        theRetrievalExtents,
-        theTranslationsCaches, 
-        theResultDict):
+        theElement             =None, 
+        theCanReturnValues     =None, 
+        theValue               =None, 
+        theAttributeName       =None, 
+        theRetrievalExtents    =None,
+        theTranslationsCaches  =None, 
+        theResultDict          =None,
+        theAdditionalParams    =None):
+
         
         unTranslatedValue = ''
 
-        if not theElement:
+        if ( theElement == None):
             return unTranslatedValue
 
         unElementSchema = theElement.schema        
@@ -839,11 +841,13 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         
         if not unVocabularyMethodNameOrOptions.__class__.__name__ in [ 'str', 'unicode',]:
             someVocabularyOptions = unVocabularyMethodNameOrOptions   
-            aVocabularyTranslations = self.fVocabularyTranslationsFromCache_into( 
-                theElement, 
-                theAttributeName, 
-                theTranslationsCaches, 
-                theResultDict)
+            if not( theAdditionalParams and ( theAdditionalParams.get( 'Do_Not_Translate', False) == True)):
+
+                aVocabularyTranslations = self.fVocabularyTranslationsFromCache_into( 
+                    theElement, 
+                    theAttributeName, 
+                    theTranslationsCaches, 
+                    theResultDict)
         else:
             if not ( 'dynamic_vocabularies' in theRetrievalExtents):
                 return unTranslatedValue
@@ -858,16 +862,24 @@ class ModelDDvlPloneTool_Retrieval_I18N:
                         return unTranslatedValue
                                         
                     someVocabularyOptions = aVocabularyDisplayList.keys()
-                    for unOptionIndex in range( len( someVocabularyOptions)):
-
-                        unaOption = someVocabularyOptions[ unOptionIndex]
-
-                        unaTranslatedOption = aVocabularyDisplayList.getValue( unaOption) or unaOption
-                        unaOptionMsgId      = aVocabularyDisplayList.getMsgId( unaOption)
-                        if unaOptionMsgId:
-                            unaTranslatedOption = self.fTranslateI18N( 'gvSIGtraducciones', unaOptionMsgId, unaTranslatedOption, theElement)
-
-                        aVocabularyTranslations.append( { 'option': unaOption, 'translation': unaTranslatedOption} )
+                    if not( theAdditionalParams and ( theAdditionalParams.get( 'Do_Not_Translate', False) == True)):
+                        for unOptionIndex in range( len( someVocabularyOptions)):
+    
+                            unaOption = someVocabularyOptions[ unOptionIndex]
+    
+                            unaTranslatedOption = aVocabularyDisplayList.getValue( unaOption) or unaOption
+                            unaOptionMsgId      = aVocabularyDisplayList.getMsgId( unaOption)
+                            if unaOptionMsgId:
+                                # ACV 20090907 Was hacked for gvSIGtraducciones, 
+                                # at the time, the only user of the dynamic vocabularies feature
+                                unI18NModuleName = 'gvSIGtraducciones'
+                                try:
+                                    unI18NModuleName = theElement.getNombreProyecto()
+                                except:
+                                    None
+                                unaTranslatedOption = self.fTranslateI18N( unI18NModuleName, unaOptionMsgId, unaTranslatedOption, theElement)
+    
+                            aVocabularyTranslations.append( { 'option': unaOption, 'translation': unaTranslatedOption} )
                         
             except:               
                 unaExceptionInfo = sys.exc_info()
@@ -907,18 +919,41 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         theValue, 
         theAttributeName, 
         theTranslationsCaches, 
-        theResultDict):
+        theResultDict,
+        theAdditionalParams):
 
+        aTrueTranslation = str( False)
+        aFalseTranslation = str( False)
+        
+        someBooleanOptions = [ { 'option': False, 'translation': aFalseTranslation} , { 'option': True, 'translation': aTrueTranslation} , ]
+        
+        if theAdditionalParams and ( theAdditionalParams.get( 'Do_Not_Translate', False) == True):
+
+            if not theCanReturnValues:
+                return someBooleanOptions
+             
+            unTranslatedValue = ''
+            if theValue == True:
+                unTranslatedValue = aTrueTranslation
+            else:
+                unTranslatedValue = aFalseTranslation
+    
+            if theResultDict:
+                theResultDict[ 'translated_value'] = unTranslatedValue
+                theResultDict[ 'uvalue']           = unTranslatedValue            
+                return someBooleanOptions
+            
+        
         unElementSchema = theElement.schema        
         if not( unElementSchema.has_key( theAttributeName)):
-            return ''
+            return []
         
         unElementField  = unElementSchema[ theAttributeName]
         if not unElementField:
-            return ''
+            return []
         
         if not ( unElementField.type == 'boolean'):
-            return ''
+            return []
         
         aTrueTranslation = theTranslationsCaches.get( 'true_translation', '')
         if not aTrueTranslation:                
@@ -989,8 +1024,25 @@ class ModelDDvlPloneTool_Retrieval_I18N:
 
     
     security.declarePrivate( 'fMetaTypeNameTranslationsFromCache_into')
-    def fMetaTypeNameTranslationsFromCache_into(self, theMetaTypeName, theTranslationsCaches, theResultDict, theContextualElement):
-        if not theMetaTypeName or not theContextualElement:
+    def fMetaTypeNameTranslationsFromCache_into(self, 
+        theMetaTypeName        =None, 
+        theTranslationsCaches  =None, 
+        theResultDict          =None, 
+        theContextualElement   =None,
+        theAdditionalParams    =None):
+        
+        if theAdditionalParams and ( theAdditionalParams.get( 'Do_Not_Translate', False) == True):
+            if not theResultDict:
+                return {}
+            
+            aTypeTranslations = theResultDict.get( 'type_translations', None)
+            if aTypeTranslations == None:
+                aTypeTranslations = self.fNewVoidObjectTranslationResult()
+                theResultDict[ 'type_translations'] = aTypeTranslations
+            return aTypeTranslations
+            
+            
+        if not theMetaTypeName or ( theContextualElement == None):
             return None
                 
         unTypesTranslationsCache = None
@@ -1015,8 +1067,20 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     
     
     security.declarePrivate( 'fAttributeTranslationsFromCache')
-    def fAttributeTranslationsFromCache(self, theElement, theFieldName, theTranslationsCaches, theResultDict, theResultKey):
-        if not theElement or not theFieldName:
+    def fAttributeTranslationsFromCache(self, 
+        theElement            = None,
+        theFieldName          = None, 
+        theTranslationsCaches = None,
+        theResultDict         = None, 
+        theResultKey          = None,
+        theAdditionalParams   = None,
+        ):
+        
+        if theAdditionalParams and ( theAdditionalParams.get( 'Do_Not_Translate', False) == True):
+            anAttributeTranslations = self.fNewVoidAttributeTranslationResult()
+            return anAttributeTranslations
+         
+        if ( theElement == None) or not theFieldName:
             return None
 
         unI18NDomain = self.fTranslationI18NDomain( None, theElement)
@@ -1192,12 +1256,22 @@ class ModelDDvlPloneTool_Retrieval_I18N:
 
 
     security.declarePrivate('pCompleteColumnTranslations')
-    def pCompleteColumnTranslations(self, theContextualElement, theTraversalResult, theTypeNames, theTranslationsCaches, theTimeProfilingResults=None):
+    def pCompleteColumnTranslations(self,  
+        theTimeProfilingResults=None,
+        theContextualElement   =None, 
+        theTraversalResult     =None, 
+        theTypeNames           =None, 
+        theTranslationsCaches  =None,
+        theAdditionalParams    =None):
+        
+        if theAdditionalParams and ( theAdditionalParams.get( 'Do_Not_Translate', False) == True):
+            return self
+
         if False and not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'pCompleteColumnTranslations', theTimeProfilingResults)
         
         try:
-            if not theContextualElement or not theTraversalResult  or not theTypeNames:
+            if ( theContextualElement == None)  or not theTraversalResult  or not theTypeNames:
                 return self
             
             someColumnNames         = theTraversalResult.get( 'column_names', [])
@@ -1248,7 +1322,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     security.declarePrivate( 'fMonthsVocabularyTranslationsFromCache_ContextualElement')
     def fMonthsVocabularyTranslationsFromCache_ContextualElement(self,  theElement,  theTranslationsCaches):
         
-        if not theElement:
+        if ( theElement == None):
             return None
                     
         unVocabularyTranslationsCache = None
@@ -1276,7 +1350,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     security.declarePrivate( 'fDaysOfWeekVocabularyTranslationsFromCache_ContextualElement')
     def fDaysOfWeekVocabularyTranslationsFromCache_ContextualElement(self,  theElement,  theTranslationsCaches):
         
-        if not theElement:
+        if ( theElement == None):
             return None
                     
         unVocabularyTranslationsCache = None
@@ -1313,7 +1387,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         theTranslationsCaches, 
         theResultDict):
         
-        if not theElement:
+        if ( theElement == None):
             return None
 
         
@@ -1330,9 +1404,14 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             theResultDict[ 'translated_value']  = theResultDict[ 'uvalue']
             
         unYearResult = self.fNewVoidValueResult()                            
+        unYearResult[ 'attribute_name']    = 'year'
         unYearResult[ 'type']              = 'integer'
         theResultDict[ 'sub_values'].append( unYearResult)
-        theResultDict[ 'sub_values_by_name'][ 'year'] = unYearResult
+        # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+        # the dictionaries will be compiled at the completion of the retrieval
+        # in method pBuildDictResults_Element
+        #
+        # theResultDict[ 'sub_values_by_name'][ unYearResult[ 'attribute_name']] = unYearResult
         if unCanReturnValues:
             unYearResult[ 'raw_value']         = unYear
             unYearResult[ 'value']             = unYear
@@ -1341,10 +1420,15 @@ class ModelDDvlPloneTool_Retrieval_I18N:
      
         unMonthsVocabularyTranslations = self.fMonthsVocabularyTranslationsFromCache_ContextualElement( theElement, theTranslationsCaches)
         unMonthResult = self.fNewVoidValueResult()                            
+        unMonthResult[ 'attribute_name']     = 'month'
         unMonthResult[ 'type']              = 'selection'
         unMonthResult[ 'vocabulary_translations'] = unMonthsVocabularyTranslations
         theResultDict[ 'sub_values'].append( unMonthResult)
-        theResultDict[ 'sub_values_by_name'][ 'month'] = unMonthResult
+        # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+        # the dictionaries will be compiled at the completion of the retrieval
+        # in method pBuildDictResults_Element
+        #
+        # theResultDict[ 'sub_values_by_name'][ unMonthResult[ 'attribute_name']] = unMonthResult
         if unCanReturnValues:
             unTranslatedMonth = self.fTranslateMonth( unMonth, theElement)
             unMonthResult[ 'raw_value']         = unMonth
@@ -1353,9 +1437,14 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             unMonthResult[ 'translated_value']  = unTranslatedMonth
      
         unDayOfMonthResult = self.fNewVoidValueResult()                            
+        unDayOfMonthResult[ 'attribute_name']    = 'day_of_month'
         unDayOfMonthResult[ 'type']              = 'integer'
         theResultDict[ 'sub_values'].append( unDayOfMonthResult)
-        theResultDict[ 'sub_values_by_name'][ 'day_of_month'] = unDayOfMonthResult
+        # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+        # the dictionaries will be compiled at the completion of the retrieval
+        # in method pBuildDictResults_Element
+        #
+        # theResultDict[ 'sub_values_by_name'][ unDayOfMonthResult[ 'attribute_name']] = unDayOfMonthResult
         if unCanReturnValues:
             unDayOfMonthResult[ 'raw_value']         = unDayOfMonth
             unDayOfMonthResult[ 'value']             = unDayOfMonth
@@ -1364,10 +1453,15 @@ class ModelDDvlPloneTool_Retrieval_I18N:
      
         unDaysOfWeekVocabularyTranslations = self.fDaysOfWeekVocabularyTranslationsFromCache_ContextualElement( theElement, theTranslationsCaches)
         unDayOfWeekResult = self.fNewVoidValueResult()                            
+        unDayOfWeekResult[ 'attribute_name']    = 'day_of_week'
         unDayOfWeekResult[ 'type']              = 'selection'
         unDayOfWeekResult[ 'vocabulary_translations'] = unDaysOfWeekVocabularyTranslations
         theResultDict[ 'sub_values'].append( unDayOfWeekResult)
-        theResultDict[ 'sub_values_by_name'][ 'day_of_week'] = unDayOfWeekResult
+        # ACV 20090901 Avoid adding redundant results to dictionaries during service layer processing
+        # the dictionaries will be compiled at the completion of the retrieval
+        # in method pBuildDictResults_Element
+        #
+        # theResultDict[ 'sub_values_by_name'][ unDayOfWeekResult[ 'attribute_name']] = unDayOfWeekResult
         if unCanReturnValues:
             unTranslatedDayOfWeek = self.fTranslateDayOfWeek( unDayOfWeek, theElement)
             unDayOfWeekResult[ 'raw_value']         = unDayOfWeek

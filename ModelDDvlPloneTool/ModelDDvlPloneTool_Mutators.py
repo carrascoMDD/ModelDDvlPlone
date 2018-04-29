@@ -83,7 +83,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
-            if not theElement or not theNewValuesDict:
+            if ( theElement == None) or not theNewValuesDict:
                 return None
 
             aTranslationService = getToolByName( theElement, 'translation_service', None)            
@@ -330,10 +330,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
-            if not theContainerElement or not  theTraversalName or not theMovedObjectId or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
+            if ( theContainerElement == None)  or not  theTraversalName or not theMovedObjectId or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
                 return self
                         
-            unResult = ModelDDvlPloneTool_Retrieval().fRetrieveTypeConfig( 
+            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            unResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theContainerElement, 
                 theParent                   =None,
@@ -355,6 +356,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if not (  unResult[ 'read_permission'] and unResult[ 'write_permission']):
                 return self
     
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResult, [ 'traversals',])
+
             unTraversalResult =  unResult[ 'traversals_by_name'].get( theTraversalName, None)
             if not unTraversalResult:
                 return self
@@ -452,8 +455,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
             if not theSourceElement or not  theReferenceFieldName or not theMovedReferenceUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
                 return self
-           
-            unResult = ModelDDvlPloneTool_Retrieval().fRetrieveTypeConfig( 
+            
+            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            unResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theSourceElement, 
                 theParent                   =None,
@@ -476,6 +480,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if not (  unResult[ 'read_permission'] and unResult[ 'write_permission']):
                 return self
     
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResult, [ 'traversals',])
+
             unTraversalResult =  unResult[ 'traversals_by_name'].get( theReferenceFieldName, None)
             if not unTraversalResult:
                 return self
@@ -662,6 +668,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someSourceObjectReports.append( aReportForObject)
                 return aReport
          
+            unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unSourceElementResult, [ 'traversals', 'values',])
+
             unaSourceTraversalResult = unSourceElementResult[ 'traversals_by_name'].get( theReferenceFieldName, {})
             if not unaSourceTraversalResult:
                 aReportForObject = { 'effect': 'error', 'failure': 'traversal_not_retrieved',}
@@ -684,7 +692,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if unInverseRelationFieldName:
                 unLimitToRelations.append( unInverseRelationFieldName)
                 
-            unTargetElement = ModelDDvlPloneTool_Retrieval().fElementoPorUID( theTargetUID, theSourceElement)
+            unTargetElement = unModelDDvlPloneTool_Retrieval.fElementoPorUID( theTargetUID, theSourceElement)
             if not unTargetElement:
                 aReportForObject = { 'effect': 'error', 'failure': 'get_by_uid_failure', }
                 someTargetObjectReports.append( aReportForObject)
@@ -729,6 +737,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
 
             if unInverseRelationFieldName:
+                
+                unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unTargetElementResult, [ 'traversals','values',])
+
                 unaTargetTraversalResult = unTargetElementResult[ 'traversals_by_name'].get( unInverseRelationFieldName, {})
                 if not unaTargetTraversalResult:
                     aReportForObject = { 'effect': 'error', 'failure': 'traversal_not_retrieved',}
@@ -885,6 +896,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someSourceObjectReports.append( aReportForObject)
                 return aReport
          
+            unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unSourceElementResult, [ 'traversals','values',])
+            
             unaSourceTraversalResult = unSourceElementResult[ 'traversals_by_name'].get( theReferenceFieldName, {})
             if not unaSourceTraversalResult:
                 aReportForObject = { 'effect': 'error', 'failure': 'traversal_not_retrieved',}
@@ -941,6 +954,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 return aReport
 
             if unInverseRelationFieldName:
+                unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unTargetElementResult, [ 'traversals','values',])
+                
                 unaTargetTraversalResult = unTargetElementResult[ 'traversals_by_name'].get( unInverseRelationFieldName, {})
                 if not unaTargetTraversalResult:
                     aReportForObject = { 'effect': 'error', 'failure': 'traversal_not_retrieved',}
@@ -1026,7 +1041,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
-            if not theContainerElement or not  theTypeName or not theTitle:
+            if ( theContainerElement == None)  or not  theTypeName or not theTitle:
                 anActionReport = { 'effect': 'error', 'failure': 'required_parameters_missing', }
                 return anActionReport     
                 
@@ -1078,7 +1093,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 return anActionReport     
         
             if not unResultadoContenedor[ 'add_permission']:
-                anActionReport = { 'effect': 'error', 'failure': 'write_persmission', }
+                anActionReport = { 'effect': 'error', 'failure': 'add_persmission', }
                 return anActionReport     
                 
             if theAllowFactoryMethods:
@@ -1097,7 +1112,16 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             for unaTraversalResult in unResultadoContenedor.get( 'traversals', []):
                 unosElementsResults = unaTraversalResult.get( 'elements', [])  
                 for unElementResult in unosElementsResults:
-                    if unTitle == unElementResult[ 'values_by_name'][ 'title'][ 'value']:
+                    
+                    unTitleValueResult = None
+                    unosValueResults = unElementResult[ 'values']
+                    for unValueResult in unosValueResults:
+                        unAttributeName = unValueResult.get( 'attribute_name', '')
+                        if unAttributeName and ( unAttributeName == 'title'):
+                            unTitleValueResult = unValueResult
+                            break
+                            
+                    if unTitleValueResult and ( unTitle == unTitleValueResult[ 'value']):
                         unResultadoEncontrado           = unElementResult  
                         anActionReport = { 'effect': 'error', 'failure': 'duplicate_title', }
                         return anActionReport     
@@ -1181,33 +1205,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
             aNewObject.manage_fixupOwnershipAfterAdd()
             
-            someNewObjectRoles = [ 'Manager', 'Owner', ]
+            self.pSetElementPermissions( aNewObject)
             
-            aNewObjectRolesDict_View                = aNewObject.rolesOfPermission( permissions.View)
-            someNewObjectRoles_View                 = someNewObjectRoles # ACV force roles to Owner and Manager, and no other [ aRoleEntry[ 'name'] for aRoleEntry in aNewObjectRolesDict_View                  if aRoleEntry[ 'selected'] ==  'SELECTED' and not ( aRoleEntry[ 'name'] == 'Anonymous') ]
-            aNewObject.manage_permission( permissions.View,                 roles=someNewObjectRoles_View,                  acquire=1)
-
-            aNewObjectRolesDict_ListFolderContents  = aNewObject.rolesOfPermission( permissions.ListFolderContents)
-            someNewObjectRoles_ListFolderContents   = someNewObjectRoles # ACV force roles to Owner and Manager, and no other [ aRoleEntry[ 'name'] for aRoleEntry in aNewObjectRolesDict_ListFolderContents    if aRoleEntry[ 'selected'] ==  'SELECTED' and not ( aRoleEntry[ 'name'] == 'Anonymous') ]
-            aNewObject.manage_permission( permissions.ListFolderContents,   roles=someNewObjectRoles_ListFolderContents,    acquire=1)
-
-            aNewObjectRolesDict_ModifyPortalContent = aNewObject.rolesOfPermission( permissions.ModifyPortalContent)
-            someNewObjectRoles_ModifyPortalContent  = someNewObjectRoles # ACV force roles to Owner and Manager, and no other [ aRoleEntry[ 'name'] for aRoleEntry in aNewObjectRolesDict_ModifyPortalContent   if aRoleEntry[ 'selected'] ==  'SELECTED' and not ( aRoleEntry[ 'name'] == 'Anonymous')]
-            aNewObject.manage_permission( permissions.ModifyPortalContent,  roles=someNewObjectRoles_ModifyPortalContent,   acquire=1)
-
-            aNewObjectRolesDict_AddPortalContent    = aNewObject.rolesOfPermission( permissions.AddPortalContent)
-            someNewObjectRoles_AddPortalContent     = someNewObjectRoles # ACV force roles to Owner and Manager, and no other [ aRoleEntry[ 'name'] for aRoleEntry in aNewObjectRolesDict_AddPortalContent      if aRoleEntry[ 'selected'] ==  'SELECTED' and not ( aRoleEntry[ 'name'] == 'Anonymous') ]
-            aNewObject.manage_permission( permissions.AddPortalContent,     roles=someNewObjectRoles_AddPortalContent,      acquire=1)
-        
-            aNewObjectRolesDict_AddPortalFolders    = aNewObject.rolesOfPermission( permissions.AddPortalFolders)
-            someNewObjectRoles_AddPortalFolders     = someNewObjectRoles # ACV force roles to Owner and Manager, and no other [ aRoleEntry[ 'name'] for aRoleEntry in aNewObjectRolesDict_AddPortalFolders      if aRoleEntry[ 'selected'] ==  'SELECTED' and not ( aRoleEntry[ 'name'] == 'Anonymous') ]
-            aNewObject.manage_permission( permissions.AddPortalFolders,     roles=someNewObjectRoles_AddPortalFolders,      acquire=1)
-
-            aNewObjectRolesDict_DeleteObjects       = aNewObject.rolesOfPermission( permissions.DeleteObjects)
-            someNewObjectRoles_DeleteObjects        = someNewObjectRoles # ACV force roles to Owner and Manager, and no other [ aRoleEntry[ 'name'] for aRoleEntry in aNewObjectRolesDict_DeleteObjects         if aRoleEntry[ 'selected'] ==  'SELECTED' and not ( aRoleEntry[ 'name'] == 'Anonymous') ]
-            aNewObject.manage_permission( permissions.DeleteObjects,        roles=someNewObjectRoles_DeleteObjects,         acquire=1)
-
-
 
 
             anActionReport = { 'effect': 'created', 'new_object_result': unResultadoNuevoElementoEncontrado, }
@@ -1251,7 +1250,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                     theTitle                =unNewTitle, 
                                     theDescription          ='',
                                     theAdditionalParams     =theAdditionalParams)                                             
-                                if (not unNewCollectionCreateResult) or not ( unNewCollectionCreateResult[ 'effect'] == 'create'):
+                                if (not unNewCollectionCreateResult) or not ( unNewCollectionCreateResult[ 'effect'] == 'created'):
                                     # just cant initialize collection contents
                                     #  anActionReport = { 'effect': 'error', 'failure': 'collection_creation_failure', }
                                     #return anActionReport     
@@ -1299,7 +1298,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
-            if not theElement or not theIdToDelete or not theUIDToDelete or not theRequestSeconds:
+            if ( theElement == None) or not theIdToDelete or not theUIDToDelete or not theRequestSeconds:
                 anActionReport = { 'effect': 'error', 'failure': 'required_parameters_missing', }
                 return anActionReport     
                 
@@ -1346,5 +1345,28 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
 
 
-                
-                
+    
+    security.declarePrivate(   'pSetElementPermissions')
+    def pSetElementPermissions(self, theElement):     
+        if not theElement:
+            return self
+
+        somePermissionsAndRoles = [ 
+            [ [ permissions.View, ],                [ 'Manager', 'Owner', 'Reviewer', ], ],
+            [ [ permissions.ListFolderContents, ],  [ 'Manager', 'Owner', 'Reviewer', ], ],
+            [ [ permissions.ModifyPortalContent, ], [ 'Manager', 'Owner', ], ],
+            [ [ permissions.AddPortalContent, ],    [ 'Manager', 'Owner', ], ],
+            [ [ permissions.AddPortalFolders, ],    [ 'Manager', 'Owner', ], ],
+            [ [ permissions.DeleteObjects, ],       [ 'Manager', 'Owner', ], ],
+            
+        ]
+        
+        for aPermissionsAndRoles in somePermissionsAndRoles:
+            somePermissions = aPermissionsAndRoles[ 0]
+            for unaPermission in somePermissions:
+                if unaPermission:
+                    unosRoles = aPermissionsAndRoles[ 1]
+                    if unosRoles:
+                        theElement.manage_permission( unaPermission, roles=unosRoles, acquire=1)
+                    
+        return self

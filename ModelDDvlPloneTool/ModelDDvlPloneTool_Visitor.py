@@ -153,7 +153,7 @@ class ModelDDvlPloneTool_Visitor:
 
 
     def getContenidosFromSubitemsConfigs( self, theObject, theItemsConfigs):
-        if not theObject:
+        if ( theObject == None):
             return []
         unosNombresTipos = self.typeNamesFromItemsConfigs( theItemsConfigs)
         if not unosNombresTipos:
@@ -588,12 +588,12 @@ class ModelDDvlPloneTool_Visitor:
         theTravCtxt[ 'stack'].append( [theObject,])
 
 
-        if not theObject in theTravCtxt[ 'referencedObjects']:
+        if not ( theObject in theTravCtxt[ 'referencedObjects']):
             theTravCtxt[ 'referencedObjects'].append( theObject)
             
         if not theRelationConfig.has_key( 'if_not_included') or not theRelationConfig[ 'if_not_included' ] == 'NotInAnnex':
             someAddToAnnexIfNotIncludedObjects = theTravCtxt[ 'addToAnnexIfNotIncludedObjects']
-            if not theObject in someAddToAnnexIfNotIncludedObjects:
+            if not ( theObject in someAddToAnnexIfNotIncludedObjects):
                 someAddToAnnexIfNotIncludedObjects.append( theObject)                
 
 
@@ -679,7 +679,7 @@ class ModelDDvlPloneTool_Visitor:
                     if len( someSubObjects) < 1:
                         return self
         
-        if not theObject in theTravCtxt[ 'includedObjects']:
+        if not ( theObject in theTravCtxt[ 'includedObjects']):
             theTravCtxt[ 'includedObjects'].append( theObject)
 
         theTravCtxt[ 'stack'].append( [theObject,])

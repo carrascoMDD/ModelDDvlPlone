@@ -828,3 +828,11 @@ msgstr  "References"
 #: Editar_inner.pt
 msgid "ModelDDvlPlone_errorcambiandolosdatos"
 msgstr  "Error changing data"
+
+
+#. Default: "Ruta"
+#: Editar_inner.pt
+msgid "ModelDDvlPlone_path_label"
+msgstr  "Path"
+
+

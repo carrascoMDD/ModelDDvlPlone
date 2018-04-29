@@ -164,7 +164,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
         """Access the traversal configuration to drive Generic retrieval rendering.
         
         """
-        if not theContextElement:
+        if ( theContextElement == None):
             return []
                            
         allTypeConfigs = self.getTraversalConfig( theContextElement)
@@ -184,7 +184,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
         
         anAllTypeConfigs = theAllTypeConfigs
         if not anAllTypeConfigs:
-            if not theContextElement:
+            if ( theContextElement == None):
                 return []
             anAllTypeConfigs = self.getAllTypeConfigs( theContextElement)
             
@@ -244,7 +244,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
     security.declarePrivate('getTraversalConfig')
     def getTraversalConfig(self, theContextElement):
         
-        if not theContextElement:
+        if ( theContextElement == None):
             return []
 
         unNombreProyecto = ''
@@ -257,7 +257,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
 
         unEditableConfigScriptName = self.traversalConfigScriptName( unNombreProyecto)
         if unEditableConfigScriptName:
-            unaConfig = self.traversalConfig_FromScript( theContextElement, unEditableConfigScriptName)
+            unaConfig = self.scriptEvaluationResult( theContextElement, unEditableConfigScriptName)
             if unaConfig:
                 return unaConfig
 
@@ -289,9 +289,9 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
 
 
 
-    security.declarePrivate('traversalConfig_FromScript')
-    def traversalConfig_FromScript( self, theContextElement, theTraversalConfigName):
-        if not theContextElement:
+    security.declarePrivate('scriptEvaluationResult')
+    def scriptEvaluationResult( self, theContextElement, theTraversalConfigName):
+        if ( theContextElement == None):
             return []
 
         if not theTraversalConfigName:
@@ -407,7 +407,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
         """Access the traversal configuration to export objects.
         
         """
-        if not theContextElement:
+        if ( theContextElement == None):
             return []
                            
         allTypeConfigs = self.getExportConfig( theContextElement)
@@ -432,11 +432,49 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
         
 
            
-      
+    
+    security.declarePublic( 'getMDDTypeCopyConfigs')
+    def getMDDTypeCopyConfigs(self, theContextElement):
+        """Access the traversal configuration to copy objects aware of ModelDDvlPloneTool.
+        
+        """
+        if ( theContextElement == None):
+            return []
+                           
+        allTypeConfigs = self.getCopyConfig( theContextElement)
+        if not allTypeConfigs:
+            return []
+         
+        someScannedTypeConfigs = self.preScanTypeConfigsStandAlone( allTypeConfigs)   
+       
+        return someScannedTypeConfigs
+        
+
+    
+    
+
+    
+    security.declarePublic( 'getPloneTypeCopyConfigs')
+    def getPloneTypeCopyConfigs(self, theContextElement):
+        """Access the traversal configuration to copy Plone objects.
+        
+        """
+        if ( theContextElement == None):
+            return []
+                           
+        anExportConfigPloneElements = self.fExportConfig_PloneElements()
+        somePloneElementsExportConfigs = self.preScanTypeConfigsStandAlone( anExportConfigPloneElements)
+        
+       
+        return somePloneElementsExportConfigs
+            
+       
+    
+    
     security.declarePrivate('getExportConfig')
     def getExportConfig(self, theContextElement):
         
-        if not theContextElement:
+        if ( theContextElement == None):
             return []
 
         unNombreProyecto = ''
@@ -449,7 +487,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
 
         unEditableConfigScriptName = self.exportConfigScriptName( unNombreProyecto)
         if unEditableConfigScriptName:
-            unaConfig = self.traversalConfig_FromScript( theContextElement, unEditableConfigScriptName)
+            unaConfig = self.scriptEvaluationResult( theContextElement, unEditableConfigScriptName)
             if unaConfig:
                 return unaConfig
 
@@ -546,3 +584,174 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
     
  
  
+    
+    
+    
+    
+    
+    
+
+    
+    
+    security.declarePrivate('getCopyConfig')
+    def getCopyConfig(self, theContextElement):
+        
+        if ( theContextElement == None):
+            return []
+
+        unNombreProyecto = ''
+        try:
+            unNombreProyecto = theContextElement.getNombreProyecto()   
+        except:
+            None            
+        if not unNombreProyecto:
+            return None
+
+        unEditableConfigScriptName = self.copyConfigScriptName( unNombreProyecto)
+        if unEditableConfigScriptName:
+            unaConfig = self.scriptEvaluationResult( theContextElement, unEditableConfigScriptName)
+            if unaConfig:
+                return unaConfig
+
+        unaConfig = None
+        try:
+            unaConfig = theContextElement.copyConfig()
+        except:
+            None
+        return unaConfig
+           
+
+
+    
+    
+    
+
+
+    security.declarePrivate('copyConfigScriptName')
+    def copyConfigScriptName(self, theNombreProyecto):
+        
+        if not theNombreProyecto:
+            return []
+            
+        unCopyConfigScriptName =  "%s_CopyConfig_Script" % theNombreProyecto
+        return unCopyConfigScriptName
+
+    
+       
+   
+
+
+          
+    security.declarePrivate( 'preScanCopyTypeConfigs')
+    def preScanCopyTypeConfigs( self, theItemsConfig):
+        if  theItemsConfig is None:
+            return {}
+    
+        someFoundTypeConfigsDict = {}
+        self.preScanCopyTypeConfigsRecursive( theItemsConfig, someFoundTypeConfigsDict)
+        return someFoundTypeConfigsDict
+        
+        
+    security.declarePrivate( 'fDefaultCopyTypeConfig')
+    def fDefaultCopyTypeConfig( self, theTypeName):
+        return {   
+            'portal_types': [ theTypeName, ],
+            'attrs':        [
+                {   'name': 'title',
+                    'type': 'String',
+                },
+                {   'name': 'description',
+                    'type': 'Text',
+                },
+            ],
+        }
+        
+        
+        
+           
+    security.declarePrivate( 'preScanCopyTypeConfigsRecursive')
+    def preScanCopyTypeConfigsRecursive( self,theItemsConfig, theFoundTypeConfigsDict):
+        if  theItemsConfig is None or  theFoundTypeConfigsDict is None:
+            return { }
+    
+        for aTypeConfig in theItemsConfig:
+                
+            somePortalTypes = aTypeConfig[ 'portal_types'] 
+            for aTypeName in somePortalTypes:
+                theFoundTypeConfigsDict[ aTypeName] = aTypeConfig
+                    
+                    
+            unosTraversalConfigs = aTypeConfig.get( 'traversals', [])
+            for unTraversalConfig in unosTraversalConfigs:
+                
+                unAggregationName = unTraversalConfig.get( 'aggregation_name', '')
+                if unAggregationName:
+
+                    someAcceptedPortalTypes = set( )
+                    someSubItemsConfigs   = unTraversalConfig.get( 'subitems', [])
+
+                    for aSubItemsConfig in someSubItemsConfigs:
+                        somePortalTypes = aSubItemsConfig.get( 'portal_types', [])
+                        someAcceptedPortalTypes.update( somePortalTypes)
+
+                    for aSubItemTypeName in someAcceptedPortalTypes:
+                        if not theFoundTypeConfigsDict.has_key( aSubItemTypeName):
+                            theFoundTypeConfigsDict[ aSubItemTypeName] = self.fDefaultCopyTypeConfig( aSubItemTypeName)
+                            
+        return theFoundTypeConfigsDict
+    
+
+
+    
+    
+    
+    
+
+    
+    
+    security.declarePrivate('getMappingConfigs')
+    def getMappingConfigs(self, theContextElement):
+        
+        if ( theContextElement == None):
+            return []
+
+        unNombreProyecto = ''
+        try:
+            unNombreProyecto = theContextElement.getNombreProyecto()   
+        except:
+            None            
+        if not unNombreProyecto:
+            return None
+
+        unEditableConfigScriptName = self.mappingConfigScriptName( unNombreProyecto)
+        if unEditableConfigScriptName:
+            unaConfig = self.scriptEvaluationResult( theContextElement, unEditableConfigScriptName)
+            if unaConfig:
+                return unaConfig
+
+        unaConfig = None
+        try:
+            unaConfig = theContextElement.mappingConfig()
+        except:
+            None
+        return unaConfig
+           
+
+
+    
+    
+    
+
+
+    security.declarePrivate('mappingConfigScriptName')
+    def mappingConfigScriptName(self, theNombreProyecto):
+        
+        if not theNombreProyecto:
+            return []
+            
+        unMappingConfigScriptName =  "%s_MappingConfig_Script" % theNombreProyecto
+        return unMappingConfigScriptName
+
+    
+       
+    

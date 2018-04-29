@@ -74,7 +74,7 @@ class ModelDDvlPloneTool_Mutators_Plone:
 
         try:
 
-            if not theContainerElement or not theUIDToDelete or not theRequestSeconds:
+            if ( theContainerElement == None)  or not theUIDToDelete or not theRequestSeconds:
                 anActionReport = { 'effect': 'error', 'failure': 'required_parameters_missing', }
                 return anActionReport     
             
@@ -172,7 +172,7 @@ class ModelDDvlPloneTool_Mutators_Plone:
 
         try:
 
-            if not theContainerElement or not  theTraversalName or not theMovedObjectUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
+            if ( theContainerElement == None)  or not  theTraversalName or not theMovedObjectUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
                 return self
 
             aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()

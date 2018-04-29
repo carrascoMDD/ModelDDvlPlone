@@ -137,7 +137,7 @@ class ModelDDvlPloneTool_Visitor_Dumper:
         if (self.vBeDummy == True):
             return None
        
-        if not theObject:
+        if ( theObject == None):
             return None
 
                                     
@@ -227,7 +227,7 @@ class ModelDDvlPloneTool_Visitor_Dumper:
         if (self.vBeDummy == True):
             return None
        
-        if not theObject:
+        if ( theObject == None):
             return None
 
 
@@ -261,7 +261,7 @@ class ModelDDvlPloneTool_Visitor_Dumper:
         if (self.vBeDummy == True):
             return None
        
-        if not theObject:
+        if ( theObject == None):
             return None
 
         unLevel = theTravCtxt.get( 'titleLevel', 0)

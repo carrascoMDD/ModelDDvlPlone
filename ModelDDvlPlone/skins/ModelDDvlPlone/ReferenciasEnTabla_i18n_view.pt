@@ -90,6 +90,8 @@
                                 &nbsp;Editar&nbsp;
                             </th>
                             <th class="nosort" align="left" tal:repeat="unColumnName TRAVRES/column_names" tal:content="python: TRAVRES[ 'column_translations'].get( unColumnName, {}).get( 'translated_label', unColumnName)" />
+                            <th class="nosort" width="120" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Type&nbsp;</th>
+                            <th class="nosort" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_path_label">&nbsp;Path&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody >
@@ -191,6 +193,11 @@
                                         </tal:block>
                                     </td>
                                 </tal:block>
+                                <td  align="left" valign="baseline" tal:content="ERES/type_translations/translated_archetype_name" />
+                                
+                                <td  align="left" valign="baseline" tal:content="ERES/path" />
+                                    
+                                
                                 <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
                                 
                             </tal:block>

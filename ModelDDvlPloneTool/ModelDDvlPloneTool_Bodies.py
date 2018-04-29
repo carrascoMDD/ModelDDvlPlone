@@ -87,7 +87,7 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
     security.declarePrivate('getEditableBody_forLevel')
     def getEditableBody_forLevel( self, theElement, theLevel=1, theTimeProfilingResults=None):
         
-        if not theElement:
+        if ( theElement == None):
             return "\n\n**No theElement supplied to render EditableBody**\n\n"
 
         aTemplate   = theElement.unrestrictedTraverse( "EditableBody_i18n_view")
@@ -163,7 +163,7 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
         setlevel                =0,
         theAdditionalParams     =None):
         
-        if not theElement:
+        if ( theElement == None):
             return '\n<em>No Element</em><br/>\n\n'
         
         # From CMFDefault.Document.py see Products.PortalTransforms.Transforms.rest.py
@@ -193,7 +193,7 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
         setlevel=0, 
         theTimeProfilingResults=None):
         
-        if not theElement:
+        if ( theElement == None):
             return '\n<em>No Element</em><br/>\n\n'
         
         

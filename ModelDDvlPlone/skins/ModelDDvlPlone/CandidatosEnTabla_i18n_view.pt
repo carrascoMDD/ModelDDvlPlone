@@ -50,8 +50,9 @@
                                 <th tal:condition="pPermiteEnlazarElementos" class="nosort" width="90" align="center"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_enlazar_action_label">
                                     &nbsp;Enlazar&nbsp;
                                 </th>
-                                <th class="nosort" width="120" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Tipo&nbsp;</th>
                                 <th class="nosort" align="left" tal:repeat="unColumnName CANDIDATES/column_names" tal:content="python: CANDIDATES[ 'column_translations'].get( unColumnName, {}).get( 'translated_label', unColumnName)" />
+                                <th class="nosort" width="120" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Type&nbsp;</th>
+                                <th class="nosort" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_path_label">&nbsp;Path&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody >
@@ -69,8 +70,6 @@
                                         </td>
                                     </tal:block>
         
-                                    <td  align="left" valign="baseline" tal:content="ERES/type_translations/translated_archetype_name" />
-                                    
                                     <tal:block tal:repeat="unColumnName CANDIDATES/column_names" >
                                         <td align="left" valign="baseline" >
                                             <tal:block tal:condition="python: ( unColumnName == 'title') or ( unColumnName.lower().find('title') >= 0) or not ( 'title' in CANDIDATES[ 'column_names']) and  (unColumnName == CANDIDATES[ 'column_names'][ 0])" >  
@@ -98,6 +97,12 @@
                                             </tal:block>
                                         </td>
                                     </tal:block>
+                                    
+                                    <td  align="left" valign="baseline" tal:content="ERES/type_translations/translated_archetype_name" />
+                                    
+                                    <td  align="left" valign="baseline" tal:content="ERES/path" />
+                                    
+                                    
                                     <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
                                         
                                 </tal:block>

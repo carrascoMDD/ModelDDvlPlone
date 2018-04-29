@@ -170,7 +170,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
             self.pProfilingStart( 'fRetrievePloneContent', theTimeProfilingResults)
                       
         try:
-            if not theContainerElement:
+            if ( theContainerElement == None) :
                 return None
 
             unPloneSubItemsParameters = thePloneSubItemsParameters
@@ -261,7 +261,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
 
         try:
             
-            if not theContainerElement or not thePloneSubItemsParameter or not theResult:
+            if ( theContainerElement == None)  or not thePloneSubItemsParameter or not theResult:
                 return self                                    
              
             unTraversalResult = self.fNewVoidTraversalResult_PloneContent()
@@ -365,9 +365,11 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
 
                     if unElementResult and unElementResult[ 'read_permission']:
                         unosElementResults.append( unElementResult)
-    
-                        unTraversalResult[ 'elements_by_UID'][ unElementResult[ 'UID']] = unElementResult
-                        unTraversalResult[ 'elements_by_id' ][ unElementResult[ 'id' ]] = unElementResult
+                        # ACV 20090901 Removed to avoid producing huge traversal result dumps
+                        # because each element result is included 3 times (in the ordered collection, and the two dicts)
+                        # which is compounded when traversing a tree
+                        #unTraversalResult[ 'elements_by_UID'][ unElementResult[ 'UID']] = unElementResult
+                        #unTraversalResult[ 'elements_by_id' ][ unElementResult[ 'id' ]] = unElementResult
                         
                 
             unTraversalResult[ 'num_elements'] = len( unosElementResults) 
@@ -409,7 +411,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
             self.pProfilingStart( 'fRetrievePloneElement', theTimeProfilingResults)
 
         try:
-            if not theElement:
+            if ( theElement == None):
                 return None
                 
             unTranslationsCaches        = theTranslationsCaches
@@ -502,7 +504,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
             unAttributeName = 'title'
             unValueResult = self.fNewVoidValueResult()
             unResult[ 'values'].append(     unValueResult)    
-            unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+            # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+            #
+            # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
             unResult[ 'field_names'].append( unAttributeName)
             unResult[ 'non_text_field_names'].append( unAttributeName)
             unValue = theElement.Title()
@@ -519,7 +523,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
             unAttributeName = 'description'
             unValueResult = self.fNewVoidValueResult()
             unResult[ 'values'].append(     unValueResult)    
-            unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+            # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+            #
+            # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
             unResult[ 'field_names'].append( unAttributeName)
             unResult[ 'text_field_names'].append( unAttributeName)
             unValue = theElement.Description()
@@ -537,7 +543,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'content_url'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unValue = theElement.absolute_url()                
@@ -553,7 +561,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'width'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unValue = theElement.getWidth()                
@@ -569,7 +579,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'height'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unValue = theElement.getHeight()                
@@ -587,7 +599,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'content_url'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unValue = theElement.getRemoteUrl()
@@ -605,7 +619,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'text'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'text_field_names'].append( unAttributeName)
                 unValue = theElement.getText()
@@ -624,7 +640,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'content_url'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unValue = theElement.absolute_url()
@@ -640,7 +658,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'image_url'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unValue = ''
@@ -659,7 +679,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName                     = 'text'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'text_field_names'].append( unAttributeName)
                 unValue = theElement.getText()
@@ -676,7 +698,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'width'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unaImage = theElement.getImage()
@@ -695,7 +719,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'height'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unaImage = theElement.getImage()
@@ -716,7 +742,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
                 unAttributeName             = 'content_url'
                 unValueResult = self.fNewVoidValueResult()
                 unResult[ 'values'].append(     unValueResult)    
-                unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
+                # ACV 20090901 Dict population is postponed until completion of retrieval by services layer
+                #
+                # unResult[ 'values_by_name'][     unAttributeName] = unValueResult 
                 unResult[ 'field_names'].append( unAttributeName)
                 unResult[ 'non_text_field_names'].append( unAttributeName)
                 unValue = theElement.getFilename()

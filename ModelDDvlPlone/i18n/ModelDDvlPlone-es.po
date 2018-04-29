@@ -854,4 +854,10 @@ msgid "ModelDDvlPlone_errorcambiandolosdatos"
 msgstr  "Error cambiando los datos"
 
 
+#. Default: "Ruta"
+#: Editar_inner.pt
+msgid "ModelDDvlPlone_path_label"
+msgstr  "Ruta"
+
+
 

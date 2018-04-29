@@ -76,7 +76,7 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
     security.declarePrivate('getTiposCandidatosReferenceFieldNamed')
     def getTiposCandidatosReferenceFieldNamed(self , theElement, theReferenceFieldName):
 
-        if not theElement or not theReferenceFieldName:
+        if ( theElement == None) or not theReferenceFieldName:
             return []
 
         unSchema = theElement.schema
@@ -193,7 +193,7 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
     
             unCandidatesResult = self.fNewVoidCandidatesResult()                
                 
-            if not theElement or not theTraversalConfig:
+            if ( theElement == None) or not theTraversalConfig:
                 return unCandidatesResult
 
             unCandidatesResult[ 'traversal_config'] = theTraversalConfig
@@ -203,7 +203,14 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
                 return unCandidatesResult
 
             unCandidatesResult[ 'traversal_name'] = aFieldName
-            unCandidatesResult[ 'traversal_translations'] = self.fAttributeTranslationsFromCache( theElement, aFieldName, theTranslationsCaches, None, None)
+            unCandidatesResult[ 'traversal_translations'] = self.fAttributeTranslationsFromCache( 
+                theElement            = theElement,
+                theFieldName          = aFieldName, 
+                theTranslationsCaches = theTranslationsCaches,
+                theResultDict         = None, 
+                theResultKey          = None,
+                theAdditionalParams   = theAdditionalParams,
+            )                                         
             unCandidatesResult[ 'column_names'] = [ 'title', 'description', ]
             unCandidatesResult[ 'column_translations'] = self.getTranslationsForDefaultAttributes( theElement)
 
@@ -382,6 +389,9 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
                     theAdditionalParams         =theAdditionalParams
                 )                    
                 if unElementResult:
+                    
+                    self.pBuildResultDicts( unElementResult, [ 'traversals',])
+                    
                     if (not unInverseRelationFieldName) or not unElementResult[ 'traversals_by_name'][ unInverseRelationFieldName][ 'max_multiplicity_reached']:
                         unosResultsCandidatos.append( unElementResult)
         
@@ -420,7 +430,7 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
             
             unCandidatesResult = self.fNewVoidCandidatesResult()                
                 
-            if not theElement:
+            if ( theElement == None):
                 return unCandidatesResult
 
             unCandidatesResult[ 'traversal_name'] = cElementsOfTypeTraversalName
