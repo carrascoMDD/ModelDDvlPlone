@@ -99,14 +99,19 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
        
         aTemplateInContext = aTemplate.__of__(aContext)
 
-        aContentTypeHeaders = aContext.REQUEST.RESPONSE.headers['content-type']
-        aUnicodeContentHeaders = aContentTypeHeaders.replace(';charset=utf-8', '')
-        aContext.REQUEST.RESPONSE.headers['content-type'] = aUnicodeContentHeaders
+        # ACV 20091004 Still fails with characters that do not fit cp1252
+        #
+        #aContentTypeHeaders = aContext.REQUEST.RESPONSE.headers['content-type']
+        #aUnicodeContentHeaders = aContentTypeHeaders.replace(';charset=utf-8', '')
+        #aContext.REQUEST.RESPONSE.headers['content-type'] = aUnicodeContentHeaders
         
         try:
             anEditableBodyString = aTemplateInContext(aContext, aContext.REQUEST, theLevel=theLevel)        
         finally:
-            aContext.REQUEST.RESPONSE.headers['content-type'] = aContentTypeHeaders
+            # ACV 20091004 Still fails with characters that do not fit cp1252
+            #
+            #aContext.REQUEST.RESPONSE.headers['content-type'] = aContentTypeHeaders
+            None
 
         
         aCleanEditableBodyString = anEditableBodyString.replace('<tal>', '').replace('</tal>', '').replace('<div>', '').replace('</div>', '')
@@ -114,11 +119,14 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
 #        aCleanEditableBodyString = "aContext.REQUEST.RESPONSE.headers['content-type']= %s\n\n\n" % str( aContentTypeHeaders) + aCleanEditableBodyString
 #        aCleanEditableBodyString = "locale.getpreferredencoding()= %s\n\n\n" % str( locale.getpreferredencoding())   + aCleanEditableBodyString
         
-        aPreferredEncoding = locale.getpreferredencoding()
-        if aPreferredEncoding.startswith("ANSI"):
-            aPreferredEncoding = 'cp1252'     
+        # ACV 20091004 Still fails with characters that do not fit cp1252
+        #
+        #aPreferredEncoding = locale.getpreferredencoding()
+        #if aPreferredEncoding.startswith("ANSI"):
+            #aPreferredEncoding = 'cp1252'     
          
-        aUnicodeEditableBodyString =  unicode( aCleanEditableBodyString, aPreferredEncoding, errors="ignore")
+        aPreferredEncoding = 'utf-8'
+        aUnicodeEditableBodyString =  unicode( aCleanEditableBodyString, aPreferredEncoding, errors="replace")
         return aUnicodeEditableBodyString
         
     

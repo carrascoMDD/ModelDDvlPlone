@@ -971,10 +971,10 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
             return False
         
         
-        
         return True
       
-    
+
+ 
     
     def fGetTitle( self, theTarget):
         if not self.vInitialized or not self.vRefactor.vInitialized:
@@ -3589,11 +3589,11 @@ class MDDRefactor_NewVersion_SourceInfoMgr_MDDElements( MDDRefactor_Role_SourceI
             #aSiteEncoding = cEncodingUTF8
         
         #self.vRefactor.pSetContextParam( 'site_encoding', aSiteEncoding)
-        
+
+         
         return True
     
-
-
+      
     # ACV 20091003 Should not be necessary. Copied from the XML flavor.
     #def fGetSiteEncoding( self,):
         #if not self.vInitialized or not self.vRefactor.vInitialized:
@@ -4617,8 +4617,11 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
             aSiteEncoding = cEncodingUTF8
         
         self.vRefactor.pSetContextParam( 'site_encoding', aSiteEncoding)
+        
         return True
     
+        
+       
 
     
     def fGetSiteEncoding( self,):
@@ -4805,8 +4808,6 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
         elif theAttributeName.lower() == 'uid':
             return self.fGetUID( theSource)
             
-        unSchema = theSource.schema
-        un
         unosChildNodes = theSource.childNodes
         if not unosChildNodes:
             return None
@@ -5032,6 +5033,8 @@ class MDDRefactor_Import_SourceMetaInfoMgr_XMLElements( MDDRefactor_Role_SourceM
     
     """
     
+
+
     def fTypeName( self, theSource):
         if not self.vInitialized or not self.vRefactor.vInitialized:
             return ''
@@ -5040,7 +5043,12 @@ class MDDRefactor_Import_SourceMetaInfoMgr_XMLElements( MDDRefactor_Role_SourceM
             return ''
         
         unTypeName = theSource.nodeName
-        return unTypeName
+
+        unUnicodeTypeName = self.vRefactor.vSourceInfoMgr.fFromUnicodeToSystemEncoding( unTypeName) 
+            
+        return unUnicodeTypeName
+    
+    
     
     
     def fGetArchetypeName( self, theSource):
@@ -5051,7 +5059,10 @@ class MDDRefactor_Import_SourceMetaInfoMgr_XMLElements( MDDRefactor_Role_SourceM
             return ''
         
         unArchetypeName = theSource.nodeName
-        return unArchetypeName
+        
+        unUnicodeArchetypeName = self.vRefactor.vSourceInfoMgr.fFromUnicodeToSystemEncoding( unArchetypeName) 
+            
+        return unUnicodeArchetypeName
     
     
 
@@ -5064,7 +5075,10 @@ class MDDRefactor_Import_SourceMetaInfoMgr_XMLElements( MDDRefactor_Role_SourceM
             return ''
         
         unTypeName  = thePloneElement.nodeName
-        return unTypeName
+        
+        unUnicodeTypeName = self.vRefactor.vSourceInfoMgr.fFromUnicodeToSystemEncoding( unTypeName) 
+            
+        return unUnicodeTypeName
     
     
     

@@ -36,8 +36,8 @@ import sys
 import traceback
 import logging
 
-from OFS     import Moniker        
-
+from OFS             import Moniker        
+from OFS.CopySupport import CopyError
 
 from marshal import loads, dumps
 from urllib import quote, unquote
