@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -68,24 +68,12 @@ import ModelDDvlPloneTool_Inicializacion_Constants
 
 
 
-from ModelDDvlPloneTool_Inicializacion_Constants import cLazyCreateModelDDvlPloneConfiguration
-
-
-
-
-
 
 
 # ##################################
 # Must be synchronized with the constants of same names in ExternalMethod module MDDLoadModules
 #
 
-
-cModelDDvlPloneToolId = 'ModelDDvlPlone_tool'
-
-cInstall_Tools_On_PortalSkinsCustom = True
-
-cInstallPath_PortalSkinsCustom = [ 'portal_skins', 'custom',]
 
 
 
@@ -96,6 +84,7 @@ cModuleNamesToImport = [
     'Products.ModelDDvlPloneTool.MDDNestedContext',
     'Products.ModelDDvlPloneTool.MDDStringConversions',
     'Products.ModelDDvlPloneTool.PloneElement_TraversalConfig',
+    'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Inicializacion_Constants',
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Refactor_Constants',
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_ImportExport_Constants',
     'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport',
@@ -124,6 +113,7 @@ cModuleNamesToImport = [
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache',  
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool',
     'Products.ModelDDvlPloneConfiguration.ModelDDvlPloneConfiguration',
+    'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Inicializacion',
 ]
 
 
@@ -174,7 +164,7 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
 
     meta_type = 'ModelDDvlPloneTool'
 
-    id = cModelDDvlPloneToolId
+    id = ModelDDvlPloneTool_Inicializacion_Constants.cModelDDvlPloneToolId
 
     manage_options = PropertyManager.manage_options + \
                      SimpleItem.SimpleItem.manage_options + (
@@ -581,8 +571,48 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
     def fModelDDvlPloneTool_Retrieval( self, theContextualObject):
         return self._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval')()
     
+       
+    security.declarePrivate( 'fModelDDvlPloneTool_Inicializacion')
+    def fModelDDvlPloneTool_Inicializacion( self, theContextualObject):
+        return self._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Inicializacion')()
+    
+       
     
     
+    
+    
+    
+    
+  
+    # ######################################
+    """Intialization actions.
+    
+     """      
+    security.declareProtected( permissions.ManagePortal, 'fLazyInitHTML')
+    def fLazyInitHTML( self, theContextualObject=None, theAllowCreation=False, theCheckPermissions=True, thePermissionsCache=None, theRolesCache=None, ):
+        """Shall create, if necessary, the external methods declared in ModelDDvlPloneTool_Inicialization, and return an HTML rendering of the initialization attempt.
+        
+        """
+        aInicializationMgr = self.fModelDDvlPloneTool_Inicializacion( theContextualObject)
+        if not aInicializationMgr:
+            return u'No Mgr'
+        theAllowCreation=False
+        
+        aPortalRoot = self.fPortalRoot()
+        
+        aInitResultHTML = aInicializationMgr.fLazyInitHTML( theContextualObject=theContextualObject, thePortalRoot=aPortalRoot, theAllowCreation=theAllowCreation, theCheckPermissions=theCheckPermissions, thePermissionsCache=thePermissionsCache, theRolesCache=theRolesCache,)
+        return aInitResultHTML
+        
+    
+    
+    
+    
+    
+    # ######################################
+    """Portal access.
+    
+    
+    """    
     
           
     security.declarePrivate('fPortalRoot')
@@ -2084,6 +2114,14 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
     
     
     
+
+    security.declareProtected( permissions.View, 'fRenderCallableOrCachedForElement')
+    def fRenderCallableOrCachedForElement(self, theContextualObject, theTemplateName, theCallable, theCallableCtxt=None, theCallableParms=None):
+        """ Return theHTML, from cache or just rendered, for a project, for an element (by it's UID), for the specified view, and for the currently negotiared language.
+        
+        """
+        
+        return self._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache')().fRenderCallableOrCachedForElement( self, theContextualObject, theTemplateName, theCallable, theCallableCtxt, theCallableParms)
     
     
     
@@ -2364,6 +2402,7 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
         theContainerObject          =None, 
         theGroupAction              =None,
         theGroupUIDs                =None,
+        theReferenceFieldName       =None,
         theAdditionalParams         =None):
         """Process a request for an action affecting multiple elements, given their UIDs. Actions may be Delete objects, or Prepare to Cut (move) or Prepare to Copy objects. 
         Cut and Copy are prepared by setting a cookie in the HTTP request response including references ( monikers) for the selected elements.        
@@ -2379,6 +2418,7 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
                 theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
                 theContainerObject             = theContainerObject, 
                 theGroupUIDs                   = theGroupUIDs,
+                theReferenceFieldName          = theReferenceFieldName,
                 theIsCut                       = True,
                 theAdditionalParams            = theAdditionalParams
             )
@@ -2391,6 +2431,7 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
                 theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
                 theContainerObject             = theContainerObject, 
                 theGroupUIDs                   = theGroupUIDs,
+                theReferenceFieldName          = theReferenceFieldName,
                 theIsCut                       = False,
                 theAdditionalParams            = theAdditionalParams
             )
@@ -2611,15 +2652,15 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
         if unPortalRoot == None:
             return None
         
-        if not cInstall_Tools_On_PortalSkinsCustom:
+        if not ModelDDvlPloneTool_Inicializacion_Constants.cInstall_Tools_On_PortalSkinsCustom:
             return unPortalRoot
         
-        if not cInstallPath_PortalSkinsCustom:
+        if not ModelDDvlPloneTool_Inicializacion_Constants.cInstallPath_PortalSkinsCustom:
             return unPortalRoot
             
         
         aTraversedObject = unPortalRoot
-        for aTraversal in cInstallPath_PortalSkinsCustom:
+        for aTraversal in ModelDDvlPloneTool_Inicializacion_Constants.cInstallPath_PortalSkinsCustom:
             aNextObject = None
             try:                    
                 aNextObject = aq_get( aTraversedObject,  aTraversal, None, 1)
@@ -2651,7 +2692,7 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
             if aModelDDvlPloneConfiguration:
                 return aModelDDvlPloneConfiguration
             
-            if not ( theAllowCreation and cLazyCreateModelDDvlPloneConfiguration):
+            if not ( theAllowCreation and ModelDDvlPloneTool_Inicializacion_Constants.cLazyCreateModelDDvlPloneConfiguration):
                 return None
      
             unInstallContainer = self.fInstallContainer_Tools()

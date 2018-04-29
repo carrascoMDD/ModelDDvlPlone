@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneToolSupport.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -48,6 +48,11 @@ from Products.CMFCore import permissions
 from MDDNestedContext import MDDNestedContext
 from MDDLinkedList    import MDDLinkedList, MDDLinkedNode, MDDLinkedNodeWithProperties
 
+
+
+
+
+cResultCondition_MissingParameter = 'MDDResultCondition_MissingParameter'
 
 # ####################################################
 """Methods for safe evaluation of strings.
@@ -337,6 +342,14 @@ def fNewNestedContext( theContextualElement, theInitialParams={}):
 
         
 
+    
+def fNewInteractionContext( theContextualElement, theInitialParams={}):
+    
+    return MDDNestedContext( theInitialParams)
+
+
+
+
 
 
     
@@ -584,6 +597,4 @@ def prettyPrintDict( theOutput, theDict, theIndentLevel, theDictKeysToExclude=No
     return None
 
        
-
-
 

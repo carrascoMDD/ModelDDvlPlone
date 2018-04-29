@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_CacheConstants.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #anElementUIDModulus
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -98,7 +98,37 @@ cDisplayCacheHitInformation_Vocabulary = [ cDisplayCacheHitInformation_None, cDi
 
 
 
+# #######################################################
+"""Enumeration values for the status of a rendering attempt phase.
 
+"""
+
+cRenderStatus_NotExecuted = 'NotExecuted'
+cRenderStatus_Completed   = 'Completed'
+cRenderStatus_ShowError   = 'ShowError'
+cRenderStatus_ForceRender = 'ForceRender'
+cRenderStatus_Continue    = 'Continue'
+
+cRenderStatuses = [
+    cRenderStatus_NotExecuted,
+    cRenderStatus_Completed,
+    cRenderStatus_ShowError,
+    cRenderStatus_ForceRender,
+    cRenderStatus_Continue,
+]
+
+
+cRenderError_MissingHandlers   = 'RenderError_MissingHandlers'
+cRenderError_NothingRendered   = 'RenderError_NothingRendered'
+cRenderError_MissingParameters = 'RenderError_MissingParameters'
+cRenderError_UnknownError      = 'RenderError_UnknownError'
+cRenderError_Discontinued      = 'RenderError_Discontinued'
+    
+cRenderError_MsgIdPrefix       = 'ModelDDvlPlone_'
+
+cRenderError_HTML = u"""
+<h2><font color="red">%s</font></h2>
+"""
 
   
 # #######################################################

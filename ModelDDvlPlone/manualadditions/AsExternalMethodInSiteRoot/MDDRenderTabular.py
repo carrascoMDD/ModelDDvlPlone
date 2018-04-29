@@ -48,8 +48,9 @@ from Products.CMFCore.utils         import getToolByName
 
 from Products.ExternalMethod.ExternalMethod import ExternalMethod
 
-from Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport import fEvalString, fMillisecondsNow, fNewRenderContext
+from Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport     import fEvalString, fMillisecondsNow, fNewRenderContext
 
+from Products.ModelDDvlPloneTool.PloneElement_TraversalConfig  import cPloneElement_ColumnName_Details, cPloneImage_DetailsHeight, cPloneDocument_DetailsLen
 
 
 
@@ -261,7 +262,8 @@ def MDDView_Tabular( theQueryMethodBindingNames=False, theQueryMethodBindingExte
                 'theModelDDvlPloneTool',
                 None
             )
-         
+            break
+        
         if aBrowsedElement == None:
             _fMCtx( False, aRdCtxt, 'MDDRender_EmptyPageContents')(  
                 None, 
@@ -269,6 +271,7 @@ def MDDView_Tabular( theQueryMethodBindingNames=False, theQueryMethodBindingExte
                 'theBrowsedElement',
                 None
             )
+            break
         
         if not aRequest:
             _fMCtx( False, aRdCtxt, 'MDDRender_EmptyPageContents')(  
@@ -277,7 +280,7 @@ def MDDView_Tabular( theQueryMethodBindingNames=False, theQueryMethodBindingExte
                 'theRequest',
                 None
             ) 
-       
+            break       
     
 
 
@@ -435,14 +438,19 @@ def MDDView_Tabular( theQueryMethodBindingNames=False, theQueryMethodBindingExte
             break
         
                 
-        anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRetrieve_Info_Tabular')(      aRdCtxt)
-        if not aGo:
-            break
+        if aRdCtxt.fGP( 'theRelationCursorName', ''):
+            anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRetrieve_Info_RelationCursor_Owner')(      aRdCtxt)
+            if not aGo:
+                break
+            
+        else:    
+            anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRetrieve_Info_Tabular')(      aRdCtxt)
+            if not aGo:
+                break
         
-        
-        anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRetrieve_Info_Plone')(      aRdCtxt)
-        if not aGo:
-            break
+            anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRetrieve_Info_Plone')(      aRdCtxt)
+            if not aGo:
+                break
         
 
         
@@ -473,15 +481,15 @@ def MDDView_Tabular( theQueryMethodBindingNames=False, theQueryMethodBindingExte
         if not aGo:
             break
        
-        anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRender_Clipboard')(      aRdCtxt)
-        if not aGo:
-            break
+        #anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRender_Clipboard')(      aRdCtxt)
+        #if not aGo:
+            #break
        
         
         
         
         if aRdCtxt.fGP( 'theRelationCursorName', ''):
-            anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRender_TabularCursor')(      aRdCtxt)
+            anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDRender_Tabular_Relation')(      aRdCtxt)
             if not aGo:
                 break
         else:    
@@ -711,15 +719,15 @@ def _MDDRender_Tabular( theRdCtxt):
 
         
         
-    #anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Plone_Before')(                   theRdCtxt)
-    #if not aGo:
-        #return [ True, aGo,]
-    #anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Plone')(                                    theRdCtxt)
-    #if not aGo:
-        #return [ True, aGo,]
-    #anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Plone_After')(                    theRdCtxt)
-    #if not aGo:
-        #return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Plone_Before')(                   theRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Plone')(                                    theRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Plone_After')(                    theRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
         
     return [ True, aGo,]
 
@@ -764,13 +772,13 @@ def _MDDInit_Parms_Tabular( theRdCtxt):
              
             
     anExtraLinkHrefParams = ''
-    if aViewParms.get( 'theRequest', {}).get( 'theNoCache', ''):
-        anExtraLinkHrefParams = '%s%s%s' % ( anExtraLinkHrefParams,  ((anExtraLinkHrefParams and '&') or ''), 'theNoCache=on')
+    # ACV 20100226 No longer keeping the no cache params from request to request
+    #if aViewParms.get( 'theRequest', {}).get( 'theNoCache', ''):
+        #anExtraLinkHrefParams = '%s%s%s' % ( anExtraLinkHrefParams,  ((anExtraLinkHrefParams and '&') or ''), 'theNoCache=on')
     
-    aNoCacheId = aViewParms.get( 'theRequest', {}).get( 'theNoCacheCode', '')
-    if aNoCacheId :
-        anExtraLinkHrefParams = '%s%s%s' % ( anExtraLinkHrefParams, ((anExtraLinkHrefParams and '&') or ''), 'theNoCacheCode=%s' % aNoCacheId )
-        theNoCacheCode=1261517631488
+    #aNoCacheId = aViewParms.get( 'theRequest', {}).get( 'theNoCacheCode', '')
+    #if aNoCacheId :
+        #anExtraLinkHrefParams = '%s%s%s' % ( anExtraLinkHrefParams, ((anExtraLinkHrefParams and '&') or ''), 'theNoCacheCode=%s' % aNoCacheId )
         
        
     theRdCtxt.pSPs( {
@@ -794,6 +802,8 @@ def _MDDInit_Parms_Tabular( theRdCtxt):
         'theUIDs':                      aViewParms.get( 'theUIDs',               None),
         'theMovedElementID':            aViewParms.get( 'theMovedElementID',     None),
         'theMoveDirection':             aViewParms.get( 'theMoveDirection',      None),
+        'theMovedReferenceUID':         aViewParms.get( 'theMovedReferenceUID',  None),
+        'theMovedObjectUID':            aViewParms.get( 'theMovedObjectUID',     None),
         
         'theAdditionalParms':           aViewParms.get( 'theAdditionalParms',    None),
             
@@ -839,7 +849,7 @@ def _MDDManageActions_Tabular_ClearClipboard( theRdCtxt):
     
     aBeginTime  = fMillisecondsNow()
     
-    aPasteReport = aModelDDvlPloneTool.pClearClipboard( 
+    aReport = aModelDDvlPloneTool.pClearClipboard( 
         theTimeProfilingResults     =None,
         theContextualElement        =aContainerObject, 
         theAdditionalParams         =theRdCtxt.fGP( 'theAdditionalParms', None),
@@ -852,7 +862,7 @@ def _MDDManageActions_Tabular_ClearClipboard( theRdCtxt):
         'action':       'ClearClipboard',
         'begin_time':   aBeginTime,
         'end_time':     anEndTime,
-        'report':       aPasteReport,
+        'report':       aReport,
     })
         
     return [ True, True,]
@@ -915,6 +925,8 @@ def _MDDManageActions_Tabular_GroupActions( theRdCtxt):
     if not aGroupAction:
         return [ False, True,]
     
+    aReferenceFieldName = theRdCtxt.fGP( 'theReferenceFieldName', '')
+    
     someGroupUIDs        = theRdCtxt.fGP( 'theUIDs', [])
     if not someGroupUIDs:
         return [ False, True,]
@@ -926,6 +938,7 @@ def _MDDManageActions_Tabular_GroupActions( theRdCtxt):
         theContainerObject          =aContainerObject, 
         theGroupAction              =aGroupAction,
         theGroupUIDs                =someGroupUIDs,
+        theReferenceFieldName       =aReferenceFieldName,
         theAdditionalParams         =theRdCtxt.fGP( 'theAdditionalParms', None),
     )
     
@@ -1165,6 +1178,49 @@ def _MDDRetrieve_Preferences_Presentation_Tabular( theRdCtxt):
 
 """
     
+
+
+
+
+
+
+     
+def _MDDRetrieve_Clipboard( theRdCtxt):
+    
+    aContainerObject =     theRdCtxt.fGP( 'theBrowsedElement', None)
+    if aContainerObject == None:
+        return [ False, False,]
+    
+    aModelDDvlPloneTool =  theRdCtxt.fGP( 'theModelDDvlPloneTool', None)
+    if not aModelDDvlPloneTool:
+        return [ False, False,]
+    
+    aBeginTime  = fMillisecondsNow()
+    
+    
+    aClipboardResult = aModelDDvlPloneTool.fClipboardResult( 
+        theTimeProfilingResults     =None,
+        theContextualElement        =aContainerObject, 
+        theAdditionalParams         =theRdCtxt.fGP( 'theAdditionalParms', None),
+    )
+
+    
+    anEndTime  = fMillisecondsNow()
+       
+    theRdCtxt.pSP( 'CLIPBOARD', aClipboardResult)
+    
+       
+    theRdCtxt.pAppendRetrievalResult( {
+        'subject':      'CLIPBOARD',
+        'begin_time':   aBeginTime,
+        'end_time':     anEndTime,
+    })
+
+    return [ True, True,]
+
+    
+    
+    
      
 def _MDDRetrieve_Info_Tabular( theRdCtxt):
     
@@ -1214,52 +1270,15 @@ def _MDDRetrieve_Info_Tabular( theRdCtxt):
 
 
 
-
-     
-def _MDDRetrieve_Clipboard( theRdCtxt):
-    
-    aContainerObject =     theRdCtxt.fGP( 'theBrowsedElement', None)
-    if aContainerObject == None:
-        return [ False, False,]
-    
-    aModelDDvlPloneTool =  theRdCtxt.fGP( 'theModelDDvlPloneTool', None)
-    if not aModelDDvlPloneTool:
-        return [ False, False,]
-    
-    aBeginTime  = fMillisecondsNow()
-    
-    
-    aClipboardResult = aModelDDvlPloneTool.fClipboardResult( 
-        theTimeProfilingResults     =None,
-        theContextualElement        =aContainerObject, 
-        theAdditionalParams         =theRdCtxt.fGP( 'theAdditionalParms', None),
-    )
-
-    
-    anEndTime  = fMillisecondsNow()
-       
-    theRdCtxt.pSP( 'CLIPBOARD', aClipboardResult)
-    
-       
-    theRdCtxt.pAppendRetrievalResult( {
-        'subject':      'CLIPBOARD',
-        'begin_time':   aBeginTime,
-        'end_time':     anEndTime,
-    })
-
-    return [ True, True,]
-
-    
-    
-    
-
-
-
     
 def _MDDRetrieve_Info_Plone( theRdCtxt):
     
+     
+    aSRES =     theRdCtxt.fGP( 'SRES', None)
+    if not aSRES:
+        return [ False, False,]
     
-    aContainerObject =     theRdCtxt.fGP( 'theBrowsedElement', None)
+    aContainerObject =     aSRES.get( 'object', None)
     if aContainerObject == None:
         return [ False, False,]
     
@@ -1300,6 +1319,148 @@ def _MDDRetrieve_Info_Plone( theRdCtxt):
 
 
 
+
+
+
+def _MDDRetrieve_Info_RelationCursor_Owner( theRdCtxt):
+    
+    
+    aContainerObject =     theRdCtxt.fGP( 'theBrowsedElement', None)
+    if aContainerObject == None:
+        return [ False, False,]
+    
+    aModelDDvlPloneTool =  theRdCtxt.fGP( 'theModelDDvlPloneTool', None)
+    if not aModelDDvlPloneTool:
+        return [ False, False,]
+    
+    aRelationCursorName = theRdCtxt.fGP( 'theRelationCursorName', '')
+    if not aRelationCursorName:
+        return [ False, False,]
+
+    aBeginTime  = fMillisecondsNow()
+    
+    aSRES = aModelDDvlPloneTool.fRetrieveTypeConfig( 
+        theTimeProfilingResults     =None,
+        theElement                  =aContainerObject, 
+        theParent                   =None,
+        theParentTraversalName      ='',
+        theTypeConfig               =None, 
+        theAllTypeConfigs           =None, 
+        theViewName                 ='Tabular', 
+        theRetrievalExtents         =[ 'traversals', 'owner', 'cursor', 'extra_links', 'relation_cursors', ],
+        theWritePermissions         =[ 'object', 'aggregations', 'relations', 'add', 'delete', 'add_collection', ],
+        theFeatureFilters           ={ 'attrs': [], 'aggregations': [], 'relations': [ aRelationCursorName, ],}, 
+        theInstanceFilters          =None,
+        theTranslationsCaches       =theRdCtxt.fGP( 'theMetaTranslationsCaches', None),
+        theCheckedPermissionsCache  =theRdCtxt.fGP( 'thePermissionsCache', None),
+        theAdditionalParams         =theRdCtxt.fGP( 'theAdditionalParms', None),
+    )
+    
+    anEndTime  = fMillisecondsNow()
+       
+    theRdCtxt.pSP( 'SRES', aSRES)
+    
+    theRdCtxt.pAppendRetrievalResult( {
+        'subject':      'SRES',
+        'begin_time':   aBeginTime,
+        'end_time':     anEndTime,
+    })
+
+    if not aSRES:
+        return [ False, False, ]
+    
+    return [ True, True,]
+
+               
+
+
+
+
+
+
+
+
+def _MDDRetrieve_Info_RelationCursor_Current( theRdCtxt):
+    
+    
+    aRELRES =  theRdCtxt.fGP( 'SRES', None)
+    if not aRELRES:
+        return [ False, False,]
+    
+    theRdCtxt.pSP( 'RELRES', aRELRES)
+    
+    aModelDDvlPloneTool =  theRdCtxt.fGP( 'theModelDDvlPloneTool', None)
+    if not aModelDDvlPloneTool:
+        return [ False, False,]
+    
+    aRelationCursorName = theRdCtxt.fGP( 'theRelationCursorName', '')
+    if not aRelationCursorName:
+        return [ False, False,]
+    
+    aCurrentElementUID = theRdCtxt.fGP( 'theCurrentElementUID', '')
+   
+    aTRAVRES = aRELRES.get( 'traversals_by_name', {}).get( aRelationCursorName, None)  
+    if not aTRAVRES:
+        return [ False, False, ]
+    
+    if not ( aTRAVRES.get( 'traversal_kind', '') == 'relation'):
+        return [ False, False, ]
+    
+    theRdCtxt.pSP( 'TRAVRES', aTRAVRES)
+    
+    
+    aCurrentElementResult = None
+    if aCurrentElementUID:
+        someElementsByUID = aTRAVRES.get( 'elements_by_UID', {})
+        aCurrentElementResult = someElementsByUID.get( aCurrentElementUID, None)            
+    else:
+        someElements = aTRAVRES.get( 'elements', [])
+        if someElements:
+            aCurrentElementResult = someElements[ 0]
+        
+    if not aCurrentElementResult:
+        return [ True, True,]
+    
+    aCurrentElement = aCurrentElementResult.get( 'object', None)
+    if ( aCurrentElement == None):
+        return [ True, True,]
+    
+   
+    aBeginTime  = fMillisecondsNow()
+    
+    aSRES = aModelDDvlPloneTool.fRetrieveTypeConfig( 
+        theTimeProfilingResults     =None,
+        theElement                  =aCurrentElement, 
+        theParent                   =None,
+        theParentTraversalName      ='',
+        theTypeConfig               =None, 
+        theAllTypeConfigs           =None, 
+        theViewName                 ='Tabular', 
+        theRetrievalExtents         =[ 'traversals', 'owner', 'extra_links',],
+        theWritePermissions         =[ 'object', 'aggregations', 'relations', 'add', 'delete', 'add_collection', ],
+        theFeatureFilters           =None, 
+        theInstanceFilters          =None,
+        theTranslationsCaches       =theRdCtxt.fGP( 'theMetaTranslationsCaches', None),
+        theCheckedPermissionsCache  =theRdCtxt.fGP( 'thePermissionsCache', None),
+        theAdditionalParams         =theRdCtxt.fGP( 'theAdditionalParms', None),
+    )
+    
+    anEndTime  = fMillisecondsNow()
+    
+    aSRES.update( { 'cursor': aCurrentElementResult[ 'cursor'], 'owner_element': aRELRES, 'container_element': aRELRES, })   
+       
+    theRdCtxt.pSP( 'SRES', aSRES)
+        
+    
+    theRdCtxt.pAppendRetrievalResult( {
+        'subject':      'SRES',
+        'begin_time':   aBeginTime,
+        'end_time':     anEndTime,
+    })
+    
+    return [ True, True,]
+
+               
 
 
 
@@ -1452,12 +1613,207 @@ def _MDDRender_Tabular_Profiling( theRdCtxt):
 
 
 
-def _MDDRender_TabularCursor( theRdCtxt):
+def _MDDRender_Tabular_Relation( theRdCtxt):
     """Render a tabular view with the header for an element and the detail of one of its related elements.
     
     """
-    return [ True, True,]
 
+    # #################################################################
+    """Render a tabular view on an object.
+    
+    """
+   
+    # #################################################################
+    """Open Page
+    
+    """
+    theRdCtxt.pOS( u"""     
+                    
+        <!-- #################################################################
+        PAGE WITH CONTENT: TABULAR view
+        ################################################################# -->
+    """)
+        
+    anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Javascript')(                                 theRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+
+
+    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Cabecera_Before')(                theRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Cabecera')(                                 theRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Cabecera_After')(                 theRdCtxt)
+    if not aGo:
+        return [ True, aGo,]    
+
+    
+     
+    
+    
+    #anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_SectionsMenu_Before')( theRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,]
+    #anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_SectionsMenu')(        theRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,]
+    #anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_SectionsMenu_After')(  theRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,] 
+
+    
+    
+    
+    #anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_SiblingsMenu_Before')( theRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,]
+    #anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_SiblingsMenu')(        theRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,]
+    #anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_SiblingsMenu_After')(  theRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,] 
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    aCurrentRdCtxt = theRdCtxt.fNewCtxt( )
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDRetrieve_Info_RelationCursor_Current')(   aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    
+    
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRetrieve_Info_Plone')(      aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    
+    
+
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Relation_Cabecera_Before')(   aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_Relation_Cabecera')(                   aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Relation_Cabecera_After')(    aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]    
+
+    
+     
+    
+    
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_SectionsMenu_Before')( aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_SectionsMenu')(        aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_SectionsMenu_After')(  aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,] 
+
+    
+    
+    
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_SiblingsMenu_Before')( aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_SiblingsMenu')(        aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_SiblingsMenu_After')(  aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,] 
+
+    
+    
+    
+    
+    
+        
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Values_Before')(               aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]    
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_Values')(                       aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Values_After')(                aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]    
+
+    
+    
+   
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Texts_Before')(                   aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_Texts')(                                    aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Texts_After')(                    aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    
+    
+    
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_CustomPresentationViews_Before')( aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_CustomPresentationViews')(                  aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_CustomPresentationViews_After')(  aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    
+    
+    
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Traversals_Before')(              aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_Traversals')(                               aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Traversals_After')(               aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    
+    
+    
+    #anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_GenericReferences_Before')(       aCurrentRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,]
+    #anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_GenericReferences')(                        aCurrentRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,]
+    #anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_GenericReferences_After')(        aCurrentRdCtxt)
+    #if not aGo:
+        #return [ True, aGo,]
+
+        
+        
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Plone_Before')(                   aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( False, aCurrentRdCtxt, 'MDDRender_Tabular_Plone')(                                    aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+    anOk, aGo = _fMCtx( True, aCurrentRdCtxt, 'MDDExtension_Render_Tabular_Plone_After')(                    aCurrentRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
+        
+    return [ True, aGo,]
 
 
     
@@ -1827,6 +2183,8 @@ def _MDDRender_Tabular_SectionsMenu( theRdCtxt):
     if not aSRES:
         return [ False, True,]    
 
+    aPLONERES = theRdCtxt.fGP( 'PLONERES', {})
+   
         
     theRdCtxt.pOS( u"""
     &emsp;
@@ -2018,13 +2376,17 @@ def _MDDRender_Tabular_SectionsMenu( theRdCtxt):
             
             
     
-            
+                    
             
     unasTraversals = aSRES.get( 'traversals', [])
     
-    if unasTraversals:
+    unasTraversalsPLONE = aPLONERES.get( 'traversals', [])
+     
+    todasTraversals = unasTraversals + unasTraversalsPLONE
+    
+    if todasTraversals:
 
-        for aTRAVRES in unasTraversals:
+        for aTRAVRES in todasTraversals:
             
             if aTRAVRES:
             
@@ -2086,6 +2448,19 @@ def _MDDRender_Tabular_SectionsMenu( theRdCtxt):
                                     })     
                             
                             
+                    elif aTraversalKind == 'aggregation-plone':
+                        
+                        someFactories = aTRAVRES[ 'factories']
+                 
+                        for unaFactoriaElemento in someFactories:
+                            theRdCtxt.pOS( u"""
+                            <img src="%(portal_url)s/%(FACTORY-icon)s" 
+                                    title=%(FACTORY-translated_archetype_name)s"/>
+                            """ % {
+                                'portal_url':                          aSRES[ 'portal_url'],
+                                'FACTORY-icon':                        fCGIE( unaFactoriaElemento[ 'content_icon']),
+                                'FACTORY-translated_archetype_name':   fCGIE( unaFactoriaElemento[ 'type_translations'][ 'translated_archetype_name']),
+                            })     
                             
                             
     
@@ -2234,7 +2609,6 @@ def _MDDRender_Tabular_Cabecera_TypeAndDescription( theRdCtxt):
     </span>
     &ensp;
     <span class="formHelp">%(translated_type_description)s</span>
-    <span>FAST RENDERING&emsp;</span>
     <br/>
     """ % {
         'portal_url':                   aSRES[ 'portal_url'],
@@ -2420,7 +2794,191 @@ def _MDDRender_Tabular_Cabecera_Textual( theRdCtxt):
 
               
 
+      
+
+
+def _MDDRender_Tabular_Relation_Cabecera( theRdCtxt):
+    
+    aRELRES = theRdCtxt.fGP( 'RELRES', {})
+    if not aRELRES:
+        return [ False, True,]
+    
+    aSRES = theRdCtxt.fGP( 'SRES', {})
+    if not aSRES:
+        return [ False, True,]
+    
+    aTRAVRES = theRdCtxt.fGP( 'TRAVRES', {})
+    if not aTRAVRES:
+        return [ False, True,]
+    
+    
+    
+    aPREFS_PRES = theRdCtxt.fGP( 'PREFS_PRES', {})
+    
+    
+
+    theRdCtxt.pOS( u"""
+    <br/>
+    <h2 id="hidMDDTraversal_%(traversal_name)s_label" 
+        <a  id="hidMDDTraversal_%(traversal_name)s_link"
+            title="%(ModelDDvlPlone_recorrercursorrelacion_action_label)s %(traversal_label)s %(ModelDDvlPlone_deorigenrelacioncuandoenlazando)s %(RELRES-title)s"
+            href="%(RELRES-url)sTabular/#hidMDDTraversal_%(traversal_name)s_link" >
+    """ % {
+        'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+        'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
+        'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),
+        'ModelDDvlPlone_deorigenrelacioncuandoenlazando':     theRdCtxt.fUITr( 'ModelDDvlPlone_deorigenrelacioncuandoenlazando'),
+        'RELRES-url':               aRELRES[ 'url'],
+        'portal_url':               aRELRES[ 'portal_url'],
+        'traversal_name':           fCGIE( aTRAVRES[ 'traversal_name']),        
+        'traversal_label':          fCGIE( aTRAVRES[ 'traversal_translations']['translated_label']),        
+        'traversal_description':    fCGIE( aTRAVRES[ 'traversal_translations']['translated_description']),  
+        'RELRES-title':             fCGIE( aRELRES[ 'values_by_name'][ 'title'][ 'uvalue']),
+    })
+    
+    
+    aTraversalName = aTRAVRES.get( 'traversal_name', '')
+    if not ( aTraversalName in [ 'referidos', 'referentes', 'referidosCualificados',]):
+    
+        someRelatedTypesAndIcons = aTRAVRES[ 'related_types_and_icons']
+ 
+        for unTipoElemento, unIconElemento in someRelatedTypesAndIcons:
+            if unIconElemento:
+                theRdCtxt.pOS( u"""
+                <img src="%(portal_url)s/%(RELATED-icon)s" 
+                        title=%(RELATED-type)s"/>
+                """ % {
+                    'portal_url':                  aSRES[ 'portal_url'],
+                    'RELATED-icon':                unIconElemento,
+                    'RELATED-type':                unTipoElemento,
+                })     
+            
+    theRdCtxt.pOS( u"""
+            <span class="state-visible" id="hidMDDTraversal_%(traversal_name)s_title" >%(traversal_label)s</span>
+        </a>
+        <font size=1">            
+            &emsp;
+            &emsp;
+            <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr>
+                <td id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" valign="top" align="left">
+                    <a title="%(ModelDDvlPlone_Tabular_Sections)s"
+                        onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
+                        <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
+    """ % {
+        'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+        'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
+        'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),
+        'ModelDDvlPlone_deorigenrelacioncuandoenlazando':     theRdCtxt.fUITr( 'ModelDDvlPlone_deorigenrelacioncuandoenlazando'),
+        'SRES-url':                 aSRES[ 'url'],
+        'portal_url':               aSRES[ 'portal_url'],
+        'traversal_name':           fCGIE( aTRAVRES[ 'traversal_name']),        
+        'traversal_label':          fCGIE( aTRAVRES[ 'traversal_translations']['translated_label']),        
+        'traversal_description':    fCGIE( aTRAVRES[ 'traversal_translations']['translated_description']),  
+        'SRES-title':               fCGIE( aSRES[ 'values_by_name'][ 'title'][ 'uvalue']),
+    })
+            
+
+ 
+
+    if aPREFS_PRES.get( 'DisplayActionLabels', False):
+        theRdCtxt.pOS( u"""
+        <span>%(ModelDDvlPlone_Tabular_Sections)s</span>
+        """ % {
+            'ModelDDvlPlone_Tabular_Sections':    theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+        })
+        
+
+    theRdCtxt.pOS( u"""
+                   </a>
+                </td>
+            </tr></tbody></table>
+        </font>            
+    </h2>
+    <p class="formHelp">%(traversal_description)s</p>
+    """ % {
+        'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+        'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
+        'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),
+        'ModelDDvlPlone_deorigenrelacioncuandoenlazando':     theRdCtxt.fUITr( 'ModelDDvlPlone_deorigenrelacioncuandoenlazando'),
+        'SRES-url':                 aSRES[ 'url'],
+        'portal_url':               aSRES[ 'portal_url'],
+        'traversal_name':           fCGIE( aTRAVRES[ 'traversal_name']),        
+        'traversal_label':          fCGIE( aTRAVRES[ 'traversal_translations']['translated_label']),        
+        'traversal_description':    fCGIE( aTRAVRES[ 'traversal_translations']['translated_description']),  
+        'SRES-title':               fCGIE( aSRES[ 'values_by_name'][ 'title'][ 'uvalue']),
+    })
+            
+    
+        
+    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Relation_Cabecera_Cursor_Before')( theRdCtxt)
+    if not aGo:
+        return [ False, True,]
+
+    anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Relation_Cabecera_Cursor')(        theRdCtxt)
+    if not aGo:
+        return [ False, True,]
+
+    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Relation_Cabecera_Cursor_After')(  theRdCtxt)
+    if not aGo:
+        return [ False, True,]
+     
+         
+
+
+    theRdCtxt.pOS( u"""
+    <br/>
+    <h1 id="hidMDDTraversal_%(traversal_name)s_Element" 
+        <a  id="hidMDDTraversal_%(traversal_name)s_Element_link"
+            title="%(ModelDDvlPlone_recorrercursorrelacion_action_label)s %(traversal_label)s %(ModelDDvlPlone_deorigenrelacioncuandoenlazando)s %(SRES-title)s"
+            href="%(SRES-url)sTabular/#hidMDDTraversal_%(traversal_name)s_link" >
+            %(SRES-title)s
+        </a>
+    </h1>
+    
+    """ % {
+        'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+        'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
+        'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),
+        'ModelDDvlPlone_deorigenrelacioncuandoenlazando':     theRdCtxt.fUITr( 'ModelDDvlPlone_deorigenrelacioncuandoenlazando'),
+        'SRES-url':                 aSRES[ 'url'],
+        'portal_url':               aSRES[ 'portal_url'],
+        'traversal_name':           fCGIE( aTRAVRES[ 'traversal_name']),        
+        'traversal_label':          fCGIE( aTRAVRES[ 'traversal_translations']['translated_label']),        
+        'traversal_description':    fCGIE( aTRAVRES[ 'traversal_translations']['translated_description']),  
+        'SRES-title':               fCGIE( aSRES[ 'values_by_name'][ 'title'][ 'uvalue']),
+    })
+        
+    
+
+    theRdCtxt.pOS( u"""
+    <span class="formHelp" >
+        <font size="2">
+            <img src="%(portal_url)s/%(content_icon)s" title="%(SRES-title)s" alt="%(SRES-title)s" />
+            <strong>%(translated_archetype_name)s</strong>
+        </font>
+    </span>
+    &ensp;
+    <span class="formHelp">%(translated_type_description)s</span>
+    <br/>
+    """ % {
+        'portal_url':                   aSRES[ 'portal_url'],
+        'content_icon':                 aSRES[ 'content_icon'],
+        'SRES-title':                   fCGIE( aSRES['values_by_name'][ 'title'][ 'uvalue']),
+        'translated_archetype_name':    aSRES[ 'type_translations']['translated_archetype_name'],
+        'translated_type_description':  aSRES[ 'type_translations']['translated_type_description'],
+    })
+    
+
                 
+    return [ True, True,]
+
+
+
+
+
+
+
+
     
 def _MDDRender_Tabular_SiblingsMenu( theRdCtxt):
     
@@ -2667,6 +3225,10 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
  
         aSRES = theRdCtxt.fGP( 'SRES', {})
         if not aSRES:
+            return [ False, True,]    
+            
+        aCURSORRES = theRdCtxt.fGP( 'CURSORRES', aSRES)
+        if not aCURSORRES:
             return [ False, True,]    
             
         if aSRES[ 'is_root']:
@@ -2936,6 +3498,300 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
 
     
 
+        
+    
+def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
+    
+    
+    aRenderedCursor = theRdCtxt.fGP( 'RenderedRelationCursor', '')
+    if aRenderedCursor:
+        theRdCtxt.pO( aRenderedCursor)    
+        return [ True, True,]
+    
+    aCurrentOutput = theRdCtxt.fGP( 'output', None)
+    
+    aNewOutput = StringIO()
+    theRdCtxt.pSP( 'output', aNewOutput)
+
+    
+    
+    try:
+ 
+        aSRES = theRdCtxt.fGP( 'SRES', {})
+        if not aSRES:
+            return [ False, True,]    
+            
+        aRELRES = theRdCtxt.fGP( 'RELRES', {})
+        if not aRELRES:
+            return [ False, True,]    
+            
+        if aSRES[ 'is_root']:
+            return [ False, True,]    
+            
+        aCursor          = aSRES[ 'cursor']
+        
+        if not ( aCursor and ( aCursor[ 'elements_count'] > 1) and (  aCursor[ 'previous_element'] or aCursor[ 'next_element'])):
+            return [ False, True,]    
+            
+        theRdCtxt.pOS( u"""
+        &emsp;
+        <table   style="display: inline" cellspacing="0" cellpadding="0" frame="void"  ><tbody><tr>
+            <td  id="cid_MDDSiblingsMenu_Holder" valign="center" >
+        """)
+        
+        aRelationCursorName = theRdCtxt.fGP( 'theRelationCursorName', '')
+        aReferenceFieldName = theRdCtxt.fGP( 'theReferenceFieldName', '')
+            
+        
+        theRdCtxt.pOS( u"""
+        <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
+        """)
+        if aCursor[ 'first_element'] and not ( aCursor[ 'element_index'] == 1) and not ( aCursor[ 'element_index'] == 2):
+            unTituloEnlace = u'%s %s %s %s' % ( 
+                aCursor[ 'first_element'][ 'type_translations'][ 'translated_archetype_name'], 
+                aCursor[ 'first_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 
+                aCursor[ 'first_element'][ 'values_by_name'][ 'description'][ 'uvalue'], 
+                aCursor[ 'first_element'][ 'type_translations'][ 'translated_type_description'],
+            )
+        
+            aLinkHREF = '%sTabular/' % aRELRES[ 'url']
+            
+            if aRelationCursorName:
+                aLinkHREF = '%s?theRelationCursorName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aRelationCursorName, aCursor[ 'first_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            elif aReferenceFieldName:
+                aLinkHREF = '%s?theReferenceFieldName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aReferenceFieldName, aCursor[ 'first_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            else:
+                aLinkHREF = '%s%s' % ( aLinkHREF, theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),)
+            
+        
+            
+            theRdCtxt.pOS( u"""
+            <a id="cid_MDDLink_First"  class="state-visible" title="%(unTituloEnlace)s " 
+            href="%(aLinkHREF)s"  >
+            <img src="%(portal_url)s/primero.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-first" />
+            <!-- <span>%(ELEMENT-title)s</span> -->
+            </a>
+            """ % {
+            'unTituloEnlace':              fCGIE( unTituloEnlace),
+            'portal_url':                  aSRES[ 'portal_url'],
+            'ELEMENT-title':               fCGIE( aCursor[ 'first_element']['values_by_name'][ 'title'][ 'uvalue']),
+            'aLinkHREF':                   aLinkHREF,
+            })
+        else:
+            theRdCtxt.pOS( u"""
+            <img src="%(portal_url)s/blank_icon.gif" />
+            """ % {
+            'portal_url':                  aSRES[ 'portal_url'],
+            })
+            
+        theRdCtxt.pOS( u"""
+        </td></tr></tbody></table>
+        &ensp;
+        <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
+        """)
+            
+        
+        
+        if aCursor[ 'previous_element'] and ( aCursor[ 'element_index'] > 1):
+            unTituloEnlace = u'%s %s %s %s' % ( 
+                aCursor[ 'previous_element'][ 'type_translations'][ 'translated_archetype_name'], 
+                aCursor[ 'previous_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 
+                aCursor[ 'previous_element'][ 'values_by_name'][ 'description'][ 'uvalue'], 
+                aCursor[ 'previous_element'][ 'type_translations'][ 'translated_type_description'],
+            )
+        
+            aLinkHREF = '%sTabular/' % aRELRES[ 'url']
+            
+            if aRelationCursorName:
+                aLinkHREF = '%s?theRelationCursorName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aRelationCursorName, aCursor[ 'previous_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            elif aReferenceFieldName:
+                aLinkHREF = '%s?theReferenceFieldName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aReferenceFieldName, aCursor[ 'previous_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            else:
+                aLinkHREF = '%s%s' % ( aLinkHREF, theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),)
+            
+        
+            
+            theRdCtxt.pOS( u"""
+            <a id="cid_MDDLink_Previous"  class="state-visible" title="%(unTituloEnlace)s " 
+            href="%(aLinkHREF)s"  >
+            <img src="%(portal_url)s/anterior.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-previous" />
+            <!-- <span>%(ELEMENT-title)s</span> -->
+            </a>
+            """ % {
+            'unTituloEnlace':              unTituloEnlace,
+            'portal_url':                  aSRES[ 'portal_url'],
+            'ELEMENT-title':               fCGIE(  aCursor[ 'previous_element']['values_by_name'][ 'title'][ 'uvalue']),
+            'aLinkHREF':                   aLinkHREF,
+            })
+        else:
+            theRdCtxt.pOS( u"""
+            <img src="%(portal_url)s/blank_icon.gif" />
+            """ % {
+            'portal_url':                  aSRES[ 'portal_url'],
+            })
+            
+        theRdCtxt.pOS( u"""
+        </td></tr></tbody></table>
+        <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
+        """)
+            
+        
+        
+        
+        
+        
+        
+        
+        theRdCtxt.pOS( u"""
+        &emsp;
+        &emsp;
+        <font size="2" >
+            <a  title="Siblings-" alt="Siblings-"
+                onclick="
+                    document.getElementById( 'cid_MDDSiblingsMenu_Holder').appendChild( document.getElementById( 'cid_MDDSiblingsList_ActionsMenu')); 
+                    replaceClassName( document.getElementById( 'cid_MDDSiblingsList_ActionsMenu') ,'deactivated', 'activated'); 
+                    return true;">
+                <span>%(element_index)d</span>
+                /
+                <span>%(elements_count)d</span>
+            </a>
+        </font>  
+        """ % {
+            'element_index':     aCursor[ 'element_index'],
+            'elements_count':    aCursor[ 'elements_count'],
+            'portal_url':        aSRES[ 'portal_url'],
+        })   
+
+        
+        
+        #theRdCtxt.pOS( u"""
+        #<span>%(element_index)d</span>
+        #/
+        #<span>%(elements_count)d</span>
+        #""" % {
+            #'element_index':    aCursor[ 'element_index'],
+            #'elements_count':    aCursor[ 'elements_count'],
+        #})
+         
+        theRdCtxt.pOS( u"""
+        </td></tr></tbody></table>
+        <table cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
+        """)
+            
+        
+            
+        if aCursor[ 'next_element'] and ( aCursor[ 'element_index'] < aCursor[ 'elements_count']):
+            unTituloEnlace = u'%s %s %s %s' % ( 
+                aCursor[ 'next_element'][ 'type_translations'][ 'translated_archetype_name'], 
+                aCursor[ 'next_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 
+                aCursor[ 'next_element'][ 'values_by_name'][ 'description'][ 'uvalue'], 
+                aCursor[ 'next_element'][ 'type_translations'][ 'translated_type_description'],
+            )
+        
+            aLinkHREF = '%sTabular/' % aRELRES[ 'url']
+            
+            if aRelationCursorName:
+                aLinkHREF = '%s?theRelationCursorName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aRelationCursorName, aCursor[ 'next_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            elif aReferenceFieldName:
+                aLinkHREF = '%s?theReferenceFieldName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aReferenceFieldName, aCursor[ 'next_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            else:
+                aLinkHREF = '%s%s' % ( aLinkHREF, theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),)
+            
+        
+            
+            theRdCtxt.pOS( u"""
+            <a id="cid_MDDLink_Previous"  class="state-visible" title="%(unTituloEnlace)s " 
+            href="%(aLinkHREF)s"  >
+            <img src="%(portal_url)s/siguiente.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-next" />
+            <!-- <span>%(ELEMENT-title)s</span> -->
+            </a>
+            """ % {
+            'unTituloEnlace':              fCGIE( unTituloEnlace),
+            'portal_url':                  aSRES[ 'portal_url'],
+            'ELEMENT-title':               fCGIE(  aCursor[ 'next_element']['values_by_name'][ 'title'][ 'uvalue']),
+            'aLinkHREF':                   aLinkHREF,
+            })
+        else:
+            theRdCtxt.pOS( u"""
+            <img src="%(portal_url)s/blank_icon.gif" />
+            """ % {
+            'portal_url':                  aSRES[ 'portal_url'],
+            })
+            
+        
+        theRdCtxt.pOS( u"""
+        </td></tr></tbody></table>
+        &ensp;
+        <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
+        """)
+            
+            
+        
+        if aCursor[ 'last_element'] and not ( aCursor[ 'element_index'] == aCursor[ 'elements_count']) and not ( aCursor[ 'element_index'] == ( aCursor[ 'elements_count'] - 1)):
+            unTituloEnlace = '%s %s %s %s' % ( 
+            aCursor[ 'last_element'][ 'type_translations'][ 'translated_archetype_name'], 
+            aCursor[ 'last_element'][ 'values_by_name'][ 'title'][ 'uvalue'], 
+            aCursor[ 'last_element'][ 'values_by_name'][ 'description'][ 'uvalue'], 
+            aCursor[ 'last_element'][ 'type_translations'][ 'translated_type_description'],
+            )
+        
+            aLinkHREF = '%sTabular/' % aRELRES[ 'url']
+            
+            if aRelationCursorName:
+                aLinkHREF = '%s?theRelationCursorName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aRelationCursorName, aCursor[ 'last_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            elif aReferenceFieldName:
+                aLinkHREF = '%s?theReferenceFieldName=%s&theCurrentElementUID=%s%s' % ( aLinkHREF, aReferenceFieldName, aCursor[ 'last_element'][ 'UID'], theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),)
+            
+            else:
+                aLinkHREF = '%s%s' % ( aLinkHREF, theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),)
+            
+        
+            
+            theRdCtxt.pOS( u"""
+            <a id="cid_MDDLink_last"  class="state-visible" title="%(unTituloEnlace)s " 
+            href="%(aLinkHREF)s"  >
+            <img src="%(portal_url)s/ultimo.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-last" />
+            <!-- <span>%(ELEMENT-title)s</span> -->
+            </a>
+            """ % {
+            'unTituloEnlace':              fCGIE( unTituloEnlace),
+            'portal_url':                  aSRES[ 'portal_url'],
+            'ELEMENT-title':               fCGIE( aCursor[ 'last_element']['values_by_name'][ 'title'][ 'uvalue']),
+            'aLinkHREF':                   aLinkHREF,
+            })
+        else:
+            theRdCtxt.pOS( u"""
+            <img src="%(portal_url)s/blank_icon.gif" />
+            """ % {
+            'portal_url':                  aSRES[ 'portal_url'],
+            })
+        
+        theRdCtxt.pOS( u"""
+        </td></tr></tbody></table>
+        </td></tr></tbody></table>
+        """)    
+        
+    
+    finally:
+        theRdCtxt.pSP( 'output', aCurrentOutput)
+    
+    aRenderedCursor = aNewOutput.getvalue() 
+    if aRenderedCursor:
+        theRdCtxt.pSP( 'RenderedRelationCursor', aRenderedCursor)
+        theRdCtxt.pO( aRenderedCursor)
+    
+    return [ True, True,]
+
+
+    
+
     
     
 def _MDDRender_Tabular_Cabecera_SectionsMenu_Anchor( theRdCtxt):
@@ -3154,42 +4010,48 @@ def _MDDRender_Tabular_Cabecera_ClipboardActions( theRdCtxt):
     unPermitePegar = aSRES[ 'read_permission'] and aSRES[ 'write_permission'] and aSRES[ 'allow_paste']    
     
     if unPermitePegar:
-        unTituloEnlace = u'%s %s %s %s %s' % ( 
-            theRdCtxt.fUITr( 'Paste'),
-            aSRES[ 'type_translations'][ 'translated_archetype_name'], 
-            aSRES[ 'values_by_name'][ 'title'][ 'uvalue'], 
-            aSRES[ 'values_by_name'][ 'description'][ 'uvalue'], 
-            aSRES[ 'type_translations'][ 'translated_type_description'],
-        )
-    
-        theRdCtxt.pOS( u"""
-            &emsp;
-            <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
-            <a id="cid_MDDActionLink_Eliminar"  class="state-visible" title="%(unTituloEnlace)s " 
-                href="%(SRES-url)sobject_paste"  >
-                <img src="%(portal_url)s/paste_icon.gif" alt="%(Paste)s" title="%(Paste)s" 
-                    id="icon-delete" />
-            """ % {
-                'unTituloEnlace':              fCGIE( unTituloEnlace),
-                'portal_url':                  aSRES[ 'portal_url'],
-                'OWNER-title':                 fCGIE( aSRES['values_by_name'][ 'title'][ 'uvalue']),
-                'SRES-url':                    aSRES[ 'url'],
-                'SRES-UID':                    aSRES[ 'UID'],
-                'theExtraLinkHrefParams':      theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
-                'Paste': theRdCtxt.fUITr( 'Paste'),
-            })
-        
-        if aPREFS_PRES.get( 'DisplayActionLabels', False):
-            theRdCtxt.pOS( u"""
-            <span>%(Paste)s</span>
-            """ % {
-                'Paste':    theRdCtxt.fUITr( 'Paste'),
-            })
-    
-    
-        theRdCtxt.pOS( u"""
-            </a></td></tr></tbody></table>
-            """ )
+        aClipboardResult = theRdCtxt.fGP( 'CLIPBOARD', {})
+        if aClipboardResult:
+            
+            someClipboardElementsByRoot = aClipboardResult[ 'elements_by_roots']
+            if someClipboardElementsByRoot:
+                    
+                unTituloEnlace = u'%s %s %s %s %s' % ( 
+                    theRdCtxt.fUITr( 'Paste'),
+                    aSRES[ 'type_translations'][ 'translated_archetype_name'], 
+                    aSRES[ 'values_by_name'][ 'title'][ 'uvalue'], 
+                    aSRES[ 'values_by_name'][ 'description'][ 'uvalue'], 
+                    aSRES[ 'type_translations'][ 'translated_type_description'],
+                )
+            
+                theRdCtxt.pOS( u"""
+                    &emsp;
+                    <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
+                    <a id="cid_MDDActionLink_Eliminar"  class="state-visible" title="%(unTituloEnlace)s " 
+                        href="%(SRES-url)sobject_paste"  >
+                        <img src="%(portal_url)s/paste_icon.gif" alt="%(Paste)s" title="%(Paste)s" 
+                            id="icon-delete" />
+                    """ % {
+                        'unTituloEnlace':              fCGIE( unTituloEnlace),
+                        'portal_url':                  aSRES[ 'portal_url'],
+                        'OWNER-title':                 fCGIE( aSRES['values_by_name'][ 'title'][ 'uvalue']),
+                        'SRES-url':                    aSRES[ 'url'],
+                        'SRES-UID':                    aSRES[ 'UID'],
+                        'theExtraLinkHrefParams':      theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                        'Paste': theRdCtxt.fUITr( 'Paste'),
+                    })
+                
+                if aPREFS_PRES.get( 'DisplayActionLabels', False):
+                    theRdCtxt.pOS( u"""
+                    <span>%(Paste)s</span>
+                    """ % {
+                        'Paste':    theRdCtxt.fUITr( 'Paste'),
+                    })
+            
+            
+                theRdCtxt.pOS( u"""
+                    </a></td></tr></tbody></table>
+                    """ )
     
     return [ True, True,]
 
@@ -3636,6 +4498,26 @@ def _MDDRender_Tabular_Traversals( theRdCtxt):
                             break
                         pass 
 
+                    
+                    
+                elif aTraversalKind == 'aggregation-plone':
+                    
+                    aRdCtxt = theRdCtxt.fNewCtxt( {
+                        'TRAVRES': aTRAVRES
+                    })
+                    
+                    
+                    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Tabla_Plone_Before')( aRdCtxt)
+                    if not aGo:
+                        break
+                    anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Tabla_Plone')( aRdCtxt)
+                    if not aGo:
+                        break
+                    anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Tabla_Plone_After')( aRdCtxt)
+                    if not aGo:
+                        break
+                            
+                    
     return [ True, aGo,]
 
 
@@ -4915,7 +5797,7 @@ def _MDDRender_Tabular_Tabla( theRdCtxt):
                 unaVistaCreacion = ( aTRAVRES.get( 'factory_views', None) or {}).get( unaFactoriaElemento[ 'meta_type'], 'Crear')
                 theRdCtxt.pOS( u"""
                 &emsp;
-                <a  id="hidMDDAggregation_%(traversal_name)s_Create_Link"
+                <a  id="hidMDDAggregation_%(traversal_name)s_Create_Link_%(FACTORY-meta_type)s"
                     href="%(SRES-url)s%(unaVistaCreacion)s/?theNewTypeName=%(FACTORY-meta_type)s&theAggregationName=%(traversal_name)s"
                     title="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s" >
                     <img id="hidMDDAggregation_%(traversal_name)s_Create_Icon"
@@ -5014,6 +5896,897 @@ def _MDDRender_Tabular_Tabla( theRdCtxt):
          
     return [ True, True,]
 
+
+
+
+
+
+
+
+
+
+
+
+def _MDDRender_Tabular_Tabla_Plone( theRdCtxt):
+    
+
+    aSRES = theRdCtxt.fGP( 'SRES', {})
+    if not aSRES:
+        return [ False, True,]
+    
+    #aPARENT_SRES = theRdCtxt.fGP( 'PARENT_SRES', {})
+    #if not aPARENT_SRES:
+        #return [ False, True,]
+    
+    
+    aSRESIndex = theRdCtxt.fGP( 'index', 0)
+    
+    aTRAVRES = theRdCtxt.fGP( 'TRAVRES', {})
+    if not aTRAVRES:
+        return [ False, True,]
+    
+    aPARENT_TRAVRES = theRdCtxt.fGP( 'PARENT_TRAVRES', {})
+    
+    aTableTraversalName = ''
+    if aPARENT_TRAVRES:
+        aTableTraversalName = aPARENT_TRAVRES[ 'traversal_name']
+    else:        
+        aTableTraversalName = aTRAVRES[ 'traversal_name']
+       
+    if not aTableTraversalName:
+        return [ False, True,]
+    
+    aPREFS_PRES = theRdCtxt.fGP( 'PREFS_PRES', {})
+    #if not aPREFS_PRES:
+        # return [ False, True,]
+    
+    someElements  = aTRAVRES.get( 'elements', [])
+    unNumElements = len( someElements)
+    unSiempre    = theRdCtxt.fGP( 'theSiempre', True)
+
+     
+    if someElements or unSiempre:
+        
+        theRdCtxt.pOS( u"""
+        <h2 id="hidMDDTraversal_%(traversal_name)s_label" >
+            %(traversal_label)s
+            <font size=1">            
+                &emsp;
+                &emsp;
+                <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr>
+                    <td id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" valign="top" align="left">
+                        <a title="%(ModelDDvlPlone_Tabular_Sections)s"
+                            onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
+                            <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
+        """ % {
+            'portal_url':                       aSRES[ 'portal_url'],
+            'ModelDDvlPlone_Tabular_Sections':  theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+            'traversal_name':                   fCGIE( aTRAVRES[ 'traversal_name']),        
+            'traversal_label':                  fCGIE( aTRAVRES[ 'traversal_translations']['translated_label']),        
+            'traversal_description':            fCGIE( aTRAVRES[ 'traversal_translations']['translated_description']),        
+        })
+        
+        
+        
+        
+    
+    if aPREFS_PRES.get( 'DisplayActionLabels', False):
+        theRdCtxt.pOS( u"""
+        <span>%(ModelDDvlPlone_Tabular_Sections)s</span>
+        """ % {
+            'ModelDDvlPlone_Tabular_Sections':    theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+        })
+            
+        
+        
+        
+        
+    if someElements or unSiempre:
+
+        theRdCtxt.pOS( u"""
+                        </a>
+                    </td>
+                </tr></tbody></table>
+            </font>
+        </h2>
+        <table id="hidMDDTraversal_%(traversal_name)s_table" width="100%%" cellspacing="0" cellpadding="0" frame="void">
+            <tr>
+                <td id="hidMDDTraversal_%(traversal_name)s_description" align="left" valign="baseline" class="formHelp">%(traversal_description)s</td>
+                <td align="right" valign="baseline"> 
+                </td>
+            </tr>
+        </table>
+        """ % {
+            'portal_url':                       aSRES[ 'portal_url'],
+            'ModelDDvlPlone_Tabular_Sections':  theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
+            'traversal_name':                   fCGIE( aTRAVRES[ 'traversal_name']),        
+            'traversal_label':                  fCGIE( aTRAVRES[ 'traversal_translations']['translated_label']),        
+            'traversal_description':            fCGIE( aTRAVRES[ 'traversal_translations']['translated_description']),        
+        })
+        
+
+   
+    
+    unIdTabla = 'hidMDDTraversal_%(traversal_name)s_Elem_%(SRES-id)s_Table' % {
+        'traversal_name':                     aTableTraversalName,
+        'SRES-id':                            aSRES[ 'id'],
+    }
+    theRdCtxt.pSP( 'unIdTabla', unIdTabla)
+    
+    theRdCtxt.pOS( u"""
+    <table width="100%%" class="listing"  id="%(unIdTabla)s"
+        summary="%(SRES-title)s">
+        <tbody>
+            <tr>
+    """ % {
+            'unIdTabla':                           fCGIE( unIdTabla),
+            'SRES-title':                          fCGIE( aSRES[ 'values_by_name'][ 'title'][ 'uvalue']),
+        })
+
+
+    
+    unPermiteModificarAlgunElemento = False
+    for aERES in someElements:
+        if aERES[ 'read_permission'] and ( aERES[ 'write_permission'] or aERES[ 'delete_permission']):
+            unPermiteModificarAlgunElemento = True
+            break
+        
+        
+        
+    unPermiteEliminarAlgunElemento = False
+    unPermiteEliminarElementos = aSRES[ 'read_permission'] and aSRES[ 'write_permission'] and \
+        aTRAVRES[ 'read_permission'] and aTRAVRES[ 'write_permission'] and \
+        not ( aTRAVRES['traversal_config'].has_key( 'no_ui_changes') and ( aTRAVRES['traversal_config'][ 'no_ui_changes'] == True))
+    
+    if unPermiteEliminarElementos:
+        for aERES in someElements:
+            if aERES[ 'read_permission'] and ( aERES[ 'write_permission'] or aERES[ 'delete_permission']):
+                unPermiteEliminarAlgunElemento = True
+                break
+                
+        
+    theRdCtxt.pOS( u"""
+    <col width="24" />
+    """)
+    
+    if unPermiteModificarAlgunElemento:
+        theRdCtxt.pOS( u"""
+        <col width="%d" />
+        """ % ( unPermiteEliminarAlgunElemento and 120) or 100 )
+        
+        
+      
+    unosColumnNames = aTRAVRES.get( 'column_names', [])
+    
+    unNumColumnNames =len( unosColumnNames)
+    
+    theRdCtxt.pOS( u"""
+    <col/>
+    """ * unNumColumnNames)
+
+
+    theRdCtxt.pOS( u"""
+    <thead>
+        <tr>
+    """)
+    
+    
+    
+    theRdCtxt.pOS( u"""
+    <th class="nosort" align="left" >
+        <input type="checkbox"  class="noborder"  value=""
+            name="%(unIdTabla)s_SelectAll" id="%(unIdTabla)s_SelectAll" 
+            onchange="pMDDToggleAllSelections('%(unIdTabla)s'); return true;"/>
+    """ %{
+    'unIdTabla':                           fCGIE( unIdTabla),
+   })
+
+
+    if not unPermiteModificarAlgunElemento:
+        
+        anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Traversals_Aggregations_GroupActionsMenu')( theRdCtxt)
+        
+        theRdCtxt.pOS( u"""
+        </th>
+        """)
+    else:
+        theRdCtxt.pOS( u"""
+        </th>
+        <th class="nosort" align="left" > 
+        """)
+        
+        anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Traversals_Aggregations_GroupActionsMenu')( theRdCtxt)
+        
+        theRdCtxt.pOS( u"""
+        </th>
+        """)
+        
+        
+        
+        
+        
+    for unColumnName in unosColumnNames:
+        theRdCtxt.pOS( u"""
+        <th class="nosort" align="left">%s</th>
+        """ % fCGIE( aTRAVRES[ 'column_translations'].get( unColumnName, {}).get( 'translated_label', unColumnName))
+        )
+            
+    theRdCtxt.pOS( u"""
+        </thead>
+    <tbody>
+    """ )
+            
+            
+    for unIndexElemento in range( unNumElements):
+        
+        aERES = someElements[ unIndexElemento]
+        aSubRdCtxt = theRdCtxt.fNewCtxt( {
+            'ERES' : aERES,
+        })
+        
+        aSubRdCtxt.pOS( u"""
+        <tr class="%(Row-Class)s" id="%(unIdTabla)s_RowIndex_%(Row-Index)d" >
+        """ % {
+            'unIdTabla': fCGIE( unIdTabla),
+            'Row-Class': cClasesFilas[ unIndexElemento % 2],
+            'Row-Index': unIndexElemento,
+        })
+        
+
+        aSubRdCtxt.pOS( u"""
+        <td align="center" valign="baseline">
+            <input type="checkbox"  class="noborder"  value=""
+                name="%(unIdTabla)s_Select_%(Row-Index)d"
+                id="%(unIdTabla)s_Select_%(Row-Index)d"  />
+        </td>
+        """ % {
+            'Row-Index': unIndexElemento,
+            'unIdTabla': fCGIE( unIdTabla),
+        })
+    
+    
+            
+        if unPermiteModificarAlgunElemento:
+            
+            aSubRdCtxt.pOS( u"""
+            <td align="center" valign="baseline" id="%(unIdTabla)s_%(ERES-UID)s_ChangesLinks_Cell">
+            """ % {
+                'unIdTabla':                fCGIE( unIdTabla),
+                'ERES-UID':                 fCGIE( aERES[ 'UID']),
+            })
+            
+            if aERES[ 'write_permission']:
+            
+                if aERES[ 'delete_permission']:
+                    aSubRdCtxt.pOS( u"""
+                    <a  id="%(unIdTabla)s_RowIndex_%(Row-Index)d_Delete_Link"
+                        href="%(SRES-url)sEliminarPlone?theUIDToDelete=%(ERES-UID)s%(theExtraLinkHrefParams)s" 
+                        title="%(ModelDDvlPlone_eliminar_action_label)s %(translated_archetype_name)s %(ERES-title)s" >
+                        <img 
+                            alt="%(ModelDDvlPlone_eliminar_action_label)s %(translated_archetype_name)s %(ERES-title)s" 
+                            title="%(ModelDDvlPlone_eliminar_action_label)s %(translated_archetype_name)s %(ERES-title)s"  
+                            id="icon-delete" src="%(portal_url)s/delete_icon.gif"  />
+                    </a>
+                    &nbsp;    
+                                        
+                    """ %{
+                        'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
+                        'Row-Index':                           unIndexElemento,
+                        'unIdTabla':                           fCGIE( unIdTabla),
+                        'ModelDDvlPlone_eliminar_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_eliminar_action_label'),
+                        'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                        'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                        'SRES-url':                            aSRES[ 'url'],
+                        'ERES-UID':                            aERES[ 'UID'],
+                        'portal_url':                          aERES[ 'portal_url'],
+                    })
+                
+                else:
+                    aSubRdCtxt.pOS( u"""
+                        <img src="%s/blank_icon.gif"  alt="Blank" title="Blank" id="icon-blank" />
+                    """ %  aERES[ 'portal_url']
+                    )
+                    
+            
+                if aERES[ 'write_permission']:
+                    aSubRdCtxt.pOS( u"""
+                    <a  id="%(unIdTabla)s_RowIndex_%(Row-Index)d_Edit_Link"
+                        href="%(ERES-url)sbase_edit/%(theExtraLinkHrefParams)s" 
+                        title="%(ModelDDvlPlone_editar_action_label)s %(translated_archetype_name)s %(ERES-title)s" >
+                        <img 
+                            alt="%(ModelDDvlPlone_editar_action_label)s %(translated_archetype_name)s %(ERES-title)s" 
+                            title="%(ModelDDvlPlone_editar_action_label)s %(translated_archetype_name)s %(ERES-title)s"  
+                            id="icon-edit" src="%(portal_url)s/edit.gif"  />
+                    </a>
+                    &nbsp;    
+                                        
+                    """ %{
+                        'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                        'Row-Index':                           unIndexElemento,
+                        'unIdTabla':                           fCGIE( unIdTabla),
+                        'ModelDDvlPlone_editar_action_label':  theRdCtxt.fUITr( 'ModelDDvlPlone_editar_action_label'),
+                        'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                        'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                        'ERES-url':                            aERES[ 'url'],
+                        'portal_url':                          aERES[ 'portal_url'],
+                    })
+                
+                else:
+                    aSubRdCtxt.pOS( u"""
+                        <img src="%s/blank_icon.gif"  alt="Blank" title="Blank" id="icon-blank" />
+                    """ %  aERES[ 'portal_url']
+                    )
+                    
+                      
+                    
+                if unNumElements > 1 and aSRES[ 'write_permission']:
+                    
+                    if  unIndexElemento:
+                        aSubRdCtxt.pOS( u"""
+                        <a  id="%(unIdTabla)s_RowIndex_%(Row-Index)d_Subir_Link"
+                            href="%(SRES-url)sTabular/?theMovedObjectUID=%(ERES-UID)s&theMoveDirection=Up&theTraversalName=%(traversal_name)s&dd=%(millis)d%(theExtraLinkHrefParams)s#hidMDDElemento_%(ERES-UID)s" 
+                            title="%(ModelDDvlPlone_subir_action_label)s %(translated_archetype_name)s %(ERES-title)s" >
+                            <img 
+                                alt="%(ModelDDvlPlone_subir_action_label)s %(translated_archetype_name)s %(ERES-title)s" 
+                                title="%(ModelDDvlPlone_subir_action_label)s %(translated_archetype_name)s %(ERES-title)s"  
+                                id="icon-edit" src="%(portal_url)s/arrowUp.gif"  />
+                        </a>
+                        &nbsp;    
+                                            
+                        """ %{
+                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
+                            'Row-Index':                           unIndexElemento,
+                            'millis':                              fMillisecondsNow(), 
+                            'unIdTabla':                           fCGIE( unIdTabla),
+                            'ModelDDvlPlone_subir_action_label':   theRdCtxt.fUITr( 'ModelDDvlPlone_subir_action_label'),
+                            'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                            'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                            'ERES-id':                             fCGIE( aERES[ 'id']),
+                            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                            'SRES-url':                            aSRES[ 'url'],
+                            'portal_url':                          aERES[ 'portal_url'],
+                        })
+                    
+                    else:
+                        aSubRdCtxt.pOS( u"""
+                            <img src="%s/arrowBlank.gif"  alt="Blank" title="Blank" id="icon-blank" />
+                        """ %  aERES[ 'portal_url']
+                        )
+                    
+                     
+                    
+                    aSubRdCtxt.pOS( u"""
+                    &nbsp;
+                    """ )
+                    
+                       
+                    
+                    if  unIndexElemento < ( unNumElements -1):
+                        aSubRdCtxt.pOS( u"""
+                        <a  id="%(unIdTabla)s_RowIndex_%(Row-Index)d_Bajar_Link"
+                            href="%(SRES-url)sTabular/?theMovedObjectUID=%(ERES-UID)s&theMoveDirection=Down&theTraversalName=%(traversal_name)s&dd=%(millis)d%(theExtraLinkHrefParams)s#hidMDDElemento_%(ERES-UID)s" 
+                            title="%(ModelDDvlPlone_bajar_action_label)s %(translated_archetype_name)s %(ERES-title)s" >
+                            <img 
+                                alt="%(ModelDDvlPlone_bajar_action_label)s %(translated_archetype_name)s %(ERES-title)s" 
+                                title="%(ModelDDvlPlone_bajar_action_label)s %(translated_archetype_name)s %(ERES-title)s"  
+                                id="icon-edit" src="%(portal_url)s/arrowDown.gif"  />
+                        </a>
+                        &nbsp;    
+                                            
+                        """ %{
+                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
+                            'Row-Index':                           unIndexElemento,
+                            'millis':                              fMillisecondsNow(), 
+                            'unIdTabla':                           fCGIE( unIdTabla),
+                            'ModelDDvlPlone_bajar_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_bajar_action_label'),
+                            'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                            'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                            'ERES-id':                             fCGIE( aERES[ 'id']),
+                            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                            'SRES-url':                            aSRES[ 'url'],
+                            'portal_url':                          aERES[ 'portal_url'],
+                        })
+                    
+                    else:
+                        aSubRdCtxt.pOS( u"""
+                        <img src="%s/arrowBlank.gif"  alt="Blank" title="Blank" id="icon-blank" />
+                        """ %  aERES[ 'portal_url']
+                        )
+                                                                  
+            aSubRdCtxt.pOS( u"""
+            </td>
+            """ )
+        
+        for unColumnName in unosColumnNames:
+            
+            aSubRdCtxt.pOS( u"""
+            <td align="left" valign="baseline" >
+            """ )
+             
+            if ( unColumnName == 'title') or ( unColumnName.lower().find('title') >= 0) or not ( 'title' in unosColumnNames) and  ( unColumnName == unosColumnNames[ 0]):
+                
+                unTitle = u'%s %s %s %s %s (%s)' % ( 
+                    theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'), 
+                    fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']),
+                    fCGIE( aERES[ 'values_by_name'][ unColumnName][ 'uvalue']), 
+                    ( not ( unColumnName == 'title')       and  fCGIE( aERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', ''))) or '', 
+                    ( not ( unColumnName == 'description') and  fCGIE( aERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', ''))) or '',
+                    fCGIE( aERES[ 'type_translations'][ 'translated_type_description']),
+                )
+                
+                
+                aSubRdCtxt.pOS( u"""
+                <a  class="state-visible" 
+                    name="hidMDDElemento_%(ERES-UID)s"
+                    id="%(unIdTabla)s_RowIndex_%(Row-Index)d_NavegarA_Link"
+                    href="%(ERES-url)sview/%(theExtraLinkHrefParams)s" 
+                    title="%(unTitle)s" >
+                    <h4>
+                        <img src="%(portal_url)s/%(content_icon)s" 
+                            alt="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(ERES-title)s" 
+                            title="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(ERES-title)s" />
+                        <span  class="state-visible">%(column_value)s</span>
+                    </h4>
+                </a>
+                &nbsp;    
+                                    
+                """ %{
+                    'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                    'Row-Index':                           unIndexElemento,
+                    'unTitle':                             fCGIE( unTitle),
+                    'millis':                              fMillisecondsNow(), 
+                    'unIdTabla':                           fCGIE( unIdTabla),
+                    'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
+                    'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                    'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                    'ERES-id':                             fCGIE( aERES[ 'id']),
+                    'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                    'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                    'SRES-url':                            aSRES[ 'url'],
+                    'ERES-url':                            aERES[ 'url'],
+                    'content_icon':                        fCGIE( aERES[ 'content_icon']),
+                    'portal_url':                          aERES[ 'portal_url'],
+                    'column_value':                        fCGIE( aERES[ 'values_by_name'][ unColumnName][ 'uvalue']),
+                    
+                })
+                
+            elif unColumnName == cPloneElement_ColumnName_Details:
+                
+                aERES_MetaType = aERES[ 'meta_type']
+                
+                if aERES_MetaType == 'ATImage':
+                    aContentURL = aERES[ 'values_by_name'][ 'content_url'][ 'value']
+                    if aContentURL:
+                        aSubRdCtxt.pOS( u"""
+                        <a  class="state-visible" 
+                            name="hidMDDElemento_%(ERES-UID)s_Details"
+                            id="%(unIdTabla)s_RowIndex_%(Row-Index)d_NavegarA_Details_Link"
+                            href="%(ERES-url)sview/%(theExtraLinkHrefParams)s" 
+                            title="%(unTitle)s" >
+                            <img src="%(content_url)s" height="%(cPloneImage_DetailsHeight)d"
+                                alt="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(ERES-title)s" 
+                                title="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(ERES-title)s" />
+                        </a>
+                        &nbsp;    
+                                            
+                        """ %{
+                            'cPloneImage_DetailsHeight':           cPloneImage_DetailsHeight,
+                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                            'Row-Index':                           unIndexElemento,
+                            'unTitle':                             fCGIE( unTitle),
+                            'millis':                              fMillisecondsNow(), 
+                            'unIdTabla':                           fCGIE( unIdTabla),
+                            'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
+                            'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                            'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                            'ERES-id':                             fCGIE( aERES[ 'id']),
+                            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                            'SRES-url':                            aSRES[ 'url'],
+                            'ERES-url':                            aERES[ 'url'],
+                            'content_icon':                        fCGIE( aERES[ 'content_icon']),
+                            'portal_url':                          aERES[ 'portal_url'],
+                            'content_url':                         fCGIE( aContentURL)
+                        })
+
+                elif aERES_MetaType == 'ATLink':
+                    aContentURL  = aERES[ 'values_by_name'][ 'content_url'][ 'value']
+                    if aContentURL:
+                        aSubRdCtxt.pOS( u"""
+                        <a  class="state-visible" 
+                            name="hidMDDElemento_%(ERES-UID)s_Details"
+                            id="%(unIdTabla)s_RowIndex_%(Row-Index)d_NavegarA_Details_Link"
+                            href="%(ERES-url)sview/%(theExtraLinkHrefParams)s" 
+                            title="%(unTitle)s" >
+                            %(content_url)s
+                        </a>
+                        &nbsp;    
+                                            
+                        """ %{
+                            'cPloneImage_DetailsHeight':           cPloneImage_DetailsHeight,
+                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                            'Row-Index':                           unIndexElemento,
+                            'unTitle':                             fCGIE( unTitle),
+                            'millis':                              fMillisecondsNow(), 
+                            'unIdTabla':                           fCGIE( unIdTabla),
+                            'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
+                            'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                            'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                            'ERES-id':                             fCGIE( aERES[ 'id']),
+                            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                            'SRES-url':                            aSRES[ 'url'],
+                            'ERES-url':                            aERES[ 'url'],
+                            'content_icon':                        fCGIE( aERES[ 'content_icon']),
+                            'portal_url':                          aERES[ 'portal_url'],
+                            'content_url':                         fCGIE( aContentURL)
+                        })
+                    
+                elif aERES_MetaType == 'ATDocument':
+                    aContentText = aERES[ 'values_by_name'][ 'text'][ 'uvalue'][:cPloneDocument_DetailsLen]
+                    if aContentText:
+                        aSubRdCtxt.pOS( u"""
+                        <a  class="state-visible" 
+                            name="hidMDDElemento_%(ERES-UID)s_Details"
+                            id="%(unIdTabla)s_RowIndex_%(Row-Index)d_NavegarA_Details_Link"
+                            href="%(ERES-url)sview/%(theExtraLinkHrefParams)s" 
+                            title="%(unTitle)s" >
+                            %(content_text)s
+                        </a>
+                        &nbsp;    
+                                            
+                        """ %{
+                            'cPloneImage_DetailsHeight':           cPloneImage_DetailsHeight,
+                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                            'Row-Index':                           unIndexElemento,
+                            'unTitle':                             fCGIE( unTitle),
+                            'millis':                              fMillisecondsNow(), 
+                            'unIdTabla':                           fCGIE( unIdTabla),
+                            'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
+                            'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                            'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                            'ERES-id':                             fCGIE( aERES[ 'id']),
+                            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                            'SRES-url':                            aSRES[ 'url'],
+                            'ERES-url':                            aERES[ 'url'],
+                            'content_icon':                        fCGIE( aERES[ 'content_icon']),
+                            'portal_url':                          aERES[ 'portal_url'],
+                            'content_text':                        fCGIE( aContentText)
+                        })
+                     
+
+                elif aERES_MetaType == 'ATNewsItem':
+                    aContentURL  = aERES[ 'values_by_name'][ 'content_url'][ 'value']
+                    aContentText = aERES[ 'values_by_name'][ 'text'][ 'uvalue'][:cPloneDocument_DetailsLen]
+                    if aContentURL or aContentText:
+                        aSubRdCtxt.pOS( u"""
+                        <a  class="state-visible" 
+                            name="hidMDDElemento_%(ERES-UID)s_Details"
+                            id="%(unIdTabla)s_RowIndex_%(Row-Index)d_NavegarA_Details_Link"
+                            href="%(ERES-url)sview/%(theExtraLinkHrefParams)s" 
+                            title="%(unTitle)s" >
+                        """ %{
+                            'cPloneImage_DetailsHeight':           cPloneImage_DetailsHeight,
+                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                            'Row-Index':                           unIndexElemento,
+                            'unTitle':                             fCGIE( unTitle),
+                            'millis':                              fMillisecondsNow(), 
+                            'unIdTabla':                           fCGIE( unIdTabla),
+                            'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
+                            'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                            'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                            'ERES-id':                             fCGIE( aERES[ 'id']),
+                            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                            'SRES-url':                            aSRES[ 'url'],
+                            'ERES-url':                            aERES[ 'url'],
+                            'content_icon':                        fCGIE( aERES[ 'content_icon']),
+                            'portal_url':                          aERES[ 'portal_url'],
+                        })
+                        if aContentText:
+                            aSubRdCtxt.pOS( u"""
+                            <span>%(content_text)s</span>
+                            """ %{
+                                'content_text':                        fCGIE( aContentText),
+                            })
+                        if aContentURL and aContentText:
+                            aSubRdCtxt.pOS( u"""
+                            <br/>
+                            """
+                            )
+                        if aContentURL:
+                            aSubRdCtxt.pOS( u"""
+                            <img src="%(content_url)s" height="%(cPloneImage_DetailsHeight)d"
+                                alt="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(ERES-title)s" 
+                                title="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(ERES-title)s" />
+                            """ %{
+                                'cPloneImage_DetailsHeight':           cPloneImage_DetailsHeight,
+                                'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                                'Row-Index':                           unIndexElemento,
+                                'unTitle':                             fCGIE( unTitle),
+                                'millis':                              fMillisecondsNow(), 
+                                'unIdTabla':                           fCGIE( unIdTabla),
+                                'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
+                                'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                                'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                                'ERES-id':                             fCGIE( aERES[ 'id']),
+                                'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                                'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                                'SRES-url':                            aSRES[ 'url'],
+                                'ERES-url':                            aERES[ 'url'],
+                                'content_icon':                        fCGIE( aERES[ 'content_icon']),
+                                'portal_url':                          aERES[ 'portal_url'],
+                                'content_url':                         fCGIE( aContentURL)
+                            })
+                    aSubRdCtxt.pOS( u"""
+                    </a>
+                    &nbsp;    
+                    """)
+                        
+
+                elif aERES_MetaType == 'ATFile':
+                    aContentURL  = aERES[ 'values_by_name'][ 'content_url'][ 'value']
+                    if aContentURL:
+                        aSubRdCtxt.pOS( u"""
+                        <a  class="state-visible" 
+                            name="hidMDDElemento_%(ERES-UID)s_Details"
+                            id="%(unIdTabla)s_RowIndex_%(Row-Index)d_NavegarA_Details_Link"
+                            href="%(ERES-url)sview/%(theExtraLinkHrefParams)s" 
+                            title="%(unTitle)s" >
+                            %(content_url)s
+                        </a>
+                        &nbsp;    
+                                            
+                        """ %{
+                            'cPloneImage_DetailsHeight':           cPloneImage_DetailsHeight,
+                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
+                            'Row-Index':                           unIndexElemento,
+                            'unTitle':                             fCGIE( unTitle),
+                            'millis':                              fMillisecondsNow(), 
+                            'unIdTabla':                           fCGIE( unIdTabla),
+                            'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
+                            'translated_archetype_name':           fCGIE( aERES[ 'type_translations'][ 'translated_archetype_name']), 
+                            'ERES-title':                          fCGIE( aERES[ 'values_by_name'][ 'title'][ 'uvalue']),
+                            'ERES-id':                             fCGIE( aERES[ 'id']),
+                            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+                            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                            'SRES-url':                            aSRES[ 'url'],
+                            'ERES-url':                            aERES[ 'url'],
+                            'content_icon':                        fCGIE( aERES[ 'content_icon']),
+                            'portal_url':                          aERES[ 'portal_url'],
+                            'content_url':                         fCGIE( aERES[ 'values_by_name'][ 'content_url'][ 'value'])
+                        })
+                     
+            else:
+                
+                unAttributeResult =  aERES[ 'values_by_name'].get( unColumnName, {})
+                
+                if unAttributeResult:
+                    
+                    if unAttributeResult[ 'type'] in [ 'selection', 'boolean']:
+                        aSubRdCtxt.pOS( u"""
+                        <span>%s</span>
+                         </tal:block>
+                        """ % fCGIE( unAttributeResult.get( 'translated_value', ''))
+                        )
+                    else:
+                        if unAttributeResult[ 'uvalue'] and not ( unAttributeResult[ 'uvalue'] =='None'):
+                            aSubRdCtxt.pOS( u"""
+                            <span>%s</span>
+                            """ % fCGIE( unAttributeResult.get( 'uvalue', '') ))
+                            
+                            
+
+            aSubRdCtxt.pOS( u"""
+            </td>
+            """ )
+                
+                
+                        
+        aSubRdCtxt.pOS( u"""
+        </tr>
+        """ )
+                                                                           
+
+    theRdCtxt.pOS( u"""
+    </tbody>
+    """ )
+   
+    
+    unPermiteCrearElementos = aSRES[ 'add_permission'] and aSRES[ 'read_permission'] and aSRES[ 'write_permission'] and \
+        aTRAVRES[ 'read_permission'] and aTRAVRES[ 'write_permission'] and ( not aTRAVRES[ 'max_multiplicity_reached']) and \
+        not ( aTRAVRES['traversal_config'].has_key( 'no_ui_changes') and ( aTRAVRES['traversal_config'][ 'no_ui_changes'] == True))
+    
+    someFactories = aTRAVRES[ 'factories']
+    aNumFactories = len( someFactories)
+
+    if unPermiteCrearElementos and aNumFactories:
+
+        theRdCtxt.pOS( u"""
+        </tbody>
+        <tfoot>
+        """ )
+    
+        if aNumFactories == 1:
+
+            unaFactoriaElemento = someFactories[ 0]
+            
+            theRdCtxt.pOS( u"""
+            <tr class="%(Row-Class)s" >
+                <td colspan="%(theColspan)s" align="center" valign="baseline">
+                    <a  id="hidMDDAggregationPlone_%(traversal_name)s_Create_Link"
+                        href="%(SRES-url)sMDDCreatePloneElement/?type_name=%(FACTORY-archetype_name)s"
+                        title="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s" >
+                        <img id="hidMDDAggregationPlone_%(traversal_name)s_Create_Icon"
+                            src="%(portal_url)s/add_icon.gif" 
+                            alt="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s"
+                            title="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s"/>
+                    </a>
+                </td>
+            """ % {
+                'Row-Class':                           cClasesFilas[ unNumElements % 2],    
+                'theColspan':                          ( unPermiteModificarAlgunElemento and 2) or 1,
+                'FACTORY-meta_type':                   unaFactoriaElemento[ 'meta_type'],
+                'ModelDDvlPlone_crear_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_crear_action_label'),
+                'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                'SRES-url':                            aSRES[ 'url'],
+                'portal_url':                          aSRES[ 'portal_url'],
+                'FACTORY-archetype_name':              fCGIE( unaFactoriaElemento[ 'archetype_name']),
+                'FACTORY-meta_type':                   fCGIE( unaFactoriaElemento[ 'meta_type']),
+                'FACTORY-icon':                        fCGIE( unaFactoriaElemento[ 'content_icon']),
+                'FACTORY-translated_archetype_name':   fCGIE( unaFactoriaElemento[ 'type_translations'][ 'translated_archetype_name']),
+                'FACTORY-translated_type_description': fCGIE( unaFactoriaElemento[ 'type_translations'][ 'translated_type_description']),
+            })
+                
+            theRdCtxt.pOS( u"""
+                <td colspan="%(theColspan)s" align="left" valign="baseline">
+                    <a  id="hidMDDAggregationPlone_%(traversal_name)s_Create_Link"
+                        href="%(SRES-url)sMDDCreatePloneElement/?type_name=%(FACTORY-archetype_name)s"
+                        title="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s" >
+                        <img id="hidMDDAggregationPlone_%(traversal_name)s_Create_Icon"
+                            src="%(portal_url)s/%(FACTORY-icon)s" 
+                            alt="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s"
+                            title="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s"/>
+                        <span>%(FACTORY-translated_archetype_name)s</span>
+                    </a>
+                </td>
+            </tr>
+            """ % {
+                'theColspan':                          len( unosColumnNames),
+                'FACTORY-archetype_name':              fCGIE( unaFactoriaElemento[ 'archetype_name']),
+                'FACTORY-meta_type':                   fCGIE( unaFactoriaElemento[ 'meta_type']),
+                'FACTORY-icon':                        fCGIE( unaFactoriaElemento[ 'content_icon']),
+                'FACTORY-translated_archetype_name':   fCGIE( unaFactoriaElemento[ 'type_translations'][ 'translated_archetype_name']),
+                'FACTORY-translated_type_description': fCGIE( unaFactoriaElemento[ 'type_translations'][ 'translated_type_description']),
+                'ModelDDvlPlone_crear_action_label':   theRdCtxt.fUITr( 'ModelDDvlPlone_crear_action_label'),
+                'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                'SRES-url':                            aSRES[ 'url'],
+                'portal_url':                          aSRES[ 'portal_url'],
+                
+            })
+
+        else:
+            theRdCtxt.pOS( u"""
+            <tr class="%(Row-Class)s" >
+                <td colspan="%(theColspan)s" align="left" valign="baseline">
+            """ % {
+                'Row-Class':                           cClasesFilas[ unNumElements % 2],    
+                'theColspan':                          (( unPermiteModificarAlgunElemento and 2) or 1) + len( unosColumnNames),
+                'ModelDDvlPlone_crear_action_label':   theRdCtxt.fUITr( 'ModelDDvlPlone_crear_action_label'),
+            })
+            
+            if cPref_Pres_DisplayActionLabels_Force or aPREFS_PRES.get( cPref_Pres_DisplayActionLabels_Name, False):
+                theRdCtxt.pOS( u"""
+                <span>%(ModelDDvlPlone_crear_action_label)s</span>
+                &emsp;
+                """ % {
+                    'ModelDDvlPlone_crear_action_label':   theRdCtxt.fUITr( 'ModelDDvlPlone_crear_action_label'),
+                })
+            
+            for unaFactoriaElemento in someFactories:
+                theRdCtxt.pOS( u"""
+                &emsp;
+                <a  id="hidMDDAggregationPlone_%(traversal_name)s_Create_Link_%(FACTORY-meta_type)s"
+                    href="%(SRES-url)sMDDCreatePloneElement/?type_name=%(FACTORY-archetype_name)s"
+                    title="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s" >
+                    <img id="hidMDDAggregationPlone_%(traversal_name)s_Create_Icon"
+                        src="%(portal_url)s/%(FACTORY-icon)s" 
+                        alt="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s"
+                        title="%(ModelDDvlPlone_crear_action_label)s %(FACTORY-translated_archetype_name)s: %(FACTORY-translated_type_description)s"/>
+                    <span>%(FACTORY-translated_archetype_name)s</span>
+                </a>
+                """ % {
+                    'FACTORY-archetype_name':              fCGIE( unaFactoriaElemento[ 'archetype_name']),
+                    'FACTORY-meta_type':                   fCGIE( unaFactoriaElemento[ 'meta_type']),
+                    'FACTORY-icon':                        fCGIE( unaFactoriaElemento[ 'content_icon']),
+                    'FACTORY-translated_archetype_name':   fCGIE( unaFactoriaElemento[ 'type_translations'][ 'translated_archetype_name']),
+                    'FACTORY-translated_type_description': fCGIE( unaFactoriaElemento[ 'type_translations'][ 'translated_type_description']),
+                    'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+                    'SRES-url':                            aSRES[ 'url'],
+                    'portal_url':                          aSRES[ 'portal_url'],
+                    'ModelDDvlPlone_crear_action_label':   theRdCtxt.fUITr( 'ModelDDvlPlone_crear_action_label'),
+                })      
+
+            theRdCtxt.pOS( u"""
+                </td>
+            </tr>
+            """ ) 
+
+    
+            theRdCtxt.pOS( u"""
+                </td>
+            """)
+    
+    
+        theRdCtxt.pOS( u"""
+        </tfoot>
+        """ )
+    
+    
+    
+        
+        
+        
+        
+    
+
+    theRdCtxt.pOS( u"""
+    </tr>
+    </tfoot>
+    </table>
+    """ )
+   
+    
+    
+    
+        
+    
+
+    theRdCtxt.pOS( u"""
+        <form method="POST" id="%(unIdTabla)s_Form">
+        
+            <input type="hidden" value="%(SRES-UID)s"
+               name="theContainerUID" id="%(unIdTabla)s_ContainerUID"/> 
+               
+            <input type="hidden" value=""
+               name="theGroupAction"  id="%(unIdTabla)s_GroupAction" />
+    """ % {
+            'unIdTabla':                           fCGIE( unIdTabla),
+            'SRES-UID':                            fCGIE( aSRES[ 'UID']),
+    })
+    
+            
+    for unIndexElemento in range( unNumElements):
+        
+        aERES = someElements[ unIndexElemento]
+        aSubRdCtxt = theRdCtxt.fNewCtxt( {
+            'ERES' : aERES,
+        })
+        
+        aSubRdCtxt.pOS( u"""
+            <input type="hidden" disabled value="%(ERES-UID)s"
+                 name="theUIDs" id="%(unIdTabla)s_Select_%(unIndexElemento)d_UID" /> 
+        """ % {
+            'unIdTabla':                           fCGIE( unIdTabla),
+            'unIndexElemento':                     unIndexElemento,
+            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+        })
+     
+
+    
+    theRdCtxt.pOS( u"""
+    </form>
+    """)
+        
+    
+    
+    
+    
+         
+    return [ True, True,]
 
 
 
@@ -5231,7 +7004,7 @@ def _MDDRender_Tabular_ReferenciasEnTabla( theRdCtxt):
     unIdTabla = 'hidMDDTraversal_%(traversal_name)s_Table' % {
         'traversal_name':                      aTRAVRES[ 'traversal_name'],
     }
-    
+    theRdCtxt.pSP( 'unIdTabla', unIdTabla)    
     
     someElements   = aTRAVRES.get( 'elements', [])
     unNumElements = len( someElements)
@@ -5756,7 +7529,7 @@ def _MDDRender_Tabular_ReferenciasEnTabla( theRdCtxt):
                 'SRES-url':                                        aSRES[ 'url'],
                 'SRES-title':                                      fCGIE( aSRES[ 'values_by_name'][ 'title'][ 'uvalue']),
                 'ModelDDvlPlone_cambiar_referencias_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_cambiar_referencias_action_label'),
-                'traversal_name':                                  aTRAVRES[ 'traversal_name'],
+                'traversal_name':                                  fCGIE( aTRAVRES[ 'traversal_name']),
                 'traversal_label':                                 fCGIE( aTRAVRES[ 'traversal_translations']['translated_label']),        
                 'colspan':                                         unTotalColumns,
                 'unIdTabla':                                       fCGIE( unIdTabla),
@@ -5771,6 +7544,50 @@ def _MDDRender_Tabular_ReferenciasEnTabla( theRdCtxt):
         </tbody>
         </table>
         """ )
+        
+        
+
+    theRdCtxt.pOS( u"""
+        <form method="POST" id="%(unIdTabla)s_Form">
+        
+            <input type="hidden" value="%(SRES-UID)s"
+               name="theContainerUID" id="%(unIdTabla)s_ContainerUID"/> 
+               
+            <input type="hidden" value="%(traversal_name)s"
+               name="theReferenceFieldName" id="%(unIdTabla)s_ReferenceFieldName"/> 
+               
+            <input type="hidden" value=""
+               name="theGroupAction"  id="%(unIdTabla)s_GroupAction" />
+    """ % {
+            'unIdTabla':                           fCGIE( unIdTabla),
+            'SRES-UID':                            fCGIE( aSRES[ 'UID']),
+            'traversal_name':                      fCGIE( aTRAVRES[ 'traversal_name']),
+    })
+    
+            
+    for unIndexElemento in range( unNumElements):
+        
+        aERES = someElements[ unIndexElemento]
+        aSubRdCtxt = theRdCtxt.fNewCtxt( {
+            'ERES' : aERES,
+        })
+        
+        aSubRdCtxt.pOS( u"""
+            <input type="hidden" disabled value="%(ERES-UID)s"
+                 name="theUIDs" id="%(unIdTabla)s_Select_%(unIndexElemento)d_UID" /> 
+        """ % {
+            'unIdTabla':                           fCGIE( unIdTabla),
+            'unIndexElemento':                     unIndexElemento,
+            'ERES-UID':                            fCGIE( aERES[ 'UID']),
+        })
+     
+
+    
+    theRdCtxt.pOS( u"""
+    </form>
+    """)
+        
+            
                         
     return [ True, True,]
 
@@ -5815,7 +7632,7 @@ def _MDDRender_Tabular_Traversals_Relations_GroupActionsMenu( theRdCtxt):
 
         
     unPermitePegarElementos = aSRES[ 'read_permission'] and aSRES[ 'write_permission'] and \
-        aSRES[ 'add_permission'] and  ( ( not aTRAVRES[ 'contains_collections']) or aSRES[ 'add_collection_permission']) and \
+        aSRES[ 'add_permission'] and  \
         aTRAVRES[ 'read_permission'] and aTRAVRES[ 'write_permission'] and \
         ( not aTRAVRES[ 'max_multiplicity_reached']) and \
         not ( aTRAVRES['traversal_config'].has_key( 'no_ui_changes') and ( aTRAVRES['traversal_config'][ 'no_ui_changes'] == True))  
@@ -5866,7 +7683,7 @@ def _MDDRender_Tabular_Traversals_Relations_GroupActionsMenu( theRdCtxt):
         theRdCtxt.pOS("""
         <li >
             <a title="%(plone-Cut)s" id="%(unIdTabla)s_MenuAction_Cut_Link"
-                onclick="pMDDSubmit_varios( 'CutToUnlink', '%(unIdTabla)s'); return true;" >
+                onclick="pMDDSubmitRelation_varios( 'CutToUnlink', '%(unIdTabla)s'); return true;" >
                 <img src="%(portal_url)s/cut_icon.gif"  alt="%(plone-Cut)s" title="%(plone-Cut)s"  />
                 <span>%(plone-Cut)s</span>        
             </a>
@@ -5881,7 +7698,7 @@ def _MDDRender_Tabular_Traversals_Relations_GroupActionsMenu( theRdCtxt):
         theRdCtxt.pOS("""
         <li >
             <a title="%(plone-Copy)s" id="%(unIdTabla)s_MenuAction_Copy_Link"
-                onclick="pMDDSubmit_varios( 'Copy', '%(unIdTabla)s'); return true;" >
+                onclick="pMDDSubmitRelation_varios( 'Copy', '%(unIdTabla)s'); return true;" >
                 <img src="%(portal_url)s/copy_icon.gif"  alt="%(plone-Copy)s" title="%(plone-Copy)s"  />
                 <span>%(plone-Copy)s</span>        
             </a>
@@ -5918,7 +7735,7 @@ def _MDDRender_Tabular_Traversals_Relations_GroupActionsMenu( theRdCtxt):
         theRdCtxt.pOS("""
         <li >
             <a title="%(ModelDDvlPlone_desenlazar_action_label)s" id="%(unIdTabla)s_MenuAction_Unlink"
-                onclick="pMDDSubmit_varios( 'Unlink', '%(unIdTabla)s'); return true;" >
+                onclick="pMDDSubmitRelation_varios( 'Unlink', '%(unIdTabla)s'); return true;" >
                 <img src="%(portal_url)s/desenlazar.gif"  alt="%(ModelDDvlPlone_desenlazar_action_label)s" title="%(ModelDDvlPlone_desenlazar_action_label)s"  />
                 <span>%(ModelDDvlPlone_desenlazar_action_label)s</span>        
             </a>
@@ -5944,259 +7761,20 @@ def _MDDRender_Tabular_Traversals_Relations_GroupActionsMenu( theRdCtxt):
 
 
 def _MDDRender_Tabular_Plone( theRdCtxt):
-    """
-
-    <div metal:define-macro="tColeccionesEnTabla_ElementosPlone_i18n" >
-        <tal:block tal:define="global pTrue python: True;
-                               global pFalse python: False;
-                                    pRetrievalStartTime  python: aModelDDvlPloneTool.fMillisecondsNow();
-                                    pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-                                    unosArgs python: { 
-                                        'theTimeProfilingResults'     :pProfilingResults,
-                                        'theContainerElement'         :here, 
-                                        'thePloneSubItemsParameters'  :None, 
-                                        'theRetrievalExtents'         :[ 'traversals', ],
-                                        'theWritePermissions'         :[ 'object', 'aggregations', 'add', 'plone', 'delete_plone', ],
-                                        'theFeatureFilters'           :None, 
-                                        'theInstanceFilters'          :None,
-                                        'theTranslationsCaches'       :None,
-                                        'theCheckedPermissionsCache'  :None,
-                                        'theAdditionalParams'         :None};                                    
-                                    PLONERES  python: aModelDDvlPloneTool.fRetrievePloneContent( **unosArgs);
-                                    pRetrievalEndTime  python: aModelDDvlPloneTool.fMillisecondsNow();"
-            tal:condition="PLONERES/traversals" > 
     
-            <tal:block tal:repeat="TRAVRES PLONERES/traversals">
-                <tal:block tal:define="            
-                                    pPermiteOrdenarElementos    pPermiteOrdenarElementos | pTrue;
-                                    pPermiteOrdenarElementos    python: pPermiteOrdenarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
-                                    pPermiteCrearElementos      pPermiteCrearElementos | pTrue;
-                                    pPermiteCrearElementos      python: pPermiteCrearElementos and PLONERES[ 'add_permission']  and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
-                                    pPermiteEditarElementos     pPermiteEditarElementos | pTrue;
-                                    pPermiteEditarElementos     python: pPermiteEditarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];
-                                    pPermiteEliminarElementos   pPermiteEliminarElementos | pTrue;
-                                    pPermiteEliminarElementos   python: pPermiteEliminarElementos and PLONERES[ 'read_permission'] and PLONERES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission']">
-            
-            
-                    <h2 id="#" tal:attributes="id string:aggregation-${TRAVRES/traversal_name}"
-                        tal:content="TRAVRES/traversal_translations/translated_label" />
-                        
-                    <p class="formHelp" tal:content="TRAVRES/traversal_translations/translated_description" />
-        
-                    <table 
-                        tal:define="
-                           global unIndexClassFila python: 0;
-                           unasClasesFilas  python: ('odd','even')"
-                        width="100%%" id="hidColeccionesEnTabla_ElementosPlone" class="listing" summary="#"  tal:attributes="summary TRAVRES/traversal_translations/translated_label">
-            
-                        <thead>
-                            <tr>
-                                <th align="center" tal:condition="python: pPermiteOrdenarElementos or pPermiteEditarElementos or pPermiteEliminarElementos" 
-                                    class="nosort" width="100" align="left">
-                                    <span i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_editar_action_label">&nbsp;Editar&nbsp;</span>
-                                </th>
-                                <th class="nosort" width="80" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Tipo&nbsp;</th>
-                                <th class="nosort"  align="left"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_titulo_label">&nbsp;T&iacute;tulo&nbsp;</th>
-                                <th class="nosort"  align="left"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_descripcion_label">&nbsp;Descripci&oacute;n&nbsp;</th>
-                                <th class="nosort"  align="left"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_PloneContent_attr_details_label">&nbsp;Detalles&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        
-                        
-                       
-    <tal:block tal:replace="nothing">  
-    <tal:block tal:replace="structure python: aModelDDvlPloneTool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], aModelDDvlPloneTool.fPreferredResultDictKeysOrder() )" />
-    </tal:block> 
-                           
+ 
+    aPLONERES = theRdCtxt.fGP( 'PLONERES', {})
+    if not aPLONERES:
+        return [ False, True,]
     
     
-                            <tr tal:define="pNavegarALabel python: aModelDDvlPloneTool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')"
-                                tal:repeat="unElemento TRAVRES/elements"
-                                class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
-                                <td tal:condition="python: pPermiteOrdenarElementos or pPermiteEditarElementos or pPermiteEliminarElementos" align="center">
-                                    <tal:block tal:condition="python: pPermiteEliminarElementos and unElemento[ 'write_permission'] and unElemento[ 'delete_permission']">
-                                        <a tal:define="unTituloAccion python: u'%s %s %s' % ( aModelDDvlPloneTool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_eliminar_action_label', 'Editar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
-                                            href="#" title="#" 
-                                            tal:attributes="title unTituloAccion; href  python: u'%sEliminarPlone?theUIDToDelete=%s' % ( PLONERES[ 'url'], unElemento[ 'UID']) " >
-                                            <img alt="#" title="#" id="icon-delete" src="#" 
-                                                tal:attributes="src python: '%s/delete_icon.gif' % here.portal_url(); alt python: unTituloAccion; title python: unTituloAccion" />
-                                        </a>
-                                    </tal:block>
-                                    <tal:block tal:condition="python: not( pPermiteEliminarElementos and unElemento[ 'write_permission'] and unElemento[ 'delete_permission'])">
-                                        <img src="#" tal:attributes="src python: '%s/blank_icon.gif' % here.portal_url()" 
-                                            alt="Blank" title="Blank" id="icon-blank" />
-                                    </tal:block>   
-                                    &nbsp;                                        
-                                    <tal:block tal:condition="python: pPermiteEditarElementos and unElemento[ 'write_permission']">
-                                        <a tal:define="unTituloAccion python: u'%s %s %s' % ( aModelDDvlPloneTool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_editar_action_label', 'Editar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
-                                            href="#" title="#" 
-                                            tal:attributes="title unTituloAccion; href  python: u'%sbase_edit' % unElemento[ 'url']" >
-                                           <img src="#" tal:attributes="title unTituloAccion; src python: '%s/edit.gif' % here.portal_url()" alt="Editar" title="#" id="icon-edit"
-                                                        i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_editar_action_label" >
-                                        </a>
-                                    </tal:block>
-                                    <tal:block tal:condition="python: not ( pPermiteEliminarElementos  and unElemento[ 'write_permission'])" >
-                                        <img src="#" tal:attributes="src python: '%s/blank_icon.gif' % here.portal_url()" 
-                                            alt="Blank" title="Blank" id="icon-blank" />
-                                    </tal:block>   
-                                    <tal:block tal:condition="python: pPermiteOrdenarElementos and len( TRAVRES[ 'elements']) > 1">
-                                        &nbsp;
-                                        <tal:block tal:condition="python: not unElemento == TRAVRES[ 'elements'][ 0]">
-                                            <a tal:define="unTituloAccion python: u'%s %s %s' % ( aModelDDvlPloneTool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_subir_action_label', 'Subir'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
-                                                href="#" title="#" 
-                                                tal:attributes="title unTituloAccion; href python: '%sTabular/?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Up&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], aModelDDvlPloneTool.fMillisecondsNow(), unElemento[ 'UID'] )">                
-                                                <img src="#" title="#" tal:attributes="title unTituloAccion; src python: '%s/arrowUp.gif' % here.portal_url()" 
-                                                    alt="Subir" title="#" id="icon-up"
-                                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_subir_action_label">
-                                            </a>
-                                        </tal:block>
-                                        <tal:block tal:condition="python: unElemento == TRAVRES[ 'elements'][ 0]">
-                                            <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
-                                                alt="Blank" title="Blank" id="icon-blank">
-                                        </tal:block>   
-                                        &nbsp;                                    
-                                        <tal:block tal:condition="python: not unElemento == TRAVRES[ 'elements'][ len( TRAVRES[ 'elements']) - 1]">
-                                            <a tal:define="unTituloAccion python: u'%s %s %s' % ( aModelDDvlPloneTool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_bajar_action_label', 'Bajar'), unElemento[ 'type_translations'][ 'translated_archetype_name'], unElemento[ 'values_by_name'][ 'title'][ 'uvalue'])"
-                                                href="#" title="#"
-                                                tal:attributes="title unTituloAccion; href python: '%sTabular/?theTraversalName=%s&theMovedObjectUID=%s&theMoveDirection=Down&dd=%d#elemento-%s' % ( PLONERES[ 'url'], TRAVRES[ 'traversal_name'], unElemento[ 'UID'], aModelDDvlPloneTool.fMillisecondsNow(), unElemento[ 'UID'] )">                
-                                                <img src="#" tal:attributes="title unTituloAccion; src python: '%s/arrowDown.gif' % here.portal_url()" 
-                                                    alt="Bajar" title="#" id="icon-down"
-                                                    i18n:domain="ModelDDvlPlone" i18n:attributes="alt ModelDDvlPlone_bajar_action_label">
-                                            </a>
-                                        </tal:block>
-                                        <tal:block tal:condition="python: unElemento == TRAVRES[ 'elements'][ len( TRAVRES[ 'elements']) - 1]">
-                                            <img src="#" tal:attributes="src python: '%s/arrowBlank.gif' % here.portal_url()" 
-                                                alt="Blank" title="Blank" id="icon-blank">
-                                        </tal:block>                                       
-                                    </tal:block>
-                                </td>
+    aNewRdCtxt = theRdCtxt.fNewCtxt({
+        'SRES':  aPLONERES,
+    })
     
-                                <td  align="left" valign="baseline" tal:content="python: unElemento[ 'type_translations'][ 'translated_archetype_name']" />
-    
-                                <td align="left" valign="baseline" >
-                                   <span class="visualIcon contenttype-xxx" tal:attributes="class python: 'visualIcon contenttype-%s' % unElemento[ 'portal_type'].lower().replace(' ', '-')">
-                                       <h4>
-                                           <a name="#" href="#" title="#"
-                                               tal:define="
-                                                   unTitle python: '%s %s %s (%s)' % ( 
-                                                   pNavegarALabel, 
-                                                   unElemento[ 'type_translations'][ 'translated_archetype_name'],
-                                                   unElemento[ 'values_by_name'][ 'title'][ 'uvalue'], 
-                                                   unElemento[ 'type_translations'][ 'translated_type_description'])"                          
-                                               tal:attributes="title unTitle; name string:elemento-${unElemento/UID}; href python: (( unElemento[ 'meta_type'] in [ 'ATLink', 'ATDocument', 'ATFile', 'ATImage', 'ATNewsItem',]) and '%sview' % unElemento['url']) or unElemento['url']"
-                                               class="state-visible visualIconPadding" title="">
-                                               <span tal:content="unElemento/values_by_name/title/uvalue" />
-                                           </a>
-                                       </h4>
-                                   </span>
-                                </td>
-                                <td align="left" valign="baseline" tal:content="unElemento/values_by_name/description/uvalue" />
-                                <td align="left" valign="baseline">
-                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATImage'">
-                                        <a  href="#" alt="#" title="#" 
-                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title" > 
-                                            <img src="#" alt="#" title="#" height="64" 
-                                                tal:attributes="src unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" />    
-                                        </a>
-                                    </tal:block>
-                                    
-                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATLink'">
-                                        <a href="#" alt="#" title="#" 
-                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title"
-                                            tal:content="unElemento/values_by_name/content_url/value" />    
-                                    </tal:block>
-        
-                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATDocument'">
-                                        <a  tal:condition="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue']"
-                                            href="#" alt="#" title="#" 
-                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title"
-                                            tal:content="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue'][:64]" />    
-                                    </tal:block>
-                                    
-                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATNewsItem'">
-                                        <a  tal:condition="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue']"
-                                            href="#" alt="#" title="#" 
-                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title" > 
-                                            <img src="#" alt="#" title="#" height="64" tal:condition="python: unElemento[ 'values_by_name'][ 'content_url'][ 'value']"
-                                                tal:attributes="src unElemento/values_by_name/image_url/value; alt unElemento/title; title unElemento/title" />    
-                                            <span tal:content="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue'][:64]" />
-                                        </a>
-                                    </tal:block>
-        
-                                    <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATFile'">
-                                        <a  href="#" alt="#" title="#" 
-                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title" 
-                                            tal:content="unElemento/values_by_name/content_url/value" />   
-                                    </tal:block>
-        
-                                </td>
-                                <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
-                            </tr>
-                        </tbody>
-                       
-                        
-                        <tfoot>
-                            <tal:block tal:condition="pPermiteCrearElementos" >
-                                <tal:block tal:condition="python: len( TRAVRES[ 'factories']) == 1">
-                                    <tr tal:define="unaFactoriaElemento python: TRAVRES[ 'factories'][ 0]; 
-                                                    unTituloAccion python: u'%s %s' % (  aModelDDvlPloneTool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] );
-                                                    unaHREF python: '%s/MDDCreatePloneElement/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])"
-                                        class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" >
-                                        <td align="center"  >
-                                            <a href="#" title="#"
-                                                tal:attributes="
-                                                    title unTituloAccion; 
-                                                    href unaHREF" >
-                                                <img src="#" title="#" alt="#"  id="icon-add"
-                                                    tal:attributes="title unTituloAccion; src python: '%s/add_icon.gif' % here.portal_url()" />                                                  
-                                            </a>
-                                        </td>
-                                        <td colspan="4" align="left">
-                                            <a href="#"  title="#"
-                                                tal:attributes="
-                                                    title unTituloAccion;
-                                                    href unaHREF">
-                                                <tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_crear_action_label">Crear</tal:block> 
-                                                    <img src="#" alt="" title="" 
-                                                        tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])" />
-                                                    <span tal:content=" unaFactoriaElemento/type_translations/translated_archetype_name" />                                                   
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </tal:block>
-                                <tal:block tal:condition="python: len( TRAVRES[ 'factories']) > 1">
-                                    <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" >                            
-                                        <td colspan="5" align="left">
-                                            <tal:block i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_crear_action_label">Crear</tal:block> ... &nbsp;
-                                            <span tal:repeat="unaFactoriaElemento TRAVRES/factories" >      
-                                                <a href="#" title="#"
-                                                    tal:define="unTituloAccion python: u'%s %s' % (  aModelDDvlPloneTool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_crear_action_label', 'Crear'), unaFactoriaElemento['type_translations'][ 'translated_archetype_name'] )"
-                                                    tal:attributes="
-                                                        title unTituloAccion;
-                                                        href python: '%s/MDDCreatePloneElement/?type_name=%s' % ( PLONERES[ 'url'], unaFactoriaElemento[ 'archetype_name'])" >
-                                                    <img src="#" alt="" title=""
-                                                        tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/%s' % ( here.portal_url(),  unaFactoriaElemento[ 'content_icon'])">
-                                                    <span tal:content=" unaFactoriaElemento/type_translations/translated_archetype_name" />
-                                                </a>
-                                                &nbsp; - &nbsp;
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tal:block>
-                            </tal:block>
-                        </tfoot> 
-                        
-                        
-                        
-                     </table>
-                     <br/> 
-                </tal:block>
-             </tal:block>  
-        </tal:block>  
-    </div>
-    
-    """
+    anOk, aGo = _fMCtx( False, aNewRdCtxt, 'MDDRender_Tabular_Traversals')( aNewRdCtxt)
+    if not aGo:
+        return [ True, aGo,]
 
     return [ True, True,]
 
@@ -6250,6 +7828,8 @@ def fNewVoidViewParms_Tabular( ):
         theGroupAction          :'',
         theUIDs                 :[],
         theMovedElementID       : '',
+        theMovedReferenceUID    : '',
+        theMovedObjectUID       : '',
         theMoveDirection        : '',
         theTranslationsCache    :None,
         thePermissionsCache     :None, 
@@ -6306,7 +7886,7 @@ cBindeableMethods_Components = [
     _MDDRender_Clipboard,
     _MDDRender_Tabular,
     _MDDRender_Tabular_Javascript,
-    _MDDRender_TabularCursor,
+    _MDDRender_Tabular_Relation,
     _MDDRender_Tabular_Cabecera,
     _MDDRender_Tabular_Cabecera_TypeAndDescription,
     _MDDRender_Tabular_Cabecera_OwnerAndContainer,
@@ -6327,6 +7907,7 @@ cBindeableMethods_Components = [
     _MDDRender_Tabular_Traversals_Aggregations_GroupActionsMenu,
     _MDDRender_Tabular_Traversals_Relations_GroupActionsMenu,
     _MDDRender_Tabular_Plone,
+    _MDDRender_Tabular_Tabla_Plone,
     _MDDRender_Tabular_Profiling,
     _MDDRender_Tabular_ReferenciasEnTabla,
     _MDDRender_Tabular_ReferenciaEnTabla,
@@ -6336,9 +7917,13 @@ cBindeableMethods_Components = [
     _MDDRender_Tabular_Traversals,
     _MDDRender_Tabular_Values,
     _MDDRender_Customization_Form,
+    _MDDRender_Tabular_Relation_Cabecera,
+    _MDDRender_Tabular_Relation_Cabecera_Cursor,
     _MDDRetrieve_Clipboard,
-    _MDDRetrieve_Info_Plone,
     _MDDRetrieve_Info_Tabular,
+    _MDDRetrieve_Info_RelationCursor_Owner,
+    _MDDRetrieve_Info_RelationCursor_Current,
+    _MDDRetrieve_Info_Plone,
     _MDDRetrieve_Preferences_Presentation_Tabular,
     _MDDRender_Tabular_StripFinalOutput,
 ]
@@ -6408,6 +7993,12 @@ cBindeableMethods_Extension_Names = [
     'MDDExtension_Render_Tabular_GenericReferences_After',
     'MDDExtension_Render_Tabular_Plone_Before',
     'MDDExtension_Render_Tabular_Plone_After',    
+    'MDDExtension_Render_Tabular_Tabla_Plone_Before',
+    'MDDExtension_Render_Tabular_Tabla_Plone_After',    
+    'MDDExtension_Render_Tabular_Relation_Cabecera_Before',
+    'MDDExtension_Render_Tabular_Relation_Cabecera_After',
+    'MDDExtension_Render_Tabular_Relation_Cabecera_Cursor_Before',
+    'MDDExtension_Render_Tabular_Relation_Cabecera_Cursor_After',
     'MDDExtension_RenderProfiling_Before',
     'MDDExtension_RenderProfiling_After',
     'MDDExtension_StripFinalOutput_Before',
@@ -6948,10 +8539,6 @@ cMDDRenderTabular_MenuAccionesGrupo_JavaScript = """
 
     
     function pMDDSubmit_varios( theGroupAction, theIdTabla ) {
-        var unElementAllSelections = document.getElementById( theIdTabla+'_SelectAll');
-        if ( !unElementAllSelections) {
-            return false;
-        }
         var unSomeSelected = false;
         for( var unIdCounter=0; unIdCounter < 10000; unIdCounter++) {
     
@@ -7005,6 +8592,69 @@ cMDDRenderTabular_MenuAccionesGrupo_JavaScript = """
         unElementForm.submit();
     }
     
+
+    
+    function pMDDSubmitRelation_varios( theGroupAction, theIdTabla ) {
+        var unSomeSelected = false;
+        for( var unIdCounter=0; unIdCounter < 10000; unIdCounter++) {
+    
+            var unElementCheckBox = document.getElementById( theIdTabla + '_Select_' +unIdCounter );
+            if ( !unElementCheckBox) {
+                break;
+            }
+            var unElementUID = document.getElementById( theIdTabla + '_Select_' +unIdCounter + '_UID' );
+            if ( !unElementUID) {
+                break;
+            }
+            if ( unElementCheckBox.checked) {
+                unSomeSelected = true;
+                unElementUID.disabled = false;
+            }
+            else {
+                unElementUID.disabled = true;
+            }
+        }
+        if (!unSomeSelected) {
+            return false;
+        }
+        
+        var unElementGroupAction = document.getElementById( theIdTabla +'_GroupAction');
+        if ( !unElementGroupAction) {
+            return false;
+        }
+        unElementGroupAction.value = theGroupAction;
+        
+        
+        var unElementForm = document.getElementById( theIdTabla +'_Form');
+        if ( !unElementForm) {
+            return false;
+        }
+        
+        if ( theGroupAction == 'Copy') {
+            var unFormAction = unElementForm.action;
+            if ( unFormAction) {
+                unFormAction = unFormAction.replace( '/Tabular', '/MDDCopyReferences');
+                unElementForm.action = unFormAction;
+            }
+        }
+        else {
+        if ( theGroupAction == 'Unlink') {
+            var unFormAction = unElementForm.action;
+            if ( unFormAction) {
+                unFormAction = unDeleteAction.replace( '/Tabular', '/MDDUnlinkReferences');
+                unElementForm.action = unDeleteAction;
+            }
+        }
+        else { // Just in case the user manages to stay in the page, and use the form again
+            var unDeleteAction = unElementForm.action;
+            if ( unDeleteAction) {
+                unDeleteAction = unDeleteAction.replace( '/MDDEliminarVarios', '/Tabular');
+                unElementForm.action = unDeleteAction;
+            }
+        }}
+        
+        unElementForm.submit();
+    }
     
 
     function fMDDGetConstantValue( theConstantElementName) {

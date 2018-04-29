@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_I18N.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -1105,16 +1105,17 @@ class ModelDDvlPloneTool_Retrieval_I18N:
                 return someBooleanOptions
             
         
-        unElementSchema = theElement.schema        
-        if not( unElementSchema.has_key( theAttributeName)):
-            return []
+        # ACV 20100309 Needless to test for the attribute type, or should be done taking into account that the attribute may be computed - with the computed types available in the traversal config which we don't have here.
+        #unElementSchema = theElement.schema        
+        #if not( unElementSchema.has_key( theAttributeName)):
+            #return []
         
-        unElementField  = unElementSchema[ theAttributeName]
-        if not unElementField:
-            return []
+        #unElementField  = unElementSchema[ theAttributeName]
+        #if not unElementField:
+            #return []
         
-        if not ( unElementField.type == 'boolean'):
-            return []
+        #if not ( unElementField.type == 'boolean'):
+            #return []
         
         aTrueTranslation = theTranslationsCaches.get( 'true_translation', '')
         if not aTrueTranslation:                

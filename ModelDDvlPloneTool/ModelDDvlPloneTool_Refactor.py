@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Refactor.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -361,6 +361,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
         theModelDDvlPloneTool_Retrieval= None,
         theContainerObject          =None, 
         theGroupUIDs                =[],
+        theReferenceFieldName       = None,
         theIsCut                    =False,
         theAdditionalParams         =None):
         """Prepare for Cut or Copy the elements given their UIDs, by setting a cookie in the HTTP request response including references ( monikers) for the selected elements, and whether the operation is a move (cut) or not (just copy).        

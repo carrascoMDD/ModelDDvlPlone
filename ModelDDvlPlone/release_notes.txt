@@ -1,6 +1,22 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
+v1.0.3 in progress
+--------------------------------------
+
+Task Id  	Task Summary  	Start Date  	End Date  	Percent Complete
+584	USEX18 After editing field values in an element editor, present the notification about attribute names changed in a block rendered as highlighted for other Zope/Plone notices, like those after copy, paste or delete elements	2009-11-25 16:00	  2009-12-02 16:00	100%
+718	BUG: Cache entries added as promised, but failed to be fulfilled, remain in the cache structures, preventing other entries to be added with the rendered content.	2010-02-24 16:00	  2010-03-03 16:00	100%
+723	BUG: does not localize boolean values from computed attributes shown as table columns in the tabular view, like IsLocked in TRAIdioma in gvSIG-i18n	2010-03-08 05:00	  2010-03-15 05:00	100%
+765	BUG: Textual view does not separate with commas (,) the boolean attributes presented (as a single paragraph with all other terminal attributes)	2010-05-31 23:00	  2010-06-07 23:00	100%
+768	ADMI05 Add facility to initialize ExternalMethods and Tool singletons of the ModelDDvlPlone framework and supported applications	2010-06-11 05:00	  2010-06-18 05:00	100%
+769	ADMI06 Render as formatted HTML the results of Verification and Initialization of the ModelDDvlPlone frameworks and supported applications	2010-06-11 05:00	  2010-06-18 05:00	100%2010-06-18 05:00	100%
+
+|
+|
+
+
+------------------------------------------
 
 v1.0.2 build 201001282200
 ----------------------------------------------
