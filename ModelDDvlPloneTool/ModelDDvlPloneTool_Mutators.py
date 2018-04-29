@@ -88,17 +88,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
 
     
-    
-    security.declarePrivate( 'fNewVoidChangeValuesReport')
-    def fNewVoidChangeValuesReport( self,):
-        aReport = {
-            'object_reports':        [],
-            'impacted_objects_UIDs': [],
-            'field_reports':         [],
-            'field_reports_by_name': {},
-        } 
-        return aReport
- 
+
    
     
     
@@ -108,14 +98,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         if theChangeReport == None:
             return self
         
-        #unosImpactedObjects     = theChangeReport[ 'impacted_objects']
         unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
         
         if theChangedElement == None:
             return self
-        #if not ( theChangedElement in unosImpactedObjects):
-            #unosImpactedObjects.append( theChangedElement)
-
+ 
         unaUIDChangedElement = ''
         try:
             unaUIDChangedElement = theChangedElement.UID()
@@ -192,9 +179,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                             
                         for unSiblingToImpact in unosSiblingsToImpact:
                             
-                            #if not ( unSiblingToImpact in unosImpactedObjects):
-                                #unosImpactedObjects.append( unSiblingToImpact)
-                            
                             unaUIDSiblingToImpact = ''
                             try:
                                 unaUIDSiblingToImpact = unSiblingToImpact.UID()
@@ -257,9 +241,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                         aRelatedElement = aModelDDvlPloneTool_Retrieval.fElementoPorUID( aRelatedUID, theChangedElement)
                         if not ( aRelatedElement == None):
                             
-                            #if not ( aRelatedElement in unosImpactedObjects):
-                                #unosImpactedObjects.append( aRelatedElement)
-                                    
                             unVoid = self.fImpactChangedContenedorYPropietario_IntoReport( aRelatedElement, theChangeReport)
                             
                             
@@ -276,7 +257,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         if theChangeReport == None:
             return self
         
-        #unosImpactedObjects     = theChangeReport[ 'impacted_objects']
         unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
         
         unosContentsElements = []
@@ -290,8 +270,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         
         for unContentElement in unosContentsElements:
                     
-            #if not ( unContentElement in unosImpactedObjects):
-                #unosImpactedObjects.append( unContentElement)
             
             unaUIDContentElement = ''
             try:
@@ -316,8 +294,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     
                     for unSubContentElement in unosSubContentsElements:
                                 
-                        #if not ( unSubContentElement in unosImpactedObjects):
-                            #unosImpactedObjects.append( unSubContentElement)
                         
                         unaUIDSubContentElement = ''
                         try:
@@ -435,6 +411,22 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         return unContenedor
                                     
     
+    
+    
+    
+    security.declarePrivate( 'fNewVoidChangeValuesReport')
+    def fNewVoidChangeValuesReport( self,):
+        aReport = {
+            'object_reports':        [],
+            'impacted_objects_UIDs': [],
+            'field_reports':         [],
+            'field_reports_by_name': {},
+        } 
+        return aReport
+ 
+    
+    
+    
             
     security.declarePrivate( 'fChangeValues')
     def fChangeValues(self , 
@@ -447,6 +439,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             self.pProfilingStart( 'fChangeValues', theTimeProfilingResults)
 
         try:
+            
+            aReport = self.fNewVoidChangeValuesReport()
+            someObjectReports   = aReport.get( 'object_reports')
+            someFieldReports    = aReport.get( 'field_reports')
+            aFieldReportsByName = aReport.get( 'field_reports_by_name')
 
             if ( theElement == None) or not theNewValuesDict:
                 return None
@@ -491,11 +488,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 return None
     
             unAnyAttributeChanged = False
-            
-            aReport = self.fNewVoidChangeValuesReport()
-            someObjectReports   = aReport.get( 'object_reports')
-            someFieldReports    = aReport.get( 'field_reports')
-            aFieldReportsByName = aReport.get( 'field_reports_by_name')
             
             if not unResult.get( 'read_permission', False):
                 aReportForObject = { 'effect': 'error', 'failure': 'object_read_permission',}
@@ -1749,8 +1741,22 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         """
         pass
             
-                             
-                             
+                
+    
+    security.declarePrivate( 'fNewVoidDeleteElementReport')
+    def fNewVoidCreateElementReport( self,):
+        aReport = {
+            'effect':                  'error',
+            'failure':                 'not_executed',
+            'container_result':        {},
+            'impacted_objects_UIDs':   [],
+        } 
+        return aReport
+    
+    
+    
+    
+    
     security.declarePrivate( 'fCrearElementoDeTipo')
     def fCrearElementoDeTipo(self, 
         theTimeProfilingResults =None,
@@ -1773,9 +1779,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
+            aReport = self.fNewVoidChangeValuesReport()
+
             if ( theContainerElement == None)  or not  theTypeName or not theTitle:
-                anActionReport = { 'effect': 'error', 'failure': 'required_parameters_missing', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'required_parameters_missing', })
+                return aReport     
                 
             unTranslationService = theTranslationService
             if not unTranslationService:
@@ -1813,20 +1821,20 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 theAdditionalParams         =theAdditionalParams
             )
             if not unResultadoContenedor:
-                anActionReport = { 'effect': 'error', 'failure': 'retrieval_failure', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'retrieval_failure', })
+                return aReport     
         
             if not unResultadoContenedor[ 'read_permission']:
-                anActionReport = { 'effect': 'error', 'failure': 'read_permission', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'read_permission', })
+                return aReport     
             
             if not unResultadoContenedor[ 'write_permission']:
-                anActionReport = { 'effect': 'error', 'failure': 'write_persmission', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'write_persmission', })
+                return aReport     
         
             if not unResultadoContenedor[ 'add_permission']:
-                anActionReport = { 'effect': 'error', 'failure': 'add_persmission', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'add_persmission', })
+                return aReport     
                 
             if theAllowFactoryMethods:
                 unNombreFactoryMethod = unResultadoContenedor.get( 'factory_methods', {}).get( theTypeName, '')            
@@ -1855,8 +1863,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                             
                     if unTitleValueResult and ( unTitle == unTitleValueResult[ 'value']):
                         unResultadoEncontrado           = unElementResult  
-                        anActionReport = { 'effect': 'error', 'failure': 'duplicate_title', }
-                        return anActionReport     
+                        aReport.update( { 'effect': 'error', 'failure': 'duplicate_title', })
+                        return aReport     
                 
                     
             unaFoundFactoryTypeName = False
@@ -1867,8 +1875,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                         unaFoundFactoryTypeName = True
                         break                    
             if not unaFoundFactoryTypeName:
-                anActionReport = { 'effect': 'error', 'failure': 'content_type_not_allowed', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'content_type_not_allowed', })
+                return aReport     
                                 
             
             if theId:
@@ -1926,8 +1934,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 theAdditionalParams         =theAdditionalParams                
             )
             if not unNuevoResultadoContenedor:
-                anActionReport = { 'effect': 'error', 'failure': 'retrieval_failure', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'retrieval_failure', })
+                return aReport     
 
             unResultadoNuevoElementoEncontrado = None
             for unaTraversalResult in unNuevoResultadoContenedor.get( 'traversals', []):
@@ -1938,8 +1946,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                         break
                     
             if not unResultadoNuevoElementoEncontrado:
-                anActionReport = { 'effect': 'error', 'failure': 'factory_failure', }
-                return anActionReport     
+                aReport.update( { 'effect': 'error', 'failure': 'factory_failure', })
+                return aReport     
             
             aNewObject = unResultadoNuevoElementoEncontrado[ 'object']     
             
@@ -1947,12 +1955,12 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
             self.pSetElementPermissions( aNewObject)
             
+            self.pImpactCreateIntoReport( theContainerElement, aNewObject, aReport)            
+            
             self.pSetAudit_Creation( aNewObject)       
                             
                             
-                
-
-            anActionReport = { 'effect': 'created', 'new_object_result': unResultadoNuevoElementoEncontrado, }
+            aReport.update( { 'effect': 'created', 'new_object_result': unResultadoNuevoElementoEncontrado, })
             
             unResultadoNuevoElemento = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
@@ -1975,8 +1983,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 # With this retrieval failure (who knows why?) 
                 # just cant initialize attributes and collection contents
                 # Return the "ok" report
-                #  anActionReport = { 'effect': 'error', 'failure': 'retrieval_failure', }
-                return anActionReport     
+                #  aReport.update( { 'effect': 'error', 'failure': 'retrieval_failure', }
+                return aReport     
+            
+            aReport.update( { 'effect': 'created', 'new_object_result': unResultadoNuevoElemento, })
             
             for unaTraversalResult in unResultadoNuevoElemento.get( 'traversals', []):
                 if ( unaTraversalResult[ 'traversal_kind'] == 'aggregation') and  unaTraversalResult[ 'contains_collections']:
@@ -1994,13 +2004,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                     theTitle                =unNewTitle, 
                                     theDescription          ='',
                                     theAdditionalParams     =theAdditionalParams)                                             
-                                if (not unNewCollectionCreateResult) or not ( unNewCollectionCreateResult[ 'effect'] == 'created'):
+                                if ( not unNewCollectionCreateResult) or not ( unNewCollectionCreateResult[ 'effect'] == 'created'):
                                     # just cant initialize collection contents
-                                    #  anActionReport = { 'effect': 'error', 'failure': 'collection_creation_failure', }
-                                    #return anActionReport     
+                                    #  aReport.update( { 'effect': 'error', 'failure': 'collection_creation_failure', }
+                                    #return aReport     
                                     None
             
-            return anActionReport     
+            return aReport     
                 
         finally:
             if not ( theTimeProfilingResults == None):
@@ -2010,7 +2020,93 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         
         
         
+    
+    
+    security.declarePrivate( 'pImpactCreateIntoReport')
+    def pImpactCreateIntoReport( self, theContainerElement, theNewObject, theCreateReport):
 
+        if theCreateReport == None:
+            return self
+        
+        if ( theContainerElement == None) or ( theNewObject== None):
+            return self
+        
+        
+        unosImpactedObjectsUIDs = theCreateReport[ 'impacted_objects_UIDs']
+
+        unaUIDContainerElement = ''
+        try:
+            unaUIDContainerElement = theContainerElement.UID()
+        except:
+            None
+        if unaUIDContainerElement:
+            if not ( unaUIDContainerElement in unosImpactedObjectsUIDs):
+                unosImpactedObjectsUIDs.append( unaUIDContainerElement)
+   
+
+        unContenedor = self.fImpactChangedContenedorYPropietario_IntoReport( theContainerElement, theCreateReport)
+
+        unosSiblings = theContainerElement.objectValues()
+
+        for unSibling in unosSiblings:
+            
+            if not ( unSibling == theNewObject):
+                
+                unaUIDSiblingToImpact = ''
+                try:
+                    unaUIDSiblingToImpact = unSibling.UID()
+                except:
+                    None
+                if unaUIDSiblingToImpact:
+                    if not ( unaUIDSiblingToImpact in unosImpactedObjectsUIDs):
+                        unosImpactedObjectsUIDs.append( unaUIDSiblingToImpact)
+        
+        return self
+    
+    
+    
+    
+    
+    
+    security.declarePrivate( 'fImpactCreatePloneUIDs')
+    def fImpactCreatePloneUIDs( self, theContainerElement, ):
+
+        if theContainerElement == None:
+            return []
+        
+        unosImpactedObjectsUIDs = [ ]
+
+        unaUIDContainerElement = ''
+        try:
+            unaUIDContainerElement = theContainerElement.UID()
+        except:
+            None
+        if unaUIDContainerElement:
+            if not ( unaUIDContainerElement in unosImpactedObjectsUIDs):
+                unosImpactedObjectsUIDs.append( unaUIDContainerElement)
+   
+        unContenedor = self.fImpactChangedContenedorYPropietario_IntoReport( theContainerElement, { 'impacted_objects_UIDs':   unosImpactedObjectsUIDs, })
+
+        unosSiblings = theContainerElement.objectValues()
+
+        for unSibling in unosSiblings:
+        
+            unaUIDSiblingToImpact = ''
+            try:
+                unaUIDSiblingToImpact = unSibling.UID()
+            except:
+                None
+            if unaUIDSiblingToImpact:
+                if not ( unaUIDSiblingToImpact in unosImpactedObjectsUIDs):
+                    unosImpactedObjectsUIDs.append( unaUIDSiblingToImpact)
+        
+        return unosImpactedObjectsUIDs
+    
+    
+    
+    
+    
+         
         
         
         

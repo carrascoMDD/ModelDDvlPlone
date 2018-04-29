@@ -368,7 +368,7 @@ msgstr "Tiempo de Arranque del Almacenamiento de paginas preparadas"
 #. Default: "Cache Disabled"
 #: MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_Disabled"
-msgstr "Cache Disabled"
+msgstr "Almacen Deshabilitado"
 
 #. Default: "Display Cache Hit Information"
 #: MDDInspectCache_inner.py
@@ -378,7 +378,7 @@ msgstr "Mostrar informacion de aciertos en almacen"
 #. Default: "Bottom"
 #: MDDInspectCache_inner.py
 msgid "ModelDDvlPlone_InspectCache_DisplayCacheHitInformation_Bottom"
-msgstr "Mostrar en cada pagina la Informacion de Aciertos en Cache"
+msgstr "Abajo"
 
 #. Default: "None"
 #: MDDInspectCache_inner.py
@@ -393,7 +393,7 @@ msgstr "Arriba"
 #. Default: "Cache Enabled"
 #: MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_Enabled"
-msgstr "Cache Enabled"
+msgstr "Almacen Habilitado"
 
 #. Default: "Cache Entries For Elements"
 #: MDDInspectCache_inner.pt
@@ -425,10 +425,10 @@ msgstr "Bloquear una vez"
 msgid "ModelDDvlPlone_InspectCache_LockOnceOrTwice_Twice"
 msgstr "Bloquear dos veces"
 
-#. Default: "Maximum of memory (in # Chars) available for Cache"
+#. Default: "Maximum of memory (in chars)"
 #: MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_MaxCharsCachedForElements"
-msgstr "Maximo de memoria (en de caracteres) disponible para el Almacenamiento de paginas preparadas"
+msgstr "Maximo de memoria (en caracteres)"
 
 #. Default: "You may invalidate all currently cached pages by clicking on the Flush button, if you are authorized to do so."
 #: MDDInspectCache_inner.pt
@@ -1445,5 +1445,12 @@ msgstr "Error en Eliminacion."
 #: CandidatosEnTabla_i18n_view.pt Eliminar_inner.pt MDDOrdenar_inner.pt
 msgid "ModelDDvlPlone_SortableTable_help"
 msgstr "Puede ordenar el contenido de la tabla pulsando sobre el encabezamiento de las columnas."
+
+
+#. Default: "Configuration Parameters"
+#: MDDInspectCacheInner.pt 
+msgid "ModelDDvlPlone_InspectCache_ConfigurationParameters"
+msgstr "Parametros de Configuracion"
+
 
 

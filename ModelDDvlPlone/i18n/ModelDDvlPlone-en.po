@@ -427,10 +427,10 @@ msgstr "Once"
 msgid "ModelDDvlPlone_InspectCache_LockOnceOrTwice_Twice"
 msgstr "Twice"
 
-#. Default: "Maximo de memoria (en de caracteres) disponible para el Almacenamiento de paginas preparadas"
+#. Default: "Maximo de memoria (en caracteres)"
 #: MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_MaxCharsCachedForElements"
-msgstr "Maximum of memory (in # Chars) available for Cache"
+msgstr "Maximum of memory (in chars)"
 
 #. Default: "Puede invalidar todas las paginas almacenadas actualmente, pulsando sobre el boton Vacias, si esta autorizado a hacerlo."
 #: MDDInspectCache_inner.pt
@@ -1448,4 +1448,11 @@ msgstr "Error while Deleting"
 #: CandidatosEnTabla_i18n_view.pt Eliminar_inner.pt MDDOrdenar_inner.pt
 msgid "ModelDDvlPlone_SortableTable_help"
 msgstr "You may sort the table contents by clicking on the column headers."
+
+
+#. Default: "Parametros de Configuracion"
+#: MDDInspectCacheInner.pt 
+msgid "ModelDDvlPlone_InspectCache_ConfigurationParameters"
+msgstr "Configuration Parameters"
+
 

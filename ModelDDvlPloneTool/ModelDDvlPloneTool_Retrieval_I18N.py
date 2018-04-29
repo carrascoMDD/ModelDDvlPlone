@@ -42,6 +42,8 @@ import traceback
 from Products.CMFCore.utils         import getToolByName
 
 
+cLookupTranslationsSentinel = object()
+
 class ModelDDvlPloneTool_Retrieval_I18N:
     """
     """
@@ -187,15 +189,19 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             
             for unaStringAndDefault in unasStringsAndDefaults:
                 unaString = unaStringAndDefault[ 0]
-                unDefault = unaStringAndDefault[ 1]
-                if unaString:
-                    aTranslation = u''
-                    if aTranslationService:
-                        aTranslation = aTranslationService.utranslate( aI18NDomain, unaString, mapping=None, context=theContextElement , target_language= None, default=unDefault)            
-                    if not aTranslation:
-                        aTranslation = self.fAsUnicode( unDefault)
-                    unResultDict[ unaString] = aTranslation
-                        
+                
+                unaCurrentTranslation = unResultDict.get( unaString, cLookupTranslationsSentinel)
+                if unaCurrentTranslation == cLookupTranslationsSentinel:
+                    
+                    unDefault = unaStringAndDefault[ 1]
+                    if unaString:
+                        aTranslation = u''
+                        if aTranslationService:
+                            aTranslation = aTranslationService.utranslate( aI18NDomain, unaString, mapping=None, context=theContextElement , target_language= None, default=unDefault)            
+                        if not aTranslation:
+                            aTranslation = self.fAsUnicode( unDefault)
+                        unResultDict[ unaString] = aTranslation
+                            
         return unResultDict    
         
     

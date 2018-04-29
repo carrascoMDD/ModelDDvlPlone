@@ -983,6 +983,12 @@ class ModelDDvlPloneTool_Cache:
         
 
      
+ 
+        
+        
+    
+    
+    
           
     security.declareProtected( permissions.ManagePortal, 'fInvalidateCachedTemplatesForElements')
     def fInvalidateCachedTemplatesForElements( theModelDDvlPloneTool, theContextualObject, theFlushedElementsUIDs, theAuthenticationString):

@@ -32,7 +32,7 @@
 
 
     <div metal:define-macro="tSetupPerformanceAnalysis" >
-        <tal:block tal:define="global pPerformanceAnalysis pPerformanceAnalysis | python: { 'retrieval_times': True, 'processing_times': True,  'profiling_results': None, };
+        <tal:block tal:define="global pPerformanceAnalysis pPerformanceAnalysis | python: { 'retrieval_times': False, 'processing_times': False,  'profiling_results': None, };
             global pStartTime pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />                           
     </div>
     <div metal:define-macro="NO_tSetupPerformanceAnalysis" >
