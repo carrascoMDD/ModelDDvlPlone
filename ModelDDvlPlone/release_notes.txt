@@ -1,13 +1,22 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
+v2.1.5
+
+Extension:   ModelDDvlPloneTool machinery must try and delegate in the elements permission initialization if such exist, as identified by the result of invoking method fMethodNameSetPermissions on the element, and only initialize the elements permissions with ModelDDvlPloneTool defaults when the element does not expose permissions initialization method.
+
+---------------------------
+
+|
+|
+
 v2.1.4
 
 Fixed Bug: Creation mode of cache folder cCacheDisk_ForElements_FolderCreateMode_RootUID was 077 and now correctly is 0777.
 
-Bug to fix: When the URL contains a port, then the actions to flush entries from memory or from memory and disc do not work.
+Fixed Bug: When the URL contains a port, then the actions to flush entries from memory or from memory and disc did not work. Now entries with a port in the URL are correctly flushed.
 
-Bug to fix: Action in the Cache Status page, to flush disk cached pages for a cache, does not work.
+Fixed Bug: Action in the Cache Status page, to flush disk cached pages for a cache, does not work. Now disk cached pages are correctly flushed.
 
 
 
