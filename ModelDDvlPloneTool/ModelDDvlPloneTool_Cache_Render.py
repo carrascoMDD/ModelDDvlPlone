@@ -1156,6 +1156,8 @@ class ModelDDvlPloneTool_Cache_Render:
         aFileName           = '%s-%s%s' % (  aViewName, unSchemeHostAndDomain, cCacheDiskFilePostfix)
         aFilePath           = os.path.join( aLanguagePath, aFileName)
         aDisplayPath        = os.path.join( aProjectName, aNegotiatedLanguage, aFileName)
+        aDisplayPath        = aDisplayPath.replace( '/', '/ ')
+        aDisplayPath           = aDisplayPath.replace( '\\', '/ ')
 
         theVariables[ 'aFilePath']         = aFilePath
         theVariables[ 'aDisplayPath']      = aDisplayPath
@@ -2988,7 +2990,8 @@ class ModelDDvlPloneTool_Cache_Render:
         aFileName              = '%s-%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, unSchemeHostAndDomain, aRoleKindToIndex, cCacheDiskFilePostfix)
         aFilePath              = os.path.join( aLanguagePath, aFileName)
         aDisplayPath           = os.path.join( aProjectName, aRootElementFolderName, anElementUIDModulus, anElementFolderName, aNegotiatedLanguage, aFileName)
-
+        aDisplayPath           = aDisplayPath.replace( '/', '/ ')
+        aDisplayPath           = aDisplayPath.replace( '\\', '/ ')
 
         theVariables[ 'aFilePath']         = aFilePath
         theVariables[ 'aDisplayPath']      = aDisplayPath
@@ -3473,8 +3476,10 @@ class ModelDDvlPloneTool_Cache_Render:
                 'unTitle':                       theModelDDvlPloneTool.fAsUnicode( theContextualObject, theContextualObject.Title()),
                 'unCacheId':                     unCacheEntryUniqueId,
                 'unElementURL':                  unElementURL,
+                'unElementDisplayURL':           unElementURL.replace( '/', '/ '),
                 'unElementUID':                  unElementUID,
                 'unElementPath':                 unElementPath,
+                'unElementDisplayPath':          unElementPath.replace( '/', '/ '),
                 'unSchemeHostAndDomain':         unSchemeHostAndDomain,
                 'aViewName':                     aViewName,
                 'aRoleKindToIndex':              aRoleKindToIndex,
@@ -3608,11 +3613,11 @@ class ModelDDvlPloneTool_Cache_Render:
                                 </tr>
                                 <tr class="even">
                                     <td align="left"><strong>%(ModelDDvlPlone_Path_label)s</strong></td>
-                                    <td align="left">%(unElementPath)s</td>
+                                    <td align="left">%(unElementDisplayPath)s</td>
                                 </tr>
                                 <tr class="odd">
                                     <td align="left"><strong>%(ModelDDvlPlone_URL_label)s</strong></td>
-                                    <td align="left">%(unElementURL)s</td>
+                                    <td align="left">%(unElementDisplayURL)s</td>
                                 </tr>
                                 <tr class="even">
                                     <td align="left"><strong>%(ModelDDvlPlone_UID_label)s</strong></td>

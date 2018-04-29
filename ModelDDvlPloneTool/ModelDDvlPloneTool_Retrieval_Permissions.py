@@ -325,57 +325,96 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
     
         
     
-    
+
+    security.declarePrivate( 'fNewVoidMemberInfo')
+    def fNewVoidMemberInfo(self):
+        """Instantiate Result for a member user information.
+
+        """
+        unNuevoInforme = {
+            'success':     False,
+            'user_id':     '',
+            'member_name': '',
+            'home_URL':    '',
+            'photo_id':    '',
+            'photo_URL':   '',
+        }
+        return  unNuevoInforme
+            
 
 
+    security.declarePublic( 'fGetMemberInfosForUserIds')
+    def fGetMemberInfosForUserIds(self,
+        theContextualObject   =None, 
+        theUserIds            =[],
+        theMembershipTool     =None):
+        """Member information for a number of users with the specified id, including the user name and the URL to the member page and to the member photograph.
+        
+        """
     
+        if not theUserIds:
+            return []
+        
+        
+        if theContextualObject == None:
+            return []
+        
+        
+        aMembershipTool = theMembershipTool
+        if aMembershipTool == None:
+            aMembershipTool = getToolByName( theContextualObject, 'portal_membership', None)
+           
+        if not aMembershipTool:
+            return []
+        
+        
+        someMemberInfos = [ ]
+        
+        for aUserId in theUserIds:
+
+            aMemberInfoForUserId = self.fGetMemberInfoForUserId( theContextualObject, aUserId, aMembershipTool)
+            if aMemberInfoForUserId:
+                someMemberInfos.append( aMemberInfoForUserId)
+                
+        return someMemberInfos
+    
+    
+                
         
     security.declarePublic( 'fGetMemberInfoForUserId')
     def fGetMemberInfoForUserId(self,
         theContextualObject   =None, 
-        theUserId             ='',):
+        theUserId             ='',
+        theMembershipTool     =None):
         """Member information for the user with the specified id, including the user name and the URL to the member page and to the member photograph.
         
         """
+        
+        aMemberInfo = self.fNewVoidMemberInfo()
+        
         if not theUserId:
-            return { 
-                'user_id':     '',
-                'member_name': '',
-                'home_URL':    '',
-                'photo_id':    '',
-                'photo_URL':   '',
-            }
+            return aMemberInfo
         
         if theContextualObject == None:
-            return { 
-                'user_id':     theUserId,
-                'member_name': theUserId,
-                'home_URL':    '',
-                'photo_id':    '',
-                'photo_URL':   '',
-            }
+            return aMemberInfo
         
-
+        aMemberInfo.update( { 
+            'user_id':     theUserId,
+            'member_name': theUserId,
+        })
         
-        aMembershipTool = getToolByName( theContextualObject, 'portal_membership', None)
+        aMembershipTool = theMembershipTool
+        if aMembershipTool == None:
+            aMembershipTool = getToolByName( theContextualObject, 'portal_membership', None)
+           
         if not aMembershipTool:
-            return { 
-                'user_id':     theUserId,
-                'member_name': theUserId,
-                'home_URL':    '',
-                'photo_id':    '',
-                'photo_URL':   '',
-            }
+            return aMemberInfo
         
         unMember = aMembershipTool.getMemberById( theUserId)   
         if not unMember:
-            return { 
-                'user_id':     theUserId,
-                'member_name': theUserId,
-                'home_URL':    '',
-                'photo_id':    '',
-                'photo_URL':   '',
-            }
+            return aMemberInfo
+        
+
         
         aMemberName     = ''
         aMemberHomeURL  = ''
@@ -409,15 +448,14 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
                 None
                  
                 
-            
-        return { 
-            'user_id':     theUserId,
+        aMemberInfo.update( { 
+            'success':     True,
             'member_name': aMemberName,
             'home_URL':    aMemberHomeURL,
             'photo_id':    aMemberPhotoId,
             'photo_URL':   aMemberPhotoURL,
-        }
+        })
         
-    
+        return aMemberInfo
     
         

@@ -413,9 +413,25 @@ class MDDTool_Retrieval:
  
     
     
+   
+    security.declareProtected( permissions.View, 'fGetMemberInfosForUserIds')
+    def fGetMemberInfosForUserIds(self, theContextualObject, theUserIds, theMembershipTool     =None,):
+        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fGetMemberInfosForUserIds( 
+            theContextualObject, theUserIds, theMembershipTool)
     
 
+    
+    
+   
+    security.declareProtected( permissions.View, 'fGetMemberInfoForUserId')
+    def fGetMemberInfoForUserId(self, theContextualObject, theUserId, theMembershipTool     =None,):
+        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fGetMemberInfoForUserId( 
+            theContextualObject, theUserId, theMembershipTool)
+    
 
+    
+    
+    
     
     # ######################################
     """Preferences Retrieval methods.
