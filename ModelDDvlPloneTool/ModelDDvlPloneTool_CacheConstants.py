@@ -169,11 +169,13 @@ cCacheDisk_ForElements_FileOpenWriteMode_View     = 'wb'
 cCacheDisk_ForElements_FileOpenWriteBuffering_View= 0
 
 
+cNoHeaderNoFooterToReplaceForCachePaths              ='_NoHeaderNoFooter'
+cNoHeaderNoFooterReplacementForCachePaths            ='_NHNF'
 
+cCacheDiskPath_Base_Default                            = 'mch'
 
-cCacheDiskPath_Base_Default                            = 'mddcache'
-
-cMaxElementIdInDiscCachePath                           = 16
+cMaxElementIdInDiscCachePath                           = 8
+cMaxRootElementIdInDiscCachePath                       = 8
 
 cCacheEnabled_ElementIndependent_Default               = not cForbidCaches
 cMinThresholdCharsToRelease_ElementIndependent_Default = 50 * 1000

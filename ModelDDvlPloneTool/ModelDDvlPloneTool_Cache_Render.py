@@ -597,13 +597,24 @@ class ModelDDvlPloneTool_Cache_Render:
             return aRenderResult
                    
         
-        if ( not unParsedRootElementURL[ 0]) or ( not unParsedRootElementURL[ 1]):
+        if len( unParsedRootElementURL[ 0]) < 2:
             aRenderResult.update( {
                 'status':           cRenderStatus_ForceRender, 
             })                                    
-            return aRenderResult    
+            return aRenderResult
+
+        unScheme = unParsedRootElementURL[ 0]
+        unDomain = unParsedRootElementURL[ 1]
+
+        if ( not unScheme and unDomain):
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
         
-        unSchemeHostAndDomain = '%s-%s' % ( unParsedRootElementURL[ 0], unParsedRootElementURL[ 1],)
+        unDomain = unDomain.replace( ':', '-p-')
+        unSchemeHostAndDomain = '%s-%s' % ( unScheme, unDomain,)
+        
         
         aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
         if aModelDDvlPloneTool_Retrieval == None:
@@ -1151,9 +1162,15 @@ class ModelDDvlPloneTool_Cache_Render:
         
         aCacheContainerPath = self.fCacheContainerPath( theModelDDvlPloneTool, theContextualObject,)
         
-        aProjectPath        = os.path.join( aCacheContainerPath, aCacheDiskPath, aProjectName)
+        aCacheDiskPathAbsolute = os.path.join( aCacheContainerPath, aCacheDiskPath)
+        aProjectPath        = os.path.join( aCacheDiskPathAbsolute, aProjectName)
         aLanguagePath       = os.path.join( aProjectPath, aNegotiatedLanguage)
-        aFileName           = '%s-%s%s' % (  aViewName, unSchemeHostAndDomain, cCacheDiskFilePostfix)
+
+        aViewNameShortened     = aViewName
+        if cNoHeaderNoFooterToReplaceForCachePaths in aViewName:
+            aViewNameShortened = aViewName.replace( cNoHeaderNoFooterToReplaceForCachePaths, cNoHeaderNoFooterReplacementForCachePaths)
+
+        aFileName           = '%s-%s%s' % (  aViewNameShortened, unSchemeHostAndDomain, cCacheDiskFilePostfix)
         aFilePath           = os.path.join( aLanguagePath, aFileName)
         aDisplayPath        = os.path.join( aProjectName, aNegotiatedLanguage, aFileName)
         aDisplayPath        = aDisplayPath.replace( '/', '/ ')
@@ -1165,12 +1182,29 @@ class ModelDDvlPloneTool_Cache_Render:
         
         
         # ###########################################################
+        """Try to access the directory containing all the cached HTML.
+            
+        """            
+        aCacheContainerPathExist = False
+        try:
+            aCacheContainerPathExist = os.path.exists( aCacheContainerPath)
+        except:
+            None
+        if not aCacheContainerPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+                
+        
+        
+        # ###########################################################
         """Try to access the directory containing the element independent files with cached HTML.
             
         """            
         aCacheDiskPathExist = False
         try:
-            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPathAbsolute)
         except:
             None
         if not aCacheDiskPathExist:
@@ -1877,18 +1911,36 @@ class ModelDDvlPloneTool_Cache_Render:
         if not aCacheDiskPath:
             return False
 
+        
+        
+        aCacheContainerPath    = self.fCacheContainerPath( theModelDDvlPloneTool, theContextualObject,)
+        aCacheDiskPathAbsolute = os.path.join( aCacheContainerPath, aCacheDiskPath)
+        aProjectPath           = os.path.join( aCacheDiskPathAbsolute, aProjectName)
+
+        
+        
+        aCacheContainerPathExist = False
+        try:
+            aCacheContainerPathExist = os.path.exists( aCacheContainerPath)
+        except:
+            None
+        if not aCacheContainerPathExist:
+            return False
+                
+        
+        
         aCacheDiskPathExist = False
         try:
-            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPathAbsolute)
         except:
             None
         if not aCacheDiskPathExist:
             try:
-                os.makedirs(aCacheDiskPath)
+                os.makedirs( aCacheDiskPathAbsolute)
             except:
                 None
             try:
-                aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+                aCacheDiskPathExist = os.path.exists( aCacheDiskPathAbsolute)
             except:
                 None
             if not aCacheDiskPathExist:
@@ -1899,7 +1951,7 @@ class ModelDDvlPloneTool_Cache_Render:
         """Access directories for project and language, creating them if the directories do not exist.
             
         """
-        aProjectPath = os.path.join( aCacheDiskPath, aProjectName)
+        aProjectPath = os.path.join( aCacheDiskPathAbsolute, aProjectName)
         aProjectPathExist = False
         try:
             aProjectPathExist = os.path.exists( aProjectPath)
@@ -1941,7 +1993,11 @@ class ModelDDvlPloneTool_Cache_Render:
         """Write the page on disk cache file.
             
         """
-        aViewFileName  = '%s-%s%s' % (  aViewName, unSchemeHostAndDomain, cCacheDiskFilePostfix)
+        aViewNameShortened     = aViewName
+        if cNoHeaderNoFooterToReplaceForCachePaths in aViewName:
+            aViewNameShortened = aViewName.replace( cNoHeaderNoFooterToReplaceForCachePaths, cNoHeaderNoFooterReplacementForCachePaths)
+
+        aViewFileName  = '%s-%s%s' % (  aViewNameShortened, unSchemeHostAndDomain, cCacheDiskFilePostfix)
         aViewPath      = os.path.join( aLanguagePath, aViewFileName)
 
         aWritten = False
@@ -2348,13 +2404,23 @@ class ModelDDvlPloneTool_Cache_Render:
             return aRenderResult
                    
         
-        if ( not unParsedRootElementURL[ 0]) or ( not unParsedRootElementURL[ 1]):
+        if len( unParsedRootElementURL[ 0]) < 2:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+
+        unScheme = unParsedRootElementURL[ 0]
+        unDomain = unParsedRootElementURL[ 1]
+
+        if ( not unScheme and unDomain):
             aRenderResult.update( {
                 'status':           cRenderStatus_ForceRender, 
             })                                    
             return aRenderResult
         
-        unSchemeHostAndDomain = '%s-%s' % ( unParsedRootElementURL[ 0], unParsedRootElementURL[ 1],)
+        unDomain = unDomain.replace( ':', '-p-')
+        unSchemeHostAndDomain = '%s-%s' % ( unScheme, unDomain,)
         
             
         # ###################################################################
@@ -2974,10 +3040,14 @@ class ModelDDvlPloneTool_Cache_Render:
         """Assemble the name of the disk file holding the cached HTML for the entry.
             
         """            
-        aCacheContainerPath = self.fCacheContainerPath( theModelDDvlPloneTool, theContextualObject,)
+        aCacheContainerPath    = self.fCacheContainerPath( theModelDDvlPloneTool, theContextualObject,)
         
-        aProjectPath           = os.path.join( aCacheContainerPath, aCacheDiskPath, aProjectName)
-        aRootElementFolderName = '%s-%s' % ( unRootElementId, unRootElementUID,)
+        aCacheDiskPathAbsolute = os.path.join( aCacheContainerPath, aCacheDiskPath)
+        aProjectPath           = os.path.join( aCacheDiskPathAbsolute, aProjectName)
+        
+        unRootElementIdShortened   = unRootElementId[:cMaxRootElementIdInDiscCachePath]
+        unRootElementIdShortened   = unRootElementIdShortened.replace( ' ', '_').strip()        
+        aRootElementFolderName = '%s-%s' % ( unRootElementIdShortened, unRootElementUID,)
         aRootUIDPath           = os.path.join( aProjectPath, aRootElementFolderName)
         anElementUIDModulus    = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
         aElementUIDModulusPath = os.path.join( aRootUIDPath, anElementUIDModulus)
@@ -2987,7 +3057,12 @@ class ModelDDvlPloneTool_Cache_Render:
         anElementFolderName    = '%s-%s' % ( unElementIdShortened, unElementUID,)
         aElementUIDPath        = os.path.join( aElementUIDModulusPath, anElementFolderName)
         aLanguagePath          = os.path.join( aElementUIDPath, aNegotiatedLanguage)
-        aFileName              = '%s-%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, unSchemeHostAndDomain, aRoleKindToIndex, cCacheDiskFilePostfix)
+        
+        aViewNameShortened     = aViewName
+        if cNoHeaderNoFooterToReplaceForCachePaths in aViewName:
+            aViewNameShortened = aViewName.replace( cNoHeaderNoFooterToReplaceForCachePaths, cNoHeaderNoFooterReplacementForCachePaths)
+            
+        aFileName              = '%s-%s-%s-%s-%s%s' % ( aViewNameShortened, unRelationCursorName, unCurrentElementUID, unSchemeHostAndDomain, aRoleKindToIndex, cCacheDiskFilePostfix)
         aFilePath              = os.path.join( aLanguagePath, aFileName)
         aDisplayPath           = os.path.join( aProjectName, aRootElementFolderName, anElementUIDModulus, anElementFolderName, aNegotiatedLanguage, aFileName)
         aDisplayPath           = aDisplayPath.replace( '/', '/ ')
@@ -2998,7 +3073,22 @@ class ModelDDvlPloneTool_Cache_Render:
 
         
 
-        
+        # ###########################################################
+        """Try to access the directory containing all the cached HTML.
+            
+        """            
+        aCacheContainerPathExist = False
+        try:
+            aCacheContainerPathExist = os.path.exists( aCacheContainerPath)
+        except:
+            None
+        if not aCacheContainerPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+                
+                
         
         # ###########################################################
         """Try to access the directory containing the element independent files with cached HTML.
@@ -3006,7 +3096,7 @@ class ModelDDvlPloneTool_Cache_Render:
         """            
         aCacheDiskPathExist = False
         try:
-            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPathAbsolute)
         except:
             None
         if not aCacheDiskPathExist:
@@ -3014,6 +3104,8 @@ class ModelDDvlPloneTool_Cache_Render:
                 'status':           cRenderStatus_Continue, 
             })                                    
             return aRenderResult
+        
+        
         
         
         # ###########################################################
@@ -3903,19 +3995,33 @@ class ModelDDvlPloneTool_Cache_Render:
         """
         if not aCacheDiskPath:
             return False
-
+        
+        
+        aCacheContainerPath    = self.fCacheContainerPath( theModelDDvlPloneTool, theContextualObject,)
+        aCacheDiskPathAbsolute = os.path.join( aCacheContainerPath, aCacheDiskPath)
+        
+        
+        aCacheContainerPathExist = False
+        try:
+            aCacheContainerPathExist = os.path.exists( aCacheContainerPath)
+        except:
+            None
+        if not aCacheContainerPathExist:
+            return False
+                
+        
         aCacheDiskPathExist = False
         try:
-            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPathAbsolute)
         except:
             None
         if not aCacheDiskPathExist:
             try:
-                os.makedirs(aCacheDiskPath)
+                os.makedirs( aCacheDiskPathAbsolute)
             except:
                 None
             try:
-                aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+                aCacheDiskPathExist = os.path.exists( aCacheDiskPathAbsolute)
             except:
                 None
             if not aCacheDiskPathExist:
@@ -3926,7 +4032,7 @@ class ModelDDvlPloneTool_Cache_Render:
         """Access directories, or create as needed, for project, root UID, language, the modulus 100 of the checksum of element UID , element UID, view,  relation, relation current UID, and role/userId.
             
         """
-        aProjectPath = os.path.join( aCacheDiskPath, aProjectName)
+        aProjectPath = os.path.join( aCacheDiskPathAbsolute, aProjectName)
         aProjectPathExist = False
         try:
             aProjectPathExist = os.path.exists( aProjectPath)
@@ -3945,7 +4051,9 @@ class ModelDDvlPloneTool_Cache_Render:
                 return False
         
             
-        aRootElementFolderName = '%s-%s' % ( unRootElementId, unRootElementUID,)
+        unRootElementIdShortened   = unRootElementId[:cMaxRootElementIdInDiscCachePath]
+        unRootElementIdShortened   = unRootElementIdShortened.replace( ' ', '_').strip()        
+        aRootElementFolderName = '%s-%s' % ( unRootElementIdShortened, unRootElementUID,)
         aRootUIDPath = os.path.join( aProjectPath, aRootElementFolderName)
         aRootUIDPathExist = False
         try:
@@ -4039,7 +4147,11 @@ class ModelDDvlPloneTool_Cache_Render:
         """Write the page on disk cache file.
             
         """
-        aViewFileName = '%s-%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, unSchemeHostAndDomain, aRoleKindToIndex, cCacheDiskFilePostfix)
+        aViewNameShortened     = aViewName
+        if cNoHeaderNoFooterToReplaceForCachePaths in aViewName:
+            aViewNameShortened = aViewName.replace( cNoHeaderNoFooterToReplaceForCachePaths, cNoHeaderNoFooterReplacementForCachePaths)
+
+        aViewFileName = '%s-%s-%s-%s-%s%s' % ( aViewNameShortened, unRelationCursorName, unCurrentElementUID, unSchemeHostAndDomain, aRoleKindToIndex, cCacheDiskFilePostfix)
         aViewPath = os.path.join( aLanguagePath, aViewFileName)
 
         aWritten = False
