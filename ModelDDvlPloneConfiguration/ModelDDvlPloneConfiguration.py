@@ -39,6 +39,7 @@ from OFS.PropertyManager import PropertyManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import ClassSecurityInfo
 
+from AccessControl.Permissions                 import access_contents_information   as perm_AccessContentsInformation
 
 
 from Products.CMFCore                    import permissions
@@ -120,10 +121,13 @@ cModelDDvlPloneConfigurationId = 'ModelDDvlPlone_configuration'
 
 """         
 cModelDDvlPloneConfigurationPermissions = [                                                                                                                                     
-    #{ 'permission': permissions.AddPortalContent,     'acquire': False,  'roles': [              'Authenticated',  ], },  
-    { 'permission': permissions.DeleteObjects,        'acquire': False,  'roles': [              'Authenticated',  ], },  
-    #{ 'permission': permissions.ModifyPortalContent,  'acquire': False,  'roles': [              'Authenticated',  ], },  
-    { 'permission': permissions.View,                 'acquire': False,  'roles': [ 'Anonymous', 'Authenticated',  ], },  
+    { 'permission': permissions.ManagePortal,         'acquire': True,  'roles': [              'Authenticated', ], },                             
+    { 'permission': permissions.ManageProperties,     'acquire': True,  'roles': [              'Authenticated', ], }, 
+     # permission Not available for the configuration tool:  { 'permission': permissions.AddPortalContent,     'acquire': True,  'roles': [              'Authenticated', ], }, 
+    { 'permission': permissions.DeleteObjects,        'acquire': True,  'roles': [              'Authenticated', ], }, 
+     # permission Not available for the configuration tool:  { 'permission': permissions.ModifyPortalContent,  'acquire': True,  'roles': [              'Authenticated', ], }, 
+    { 'permission': permissions.View,                 'acquire': True,  'roles': [ 'Anonymous', 'Authenticated', ], },  
+    { 'permission': perm_AccessContentsInformation,   'acquire': True,  'roles': [ 'Anonymous', 'Authenticated', ], },  
 ]
 
 

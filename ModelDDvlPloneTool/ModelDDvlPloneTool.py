@@ -40,6 +40,7 @@ from OFS.PropertyManager import PropertyManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import ClassSecurityInfo
 
+from AccessControl.Permissions                 import access_contents_information   as perm_AccessContentsInformation
 
 from time import time
 
@@ -131,10 +132,13 @@ cModuleNamesToImport = [
 
 """         
 cModelDDvlPloneToolPermissions = [                                                                                                                                     
-    #{ 'permission': permissions.AddPortalContent,     'acquire': False,  'roles': [              'Authenticated',  ], },  
-    { 'permission': permissions.DeleteObjects,        'acquire': False,  'roles': [              'Authenticated',  ], },  
-    #{ 'permission': permissions.ModifyPortalContent,  'acquire': False,  'roles': [              'Authenticated',  ], },  
-    { 'permission': permissions.View,                 'acquire': False,  'roles': [ 'Anonymous', 'Authenticated',  ], },  
+    { 'permission': permissions.ManagePortal,         'acquire': True,  'roles': [              'Authenticated', ], },                             
+    { 'permission': permissions.ManageProperties,     'acquire': True,  'roles': [              'Authenticated', ], }, 
+    { 'permission': permissions.AddPortalContent,     'acquire': True,  'roles': [              'Authenticated', ], }, 
+    { 'permission': permissions.DeleteObjects,        'acquire': True,  'roles': [              'Authenticated', ], }, 
+    { 'permission': permissions.ModifyPortalContent,  'acquire': True,  'roles': [              'Authenticated', ], }, 
+    { 'permission': permissions.View,                 'acquire': True,  'roles': [ 'Anonymous', 'Authenticated', ], },  
+    { 'permission': perm_AccessContentsInformation,   'acquire': True,  'roles': [ 'Anonymous', 'Authenticated', ], },  
 ]
 
 
@@ -2140,7 +2144,7 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
         somePloneImportTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeImportConfigs( theContainerObject)        
         someMappingConfigs         =  aModelDDvlPloneTool_Retrieval.getMappingConfigs(         theContainerObject)        
                 
-        return self._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Import')().fImport( 
+        return self._fIMC( theContainerObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Import')().fImport( 
             theTimeProfilingResults        =theTimeProfilingResults,
             theModelDDvlPloneTool          =self,
             theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
@@ -2264,7 +2268,7 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
         someMDDNewVersionTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs(   theOriginalObject)        
         somePloneNewVersionTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theOriginalObject)        
                 
-        return self._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Version')().fNewVersion( 
+        return self._fIMC( theOriginalObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Version')().fNewVersion( 
             theTimeProfilingResults        =theTimeProfilingResults,
             theModelDDvlPloneTool          =self,
             theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
