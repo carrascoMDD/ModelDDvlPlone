@@ -1,6 +1,17 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
+v2.1.2
+---------------------------
+
+Presentation Tabular: Added to collection headers the cardinality of the collection (the number of elements held).
+
+
+
+|
+|
+
+
 v2.1.1
 ---------------------------
 Cache now properly supports different schemes (http, https), host name and domain virtualization, by rendering and caching specific pages for each different scheme//host name.domain.
@@ -15,11 +26,15 @@ Refactored service class ModelDDvlPloneTool_Cache in a number of separate classe
 
 Added service to flush the entries in a cache, for a Project, a Project and Language, or a Project, Language and Root.
 
+|
+|
 
 v2.1RC
 ---------------------------
 Added year 2011 to Copyright notice.
 
+|
+|
 
 
 v2.0.2
@@ -29,6 +44,8 @@ adding a new line before the first entry of a dictionary.
 NOTE that code for rendering into HTML facility is duplicated in ModelDDvlPloneTool_Retrieval_Utils.py and ModelDDvlPloneToolSupport.py.
 Added service fGetMemberInfoForUserId to retrieve information about the member including its name, home holder URL and photo URL.
 
+|
+|
 
 
 V2.x
@@ -37,10 +54,14 @@ Version of the framework compatible with the 2.x versions of applications gvSIG-
 Numerous changes and improvements over the 1.x versions of the framework.
 
 
+|
+|
 
 
 ---------------------------
 
+|
+|
 
 
 v1.0.3 in progress
