@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_ImportExport_Constants.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -64,16 +64,10 @@ cMDDExportStatus_Error_Internal_AttributeAccessorNotFound                  = 'Ex
 cMDDExportStatus_Error_Internal_MissingZipFile                             = 'ExportStatus_Error_Internal_MissingZipFile'
 cMDDExportStatus_Error_Export_NotAllowedInElement                          = 'ExportStatus_Error_Export_NotAllowedInElement'
 
-cMDDImportStatus_Error_Empty_MDDImportTypeConfigs                          = 'ImportStatus_Error_Empty_MDDImportTypeConfigs'
-cMDDImportStatus_Error_MissingParameter_ModelDDvlPloneTool                 = 'ImportStatus_Error_MissingParameter_ModelDDvlPloneTool'
-cMDDImportStatus_Error_MissingParameter_ImportContext                      = 'ImportStatus_Error_MissingParameter_ImportContext'
-cMDDImportStatus_Error_MissingParameter_theXMLDocument                     = 'ImportStatus_Error_MissingParameter_theXMLDocument'
-cMDDImportStatus_Error_MissingParameter_theXMLRootElements                 = 'ImportStatus_Error_MissingParameter_theXMLRootElements'
 cMDDImportStatus_Error_MissingParameter_ContextualElement                  = 'ImportStatus_Error_MissingParameter_ContextualElement'
 cMDDImportStatus_Error_MissingParameter_ContainerObject                    = 'ImportStatus_Error_MissingParameter_ContainerObject'
 cMDDImportStatus_Error_MissingParameter_MDDImportTypeConfigs               = 'ImportStatus_Error_MissingParameter_MDDImportTypeConfigs'
 cMDDImportStatus_Error_MissingParameter_UploadedFile                       = 'ImportStatus_Error_MissingParameter_UploadedFile'
-cMDDImportStatus_Error_MissingTool_ModelDDvlPloneTool                      = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool'
 cMDDImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval            = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool_Retrieval'
 cMDDImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators             = 'ImportStatus_Error_MissingTool_ModelDDvlPloneTool_Mutators'
 cMDDImportStatus_Error_Internal_MissingTool_translation_service            = 'ImportStatus_Error_Internal_MissingTool_translation_service'

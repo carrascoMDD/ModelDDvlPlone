@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Translation.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -50,12 +50,13 @@ from Products.Archetypes.utils import shasattr
 
 
 
+from ModelDDvlPloneTool_Retrieval               import ModelDDvlPloneTool_Retrieval
 from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
 
 from ModelDDvlPloneTool_Profiling               import ModelDDvlPloneTool_Profiling
 
 
-from MDDRefactor_NewTranslation                 import MDDRefactor_NewTranslation
+from MDD_RefactorComponents                     import MDDRefactor_NewTranslation
 
 from ModelDDvlPloneTool_ImportExport_Constants  import *
 
@@ -342,9 +343,6 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
         
         if not theTranslatingInfo:
             return self
-        
-        if theModelDDvlPloneTool_Retrieval == None:
-            return self
 
         unTranslationedElement = theTranslatingInfo.get( 'element', None)
         if ( unTranslationedElement == None):
@@ -356,6 +354,12 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
         if unAlreadyVisited == None:
             unAlreadyVisited = { }
             
+        
+        unModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool_Retrieval
+        if not unModelDDvlPloneTool_Retrieval:
+            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        
+        
         unInterTranslationUIDFieldsCache = theInterTranslationUIDFieldsCache
         if ( unInterTranslationUIDFieldsCache == None):
             unInterTranslationUIDFieldsCache = { }
@@ -385,24 +389,24 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
         
         
         unId        = unTranslationedElement.getId()
-        theTranslatingInfo[ 'id']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unId, unTranslationedElement)
+        theTranslatingInfo[ 'id']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unId, unTranslationedElement)
         
         unaURL = unTranslationedElement.absolute_url()
         if not ( unaURL[-1:] == '/'):
             unaURL = '%s/' % unaURL                
-        theTranslatingInfo[ 'url'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaURL, unTranslationedElement)
+        theTranslatingInfo[ 'url'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaURL, unTranslationedElement)
          
         unaUID = unTranslationedElement.UID()
-        theTranslatingInfo[ 'UID'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaUID, unTranslationedElement)
+        theTranslatingInfo[ 'UID'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaUID, unTranslationedElement)
          
         unTitle        = unTranslationedElement.Title()
-        theTranslatingInfo[ 'title']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unTitle, unTranslationedElement)
+        theTranslatingInfo[ 'title']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unTitle, unTranslationedElement)
         
         unaDescription = unTranslationedElement.Description()
-        theTranslatingInfo[ 'description'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaDescription, unTranslationedElement)
+        theTranslatingInfo[ 'description'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaDescription, unTranslationedElement)
         
         unPath        = '/'.join( unTranslationedElement.getPhysicalPath())
-        theTranslatingInfo[ 'path']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unPath, unTranslationedElement)
+        theTranslatingInfo[ 'path']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unPath, unTranslationedElement)
         
         unInterTranslationUID    = None
         unNewLanguage        = None
@@ -445,7 +449,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unInterTranslationUID == None):
-                theTranslatingInfo[ 'inter_translation_uid'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unInterTranslationUID, unTranslationedElement)
+                theTranslatingInfo[ 'inter_translation_uid'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unInterTranslationUID, unTranslationedElement)
             
                     
         
@@ -477,7 +481,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unNewLanguage == None):
-                theTranslatingInfo[ 'translation'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unNewLanguage, unTranslationedElement)
+                theTranslatingInfo[ 'translation'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unNewLanguage, unTranslationedElement)
                 if not ( theAllTranslationsByName == None):
                     if theAllTranslationsByName.has_key( unNewLanguage):
                         raise "Duplicate_Translation_Name"
@@ -508,7 +512,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unFallbackStrategy == None):
-                theTranslatingInfo[ 'translation_comment'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unFallbackStrategy, unTranslationedElement)
+                theTranslatingInfo[ 'translation_comment'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unFallbackStrategy, unTranslationedElement)
         
         
             
@@ -593,7 +597,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                             
                             self.pRetrieveTranslationInfo_Inner( 
                                 theTimeProfilingResults             =theTimeProfilingResults,
-                                theModelDDvlPloneTool_Retrieval     =theModelDDvlPloneTool_Retrieval,
+                                theModelDDvlPloneTool_Retrieval     =unModelDDvlPloneTool_Retrieval,
                                 theRetrievePreviousTranslations         =theRecurse,
                                 theRetrieveNextTranslations             =False,
                                 theRecurse                          =theRecurse,
@@ -651,7 +655,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                             
                             self.pRetrieveTranslationInfo_Inner( 
                                 theTimeProfilingResults             =theTimeProfilingResults,
-                                theModelDDvlPloneTool_Retrieval     =theModelDDvlPloneTool_Retrieval,
+                                theModelDDvlPloneTool_Retrieval     =unModelDDvlPloneTool_Retrieval,
                                 theRetrievePreviousTranslations         =False,
                                 theRetrieveNextTranslations             =theRecurse,
                                 theRecurse                          =theRecurse,
@@ -1182,10 +1186,8 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                 # ##############################################################################
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
-                """    
-                aModelDDvlPloneTool_Transactions = theModelDDvlPloneTool.fModelDDvlPloneTool_Transactions( theOriginalObject)
-                if not ( aModelDDvlPloneTool_Transactions == None):
-                    aModelDDvlPloneTool_Transactions.fTransaction_Savepoint( theOptimistic=True)
+                """      
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 
                 unNewTitle          = theNewTitle.strip()
@@ -1659,8 +1661,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                 unNewTranslationReport[ 'error_reports'].extend( unRefactor.vErrorReports )
                             
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
-                    if not ( aModelDDvlPloneTool_Transactions == None):
-                        aModelDDvlPloneTool_Transactions.fTransaction_Commit()
+                    ModelDDvlPloneTool_Transactions().fTransaction_Commit()
     
                     unNewTranslationReport.update( { 
                          'success':      True,
@@ -1670,8 +1671,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                         logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fNewTranslation\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewTranslationReport, ])))
                     
                 else:
-                    if not ( aModelDDvlPloneTool_Transactions == None):
-                        aModelDDvlPloneTool_Transactions.fTransaction_Abort()
+                    ModelDDvlPloneTool_Transactions().fTransaction_Abort()
                     
                     unNewTranslationReport.update( { 
                         'success':      False,

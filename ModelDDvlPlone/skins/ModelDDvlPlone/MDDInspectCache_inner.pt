@@ -3,7 +3,7 @@
 #
 # File: MDDInspectCache_inner.pt
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -38,12 +38,7 @@
         <tal:block tal:define=" 
 			pTrue                        python: True;
 			pFalse                       python: False;
-			pCacheName      	         request/theCacheName                   | string:;  
-			pFirstEntryIndex             request/theFirstEntryIndex             | string:;   
-			pNumEntries                  request/theNumEntries                  | string:;   
-			pProjectName                 request/theProjectName                 | string:;   
-			pLanguage                    request/theLanguage                    | string:;   
-			
+			pCacheName      	             request/theCacheName                   | string:;  
 			global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();" >
 			
 
@@ -88,15 +83,15 @@
 				<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone',  'ModelDDvlPlone_InspectCache_CacheName_%s' % pCacheName, '%s %s' % ('Name-',  pCacheName, ))" />
 			</h2>
 			
+			<tal:block tal:replace="nothing">
+				<tal:block 
+					tal:define="pCacheReport python: here.MDDModelDDvlPlone_tool.fDumpCache_HTML( here, pCacheName, theAdditionalParams={})" 
+					tal:condition="pCacheReport" 
+					tal:replace="structure pCacheReport" />
+			</tal:block>
+			
 			<tal:block 
-				tal:define="
-					pAdditionalParams python: { 
-						'theFirstEntryIndex':  pFirstEntryIndex,
-						'theNumEntries':       pNumEntries,
-						'theProjectName':      pProjectName,
-						'theLanguage':         pLanguage,
-					};
-					pCacheReport python: here.MDDCacheDump( here.MDDModelDDvlPlone_tool, here, pCacheName, theAdditionalParams=pAdditionalParams)" 
+				tal:define="pCacheReport python: here.MDDCacheDump( here.MDDModelDDvlPlone_tool, here, pCacheName, theAdditionalParams={})" 
 				tal:condition="pCacheReport" 
 				tal:replace="structure pCacheReport" />
 				 

@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneToolSupport.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -538,7 +538,7 @@ def fSortedConfigDictKeys(  theKeys, theDictKeysOrder=None):
 
 def prettyPrintDict( theOutput, theDict, theIndentLevel, theDictKeysToExclude=None, theDictKeysOrder=None, theAlreadyPrinted=None):
     theOutput.write(  cIndent *  theIndentLevel)
-    theOutput.write( '{\n')
+    theOutput.write( '{')
 
     if (not theAlreadyPrinted) or not (theDict in theAlreadyPrinted['elements']):
         if theAlreadyPrinted:
@@ -552,7 +552,7 @@ def prettyPrintDict( theOutput, theDict, theIndentLevel, theDictKeysToExclude=No
             if len( unaKey) > unaMaxKeyLen:
                 unaMaxKeyLen = len( unaKey)       
     
-        unaFirstKey = False
+        unaFirstKey = True
         for unaKey in unasKeys:
             if (not theDictKeysToExclude) or not ( unaKey in theDictKeysToExclude):
                 unElement = theDict[ unaKey]

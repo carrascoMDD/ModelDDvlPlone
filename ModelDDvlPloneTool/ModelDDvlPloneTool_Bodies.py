@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Bodies.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -52,6 +52,9 @@ from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
 
 from PloneElement_TraversalConfig       import cPloneTypes 
   
+from ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
+
+
 
 
 
@@ -76,31 +79,6 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
 #
 
 
-    
-    security.declarePrivate('fPortalURL')
-    def fPortalURL(self, theContextualObject=None):
-        """Duplicated in ModelDDvlPloneTool_Retrieval.
-        
-        """
-        unContextualObject = theContextualObject
-        if unContextualObject == None:
-            unContextualObject = self
-
-        unPortalURLTool = getToolByName( unContextualObject, 'portal_url', None)
-        if not unPortalURLTool:
-            return ''
-        
-        unPortalURL = ''
-        try:
-            unPortalURL = unPortalURLTool()
-        except: 
-            None
-        if not unPortalURL:
-            return ''
-        
-        return unPortalURL
-    
-    
  
     security.declarePrivate('fEditableBodyBlock_MetaTypeIcons')
     def fEditableBodyBlock_MetaTypeIcons(self, 
@@ -114,7 +92,7 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
         unOutput= StringIO( u'')
         
             
-        unPortalURL = self.fPortalURL( theElement)
+        unPortalURL = ModelDDvlPloneTool_Retrieval().fPortalURL( theElement)
         if not unPortalURL:
             unPortalURL = ''
         else:

@@ -2,7 +2,7 @@
 #
 # File: MDDTool_Mutators.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -231,7 +231,6 @@ class MDDTool_Mutators:
         """
         
         aCreationReport = self.fModelDDvlPloneTool_Mutators( theContainerElement).fCrearElementoDeTipo( 
-            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theContainerElement     =theContainerElement, 
             theTypeName             =theTypeName, 
@@ -281,7 +280,6 @@ class MDDTool_Mutators:
         """
         
         aCreationReport = self.fModelDDvlPloneTool_Mutators( theContainerElement).fCrearElementoDeTipo( 
-            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theContainerElement     =theContainerElement, 
             theTypeName             =theTypeName, 
@@ -330,7 +328,6 @@ class MDDTool_Mutators:
         """
         
         unChangeReport = self.fModelDDvlPloneTool_Mutators( theElement).fChangeValues(  
-            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theElement              =theElement, 
             theNewValuesDict        =theNewValuesDict,
@@ -366,9 +363,8 @@ class MDDTool_Mutators:
         """
         
         unMoveReport = self.fModelDDvlPloneTool_Mutators( theContainerElement).fMoveSubObject( 
-            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
-            theContainerElement     =theContainerElement,  
+            theContainerElement      =theContainerElement,  
             theTraversalName        =theTraversalName, 
             theMovedObjectId        =theMovedObjectId, 
             theMoveDirection        =theMoveDirection, 
@@ -404,7 +400,6 @@ class MDDTool_Mutators:
         """
         
         unMoveReport = self.fModelDDvlPloneTool_Mutators( theSourceElement).fMoveReferencedObject(
-            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,
             theSourceElement        =theSourceElement,  
             theReferenceFieldName   =theReferenceFieldName, 
@@ -442,7 +437,6 @@ class MDDTool_Mutators:
         """
         
         unLinkReport = self.fModelDDvlPloneTool_Mutators( theSourceElement).fLinkToUIDReferenceFieldNamed( 
-            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,            
             theSourceElement        =theSourceElement, 
             theReferenceFieldName   =theReferenceFieldName, 
@@ -540,6 +534,7 @@ class MDDTool_Mutators:
     
     security.declareProtected( permissions.DeleteObjects,  'fEliminarVariosElementos')
     def fEliminarVariosElementos(self, 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,                          
         theContainerElement     =None, 
         theIdsToDelete          =None, 
@@ -600,6 +595,7 @@ class MDDTool_Mutators:
     
     security.declareProtected( permissions.DeleteObjects,  'fEliminarElementoPlone')
     def fEliminarElementoPlone(self, 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,                          
         theContainerElement     =None, 
         theUIDToDelete          =None, 
@@ -646,7 +642,6 @@ class MDDTool_Mutators:
         """
 
         unMoveReport = self.fModelDDvlPloneTool_Mutators_Plone( theContainerElement).fMoveSubObjectPlone( 
-            theModelDDvlPloneTool   =self,
             theTimeProfilingResults =theTimeProfilingResults,            
             theContainerElement     =theContainerElement,  
             theTraversalName        =theTraversalName, 
@@ -673,6 +668,72 @@ class MDDTool_Mutators:
     
     
     
+
+    
+    security.declareProtected( permissions.View, 'fImport')
+    def fImport(self, 
+        theTimeProfilingResults     =None,
+        theContainerObject          =None, 
+        theUploadedFile             =None,
+        theMinimumTimeSlice         =None,
+        theYieldTimePercent         =None,
+        theAdditionalParams         =None):
+        """Import into an element a zipped archive with XML file, and any included binary content the attached files and images."
+        
+        """
+        
+        aModelDDvlPloneTool_Retrieval = self.fModelDDvlPloneTool_Retrieval( theContainerObject)
+
+        someMDDImportTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeImportConfigs(   theContainerObject)        
+        somePloneImportTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeImportConfigs( theContainerObject)        
+        someMappingConfigs         =  aModelDDvlPloneTool_Retrieval.getMappingConfigs(         theContainerObject)        
+                
+        return self.fModelDDvlPloneTool_Import( theContainerObject).fImport( 
+            theTimeProfilingResults        =theTimeProfilingResults,
+            theModelDDvlPloneTool          =self,
+            theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators =self.fModelDDvlPloneTool_Mutators( theContainerObject),
+            theContainerObject             =theContainerObject, 
+            theUploadedFile                =theUploadedFile,
+            theMDDImportTypeConfigs        =someMDDImportTypeConfigs, 
+            thePloneImportTypeConfigs      =somePloneImportTypeConfigs, 
+            theMappingConfigs              =someMappingConfigs,
+            theMinimumTimeSlice            =theMinimumTimeSlice,
+            theYieldTimePercent            =theYieldTimePercent,
+            theAdditionalParams            =theAdditionalParams
+        )
+
+      
+    
+ 
+ 
+
+    
+    security.declareProtected( permissions.View, 'fScanXMLAndBinariesFromUploadedFile')
+    def fScanXMLAndBinariesFromUploadedFile(self, 
+        theTimeProfilingResults        =None,
+        theContextualElement           =None, 
+        theUploadedFile                =None,
+        theAcceptedXMLRootNodeName     =None,
+        theExcludedFullFileNames       =None,
+        theExcludedFilePostfixes       =None,
+        theAdditionalParams            =None):
+        """Scan the content of the uploaded file, which may be a single XML file, or a zipped archive with an XML file, and some other files."
+        
+        """
+        
+        return self.fModelDDvlPloneTool_Import( theContextualElement).fScanXMLAndBinariesFromUploadedFile( 
+            theTimeProfilingResults        =theTimeProfilingResults,
+            theContextualElement           =theContextualElement, 
+            theUploadedFile                =theUploadedFile,
+            theAcceptedXMLRootNodeName     =theAcceptedXMLRootNodeName, 
+            theExcludedFullFileNames       =theExcludedFullFileNames, 
+            theExcludedFilePostfixes       =theExcludedFilePostfixes,
+            theAdditionalParams            =theAdditionalParams
+        )
+
+      
+                
     
 
         
@@ -751,6 +812,96 @@ class MDDTool_Mutators:
     
 
         
+        
+
+    
+    security.declareProtected( permissions.View, 'fObjectPaste')
+    # security.declareProtected( permissions.AddPortalContent, 'fObjectPaste')
+    def fObjectPaste(self, 
+        theTimeProfilingResults     =None,
+        theContainerObject          =None, 
+        theAdditionalParams         =None):
+        
+        """Invoked from template MDDPaste, used as an alias to the object_paste action.
+        Paste into an element the elements previously copied (references held in the clipboard internet browser cookie), and all its contents, reproducing between the copied elements the relations between the original elements.        
+        Cookies have not yet been decoded into objects to paste.
+        Preferred to the alternative of fPaste below ( transparently paste from usual plone action), to deliver a detailed report of the paste operation and any possible errors. or objects not pasted.
+        
+        """
+        
+        aModelDDvlPloneTool_Retrieval = self.fModelDDvlPloneTool_Retrieval( theContainerObject)
+        
+        someMDDCopyTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs(   theContainerObject)        
+        somePloneCopyTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theContainerObject)        
+        someMappingConfigs       =  aModelDDvlPloneTool_Retrieval.getMappingConfigs(       theContainerObject)        
+                
+        unPasteReport = self.fModelDDvlPloneTool_Refactor( theContainerObject).fObjectPaste( 
+            theTimeProfilingResults        = theTimeProfilingResults,
+            theModelDDvlPloneTool          = self,
+            theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators = self.fModelDDvlPloneTool_Mutators( theContainerObject),
+            theContainerObject             = theContainerObject, 
+            theMDDCopyTypeConfigs          = someMDDCopyTypeConfigs, 
+            thePloneCopyTypeConfigs        = somePloneCopyTypeConfigs, 
+            theMappingConfigs              = someMappingConfigs, 
+            theAdditionalParams            = theAdditionalParams
+        )
+        
+        unosImpactedObjectsUIDs = unPasteReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            self.fModelDDvlPloneTool_Cache( theContainerObject).pFlushCachedTemplatesForImpactedElementsUIDs( self, theContainerObject, unosImpactedObjectsUIDs)
+            
+        return unPasteReport
+        
+
+    
+    
+    
+    
+    
+    security.declareProtected( permissions.View, 'fPaste')
+    # security.declareProtected( permissions.AddPortalContent, 'fPaste')
+    def fPaste(self, 
+        theTimeProfilingResults     =None,
+        theContainerObject          =None, 
+        theObjectsToPaste           =None,
+        theIsMoveOperation          =False,
+        theAdditionalParams         =None):
+        """Delegated from the to-be container element of pasted elements, method pHandle_manage_pasteObjects, invoked by elements manage_pasteObjects.
+        Cookes have already been decoded into objects to paste.
+        Paste into an element the elements previously copied (references held in the clipboard internet browser cookie), and all its contents, reproducing between the copied elements the relations between the original elements.        
+        This allows to transparently paste from usual plone action, but does not deliver a detailed report of the paste operation and any possible errors, or objects not pasted.
+        """
+        
+        aModelDDvlPloneTool_Retrieval = self.fModelDDvlPloneTool_Retrieval( theContainerObject)
+        
+        someMDDCopyTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs(   theContainerObject)        
+        somePloneCopyTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theContainerObject)        
+        someMappingConfigs       =  aModelDDvlPloneTool_Retrieval.getMappingConfigs(       theContainerObject)        
+                
+        unPasteReport = self.fModelDDvlPloneTool_Refactor( theContainerObject).fPaste( 
+            theTimeProfilingResults        = theTimeProfilingResults,
+            theModelDDvlPloneTool          = self,
+            theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators = self.fModelDDvlPloneTool_Mutators( theContainerObject),
+            theContainerObject             = theContainerObject, 
+            theObjectsToPaste              = theObjectsToPaste,
+            theIsMoveOperation             = theIsMoveOperation,
+            theMDDCopyTypeConfigs          = someMDDCopyTypeConfigs, 
+            thePloneCopyTypeConfigs        = somePloneCopyTypeConfigs, 
+            theMappingConfigs              = someMappingConfigs, 
+            theAdditionalParams            = theAdditionalParams
+        )
+        
+        unosImpactedObjectsUIDs = unPasteReport.get('impacted_objects_UIDs', [])
+
+        if unosImpactedObjectsUIDs:
+            self.fModelDDvlPloneTool_Cache( theElement).pFlushCachedTemplatesForImpactedElementsUIDs( self, theElement, unosImpactedObjectsUIDs)
+            
+        return unPasteReport
+        
+
     
     
     

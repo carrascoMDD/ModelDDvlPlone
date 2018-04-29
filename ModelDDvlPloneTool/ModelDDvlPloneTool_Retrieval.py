@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -378,9 +378,7 @@ class ModelDDvlPloneTool_Retrieval(
     
     security.declarePrivate('fPortalURL')
     def fPortalURL(self, theContextualObject=None):
-        """Duplicated in ModelDDvlPloneTool_Bodies.
         
-        """        
         unContextualObject = theContextualObject
         if unContextualObject == None:
             unContextualObject = self
@@ -2978,11 +2976,6 @@ class ModelDDvlPloneTool_Retrieval(
                 unResult = self.fNewResultForElement( theElement)
     
                 
-            if theAdditionalParams and theAdditionalParams.get( 'ignore_allow_read', False) and ( not unResult.get( 'allow_read', False)):
-                unResult[ 'allow_read'] = True
-                
-            if theAdditionalParams and theAdditionalParams.get( 'ignore_allow_write', False) and ( not unResult.get( 'allow_write', False)):
-                unResult[ 'allow_write'] = True
                 
                 
             aDummy = self.fMetaTypeNameTranslationsFromCache_into( 

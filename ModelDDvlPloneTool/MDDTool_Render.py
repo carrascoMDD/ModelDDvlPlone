@@ -2,7 +2,7 @@
 #
 # File: MDDTool_Render.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -276,7 +276,7 @@ class MDDTool_Render:
         """Render a text presentation of a list with rich inner structure, where items appear in consecutive lines, and nested items appear indented under their containers, and alineated with their siblings.
         
         """
-        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fPrettyPrint( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
+        return self.fModelDDvlPloneToolSupport( theContextualObject).fPrettyPrint( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
 
 
     
@@ -292,7 +292,7 @@ class MDDTool_Render:
         return self.fModelDDvlPloneToolSupport( theContextualObject).fPrettyPrintProfilingResultHTML( theProfilingResult)
 
     
-
+    
     
     
     

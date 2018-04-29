@@ -2,7 +2,7 @@
 #
 # File: MDDTool_Retrieval.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -384,18 +384,148 @@ class MDDTool_Retrieval:
         return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fDefaultPloneSubItemsParameters()
     
    
-    
-    
-    
    
-    security.declareProtected( permissions.View, 'fGetMemberInfoForUserId')
-    def fGetMemberInfoForUserId(self, theContextualObject, theUserId):
-        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fGetMemberInfoForUserId( theContextualObject, theUserId)
+     
+        
+
     
-       
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
 
- 
+    
+      
+    # #############################################################
+    """Import and export methods.
+    
+    """
+
+
+    
+    security.declareProtected( permissions.View, 'fToDicts')
+    def fToDicts(self, 
+        theTimeProfilingResults     =None,
+        theElement                  =None, 
+        theAdditionalParams         =None):
+        """Export an element as a zipped archive with XML file, and including binary content with the attached files and images."
+        
+        """
+        
+        someAllExportTypeConfigs =  self.fModelDDvlPloneTool_Retrieval( theElement).getAllTypeExportConfigs( theElement)        
+            
+        return self.fModelDDvlPloneTool_ToDicts( theElement).fToDicts( 
+            theModelDDvlPloneTool       =self,
+            theElement                  =theElement, 
+            theAllToDictsTypeConfigs    =someAllExportTypeConfigs, 
+            theAdditionalParams         =theAdditionalParams
+        )
+
+
+    
+    
+    
+    security.declarePrivate( 'fIndexToDicts')
+    def fIndexToDicts( self,
+        theContextualElement = None,
+        theDicts             =None, 
+        theIndexNames        =None):
+        """Create specified indexes with information from the dictionaries in the tree.
+        
+        """    
+        return self.fModelDDvlPloneTool_ToDicts( theContextualElement).fIndexToDicts( 
+            theModelDDvlPloneTool =self,
+            theContextualElement  =theContextualElement,
+            theDicts              =theDicts, 
+            theIndexNames         =theIndexNames,
+        )
+    
+    
+    
+    
+    
+    security.declarePrivate( 'fResolveByIndex_Callable')
+    def fResolveByIndex_Callable( self,
+        theContextualElement = None,):
+        """Obtain a callable element able to resolve model element from their identity.
+        
+        """
+        return self.fModelDDvlPloneTool_ToDicts( theContextualElement).fResolveByIndex_Callable( 
+            theModelDDvlPloneTool =self,
+            theContextualElement  =theContextualElement,
+        )
+            
+        
+    
+    
+    
+    
+    security.declarePublic( 'fDownloadObjectPythonRepresentation')
+    def fDownloadObjectPythonRepresentation(self, 
+        theTimeProfilingResults =None,
+        theContextualElement    =None,
+        theObject               =None, 
+        theTitle                =None,
+        theAdditionalParams     =None,):
+        """Download utility.
+        
+        """    
+          
+        return self.fModelDDvlPloneTool_ToDicts( theObject).fDownloadObjectPythonRepresentation( 
+            theContextualElement       =theContextualElement,
+            theObject                  =theObject, 
+            theTitle                   =theTitle, 
+            theAdditionalParams        =theAdditionalParams
+        )
+
+    
+    
+					
+					
+    
+    
+    
+           
+    
+    
+    security.declareProtected( permissions.View, 'fExport')
+    def fExport(self, 
+        theTimeProfilingResults     =None,
+        theObject                   =None, 
+        theAllExportTypeConfigs     =None,
+        theOutputEncoding           =None,
+        theReturnXML                =False,
+        theAdditionalParams         =None):
+        """Export an element as a zipped archive with XML file, and including binary content with the attached files and images."
+        
+        """
+        
+        return self.fModelDDvlPloneTool_Export( theObject).fExport( 
+            theModelDDvlPloneTool       =self,
+            theTimeProfilingResults     =theTimeProfilingResults,
+            theObject                   =theObject, 
+            theAllExportTypeConfigs     =theAllExportTypeConfigs, 
+            theOutputEncoding           =theOutputEncoding,
+            theReturnXML                =theReturnXML,
+            theAdditionalParams         =theAdditionalParams
+        )
+
+
+    
+    
+        
+    
+    
+    
     
     
     

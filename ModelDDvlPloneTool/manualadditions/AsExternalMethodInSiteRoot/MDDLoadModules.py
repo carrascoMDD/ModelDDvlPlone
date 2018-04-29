@@ -2,7 +2,7 @@
 #
 # File: MDDLoadModules.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -799,7 +799,7 @@ def _fLoadModules(
                     theClearGlobals              =theClearGlobals, 
                     theClearPersistent           =theClearPersistent,
                 )
-                if not ( aReloadModuleResult):
+                if not aReloadModuleResult:
                     theLoadModulesReport[ 'theModulesWithReloadError_2'].append( aModuleNameToReload)        
                     continue
     

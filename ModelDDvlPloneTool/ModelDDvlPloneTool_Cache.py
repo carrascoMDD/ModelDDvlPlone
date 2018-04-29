@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Cache.py
 #
-# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #anElementUIDModulus
@@ -65,6 +65,8 @@ from MDDStringConversions                       import *
 
 from MDDLinkedList                              import MDDLinkedList, MDDLinkedNode
 
+from ModelDDvlPloneTool_Retrieval               import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
 from ModelDDvlPloneToolSupport                  import fEvalString, fReprAsString, fMillisecondsNow, fMillisecondsToDateTime, fDateTimeNow
 
 
@@ -1957,10 +1959,6 @@ class ModelDDvlPloneTool_Cache:
             
         if theContextualObject == None:
             return unCacheStatusReport
-        
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if aModelDDvlPloneTool_Retrieval == None:
-            return unCacheStatusReport
 
         aCacheConfig_ElementIndependent     = theModelDDvlPloneTool.fGetCacheConfigCopy( theContextualObject, cCacheName_ElementIndependent)
         aCacheStatistics_ElementIndependent = self.fGetCacheStatisticsCopy( theModelDDvlPloneTool, theContextualObject,cCacheName_ElementIndependent)
@@ -2105,18 +2103,18 @@ class ModelDDvlPloneTool_Cache:
         if unElementoRaiz == None:
             return unCacheStatusReport
             
-        unHasManagePortalPermission = aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unElementoRaiz, permissions.ManagePortal, None )
-        unHasManagerRole            = aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unElementoRaiz, )
+        unHasManagePortalPermission = ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unElementoRaiz, permissions.ManagePortal, None )
+        unHasManagerRole            = ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unElementoRaiz, )
 
         if not cForbidCaches:
             
             unCanActivateOrDeactivate = unHasManagePortalPermission or unHasManagerRole
             if not unCanActivateOrDeactivate:
-                unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
+                unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
                 if not(  unPortalObject == None):
             
-                    unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                    unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                    unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                    unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                       
                     unCanActivateOrDeactivate = unHasManagePortalPermission or unHasManagerRole
             
@@ -2127,11 +2125,11 @@ class ModelDDvlPloneTool_Cache:
             
             unCanDiagnose = unHasManagePortalPermission or unHasManagerRole
             if not unCanDiagnose:
-                unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
+                unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
                 if not(  unPortalObject == None):
             
-                    unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                    unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                    unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                    unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                       
                     unCanDiagnose = unHasManagePortalPermission or unHasManagerRole
             
@@ -2142,11 +2140,11 @@ class ModelDDvlPloneTool_Cache:
             
             unCanInspect = unHasManagePortalPermission or unHasManagerRole
             if not unCanInspect:
-                unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
+                unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
                 if not(  unPortalObject == None):
             
-                    unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                    unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                    unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                    unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                       
                     unCanInspect = unHasManagePortalPermission or unHasManagerRole
             
@@ -2159,11 +2157,11 @@ class ModelDDvlPloneTool_Cache:
                 unCanConfigure =  unHasManagePortalPermission or unHasManagerRole
                 
                 if not unCanConfigure:
-                    unPortalObject = aModelDDvlPloneTool_Retrieval.fPortalRoot( theContextualObject)
+                    unPortalObject = ModelDDvlPloneTool_Retrieval().fPortalRoot( theContextualObject)
                     if not( unPortalObject == None):
                 
-                        unHasManagePortalPermission = unHasManagePortalPermission or aModelDDvlPloneTool_Retrieval.fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
-                        unHasManagerRole            = unHasManagerRole            or aModelDDvlPloneTool_Retrieval.fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
+                        unHasManagePortalPermission = unHasManagePortalPermission or ModelDDvlPloneTool_Retrieval().fCheckElementPermission( unPortalObject, permissions.ManagePortal, None )
+                        unHasManagerRole            = unHasManagerRole            or ModelDDvlPloneTool_Retrieval().fRoleQuery_IsAnyRol(     'Manager', unPortalObject, )
                           
                         unCanConfigure = unHasManagePortalPermission or unHasManagerRole
                 
@@ -2584,10 +2582,7 @@ class ModelDDvlPloneTool_Cache:
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
             if aCacheConfigHasChanged:
-                
-                aModelDDvlPloneTool_Transactions = theModelDDvlPloneTool.fModelDDvlPloneTool_Transactions( theContextualObject)
-                if not ( aModelDDvlPloneTool_Transactions == None):
-                    aModelDDvlPloneTool_Transactions.fTransaction_Commit()
+                ModelDDvlPloneTool_Transactions().fTransaction_Commit()
    
         return [ False, 'Edit', theCacheName,]
     
@@ -2874,11 +2869,9 @@ class ModelDDvlPloneTool_Cache:
         if theContextualObject == None:
             return False
         
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if aModelDDvlPloneTool_Retrieval == None:
-            return False
+
         
-        unMemberId    = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)
+        unMemberId    = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)
      
         # ###########################################################
         """Remove all existing cached teimplates, from within a thread-safe protected critical section.
@@ -2950,12 +2943,9 @@ class ModelDDvlPloneTool_Cache:
         if theContextualObject == None:
             return False
         
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if aModelDDvlPloneTool_Retrieval == None:
-            return False
 
         
-        unMemberId    = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)
+        unMemberId    = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)
         
         someFilesToDelete = [ ]
      
@@ -3395,12 +3385,6 @@ class ModelDDvlPloneTool_Cache:
         
         if not theFlushedElementsUIDs:
             return self
-        
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if aModelDDvlPloneTool_Retrieval == None:
-            return self
-
-        
         # ###########################################################
         """Try to flush cached content, from within a thread-safe protected critical section.
         
@@ -3439,6 +3423,7 @@ class ModelDDvlPloneTool_Cache:
         
         """
             
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
         
         for aFlushedElementUID in theFlushedElementsUIDs:
             
@@ -4328,7 +4313,7 @@ class ModelDDvlPloneTool_Cache:
         
         aRoleKindToIndex = cRoleKind_Anonymous
         
-        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theModelDDvlPloneTool, theContextualObject, theTemplateName)
+        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theContextualObject, theTemplateName)
         aRoleKindToIndex = aRoleKind
 
         if ( aRoleKind == cRoleKind_UserSpecific):
@@ -5229,16 +5214,8 @@ class ModelDDvlPloneTool_Cache:
             return aRenderResult
         
         
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if aModelDDvlPloneTool_Retrieval == None:
-            aRenderResult.update( {
-                'status':           cRenderStatus_ShowError, 
-                'error':            cRenderError_MissingParameters,
-            })                                    
-            return aRenderResult
         
-        
-        unMemberId = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)
+        unMemberId = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)
         
             
         if theVariables == None:
@@ -5306,15 +5283,8 @@ class ModelDDvlPloneTool_Cache:
             })                                    
             return aRenderResult
         
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if aModelDDvlPloneTool_Retrieval == None:
-            aRenderResult.update( {
-                'status':           cRenderStatus_ShowError, 
-                'error':            cRenderError_MissingParameters,
-            })                                    
-            return aRenderResult
                 
-        unMemberId = aModelDDvlPloneTool_Retrieval.fGetMemberId(  theContextualObject)           
+        unMemberId = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)           
          
                     
             
@@ -6805,7 +6775,7 @@ class ModelDDvlPloneTool_Cache:
         
         aRoleKindToIndex = cRoleKind_Anonymous
         
-        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theModelDDvlPloneTool, theContextualObject, theTemplateName)
+        aRoleKind, unMemberId, aRoleName = self.fGetMemberRoleKindAndUserId( theContextualObject, theTemplateName)
         aRoleKindToIndex = aRoleKind
 
         if ( aRoleKind == cRoleKind_UserSpecific):
@@ -8807,23 +8777,15 @@ class ModelDDvlPloneTool_Cache:
 
          
     security.declarePrivate( 'fGetMemberRoleKindAndUserId')
-    def fGetMemberRoleKindAndUserId(self , theModelDDvlPloneTool, theContextualObject, theTemplateName):
+    def fGetMemberRoleKindAndUserId(self , theContextualObject, theTemplateName):
     
-        if theModelDDvlPloneTool == None:
-            return None
-        
         aMembershipTool = getToolByName( theContextualObject, 'portal_membership', None)
-        if aMembershipTool == None:
+        if not aMembershipTool:
             return None
         
         unMember = aMembershipTool.getAuthenticatedMember()   
         if not unMember:
             return None
-        
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if aModelDDvlPloneTool_Retrieval == None:
-            return None
-        
         
         unMemberUserName = unMember.getUserName()
         if unMemberUserName == 'Anonymous User':
@@ -8832,9 +8794,19 @@ class ModelDDvlPloneTool_Cache:
         unMemberId = unMember.getMemberId()
         
         unElementoGetRoles = theContextualObject
-
+        # ###############
+        """ACV 20091217 Roles from the contextual element, hopefully the element for which the view is requested
         
-        aUserRolesSet = set( aModelDDvlPloneTool_Retrieval.fGetRequestingUserRoles( unElementoGetRoles))
+        """
+        #unElementoRaiz = None
+        #try:
+            #unElementoRaiz = theContextualObject.getRaiz()
+        #except:
+            #None
+        #if not ( unElementoRaiz == None):
+            #unElementoGetRoles = unElementoRaiz
+        
+        aUserRolesSet = set( ModelDDvlPloneTool_Retrieval().fGetRequestingUserRoles( unElementoGetRoles))
         if not aUserRolesSet:
             return [ cRoleKind_Anonymous, unMemberId, cZopeRole_Anonymous]
         
@@ -9680,22 +9652,21 @@ class ModelDDvlPloneTool_Cache:
             
             allEntriesWithProblems_AllCaches.update( someEntriesWithProblems)                                    
             
-            
-        aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContextualObject)
-        if not( aModelDDvlPloneTool_Retrieval == None):
                  
-            # ########################
-            """Retrieve elements name and type info from the UID catalog and check elements have been found for all entries UIDs
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             
-            """
-            someElementsNamesByUID = {}
-            if someUIDsElementsToRetrieve:
-                someElementsNamesByUID =  aModelDDvlPloneTool_Retrieval.fElementsNamesByUID( someUIDsElementsToRetrieve, theContextualObject)
-                
-                for anUID in someUIDsElementsToRetrieve:
-                    anElementNames = someElementsNamesByUID.get( anUID, None)
-                    if not anElementNames:
-                        allDiagnostics[ 'structures_UIDs_withoutElement'].add( anUID)
+        # ########################
+        """Retrieve elements name and type info from the UID catalog and check elements have been found for all entries UIDs
+        
+        """
+        someElementsNamesByUID = {}
+        if someUIDsElementsToRetrieve:
+            someElementsNamesByUID =  aModelDDvlPloneTool_Retrieval.fElementsNamesByUID( someUIDsElementsToRetrieve, theContextualObject)
+            
+            for anUID in someUIDsElementsToRetrieve:
+                anElementNames = someElementsNamesByUID.get( anUID, None)
+                if not anElementNames:
+                    allDiagnostics[ 'structures_UIDs_withoutElement'].add( anUID)
                     
                
                     
