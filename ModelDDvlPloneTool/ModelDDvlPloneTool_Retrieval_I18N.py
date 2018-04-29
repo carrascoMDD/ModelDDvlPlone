@@ -1015,7 +1015,11 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             
             aVocabularyDisplayList = None
             try:
-                unVocabularyMethod = theElement[  unVocabularyMethodNameOrOptions]
+                unVocabularyMethod = None
+                try:
+                    unVocabularyMethod = getattr( theElement, unVocabularyMethodNameOrOptions)
+                except:
+                    None
                 if unVocabularyMethod:
                     aVocabularyDisplayList = unVocabularyMethod()
                     
@@ -1033,7 +1037,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
                             if unaOptionMsgId:
                                 # ACV 20090907 Was hacked for gvSIGtraducciones, 
                                 # at the time, the only user of the dynamic vocabularies feature
-                                unI18NModuleName = 'gvSIGtraducciones'
+                                unI18NModuleName = 'gvSIGi18n'
                                 try:
                                     unI18NModuleName = theElement.getNombreProyecto()
                                 except:

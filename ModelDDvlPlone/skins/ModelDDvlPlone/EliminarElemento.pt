@@ -91,7 +91,7 @@
             <tal:block tal:define="
                 pMessageText python: '%s %s' % ( 
                     here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_DeleteFailed', 'Delete operation Failed-'), 
-                    here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_required_parameters_missing' ),);
+                    here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_required_parameters_missing', 'Error: Required Parameters Missing.-' ),);
                 global pRedirectURL python: '%s/Tabular/?portal_status_message=%s' % ( here.absolute_url(), pMessageText, )" 
             />
         </tal:block>
