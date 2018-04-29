@@ -33,14 +33,18 @@
 
     <div metal:define-macro="tEditarInner" >
     
-        <tal:block tal:define="pTrue              python: True;
-                               pFalse             python: False;
-                               pPagina            string:Tabular;
-                               pPaginaAnteriorPosterior string:Editar;
-                                pPaginaRefrescar string:Editar;
-                                pAllowRefrescar pTrue;
-                                pShowTrees         pFalse;
-                               global pStartTime pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+        <tal:block 
+			tal:define="
+				pChangeReports pChangeReports | nothing;
+				pTrue                    python: True;
+				pFalse                   python: False;
+				pPagina                  string:Tabular;
+				pPaginaAnteriorPosterior string:Editar;
+				pPaginaRefrescar         string:Editar;
+				pAllowRefrescar          pTrue;
+				pShowTrees               pFalse;
+				global  pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" 
+			tal:condition="pChangeReports" >
 
             <tal:block tal:define="
                 pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
@@ -53,7 +57,7 @@
                     'theTypeConfig'               :None, 
                     'theAllTypeConfigs'           :None, 
                     'theViewName'                 :'Tabular', 
-                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', 'dynamic_vocabularies',],
+                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', 'dynamic_vocabularies', 'audit',],
                     'theWritePermissions'         :[ 'object', 'attrs', 'delete',],
                     'theFeatureFilters'           :{ 'aggregations': [], 'relations': [], }, 
                     'theInstanceFilters'          :None,
@@ -69,34 +73,72 @@
                 pMostrarAnteriorPosterior   pTrue;
                 pForceExcludeId    pForceExcludeId | not: here/portal_properties/site_properties/visible_ids;
                 pCanRequestEditId  python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  not ( request.get( 'edit_id', '') == '1');
-                pEditId            python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  ( request.get( 'edit_id', '') == '1');" >
+                pEditId            python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  ( request.get( 'edit_id', '') == '1');
+				
+				pSucessfulObjectChangeReports python: ( pChangeReports and pChangeReports[ 'object_reports'] and [ unChangeReport for unChangeReport in pChangeReports[ 'object_reports'] if unChangeReport.get( 'effect', '') == 'changed']) or [];
+				pFailedObjectChangeReports    python: ( pChangeReports and pChangeReports[ 'object_reports'] and [ unChangeReport for unChangeReport in pChangeReports[ 'object_reports'] if unChangeReport.get( 'effect', '') == 'error']) or [];
+				pSucessfulFieldChangeReports  python: ( pChangeReports and pChangeReports[ 'field_reports' ] and [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports' ] if unChangeReport.get( 'effect', '') == 'changed']) or [];
+				pFailedFieldChangeReports     python: ( pChangeReports and pChangeReports[ 'field_reports' ] and [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports' ] if unChangeReport.get( 'effect', '') == 'error'  ]) or [];
+				
+				" >
     
                 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
-    
+				
+				<metal:block metal:use-macro="here/MDDInspectClipboard_inner/macros/tClipboardCollapsibleSection" /> 
+
                 <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
                
-                <p tal:condition="python: pChangeReports and pChangeReports[ 'field_reports'] and len( [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports'] if unChangeReport.get( 'effect', '') == 'changed']) > 0" >
+                <p tal:condition="python: not ( pFailedObjectChangeReports or pSucessfulFieldChangeReports or pFailedFieldChangeReports)" >
                     <font color="Red">
-                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sehancambiadolosdatos">Se han cambiado los datos</span> 
-                        &nbsp;   
-                        <tal:block tal:repeat="unChangeReport python: pChangeReports[ 'field_reports']" >
-                            <tal:block tal:condition="python: unChangeReport and unChangeReport.has_key( 'effect') and ( unChangeReport.get( 'effect', '') == 'changed')" >
-                                    <tal:block tal:condition="repeat/unChangeReport/start" >,</tal:block>
-                                <span tal:content="unChangeReport/previous_value/attribute_translations/translated_label" />                                                                                                                
+						<span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NoChangesMade">No changes made-</span> 
+                    </font>                
+                </p>
+                <p tal:condition="pFailedObjectChangeReports" >
+                    <font color="Red">
+                        <strong>
+                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_errorcambiandolosdatos">Error changing element-</span> 
+                            &nbsp;   
+                            <tal:block tal:repeat="unChangeReport pFailedObjectChangeReports" >
+								<tal:block tal:condition="not: repeat/unChangeReport/start" tal:content="string:," />
+								<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Edit_Error_Object_%s' % unChangeReport.get( 'failure', ''), unChangeReport.get( 'failure', ''))" />                                                                                                                
+								<tal:block tal:define="pChangeLogAfterSummaries python: unChangeReport.get( 'change_entries_after_summaries', [])"
+									tal:condition="pChangeLogAfterSummaries" >
+									<br/>
+									<tal:block tal:repeat="pChangeLogAfterSummary pChangeLogAfterSummaries" >
+										<font size="1">
+											<span tal:content="pChangeLogAfterSummary" />
+										</font>
+										<br/>
+									</tal:block>
+								</tal:block>
+								<tal:block tal:define="pURLRecentChanges python: unChangeReport.get( 'url_recent_changes', '')"
+									tal:condition="pURLRecentChanges" >
+									<a href="#" id="cid_MDDRecentChanges" tal:attributes="href pURLRecentChanges" >
+										<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectRecentChanges', 'See Recent Changes-')" />                                                                                                                
+									</a>
+								</tal:block>
                             </tal:block>
+                        </strong>            
+                    </font>                
+                </p>
+                <p tal:condition="pSucessfulFieldChangeReports" >
+                    <font color="Red">
+                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sehancambiadolosdatos">Data has been changed</span> 
+                        &nbsp;   
+                        <tal:block tal:repeat="unChangeReport pSucessfulFieldChangeReports" >
+							<tal:block tal:condition="not: repeat/unChangeReport/start" >,</tal:block>
+							<span tal:content="unChangeReport/previous_value/attribute_translations/translated_label" />                                                                                                                
                         </tal:block>
                     </font>                
                 </p>
-                <p tal:condition="python: pChangeReports and pChangeReports[ 'field_reports'] and len( [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports'] if unChangeReport.get( 'effect', '') == 'error']) > 0" >
+                <p tal:condition="pFailedFieldChangeReports" >
                     <font color="Red">
                         <strong>
-                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_errorcambiandolosdatos">Error cambiando los datos-</span> 
+                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_errorcambiandolosdatos">Error changing data-</span> 
                             &nbsp;   
-                            <tal:block tal:repeat="unChangeReport python: pChangeReports[ 'field_reports']" >
-                                <tal:block tal:condition="python: unChangeReport and unChangeReport.has_key( 'effect') and ( unChangeReport.get( 'effect', '') == 'error')" >
-                                    <tal:block tal:condition="not: repeat/unChangeReport/start" >,</tal:block>
-                                    <span tal:content="unChangeReport/previous_value/attribute_translations/translated_label" />                                                                                                                
-                                </tal:block>
+                            <tal:block tal:repeat="unChangeReport pFailedFieldChangeReports" >
+								<tal:block tal:condition="not: repeat/unChangeReport/start" >,</tal:block>
+								<span tal:content="unChangeReport/previous_value/attribute_translations/translated_label" />                                                                                                                
                             </tal:block>
                         </strong>            
                     </font>                
@@ -140,11 +182,16 @@
                     
                     <tal:block tal:condition="python: ( SRES[ 'non_text_field_names'] or SRES[ 'text_field_names']) or ( not pForceExcludeId)"> 
                         <form name="edit_form" method="post" enctype="multipart/form-data" class="enableUnloadProtection" 
-                            action="#" tal:attributes="action python: '%sEditar/' % SRES[ 'url']">
+                            action="#" tal:attributes="action python: '%sEditar/' % SRES[ 'url']"
+							tal:define="pMillisecondsNow python: here.ModelDDvlPlone_tool.fMillisecondsNow( );
+							            pDateNow         python: here.ModelDDvlPlone_tool.fMillisecondsToDateTime( pMillisecondsNow);">
                             
                             <input originalvalue="#" name="UID" value="#" type="hidden"
                                 tal:attributes="originalvalue SRES/UID;value SRES/UID" >
-            
+								
+                            <input originalvalue="#" name="theMS" value="#" type="hidden"
+                                tal:attributes="originalvalue pMillisecondsNow; value pMillisecondsNow" >
+								
                             <input originalvalue="#" name="edit_id" id="edit_id" originalvalue="#" value="#" type="hidden"
                                 tal:attributes="originalvalue python: ( pEditId and '1') or '0'; value python: ( pEditId and '1') or '0'" >
             
@@ -166,19 +213,53 @@
     
                             <table cellspacing="0" cellpadding="0" frame="void" >
                                 <tr>
-                                    <td>
+                                    <td align="baseline">
                                         <h1>
-                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>
-                                            &nbsp;&nbsp; 
+                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Edit-</span>
                                         </h1>                                          
                                     </td>
-                                    <td>                                    
-                                        <p class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_help" />        
+                                    <td align="baseline">     
+										&emsp; 
+										<span tal:content="python: '%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_EditOnTime_label', 'Edited on-'), pDateNow,)" />
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td colspan="2" align="baseline"> 
+                                        <p class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_help" />        
+                                    </td>									
+                                </tr>
                             </table>
-                            <input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />
-                            
+							
+ 								
+                            <table cellspacing="0" cellpadding="0" frame="void" >
+                                <tr>
+                                    <td align="baseline" >
+										<input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />
+									</td>
+                                    <td align="baseline" >
+										&emsp; &emsp;
+										<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_LastChange', 'Last Change-')" />
+										&ensp;
+										<input class="noborder" originalvalue="#" name="theChgCtr" value="#" readonly style="font-size: 9pt;"  id="cid_MDDChangeCounter" 
+											size="6" maxlength="8" type="text"
+											tal:define="pValue SRES/change_counter"
+											tal:attributes="originalvalue pValue; value pValue" >
+									</td>
+                                    <td align="baseline"  tal:define="pValue python: SRES.get( 'modification_date', SRES.get( 'creation_date', None))" tal:condition="pValue">
+										&emsp;
+										<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangeOn', 'on-')" />
+										&ensp;
+										<span tal:content="pValue" />
+									</td>
+                                    <td align="baseline"  tal:define="pValue python: SRES.get( 'modification_user', SRES.get( 'creation_user', ''))" tal:condition="pValue">
+										&emsp;
+										<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangeBy', 'by-')" />
+										&ensp;
+										<span tal:content="pValue" />
+									</td>
+								</tr>
+							</table>
+							<br/>
                         
             
             
@@ -227,13 +308,13 @@
                                                     <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( 'id', None)"
                                                         tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
                                                         <font color="red">
-                                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
+                                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Changed-</span> 
                                                         </font>
                                                     </tal:block>
                                                 </td>
                                                 <td align="left" >
                                                     <div class="field ArchetypesStringWidget" id="archetypes-fieldname-id" >
-                                                        <input style="font-size: 10pt;"  name="attribute_id" id="attribute_id" value="#" size="80" maxlength="256" type="text"
+                                                        <input style="font-size: 10pt;"  name="theIdAttribute" id="theIdAttribute" value="#" size="80" maxlength="256" type="text"
                                                             tal:attributes="value SRES/id"  />
                                                     </div>
                                                  </td>
@@ -255,7 +336,7 @@
                                                     <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( unAttributeName, None)"
                                                         tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
                                                         <font color="red">
-                                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
+                                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Changed-</span> 
                                                         </font>
                                                     </tal:block>
                                                 </td>
@@ -386,7 +467,7 @@
                                                             <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( unAttributeName, None)"
                                                                 tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
                                                                 <font color="red">
-                                                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
+                                                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Changed-</span> 
                                                                 </font>
                                                             </tal:block>
                                                             

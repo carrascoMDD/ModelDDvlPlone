@@ -36,8 +36,6 @@ import sys
 import traceback
 import logging
 
-import transaction
-
 
 from AccessControl import ClassSecurityInfo
 
@@ -52,14 +50,16 @@ from Products.Archetypes.utils import shasattr
 
 
 
-from MDD_RefactorComponents import MDDRefactor_NewTranslation
+from ModelDDvlPloneTool_Retrieval               import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
 
-from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+from ModelDDvlPloneTool_Profiling               import ModelDDvlPloneTool_Profiling
 
 
-from ModelDDvlPloneTool_ImportExport_Constants import *
+from MDD_RefactorComponents                     import MDDRefactor_NewTranslation
 
-from ModelDDvlPloneTool_Retrieval import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_ImportExport_Constants  import *
+
 
 
 
@@ -1187,7 +1187,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 
                 unNewTitle          = theNewTitle.strip()
@@ -1509,7 +1509,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 
                 # ##############################################################################
@@ -1661,7 +1661,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                 unNewTranslationReport[ 'error_reports'].extend( unRefactor.vErrorReports )
                             
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
-                    transaction.commit()
+                    ModelDDvlPloneTool_Transactions().fTransaction_Commit()
     
                     unNewTranslationReport.update( { 
                          'success':      True,
@@ -1671,7 +1671,7 @@ class ModelDDvlPloneTool_Translation( ModelDDvlPloneTool_Profiling):
                         logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fNewTranslation\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewTranslationReport, ])))
                     
                 else:
-                    transaction.abort()
+                    ModelDDvlPloneTool_Transactions().fTransaction_Abort()
                     
                     unNewTranslationReport.update( { 
                         'success':      False,

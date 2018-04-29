@@ -39,35 +39,42 @@ import traceback
 
 import logging
 
-from AccessControl          import ClassSecurityInfo
-from Products.CMFCore       import permissions
-from Products.CMFCore.utils import getToolByName
-
-
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling                    import ModelDDvlPloneTool_Profiling
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Permissions        import ModelDDvlPloneTool_Retrieval_Permissions
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Utils              import ModelDDvlPloneTool_Retrieval_Utils
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Candidates         import ModelDDvlPloneTool_Retrieval_Candidates
-# ACV 20090910 Unused. 
-# Code in the ModelDDvlPloneTool_Retrieval_Derivation was copied from an Element_Operations, and not refactored. 
-# Does not work. Deprecated
-# from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Derivation         import ModelDDvlPloneTool_Retrieval_Derivation
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_I18N               import ModelDDvlPloneTool_Retrieval_I18N
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_TraversalConfigs   import ModelDDvlPloneTool_Retrieval_TraversalConfigs
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Impact             import ModelDDvlPloneTool_Retrieval_Impact
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_PloneContent       import ModelDDvlPloneTool_Retrieval_PloneContent
-
-
-from OFS     import Moniker        
-
 
 from marshal import loads,    dumps
 from urllib  import quote,    unquote
 from zlib    import compress, decompress
 
 
+from time     import time
+from DateTime import DateTime
 
-from PloneElement_TraversalConfig            import cPloneTypes
+
+from OFS     import Moniker        
+
+
+from AccessControl          import ClassSecurityInfo
+
+from Acquisition            import aq_inner, aq_parent
+
+
+from Products.CMFCore       import permissions
+from Products.CMFCore.utils import getToolByName
+
+
+
+
+from PloneElement_TraversalConfig                    import cPloneTypes
+
+from ModelDDvlPloneTool_Profiling                    import ModelDDvlPloneTool_Profiling
+from ModelDDvlPloneTool_Retrieval_Permissions        import ModelDDvlPloneTool_Retrieval_Permissions
+from ModelDDvlPloneTool_Retrieval_Utils              import ModelDDvlPloneTool_Retrieval_Utils
+from ModelDDvlPloneTool_Retrieval_Candidates         import ModelDDvlPloneTool_Retrieval_Candidates
+from ModelDDvlPloneTool_Retrieval_I18N               import ModelDDvlPloneTool_Retrieval_I18N
+from ModelDDvlPloneTool_Retrieval_TraversalConfigs   import ModelDDvlPloneTool_Retrieval_TraversalConfigs
+from ModelDDvlPloneTool_Retrieval_Impact             import ModelDDvlPloneTool_Retrieval_Impact
+from ModelDDvlPloneTool_Retrieval_PloneContent       import ModelDDvlPloneTool_Retrieval_PloneContent
+
+from ModelDDvlPloneToolSupport import fSecondsNow
 
 
 
@@ -75,8 +82,8 @@ cKnownWritePermissionTargets = [ 'object', 'add', 'add_collection', 'delete', 'a
 cKnownFeatureFilterKeys      = [ 'objectValues', 'types', 'attrs', 'aggregations', 'relations', 'relations_without_element_details', 'candidates_for_relations', 'do_not_recurse_collections']
                                #  objectValues retrieves all objectValues in a traversalResult with a predefined traversal spec
 cKnownInstanceFilterKeys     = [ 'UIDs', ]
-cKnownRetrievalExtents       = [ 'traversals', 'tree',  'owner', 'cursor', 'relation_cursors', 'dynamic_vocabularies', 'audit', 'change_log', 'extra_links', ] # ACV 20090920 Removed 'plone_objects',
-cKnownAdditionalParams       = [ 'Do_Not_Translate', 'Retrieve_Minimal_Related_Results', ]
+cKnownRetrievalExtents       = [ 'traversals', 'tree',  'owner', 'cursor', 'relation_cursors', 'dynamic_vocabularies', 'audit', 'audit_all', 'change_entries', 'change_entries_summaries', 'change_entries_summaries_fields_values', 'extra_links', 'num_contained',] # ACV 20090920 Removed 'plone_objects',
+cKnownAdditionalParams       = [ 'Do_Not_Translate', 'Retrieve_Minimal_Related_Results', 'ChangesAfter', 'DoNotForbidDeletionFor_Aggregations_ReadOnly']
 
 cAuditFieldKeys = [
     'creation_date',      
@@ -89,7 +96,16 @@ cAuditFieldKeys = [
     'change_counter',     
 ]
 
-cChangeLogFieldKey = 'change_log'
+cChangeLogFieldKey  = 'change_log'
+cChangeLogFieldNameField = 'change_log_field'
+
+cBasicInfoAttributeConfigs = [
+    { 'name': 'title',             'type': 'String',     'kind': 'Data',  }, 
+    { 'name': 'description',       'type': 'Text',       'kind': 'Data', 'optional':  True, }, 
+]
+
+
+
 
 
 
@@ -116,7 +132,9 @@ class ModelDDvlPloneTool_Retrieval(
         """
         unResult = { 
             # ACV 200906110258 added portal_url to have all icons and images to reference same url to allow effective caching
+            'is_supported':             False,
             'portal_url':               '',
+            'portal_object':            '',
             'object':                   None,                           
             'meta_type':                '',     
             'portal_type':              '',
@@ -125,8 +143,13 @@ class ModelDDvlPloneTool_Retrieval(
             'url':                      '',                 
             'title':                    '',                   
             'path':                     '',    
+            'root_url':                 '',
             'root_path':                '',
+            'root_title':               '',
+            'is_root_supported':        '',
+            'owner_url':                '',
             'owner_path':               '',
+            'owner_title':              '',
             'is_collection':            False,          
             'is_root':                  False, 
             'content_icon':             '',
@@ -155,6 +178,7 @@ class ModelDDvlPloneTool_Retrieval(
             'factory_enablers':         None,
 
             # Dynamic actions allowed
+            'is_copyable':              False,
             'allow_paste':              True,
             'allow_import':             True,
             'allow_export':             True,
@@ -184,7 +208,10 @@ class ModelDDvlPloneTool_Retrieval(
             'deletion_user':            '',
             'is_inactive':              False,
             'change_counter':           0,
-            'change_log':               '',
+            'change_entries':           None,
+            'change_entries_summaries':     None,
+            'change_entries_after':         None,
+            'change_entries_after_summaries': '',
             
             # Versioning and Translation field namess
             'inter_version_field':      '',
@@ -206,6 +233,7 @@ class ModelDDvlPloneTool_Retrieval(
             
             # Presentation dynamics and customizaton
             'extra_links':              '',
+            
             
             
             
@@ -266,20 +294,21 @@ class ModelDDvlPloneTool_Retrieval(
             'traversal_config':         None, 
             'num_elements':             0,
             'dependency_supplier':      False,
-            'elements':                 [], 
+            'elements':                 [ ], 
             'traversal_translations' :  { },
-            'factories' :               [],
+            'factories' :               [ ],
             'column_names':             [ ],
             'column_translations':      { },
             'read_permission':          False,
             'write_permission':         False,
             'max_multiplicity_reached': False,
             'multiplicity_higher':      -1,
-            'candidates':               [],
-            'elements_by_UID':          {},
-            'elements_by_id':           {},
+            'candidates':               [ ],
+            'elements_by_UID':          { },
+            'elements_by_id':           { },
             'factory_views':            None,
-            'computed':              False,
+            'computed':                 False,
+            'related_types_and_icons':  [ ],
         }
         return unResult   
    
@@ -305,6 +334,7 @@ class ModelDDvlPloneTool_Retrieval(
             'next_element':         None,
             'traversal_name':       '',
             'traversal_result':     None,
+            'siblings':             [ ],
         }
         return unResult   
     
@@ -479,7 +509,7 @@ class ModelDDvlPloneTool_Retrieval(
                       
         try:
             unElemento = self.fElementoPorUID( theUID, theContextualElement)
-            if not unElemento:
+            if ( unElemento == None):
                 return None
             
             unResult = self.fRetrieveTypeConfig(
@@ -571,6 +601,16 @@ class ModelDDvlPloneTool_Retrieval(
                     if aRetrievalExtent in self.fKnownRetrievalExtents():
                         unRetrievalExtents.append( aRetrievalExtent)    
                         
+            unNoLogRetrievalExtents = unRetrievalExtents[:]
+            if 'change_entries' in unNoLogRetrievalExtents:
+                unNoLogRetrievalExtents.remove( 'change_entries')
+            if 'change_entries_summaries' in unNoLogRetrievalExtents:
+                unNoLogRetrievalExtents.remove( 'change_entries_summaries')
+            if 'change_entries_summaries_fields_values' in unNoLogRetrievalExtents:
+                unNoLogRetrievalExtents.remove( 'change_entries_summaries_fields_values')
+            if ( 'audit' in unNoLogRetrievalExtents) and not ( ( 'audit_all' in unNoLogRetrievalExtents)):
+                unNoLogRetrievalExtents.remove( 'audit')
+               
                                         
             unAllTypeConfigs = theAllTypeConfigs
             if not unAllTypeConfigs:
@@ -589,12 +629,14 @@ class ModelDDvlPloneTool_Retrieval(
                     if not ('object' in otroWritePermissions):
                         otroWritePermissions.append( 'object')
                      
+
+                        
                     unPropietario = theElement.getPropietario()
                     if not ( unPropietario == None):
                         unPropietarioResult = self.fRetrieveElementoBasicInfoAndTranslations( 
                             theTimeProfilingResults     =theTimeProfilingResults,
                             theElement                  =unPropietario,      
-                            theRetrievalExtents         =theRetrievalExtents,
+                            theRetrievalExtents         =unNoLogRetrievalExtents,
                             theTranslationsCaches       =unTranslationsCaches,       
                             theCheckedPermissionsCache  =unCheckedPermissionsCache,
                             theResult                   =None,
@@ -613,7 +655,7 @@ class ModelDDvlPloneTool_Retrieval(
                             unContenedorResult = self.fRetrieveElementoBasicInfoAndTranslations( 
                                 theTimeProfilingResults     =theTimeProfilingResults,
                                 theElement                  =unContenedor,             
-                                theRetrievalExtents         =theRetrievalExtents,
+                                theRetrievalExtents         =unNoLogRetrievalExtents,
                                 theTranslationsCaches       =unTranslationsCaches,       
                                 theCheckedPermissionsCache  =unCheckedPermissionsCache,
                                 theResult                   =None,
@@ -645,6 +687,7 @@ class ModelDDvlPloneTool_Retrieval(
                 otroRetrievalExtents.remove( 'owner')            
             if  'cursor' in otroRetrievalExtents:
                 otroRetrievalExtents.remove( 'cursor')
+                
     
             unResult = self.fRetrieveTypeConfig_recursive( 
                 theTimeProfilingResults     =theTimeProfilingResults,
@@ -734,6 +777,18 @@ class ModelDDvlPloneTool_Retrieval(
                 theAdditionalParams         =theAdditionalParams,
             )
     
+            unNoLogRetrievalExtents = theRetrievalExtents[:]
+            if 'change_entries' in unNoLogRetrievalExtents:
+                unNoLogRetrievalExtents.remove( 'change_entries')
+            if 'change_entries_summaries' in unNoLogRetrievalExtents:
+                unNoLogRetrievalExtents.remove( 'change_entries_summaries')
+            if 'change_entries_summaries_fields_values' in unNoLogRetrievalExtents:
+                unNoLogRetrievalExtents.remove( 'change_entries_summaries_fields_values')
+                
+                
+            if ( 'audit' in unNoLogRetrievalExtents) and not ( ( 'audit_all' in unNoLogRetrievalExtents)):
+                unNoLogRetrievalExtents.remove( 'audit')
+
             unCanReturnValues       = unResult[ 'read_permission']
             unCanReturnTraversals   = unCanReturnValues and unResult[ 'traverse_permission']
              
@@ -760,7 +815,7 @@ class ModelDDvlPloneTool_Retrieval(
                         theElement                  =theElement, 
                         theCanReturnValues          =unCanReturnValues,
                         theViewName                 =theViewName,
-                        theRetrievalExtents         =theRetrievalExtents,
+                        theRetrievalExtents         =unNoLogRetrievalExtents,
                         theTypeConfig               =unTypeConfig, 
                         theAllTypeConfigs           =theAllTypeConfigs, 
                         theAttributeConfigs         =someAttributeConfigs, 
@@ -789,7 +844,7 @@ class ModelDDvlPloneTool_Retrieval(
                     theElement                  =theElement, 
                     theCanReturnValues          =unCanReturnValues,
                     theViewName                 =theViewName,
-                    theRetrievalExtents         =theRetrievalExtents,
+                    theRetrievalExtents         =unNoLogRetrievalExtents,
                     theTypeConfig               =unTypeConfig, 
                     theAllTypeConfigs           =theAllTypeConfigs, 
                     theTranslationsCaches       =theTranslationsCaches, 
@@ -809,9 +864,10 @@ class ModelDDvlPloneTool_Retrieval(
                             if unElementResult and ( not unElementResult.get( 'object', None) == None):
                                 if not unElementResult.get( 'delete_permission', False): 
                                     theResult[ 'delete_permission']  =  False   
+                                    break
                     
                     
-            if theRetrievalExtents and ( ( 'traversals' in theRetrievalExtents) or ( 'tree' in theRetrievalExtents)):
+            if unNoLogRetrievalExtents and ( ( 'traversals' in unNoLogRetrievalExtents) or ( 'tree' in unNoLogRetrievalExtents)):
                 
                      
                     
@@ -820,7 +876,7 @@ class ModelDDvlPloneTool_Retrieval(
                     someTraversalConfigs =  unTypeConfig.get( 'traversals', [])
                     if someTraversalConfigs:
                         if theRetrievalExtents:
-                            unosRetrievalExtents = theRetrievalExtents[:]
+                            unosRetrievalExtents = unNoLogRetrievalExtents[:]
                         else:
                             unosRetrievalExtents = []
                         if ( 'traversals' in unosRetrievalExtents):
@@ -1782,7 +1838,7 @@ class ModelDDvlPloneTool_Retrieval(
                 'num_elements':             0,
 
             } )
-    
+            
     
             unCanReturnValues = theCanReturnValues
             if unCanReturnValues:
@@ -1865,7 +1921,27 @@ class ModelDDvlPloneTool_Retrieval(
             
             unosTiposElementos = self.getTiposCandidatosReferenceFieldNamed( theElement, aFieldName)
             
+
+            
+            
+            for unTipoElemento in unosTiposElementos:
+                
+                unContentIcon = ''
+                
+                unArchetypeClass = theElement.fArchetypeClassByName( unTipoElemento)
+                if unArchetypeClass:
+                    
+                    try:
+                        unContentIcon = unArchetypeClass.content_icon
+                    except:
+                        None
                         
+                unTraversalResult[ 'related_types_and_icons'].append( [ unTipoElemento, unContentIcon,])
+                        
+            
+                
+                
+                                                        
             aDummy = self.fAttributeTranslationsFromCache( 
                 theElement            = theElement,
                 theFieldName          = aFieldName, 
@@ -1942,6 +2018,7 @@ class ModelDDvlPloneTool_Retrieval(
                             
                     
                     if someAcceptedPortalTypes:
+
                         if unCanReturnValues:
                             someElements = [ unElemento for unElemento in unosElementosVisibles if unElemento.meta_type in someAcceptedPortalTypes]
         
@@ -2031,7 +2108,8 @@ class ModelDDvlPloneTool_Retrieval(
                     for unTypeName in someAcceptedPortalTypes:
                         if not unTypeName in unosTodosTiposAceptados:
                             unosTodosTiposAceptados.append( unTypeName)
-    
+                            
+                                
             self.pCompleteColumnTranslations( 
                 theTimeProfilingResults= theTimeProfilingResults,
                 theContextualElement   = theElement, 
@@ -2060,6 +2138,8 @@ class ModelDDvlPloneTool_Retrieval(
                 )
                 if unosResultadosCandidatos:
                     unTraversalResult[ 'candidates'] = unosResultadosCandidatos
+                    
+                    
     
             return unTraversalResult
         
@@ -2379,6 +2459,8 @@ class ModelDDvlPloneTool_Retrieval(
                     unResultCursor[ 'first_element']    = unosElementsResults[ 0]
                     unResultCursor[ 'last_element']     = unosElementsResults[ unNumElementsResults - 1]
                     
+                    unResultCursor[ 'siblings']         = unaTraversalResult[ 'elements']
+                    
                     
                     if unIndiceEncontrado > 0:
                         unResultCursor[ 'previous_element'] = unosElementsResults[ unIndiceEncontrado - 1]
@@ -2417,7 +2499,7 @@ class ModelDDvlPloneTool_Retrieval(
         unResult.update( { 
             'object':                   theElement,                           
             'meta_type':                theElement.meta_type,  
-            'seconds_now':              self.fSecondsNow(),
+            'seconds_now':              fSecondsNow(),
         } )
 
         unTitle = ''    
@@ -2455,12 +2537,6 @@ class ModelDDvlPloneTool_Retrieval(
             unResult[ 'UID'] = unaUID 
         
             
-        # ACV OJO 200906110306
-        # When removing 2the use ofo an application specific index getPathDelRaiz.
-        # we observed that the path we were constructing in concrete archetypes root type
-        # as BPDElemento, EMOFElmento, ... do not match the paths used normally by plone ...
-        # 
-        # TO REVIEW
         unPath = ''    
         try:
             unPath         = theElement.fPhysicalPathString( theElement)
@@ -2470,22 +2546,7 @@ class ModelDDvlPloneTool_Retrieval(
             unResult[ 'path'] = unPath 
             
             
-            
-        unRootPath = ''    
-        try:
-            unRootPath         = theElement.fPathDelRaiz()
-        except:
-            None
-        if not unRootPath:
-            try:
-                unRootPath     = theElement.getRaiz().fPhysicalPathString()
-            except:
-                None
-        if unRootPath:
-            unResult[ 'root_path'] = unRootPath 
-             
-            
-        # ACV 200906110258 added portal_url to have all icons and images to reference same url to allow effective caching
+        unPortalObject = None
         unPortalURLTool = getToolByName( theElement, 'portal_url')
         if unPortalURLTool:
             unPortalURL = ''
@@ -2495,6 +2556,88 @@ class ModelDDvlPloneTool_Retrieval(
                 None
             if unPortalURL:
                 unResult[ 'portal_url'] = unPortalURL 
+            try:
+                unPortalObject = unPortalURLTool.getPortalObject()
+            except: 
+                None
+            if not ( unPortalObject == None):
+                unResult[ 'portal_object'] = unPortalObject 
+                
+            
+            
+        unRaiz = None
+        try:
+            unRaiz = theElement.getRaiz()
+            unResult[ 'is_supported'] = True
+        except:
+            None
+        if unRaiz == None:
+            unCurrent = theElement
+            # #########################################
+            """If the element does not implement the getRaiz() method, 
+            I.e. is not a ModelDDvlPlone supported application, 
+            Recurse up the containment hierarchy until finding an element that does, or reaching the portal root.
+            """
+            while ( unRaiz == None):
+                if unCurrent == unPortalObject:
+                    unResult[ 'root_title']  = 'Portal %s' % unCurrent.Title()
+                    unResult[ 'root_url']    = unCurrent.absolute_url()
+                    break
+                unCurrent = aq_parent( aq_inner( unCurrent))
+                if unCurrent == None:
+                    break
+                try:
+                    unRaiz = theElement.getRaiz()
+                except:
+                    None
+                
+        if unRaiz:
+            try:
+                unResult[ 'root_title']    = unRaiz.Title()
+            except:
+                None
+            try:
+                unResult[ 'root_url']    = unRaiz.absolute_url()
+            except:
+                None
+                
+            
+            try:
+                unRaiz.getRaiz()
+                unResult[ 'is_root_supported'] = True
+            except:
+                None
+            
+            
+             
+        unRootPath = ''    
+        if not ( unRaiz == None):
+            try:
+                unRootPath         = unRaiz.fPathDelRaiz()
+            except:
+                None
+            if not unRootPath:
+                try:
+                    unRootPath     = unRaiz.fPhysicalPathString()
+                except:
+                    None
+        else:
+            try:
+                unRootPath         = theElement.fPathDelRaiz()
+            except:
+                None
+            if not unRootPath:
+                try:
+                    unRootPath     = theElement.getRaiz().fPhysicalPathString()
+                except:
+                    None
+            
+        if unRootPath:
+            unResult[ 'root_path'] = unRootPath 
+        else:
+            unResult[ 'root_path'] = '/' 
+            
+             
 
             
         unPortalType = ''    
@@ -2557,8 +2700,17 @@ class ModelDDvlPloneTool_Retrieval(
                 unOwnerPath = '/'.join( unOwner.getPhysicalPath())
             if unOwnerPath:
                 unResult[ 'owner_path'] = unOwnerPath 
-        
                 
+            try:
+                unResult[ 'owner_title'] = unOwner.Title()
+            except:
+                None
+                
+            try:
+                unResult[ 'owner_url'] = unOwner.absoute_url()
+            except:
+                None
+            
 
         unNombreProyecto = ''
         try:
@@ -2618,6 +2770,13 @@ class ModelDDvlPloneTool_Retrieval(
             None            
         if not ( unAllowEditId == None):
             unResult[ 'allow_edit_id'] = unAllowEditId            
+            
+        unIsCopyable = True
+        try:
+            unIsCopyable = theElement.cb_isCopyable()
+        except:
+            None            
+        unResult[ 'is_copyable'] = unIsCopyable
             
         unAllowPaste = True
         try:
@@ -2854,12 +3013,6 @@ class ModelDDvlPloneTool_Retrieval(
                                 unDeletePermission = self.fCheckElementPermission( theElement, [ permissions.DeleteObjects, ], theCheckedPermissionsCache) == True
                                 unResult[ 'delete_permission']           =  unDeletePermission   
             
-            someAttributeConfigs = [
-                { 'name': 'title',             'type': 'String',     'kind': 'Data',  }, 
-                { 'name': 'description',       'type': 'Text',       'kind': 'Data', 'optional':  True, }, 
-            ]
-            
-   
             self.pRetrieveAttributeConfigs( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theElement, 
@@ -2868,7 +3021,7 @@ class ModelDDvlPloneTool_Retrieval(
                 theRetrievalExtents         =None,
                 theTypeConfig               =None, 
                 theAllTypeConfigs           =None, 
-                theAttributeConfigs         =someAttributeConfigs, 
+                theAttributeConfigs         =cBasicInfoAttributeConfigs, 
                 theTranslationsCaches       =theTranslationsCaches, 
                 theResult                   =unResult, 
                 theParentTraversalResult    =theParentTraversalResult, 
@@ -2879,7 +3032,7 @@ class ModelDDvlPloneTool_Retrieval(
                 theAdditionalParams         =theAdditionalParams                
             ) 
             
-            if ( 'audit' in theRetrievalExtents):
+            if 'audit' in theRetrievalExtents:
                 self.fRetrieveAuditInfo(                
                     theTimeProfilingResults     =theTimeProfilingResults,
                     theElement                  =theElement, 
@@ -2890,11 +3043,12 @@ class ModelDDvlPloneTool_Retrieval(
                     theAdditionalParams         =theAdditionalParams                
                 )
                                     
-            if ( 'change_log' in theRetrievalExtents):
-                self.fRetrieveChangeLog(                
+            if ( 'change_entries' in theRetrievalExtents) or ( 'change_entries_summaries' in theRetrievalExtents) or ( 'change_entries_summaries_fields_values' in theRetrievalExtents):
+                from ModelDDvlPloneTool_Mutators import ModelDDvlPloneTool_Mutators
+                ModelDDvlPloneTool_Mutators().fRetrieveChangeLog(                
                     theTimeProfilingResults     =theTimeProfilingResults,
                     theElement                  =theElement, 
-                    theRetrievalExtents         =None,
+                    theRetrievalExtents         =theRetrievalExtents,
                     theTranslationsCaches       =theTranslationsCaches, 
                     theResult                   =unResult, 
                     theCheckedPermissionsCache  =theCheckedPermissionsCache, 
@@ -2902,7 +3056,7 @@ class ModelDDvlPloneTool_Retrieval(
                 )
  
                 
-            if ( 'extra_links' in theRetrievalExtents):
+            if 'extra_links' in theRetrievalExtents:
                 unosExtraLinks = []
                 try:
                     unosExtraLinks = theElement.fExtraLinks()
@@ -2920,6 +3074,21 @@ class ModelDDvlPloneTool_Retrieval(
                     #theCheckedPermissionsCache  =theCheckedPermissionsCache, 
                     #theAdditionalParams         =theAdditionalParams                
                 #)
+                
+                
+            if 'num_contained' in theRetrievalExtents:
+                
+                unPath = '/'.join( theElement.getPhysicalPath())
+                
+                unPortalCatalog = getToolByName( theElement, 'portal_catalog')
+                unaBusqueda = { 
+                    'path' :             unPath,
+                }
+     
+                unosResultadosBusqueda = unPortalCatalog.searchResults( **unaBusqueda)
+                unNumContained = max( 0, len( unosResultadosBusqueda) - 1)
+                
+                unResult[ 'num_contained'] = unNumContained
                 
                 
             return unResult
@@ -2962,7 +3131,7 @@ class ModelDDvlPloneTool_Retrieval(
                 return unResult
                 
             for unFieldKey in cAuditFieldKeys:
-                unFieldNameKey = '%s_field' & unFieldKey
+                unFieldNameKey = '%s_field' % unFieldKey
                 unFieldName = unResult.get( unFieldNameKey, '')
                 if unFieldName:
                     
@@ -2986,111 +3155,14 @@ class ModelDDvlPloneTool_Retrieval(
                 
                 
                 
-
+  
     
-    security.declarePrivate('fRetrieveChangeLog')
-    def fRetrieveChangeLog(self, 
-        theTimeProfilingResults     =None,
-        theElement                  =None, 
-        theRetrievalExtents         =None,
-        theTranslationsCaches       =None, 
-        theCheckedPermissionsCache  =None, 
-        theResult                   =None,
-        theAdditionalParams         =None):
-        """Retrieve a result structure for an element, initialized with the change log.
-        
-        """
-        
-        if not ( theTimeProfilingResults == None):
-            self.pProfilingStart( 'fRetrieveChangeLog', theTimeProfilingResults)
-
-        try:
-        
-            if ( theElement == None):
-                return None
-            
-            unResult = theResult
-            if not unResult:    
-                unResult = self.fNewResultForElement( theElement)  
-                
-            unSchema = theElement.schema
-            if not unSchema:
-                return unResult
-                
-            unFieldNameKey = '%s_field' & cChangeLogFieldKey
-            
-            unFieldName = unResult.get( unFieldNameKey, '')
-            
-            if unFieldName:
+    
                     
-                unField = unSchema.get( unFieldName, None)
-                if unField:
-                    unAccessor = unField.getAccessor( theElement)
-                    if unAccessor:
-                        unValue = None
-                        try:
-                            unValue = unAccessor()
-                        except:
-                            None
-                        unResult[ cChangeLogFieldKey] = unValue
-                   
-            return unResult
-            
-        finally:
-            if not ( theTimeProfilingResults == None):
-                self.pProfilingEnd( 'fRetrieveChangeLog', theTimeProfilingResults)
-                  
-                                
-
                 
                 
                 
                 
-                
- 
-    #security.declarePrivate('fRetrieveExtraLinks')
-    #def fRetrieveExtraLinks(self, 
-        #theTimeProfilingResults     =None,
-        #theElement                  =None, 
-        #theRetrievalExtents         =None,
-        #theTranslationsCaches       =None, 
-        #theCheckedPermissionsCache  =None, 
-        #theResult                   =None,
-        #theAdditionalParams         =None):
-        #"""Retrieve a result structure for an element, initialized with the extra hyperlinks that should be also presented to the user, when the element is presented.
-        
-        #"""
-        
-        #if not ( theTimeProfilingResults == None):
-            #self.pProfilingStart( 'fRetrieveChangeLog', theTimeProfilingResults)
-
-        #try:
-        
-            #if ( theElement == None):
-                #return None
-            
-            #unResult = theResult
-            #if not unResult:    
-                #unResult = self.fNewResultForElement( theElement)  
-                
-                
-            #unosExtraLinks = []
-            #try:
-                #unosExtraLinks = theElement.fExtraLinks()
-            #except:
-                #None
-                
-            #if not unosExtraLinks:
-                #return unResult
-            
-            #unResult[ 'extra_links'] = unosExtraLinks
-                   
-            #return unResult
-            
-        #finally:
-            #if not ( theTimeProfilingResults == None):
-                #self.pProfilingEnd( 'fRetrieveExtraLinks', theTimeProfilingResults)
-                                  
                 
                 
                 
@@ -3176,8 +3248,10 @@ class ModelDDvlPloneTool_Retrieval(
             } )                
             
             someFactoryNamesAndTranslations.append( unFactoryResult)
+            
+        someSortedFactoryNamesAndTranslations = sorted( someFactoryNamesAndTranslations, lambda unaF, otraF: cmp( unaF.get('type_translations',{}).get( 'translated_archetype_name', unaF['archetype_name']) , otraF.get('type_translations',{}).get( 'translated_archetype_name', unaF['archetype_name']) ) )
     
-        theResult[ 'factories'] =  someFactoryNamesAndTranslations
+        theResult[ 'factories'] =  someSortedFactoryNamesAndTranslations
         
         return self
     
@@ -3211,11 +3285,12 @@ class ModelDDvlPloneTool_Retrieval(
     
 
 
-# #############################################################
-# Element access by UID
-# 
+
     security.declarePrivate( 'fElementoPorUID')
     def fElementoPorUID( self, theUID, theContextualElement):
+        """Element access by UID.
+        
+        """
         if not theUID or ( theContextualElement == None):
             return None
             
@@ -3228,7 +3303,7 @@ class ModelDDvlPloneTool_Retrieval(
             return None
             
         unElemento = unosResultadosBusqueda[ 0].getObject() 
-        if not unElemento:
+        if ( unElemento == None):
             return None
 
         return unElemento    
@@ -3236,11 +3311,83 @@ class ModelDDvlPloneTool_Retrieval(
 
 
 
+
+    security.declarePrivate( 'fElementosPorUIDs_Results')
+    def fElementosPorUIDs_Results( self, theUIDs, theContextualElement):
+        """Elements access by UIDs.
+        
+        """
+        if not theUIDs or ( theContextualElement == None):
+            return []
+            
+        unPortalCatalog = getToolByName( theContextualElement, 'uid_catalog')
+        unaBusqueda = { 
+            'UID' :            list( theUIDs), 
+        }
+        unosResultadosBusqueda = unPortalCatalog.searchResults( **unaBusqueda)
+        if len( unosResultadosBusqueda) < 1:
+            return []
+
+        return unosResultadosBusqueda    
+
+
+
+    security.declarePrivate( 'fElementosPorUIDs')
+    def fElementosPorUIDs( self, theUIDs, theContextualElement):
+        """Elements access by UIDs.
+        
+        """
+
+        unosResultadosBusqueda = self.fElementosPorUIDs_Results( theUIDs, theContextualElement)
+        if not unosResultadosBusqueda:
+            return {}
+            
+        unosElementosPorUIDs =  {}
+        for unResultado in unosResultadosBusqueda:
+            
+            unElemento =unResultado.getObject() 
+            unaUID     = unResultado[ 'UID']
+            if not ( unElemento == None):
+                unosElementosPorUIDs[ unaUID] = unElemento
+
+        return unosElementosPorUIDs    
+
+
+    
+
+    security.declarePrivate( 'fElementosPorUIDs')
+    def fElementsNamesByUID( self, theUIDs, theContextualElement):
+        """Elements access by UIDs.
+        
+        """
+
+        unosResultadosBusqueda = self.fElementosPorUIDs_Results( theUIDs, theContextualElement)
+        if not unosResultadosBusqueda:
+            return {}
+            
+        unosElementosPorUIDs =  {}
+        for unResultado in unosResultadosBusqueda:
+            
+            unaUID =  unResultado[ 'UID']
+            unosElementosPorUIDs[ unaUID] = {
+                'UID':           unaUID,
+                'Title':         unResultado[ 'Title'],
+                'Type':          unResultado[ 'Type'],
+                'id':            unResultado[ 'id'],
+                'portal_type':   unResultado[ 'portal_type'],
+            }
+
+        return unosElementosPorUIDs    
+
+
     
     
-# #############################################################
-# Initialize keyed indexes in result dictionaries, whose initialization was postponed during retrieval.
-# 
+    
+    
+        
+    # #############################################################
+    # Initialize keyed indexes in result dictionaries, whose initialization was postponed during retrieval.
+    # 
 
     security.declarePrivate('pBuildResultDicts')
     def pBuildResultDicts(self, theResult, theWhichDicts=None):
@@ -3278,6 +3425,11 @@ class ModelDDvlPloneTool_Retrieval(
                 aNextElementResult = aCursorResult.get( 'next_element', None)
                 if aNextElementResult:
                     self.pBuildResultDicts_ElementValues( aNextElementResult)
+                    
+                someSiblings = aCursorResult.get( 'siblings', None)
+                for aSibling in someSiblings:
+                    if aSibling:
+                        self.pBuildResultDicts_ElementValues( aSibling)
                     
         if ( theWhichDicts == None) or ( 'values' in theWhichDicts):
             self.pBuildResultDicts_ElementValues(     theResult)

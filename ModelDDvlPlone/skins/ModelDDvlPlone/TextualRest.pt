@@ -117,7 +117,7 @@
     <tal:block tal:replace="nothing">  
                 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />
     
-                <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ SRES  , ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+                <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( here [ SRES  , ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
     </tal:block>
     
     <p class="formHelp"  tal:content="python: 'Retrieval Time %s' % str( int( pRetrievalEndTime - pRetrievalStartTime))" />   

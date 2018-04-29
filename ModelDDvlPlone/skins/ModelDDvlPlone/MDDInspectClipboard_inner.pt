@@ -1,0 +1,398 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDInspectClipboard_inner.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tInspectClipboardInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        <tal:block tal:define=" 
+			pTrue                        python: True;
+			pFalse                       python: False;
+			pPagina                      string:Tabular;
+			pPaginaAnteriorPosterior     string:Tabular;
+			pShowTrees                   pFalse;
+			pCacheName      	         request/form/theCacheName                   | string:;  
+			pMaxCharsCached	             request/form/theMaxCharsCached              | string:;  
+			pMinThresholdCharsToRelease  request/form/theMinThresholdCharsToRelease  | string:;  
+			pExpireAfterSeconds          request/form/theExpireAfterSeconds           | string:;  
+			pForceExpire                 request/form/theForceExpire                 | string:;  
+			pDisplayCacheHitInformation  request/form/theDisplayCacheHitInformation  | string:;  
+			pPeersToNotify               request/form/thePeersToNotify               | string:;  
+			pIdentificationStringForPeers request/form/theIdentificationStringForPeers               | string:;  
+			pAuthenticationStringForPeers request/form/theAuthenticationStringForPeers         | string:;  
+			pAuthenticationStringFromPeers request/form/theAuthenticationStringFromPeers    | string:;  
+			pChangeCacheParameters       request/form/theChangeCacheParameters       | string:; 
+			pEnableCache                 request/form/theEnableCache                 | string:; 
+			pDisableCache                request/form/theDisableCache                | string:; 
+			pFlushCache                  request/form/theFlushCache                  | string:; 
+			global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
+			
+	
+			<br/>
+			<h3>
+				<a class="state-visible" id="cid_backToTabular" href="#" tal:attributes="href python: '%s/Tabular/' % here.absolute_url()">
+				
+					<strong tal:content="python: u'%s %s' % (
+						here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
+						here.ModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
+				</a>
+			</h3>
+			
+			
+            <tal:block tal:define="
+				pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+				unosArgs python: { 
+					'theTimeProfilingResults'     :None,
+					'theContextualElement'        :here, 
+					'theAdditionalParams'         :None, };    
+				pClipboardResult python: here.ModelDDvlPlone_tool.fClipboardResult( **unosArgs);
+				pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+				pPermiteEditar  pFalse; 
+				pPermiteEliminar pFalse; 
+				pShowOrHideTrees pFalse; 
+				pMostrarAnteriorPosterior pFalse;
+				pAllowTextualAndTabular pTrue;
+				pAllowRefrescar pTrue;
+				pPagina string:;
+				pPaginaRefrescar string:MDDInspectClipboard" >
+				
+				<tal:block tal:condition="python: pClipboardResult and pClipboardResult[ 'elements_by_roots']" >
+					
+					<br/>
+					<tal:block tal:define="
+					    pClipboardContentsTitle python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_Title', 'Clipboard-')" >
+						<h1 tal:content="pClipboardContentsTitle" />        
+
+					
+							
+						<p tal:condition="python: pClipboardResult.get( 'is_move_operation', False)" >
+							<font size="2">
+								<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ElementsWereCut', 'Elements wer CUT and Shall be MOVED upon Paste operation.-')" />
+							</font>
+							<br/>
+						</p>
+							
+						
+						<p tal:condition="python: not pClipboardResult.get( 'is_move_operation', False)" >
+							<font size="2">
+								<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ElementsWereCopied', 'Elements were COPIED and Shall be REPLICATED upon Paste operation.-')" />
+							</font>
+							<br/>
+						</p>
+						
+												
+						<p>
+							<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsFrom', 'Clipboard Contents comes from -',)" />
+							&emsp;
+							<span tal:condition="python: pClipboardResult['has_same_root_as_context']"
+								tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsSameRoot', 'Same root-',)"/>
+							<tal:block tal:condition="python: pClipboardResult['num_other_roots']" >
+								<tal:block tal:condition="python: pClipboardResult['has_same_root_as_context']">
+									&ensp;
+									<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_and', 'and-',)"/>
+								</tal:block>
+								<span tal:content="python: u'%d %s' % (
+									pClipboardResult['num_other_roots'],
+									here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsOtherRoots', 'other roots-',),)" />
+							</tal:block>
+							<tal:block tal:condition="python: pClipboardResult['num_unsupported_roots']" >
+								<tal:block tal:condition="python: ( pClipboardResult['has_same_root_as_context'] and not pClipboardResult['num_other_roots']) or  pClipboardResult['num_other_roots']">
+									&ensp;
+									<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_and', 'and-',)"/>
+								</tal:block>
+								<span tal:content="python: u'%s' % (
+									here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsFromOutsideOfApplicationRoots', 'outside of the applications-',),)" />
+							</tal:block>
+						</p>
+						<br/>
+						
+						<tal:block tal:condition="python: len( pClipboardResult[ 'elements_by_roots']) > 1" >
+							<p>
+								<font size="2"
+									tal:content="python: u'%s %d,  %s %d, %s %d' % ( 
+										here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_NumElements', 'Number of elements-'), 
+										pClipboardResult.get('num_elements', 0),
+										here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_NumContainedElements', 'Contained-'), 
+										pClipboardResult.get('num_contained_elements', 0),
+										here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_TotalElements', 'Total-'), 
+										pClipboardResult.get('total_elements', 0),)" />
+							</p>
+							<br/>
+						</tal:block>
+
+						
+						<tal:block tal:repeat="pClipboardResultForOneRoot python: pClipboardResult[ 'elements_by_roots']" >
+						
+							<tal:block tal:condition="python: pClipboardResultForOneRoot and pClipboardResultForOneRoot['elements']" >
+
+								<h2 tal:condition="python: pClipboardResultForOneRoot['is_same_root_as_context']"
+									tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsSameRoot', 'Same root-',)"/>
+								<tal:block tal:condition="python: not pClipboardResultForOneRoot['is_same_root_as_context']" >
+									<h2>
+										<a class="state-visible" id="#" tal:attributes="id string:cid_MDDClipboardRoot_${repeat/pClipboardResultForOneRoot/index};
+											href python: pClipboardResultForOneRoot['root_url']" 
+											tal:content="python: u'%s %s' % (
+												test( pClipboardResultForOneRoot[ 'is_root_supported'], 
+													here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsOtherRoots', 'other roots-',),
+													here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsFromOutsideOfApplicationRoots', 'outside of the applications-',),),
+												pClipboardResultForOneRoot.get( 'root_title', ''))" />
+									</h2>
+								</tal:block>
+								<br/>
+							
+								<metal:block metal:use-macro="here/MDDInspectClipboard_inner/macros/tClipboardElementsTable" /> 
+							</tal:block>
+
+							
+						<br/>
+						</tal:block>
+							
+					</tal:block>
+				
+				</tal:block>
+				
+				<tal:block tal:condition="python: not( pClipboardResult and pClipboardResult[ 'elements_by_roots'])" >
+					<h2 tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_Empty', 'Empty Clipboard')" />
+				</tal:block>
+				
+			</tal:block>
+	
+		
+        </tal:block>
+        
+      
+    </div>
+    
+    
+     
+
+    <div metal:define-macro="tClipboardCollapsibleSection" >
+        
+
+			
+		<tal:block tal:define="
+			pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+			unosArgs python: { 
+				'theTimeProfilingResults'     :None,
+				'theContextualElement'        :here, 
+				'theAdditionalParams'         :None, };    
+			pClipboardResult python: here.ModelDDvlPlone_tool.fClipboardResult( **unosArgs);
+			pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+			pClipboardContentsTitle python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_Title', 'Clipboard-')" >
+			
+			<tal:block tal:condition="python: pClipboardResult and pClipboardResult[ 'elements_by_roots']" >
+
+
+				<!-- ######### Start collapsible  section ######### --> 
+				<dl id="cid_MDDClipboardCollapsibleSection" class="collapsible inline collapsedInlineCollapsible" >
+					<dt class="collapsibleHeader">
+						<img alt="#" title="#" id="icon-clipboard" src="#" 
+							tal:attributes="src python: '%s/portapapeles.gif' % here.portal_url(); alt pClipboardContentsTitle; title pClipboardContentsTitle" />
+
+						<strong tal:content="pClipboardContentsTitle" />        
+					</dt>
+					<dd class="collapsibleContent">    
+	
+
+						<a class="state-visible" id="cid_ClipboardClear" href="#" tal:attributes="href python: '%s/%s/?theClearClipboard=on' % ( here.absolute_url(), pPaginaRefrescar,)">
+						
+							<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_Clear_action', 'Clear Clipboard-',)" />
+						</a>
+						<br/>
+						
+						<p tal:condition="python: pClipboardResult.get( 'is_move_operation', False)" >
+							<font size="2">
+								<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ElementsWereCut', 'Elements wer CUT and Shall be MOVED upon Paste operation.-')" />
+							</font>
+							<br/>
+						</p>
+							
+						
+						<p tal:condition="python: not pClipboardResult.get( 'is_move_operation', False)" >
+							<font size="2">
+								<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ElementsWereCopied', 'Elements were COPIED and Shall be REPLICATED upon Paste operation.-')" />
+							</font>
+							<br/>
+						</p>
+						
+												
+						<p>
+							<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsFrom', 'Clipboard Contents comes from -',)" />
+							&emsp;
+							<span tal:condition="python: pClipboardResult['has_same_root_as_context']"
+								tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsSameRoot', 'Same root-',)"/>
+							<tal:block tal:condition="python: pClipboardResult['num_other_roots']" >
+								<tal:block tal:condition="python: pClipboardResult['has_same_root_as_context']">
+									&ensp;
+									<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_and', 'and-',)"/>
+								</tal:block>
+								<span tal:content="python: u'%d %s' % (
+									pClipboardResult['num_other_roots'],
+									here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsOtherRoots', 'other roots-',),)" />
+							</tal:block>
+							<tal:block tal:condition="python: pClipboardResult['num_unsupported_roots']" >
+								<tal:block tal:condition="python: ( pClipboardResult['has_same_root_as_context'] and not pClipboardResult['num_other_roots']) or  pClipboardResult['num_other_roots']">
+									&ensp;
+									<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_and', 'and-',)"/>
+								</tal:block>
+								<span tal:content="python: u'%s' % (
+									here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsFromOutsideOfApplicationRoots', 'outside of the applications-',),)" />
+							</tal:block>
+						</p>
+						<br/>
+						
+						<tal:block tal:condition="python: len( pClipboardResult[ 'elements_by_roots']) > 1" >
+							<p>
+								<font size="2"
+									tal:content="python: u'%s %d,  %s %d, %s %d' % ( 
+										here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_NumElements', 'Number of elements-'), 
+										pClipboardResult.get('num_elements', 0),
+										here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_NumContainedElements', 'Contained-'), 
+										pClipboardResult.get('num_contained_elements', 0),
+										here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_TotalElements', 'Total-'), 
+										pClipboardResult.get('total_elements', 0),)" />
+							</p>
+							<br/>
+						</tal:block>
+
+						
+						<tal:block tal:repeat="pClipboardResultForOneRoot python: pClipboardResult[ 'elements_by_roots']" >
+							<tal:block tal:condition="python: pClipboardResultForOneRoot and pClipboardResultForOneRoot['elements']" >
+						
+								<font size="2">
+									<strong tal:condition="python: pClipboardResultForOneRoot['is_same_root_as_context']"
+										tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsSameRoot', 'Same root-',)"/>
+								</font>
+								<tal:block tal:condition="python: not pClipboardResultForOneRoot['is_same_root_as_context']" >
+									<strong>
+										<a class="state-visible" id="#" tal:attributes="id string:cid_ClipboardRoot_${repeat/pClipboardResultForOneRoot/index};
+											href python: pClipboardResultForOneRoot['root_url']" 
+											tal:content="python: u'%s %s' % (
+												test( pClipboardResultForOneRoot[ 'is_root_supported'], 
+													here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsOtherRoots', 'other roots-',),
+													here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_ContentsFromOutsideOfApplicationRoots', 'outside of the applications-',),),
+												pClipboardResultForOneRoot.get( 'root_title', ''))" />
+									</strong>
+								</tal:block>
+							
+								<metal:block metal:use-macro="here/MDDInspectClipboard_inner/macros/tClipboardElementsTable" /> 
+							</tal:block>								
+
+							
+						<br/>
+						</tal:block>								
+					</dd>
+				</dl>
+			
+			</tal:block>
+			
+		</tal:block>
+
+    </div>
+    
+    
+         
+
+
+    <div metal:define-macro="tClipboardElementsTable" >
+	
+		<tal:block tal:define="pClipboardResultForOneRoot pClipboardResultForOneRoot | nothing" >
+			
+			
+			<tal:block tal:condition="python: pClipboardResultForOneRoot and pClipboardResultForOneRoot['elements']" >
+    
+				<p tal:content="python: u'%s %d,  %s %d, %s %d' % ( 
+							here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_NumElements', 'Number of elements-'), 
+							pClipboardResultForOneRoot.get('num_elements', 0),
+							here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_NumContainedElements', 'Contained-'), 
+							pClipboardResultForOneRoot.get('num_contained_elements', 0),
+							here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_TotalElements', 'Total-'), 
+							pClipboardResultForOneRoot.get('total_elements', 0),)" />
+
+
+				<table width="100%%" id="#" class="listing" summary="#"  
+				    tal:attributes="id string:cid_ClipboardElements; summary pClipboardContentsTitle"            
+				    tal:define="pElementsResults python: pClipboardResultForOneRoot.get( 'elements', []);
+					    pColumnNames python: [ aValueResult['attribute_name'] for aValueResult in pElementsResults[0]['values'] ];
+						pColumnLabels python: [ aValueResult[ 'attribute_translations']['translated_label'] for aValueResult in pElementsResults[0]['values'] ]; 
+					    global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even')" >
+  
+					<thead>
+						<tr>
+							<th width="80" class="sortable" align="right" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_NumContainedElements', 'Contained-')" />
+							<th class="sortable" align="left" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_tipo_label', 'Type-')" />
+							<th class="sortable" align="left" tal:repeat="unColumnName pColumnLabels" tal:content="unColumnName" />
+							<th class="sortable" align="left" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Path_label', 'Path-')" />
+						</tr>
+					</thead>
+					<tbody >
+											
+						<tr tal:repeat="SRES python: pElementsResults"
+							class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">   
+							<td align="right" tal:content="python: '%s' % SRES['num_contained']" />
+							<td align="left">
+								<span tal:content="python: '%s' % SRES['type_translations']['translated_archetype_name']" />
+							</td>
+							<td tal:repeat="aColumnName pColumnNames">
+								<tal:block tal:condition="python: aColumnName == 'title'" >
+									<a class="state-visible" id="#" tal:attributes="id string:cid_ClipboardElement_${repeat/aColumnName/index};
+										href python: SRES['url']" >
+										<img alt="#" title="#" id="icon-delete" src="#" 
+											tal:attributes="src python: '%s/%s' % ( here.portal_url(), SRES[ 'content_icon'],); alt python: SRES['title']; title python: SRES['title']" />
+										&ensp;
+										<span tal:content="python: SRES['values_by_name'][aColumnName]['translated_value']" />
+									</a>
+								</tal:block>
+								<span tal:condition="python: not ( aColumnName == 'title')" 
+									tal:content="python: SRES['values_by_name'][aColumnName]['translated_value']" />
+							</td>
+							<td align="left" tal:content="python: '%s' % SRES['path']" />
+						</tr>
+					</tbody>
+				</table>
+						
+
+			</tal:block>
+			<tal:block tal:condition="python: not( pClipboardResultForOneRoot and pClipboardResultForOneRoot['elements'])" >
+				<p tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Clipboard_Empty', 'Empty Clipboard')" />
+			</tal:block>
+		</tal:block>
+		
+	</div>
+	
+	
+	
+	
+</body>
+</html>
+    

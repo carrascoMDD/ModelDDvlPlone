@@ -38,559 +38,66 @@
         <tal:block tal:define=" 
 			pTrue                        python: True;
 			pFalse                       python: False;
-			pPagina                      string:Tabular;
-			pPaginaAnteriorPosterior     string:Tabular;
-			pShowTrees                   pFalse;
-			pMaxCharsCachedForElements	 request/form/theMaxCharsCachedForElements   | string:;  
-			pLockOnceOrTwice	         request/form/theLockOnceOrTwice       | string:;  
-			pDisplayCacheHitInformation  request/form/theDisplayCacheHitInformation  | string:;  
-			pChangeCacheParameters       request/form/theChangeCacheParameters       | string:; 
-			pEnableCache                 request/form/theEnableCache                 | string:; 
-			pDisableCache                request/form/theDisableCache                | string:; 
-			pFlushCache                  request/form/theFlushCache                  | string:; 
-			global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">
+			pCacheName      	             request/theCacheName                   | string:;  
+			global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
 			
-			
-            <tal:block tal:condition="pChangeCacheParameters" >
-				<tal:block tal:define="
-					global pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-					unosArgs python: {
-						'theContextualObject'               :here, 
-						'theTemplateCacheParameters'  : { 
-							'theMaxCharsCachedForElements':  pMaxCharsCachedForElements, 
-							'theLockOnceOrTwice':      pLockOnceOrTwice, 
-							'theDisplayCacheHitInformation': pDisplayCacheHitInformation, 
-						},
-					}; 
-					pConfigureResult python: here.ModelDDvlPlone_tool.fConfigureTemplatesCache( **unosArgs);
-					pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >	
-					
-					<br/>
-					<br/>
-					<tal:block tal:condition="pConfigureResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasBeenConfigured">Cache Has Been Configured-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<tal:block tal:condition="not: pConfigureResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasNotBeenConfigured">Cache Has NOT Been Configured-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<br/>
-				</tal:block>
-			</tal:block>
-			
-			
-			
-            <tal:block tal:condition="pFlushCache" >
-				<tal:block tal:define="
-					global pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-					pFlushResult python: here.ModelDDvlPlone_tool.fFlushCachedTemplates( here);
-					pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >	
 
-					<br/>
-					<br/>
-					<tal:block tal:condition="pFlushResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasBeenFlushed">Cache Has Been Flushed-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<tal:block tal:condition="not: pFlushResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasNotBeenFlushed">Cache Has NOT Been Flushed-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<br/>
-				</tal:block>
-			</tal:block>
 			
-			
-            <tal:block tal:condition="pDisableCache" >
-				<tal:block tal:define="pDisableResult python: here.ModelDDvlPlone_tool.fDisableTemplatesCache( here)" >	
-					<br/>
-					<br/>
-					<tal:block tal:condition="pDisableResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasBeenDisabled">Cache Has Been Disabled-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<tal:block tal:condition="not: pDisableResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasNotBeenDisabled">Cache Has NOT Been Disabled-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<br/>
-				</tal:block>
-			</tal:block>
-			
-			
-            <tal:block tal:condition="pEnableCache" >
-				<tal:block tal:define="pEnableResult python: here.ModelDDvlPlone_tool.fEnableTemplatesCache( here)" >	
-					<br/>
-					<br/>
-					<tal:block tal:condition="pEnableResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasBeenEnabled">Cache Has Been Enabled-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<tal:block tal:condition="not: pEnableResult">
-						<h2>
-							<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_CacheHasNotBeenEnabled">Cache Has NOT Been Enabled-</tal:block></strong></font>
-						</h2>
-					</tal:block>
-					<br/>
-				</tal:block>
-			</tal:block>
-			
-								
-							
-            <tal:block tal:define="
-				pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-				pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-				unosArgs python: { 
-					'theTimeProfilingResults'     :pProfilingResults,
-					'theElement'                  :here, 
-					'theParent'                   :None,
-					'theParentTraversalName'      :'',
-					'theTypeConfig'               :None, 
-					'theAllTypeConfigs'           :None, 
-					'theViewName'                 :'Tabular', 
-					'theRetrievalExtents'         :[ 'owner', 'cursor', 'traversals',],
-					'theWritePermissions'         :[ ],
-					'theFeatureFilters'           :{ 'attrs': [ 'name', 'description',], 'aggregations': [], 'relations': [], }, 
-					'theInstanceFilters'          :None,
-					'theTranslationsCaches'       :None,
-					'theCheckedPermissionsCache'  :None,
-					'theAdditionalParams'         :None, };    
-				SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-				pCacheStatusReport python: here.ModelDDvlPlone_tool.fRetrieveCachedTemplatesStatusReport( here);
-				pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-				pPermiteEditar  pFalse; 
-				pPermiteEliminar pFalse; 
-				pShowOrHideTrees pFalse; 
-				pMostrarAnteriorPosterior pFalse;
-				pAllowTextualAndTabular pTrue;
-				pAllowRefrescar pTrue;
-				pPagina string:;
-				pPaginaRefrescar string:MDDInspectCache" 
-				tal:condition="python: pCacheStatusReport and SRES" >
-	
+			<p>
+				<a class="state-visible" id="cid_backToElement" href="#" tal:attributes="href python: '%s/' % here.absolute_url()">
+					<font size="3">
+						<strong tal:content="python: u'%s %s' % (
+							here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
+							here.ModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
+					</font>
+				</a>
+				
+				&emsp;&emsp;
+ 				<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus/#cid_MDDCache_%s_section' % ( here.absolute_url(), pCacheName,)" >
+					<font size="2">
+						<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+					</font>
+				</a>        
+				
+				&emsp;&emsp;
+				<a class="state-visible" id="cid_CacheDiagnostics_Link" href="#" tal:attributes="href python: '%s/MDDCacheDiagnostics/#cid_MDDCache_%s_section' % ( here.absolute_url(), pCacheName,)">
+					<font size="2">
+						<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheDiagnostics_action_label', 'Cache Diagnostics-',)" />
+					</font>
+				</a>
+			</p>
+
+					
+			<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDInspectCache/?theCacheName=%s' % ( here.absolute_url(), pCacheName,)"
+				tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+				<img src="#" alt="#" title="#" 
+					tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
+					id="icon-refrescar" />
+				<strong tal:content="python: aRefreshLabel" />
+			</a>
+
 	 
-				<tal:block tal:replace="nothing">  
-					<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />   
-					<tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
-				</tal:block>								
-									
-	 
-				<tal:block tal:define="
-					pPermiteAbandonarEliminar   pFalse;
-					pShowOrHideTrees            pFalse; 
-					pMostrarAnteriorPosterior   pFalse">
-					<metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
-				</tal:block>
+			<br/>
 
-
-				<tal:block tal:condition="python: pCacheStatusReport.get( 'CacheEnabled', False)">					
-					<h2>
-						<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Enabled">Cache Enabled-</tal:block></strong></font>
-					</h2>
-					
-					<tal:block tal:condition="python: not pCacheStatusReport.get( 'CanEnableOrDisable', False)">					
-						<strong><p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_DisableCache_action_NotAllowed">You Can Not Disable the Cache-</p></strong>
-					</tal:block>
-
-					<tal:block tal:condition="python: pCacheStatusReport.get( 'CanEnableOrDisable', False)">					
-						<form name="MDDCacheDisable_form" method="post" enctype="multipart/form-data" id="cid_MDDCacheDisable_form">
-							<input originalvalue="on" name="theDisableCache" value="on" type="hidden">
-							<input type="submit" name="Disable Cache" value="Disable" style="color: red; font-size: 14pt; font-style: italic; font-weight: 700" />
-						</form>
-					</tal:block>
-					
-				</tal:block>
-				<tal:block tal:condition="python: not pCacheStatusReport.get( 'CacheEnabled', False)">					
-					<h2>
-						<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Disabled">Cache Disabled-</tal:block></strong></font>
-					</h2>
-					
-					<tal:block tal:condition="python: not pCacheStatusReport.get( 'CanEnableOrDisable', False)">					
-						<strong><p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_EnableCache_action_NotAllowed">You Can Not Enable the Cache-</p></strong>
-					</tal:block>
-					
-					<tal:block tal:condition="python: pCacheStatusReport.get( 'CanEnableOrDisable', False)">					
-						<form name="MDDCacheEnable_form" method="post" enctype="multipart/form-data" id="cid_MDDCacheEnable_form">
-							<input originalvalue="on" name="theEnableCache" value="on" type="hidden">
-							<input type="submit" name="Enable Cache" value="Enable" style="color: red; font-size: 14pt; font-style: italic; font-weight: 700" />
-						</form>
-					</tal:block>
-					
-				</tal:block>
-				<br>
-				<br/>					
-				
-				<h2>
-					<strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_action_page_title">Inspect Cache-</tal:block></strong>
-					<font size="1"><strong><span tal:content="python: str( DateTime())" /></strong></font>
-
-				</h2>
-				<br/>
-
-				
-				<table id="cid_MDDCacheParameters_table"
-					tal:define="
-						global unIndexClassFila python: 0;
-						unasClasesFilas  python: ('odd','even')"
-					class="listing" summary="Caracteristicas">
-					
-					<thead>
-						<tr>
-							<th colspan="2" class="nosort" tal:content="string:" />
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_CacheStartupTime">Cache Startup Time-</strong>
-							</td>
-							<td align="left" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'CacheStartupTime', 0)" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_LastFlushDate">Last Time the Cache was Flushed-</strong>
-							</td>
-							<td align="left" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'LastFlushDate', '')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_LastFlushingUser">Last User who Flushed the Cache-</strong>
-							</td>
-							<td align="left" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'LastFlushingUser', 0)" />
-							</td>
-						</tr> 
-					</tbody>
-					<thead>
-						<tr>
-							<th align="left" colspan="2" class="nosort" >
-								<font size="2"><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_ConfigurationParameters">Configuration Parameters-</strong></font>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_MaxCharsCachedForElements">Maximum of memory (in # Chars) available for Cache-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'MaxCharsCachedForElements_str', '0')" />
-							</td>
-						</tr>                                  
-					<tal:block tal:replace="nothing">
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_LockOnceOrTwice">Lock Once or Twice-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'LockOnceOrTwice', '')" />
-							</td>
-						</tr>  
-					</tal:block>
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_DisplayCacheHitInformation">Display Cache Hit Information-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'DisplayCacheHitInformation', '')" />
-							</td>
-						</tr>                                  
-					</tbody>
-					<thead>
-						<tr>
-							<th align="left" colspan="2" class="nosort" >
-								<font size="2"><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulators_CacheEntriesElementIndependent">Element-Independent Cache Entries-</strong></font>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCacheEntries">Cached Pages-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'TotalCacheEntriesElementIndependent_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCharsCached">Chars Used-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCharsCachedElementIndependent_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCacheHits">Hits-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCacheHitsElementIndependent_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCharsSaved">Chars Saved-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCharsSavedElementIndependent_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalTimeSaved">Seconds Saved-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalTimeSavedElementIndependent_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCacheFaults">Faults-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCacheFaultsElementIndependent_str', '0')" />
-							</td>
-						</tr>                                  
-					</tbody>
-					<thead>
-						<tr>
-							<th align="left" colspan="2" class="nosort" >
-								<font size="2"><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_EntriesForElements">Cache Entries For Elements-</strong>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCacheEntries">Pages Cached-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: pCacheStatusReport.get( 'TotalCacheEntriesForElements_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCharsCached">Chars Used-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCharsCachedForElements_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCacheHits">Hits-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCacheHitsForElements_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCharsSaved">Chars Saved-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCharsSavedForElements_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalTimeSaved">Seconds Saved-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalTimeSavedForElements_str', '0')" />
-							</td>
-						</tr>                                  
-						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-							<td align="left">
-								&emsp;&emsp;<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_Acumulator_TotalCacheFaults">Faults-</strong>
-							</td>
-							<td align="right" >
-								<tal:block tal:content="python: '%s' % pCacheStatusReport.get( 'TotalCacheFaultsForElements_str', '0')" />
-							</td>
-						</tr>  
-					</tbody>  
-				</table>
-				
-				<br/>
-				<br/>
-				
-				
-				
-				
-				<div tal:condition="python: not pCacheStatusReport.get( 'CanConfigure', False)" >
-					<strong><p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_ConfigureCache_action_NotAllowed">You Can Not Configure the Cache-</p></strong>
-				</div>
-					
-				<div tal:condition="python: pCacheStatusReport.get( 'CanConfigure', False)" >
-					<br>
-					<h2>
-						<strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_ConfigureCache_action_page_title">Configure Cache-</tal:block></strong>
-					</h2>
-					<br/>
-					<form name="MDDCacheParameters_form" method="post" enctype="multipart/form-data" id="cid_MDDCacheParameters_form">
-					
-						<input originalvalue="on" name="theChangeCacheParameters" value="on" type="hidden">
-					
-						
-						
-						<table id="cid_MDDCacheParameters_table"
-							tal:define="
-								global unIndexClassFila python: 0;
-								unasClasesFilas  python: ('odd','even')"
-							class="listing" summary="Caracteristicas">
-							
-							<thead>
-								<tr>
-									<th colspan="2" class="nosort" tal:content="string:" />
-								</tr>
-							</thead>
-							<tbody>
-								<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-									tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-									<td align="left">
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_MaxCharsCachedForElements">Maximum of memory (in # Chars) available for Cache-</strong>
-									</td>
-									<td align="left" >
-										<input style="font-size: 10pt;"  name="theMaxCharsCachedForElements" id="cid_MaxCharsCachedForElements_field" value="#" 
-											size="16" maxlength="16" type="text"
-											tal:attributes="value python: pCacheStatusReport.get( 'MaxCharsCachedForElements', 0)" />
-									</td>
-								</tr>    
-							<tal:block tal:replace="nothing">
-								<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-									tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-									<td align="left">
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_LockOnceOrTwice">Lock Once or Twice-</strong>
-									</td>
-									<td align="left" >
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_LockOnceOrTwice_Once">Once-</strong>
-										&ensp;
-										<tal:block tal:condition="python: pCacheStatusReport.get( 'LockOnceOrTwice', '').lower() == 'once'">
-											<input type="radio" checked="checked" name="theLockOnceOrTwice" value="Once" id="cid_LockOnceOrTwice_field_Once" />
-										</tal:block>
-										<tal:block tal:condition="python: not( pCacheStatusReport.get( 'LockOnceOrTwice', '').lower() == 'once')">
-											<input type="radio" name="theLockOnceOrTwice" value="Once" id="cid_LockOnceOrTwice_field_Once" />
-										</tal:block>
-										&emsp;
-										&emsp;
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_LockOnceOrTwice_Twice">Twice-</strong>
-										&ensp;
-										<tal:block tal:condition="python: pCacheStatusReport.get( 'LockOnceOrTwice', '').lower() == 'twice'">
-											<input type="radio" checked="checked" name="theLockOnceOrTwice" value="Twice" id="cid_LockOnceOrTwice_field_Twice" />
-										</tal:block>
-										<tal:block tal:condition="python: not( pCacheStatusReport.get( 'LockOnceOrTwice', '').lower() == 'twice')">
-											<input type="radio" name="theLockOnceOrTwice" value="Twice" id="cid_LockOnceOrTwice_field_Twice" />
-										</tal:block>
-									</td>
-								</tr> 
-							</tal:block>
-								<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
-									tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
-									<td align="left">
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_DisplayCacheHitInformation">Display Cache Hit Information-</strong>
-									</td>
-									<td align="left" >
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_DisplayCacheHitInformation_None">None-</strong>
-										&ensp;
-										<tal:block tal:condition="python: pCacheStatusReport.get( 'DisplayCacheHitInformation', '').lower() == 'none'">
-											<input type="radio" checked="checked" name="theDisplayCacheHitInformation" value="None" id="cid_DisplayCacheHitInformation_field_twice" />
-										</tal:block>
-										<tal:block tal:condition="python: not( pCacheStatusReport.get( 'DisplayCacheHitInformation', '').lower() == 'none')">
-											<input type="radio" name="theDisplayCacheHitInformation" value="None" id="cid_DisplayCacheHitInformation_field_twice" />
-										</tal:block>
-										&emsp;
-										&emsp;
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_DisplayCacheHitInformation_Bottom">Bottom-</strong>
-										&ensp;
-										<tal:block tal:condition="python: pCacheStatusReport.get( 'DisplayCacheHitInformation', '').lower() == 'bottom'">
-											<input type="radio" checked="checked" name="theDisplayCacheHitInformation" value="Bottom" id="cid_DisplayCacheHitInformation_field_twice" />
-										</tal:block>
-										<tal:block tal:condition="python: not( pCacheStatusReport.get( 'DisplayCacheHitInformation', '').lower() == 'bottom')">
-											<input type="radio" name="theDisplayCacheHitInformation" value="Bottom" id="cid_DisplayCacheHitInformation_field_twice" />
-										</tal:block>
-										&emsp;
-										&emsp;
-										<strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_DisplayCacheHitInformation_Top">Top-</strong>
-										&ensp;
-										<tal:block tal:condition="python: pCacheStatusReport.get( 'DisplayCacheHitInformation', '').lower() == 'top'">
-											<input type="radio" checked="checked" name="theDisplayCacheHitInformation" value="Top" id="cid_DisplayCacheHitInformation_field_twice" />
-										</tal:block>
-										<tal:block tal:condition="python: not( pCacheStatusReport.get( 'DisplayCacheHitInformation', '').lower() == 'top')">
-											<input type="radio" name="theDisplayCacheHitInformation" value="Top" id="cid_DisplayCacheHitInformation_field_top" />
-										</tal:block>
-									</td>
-								</tr>                                  
-							</tbody>  
-						</table>
-						
-						<br/>
-						<input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value Save" />                                                        
-						<br/>
-						<br/>
-						<br/>
-					</form>
-				</div>
-							
-				
-				
-				<div tal:condition="python: not pCacheStatusReport.get( 'CanFlush', False)" >
-					<strong><p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_FlushCache_action_NotAllowed">You Can Not Flush the Cache-</p></strong>
-				</div>
-					
-				<div tal:condition="python: pCacheStatusReport.get( 'CanFlush', False)" >
-					<br>
-					<h2>
-						<strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_FlushCache_action_page_title">Flush Cache-</tal:block></strong>
-					</h2>
-					<br/>
-					<form name="MDDFlushCache_form" method="post" enctype="multipart/form-data" id="cid_MDDFlushCache_form">
-					
-						<input originalvalue="on" name="theFlushCache" value="on" type="hidden">
-					
-						<font size="2"><strong><p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InspectCache_action_Flush_help">You may invalidate all currently cached pages by clicking on the Flush button, if you are authorized to do so.-</p></strong></font>
-						<br/>			    
-	
-						<input class="context" name="form_submit"  type="submit"  value="Flush"  i18n:domain="ModelDDvlPlone" i18n:attributes="value Flush" />                                                        
-						<br/>
-						<br/>
-						<br/>
-					</form>
-				</div>
-					
+			<h2>
+				<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone',  'ModelDDvlPlone_InspectCache_CacheName_%s' % pCacheName, '%s %s' % ('Name-',  pCacheName, ))" />
+			</h2>
+			
+			<tal:block tal:replace="nothing">
+				<tal:block 
+					tal:define="pCacheReport python: here.ModelDDvlPlone_tool.fDumpCache_HTML( here, pCacheName, theAdditionalParams={})" 
+					tal:condition="pCacheReport" 
+					tal:replace="structure pCacheReport" />
 			</tal:block>
 			
-		
+			<tal:block 
+				tal:define="pCacheReport python: here.MDDCacheDump( here.ModelDDvlPlone_tool, here, pCacheName, theAdditionalParams={})" 
+				tal:condition="pCacheReport" 
+				tal:replace="structure pCacheReport" />
+				 
+			<br/>
+				
+	
 			<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
 		
         </tal:block>
@@ -601,7 +108,23 @@
     
      
     
+
     
+	
+	
+	
+	
+	
+	
+	
+	
+	
+		
+	
+	
+	
+	
+    	
 </body>
 </html>
     

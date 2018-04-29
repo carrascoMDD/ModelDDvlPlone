@@ -149,7 +149,7 @@
 
             <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />   
  
-<tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+<tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( here [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
 </tal:block>
 
 
@@ -233,10 +233,8 @@
             pPermiteModificarElementos        pPermiteEditarElementos | pPermiteOrdenarElementos | pPermiteEliminarElementos" 
             tal:condition="python: TRAVRES and SRES">
 
-                 <tal:block tal:condition="pSiempre | TRAVRES/elements" >
-                 
-                    <p class="formHelp" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_SortableTable_help', 'You may sort the table contents by clicking on the column headers.-')" />
-                    
+                <tal:block tal:condition="pSiempre | TRAVRES/elements" >
+                                     
                     <table id="sortable" width="100%%"  class="listing" summary="#"  
                         tal:attributes="summary SRES/values_by_name/title/uvalue"            
                         tal:define="global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even')" >
@@ -281,7 +279,7 @@
                                                             ERES[ 'type_translations'][ 'translated_type_description'])"
                                                         tal:attributes="
                                                             name string:elemento-${ERES/UID};
-                                                            href python: '%sTabular/' % (ERES[ 'url']); 
+                                                            href python: '%s' % (ERES[ 'url']); 
                                                             title unTitle"                                                                            
                                                         class="state-visible" > 
                                                     <h4> 

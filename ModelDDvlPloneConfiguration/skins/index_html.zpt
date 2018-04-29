@@ -1,0 +1,13 @@
+<html>
+    <head>
+        <title tal:content="here/title_or_id">title</title>
+    </head>
+    <body>
+    
+        <h1 tal:content="here/title_or_id"></h1>
+        
+        This is a simple default page for the
+        "<span tal:content="here/meta_type"/>" tool.
+    
+    </body>
+</html>

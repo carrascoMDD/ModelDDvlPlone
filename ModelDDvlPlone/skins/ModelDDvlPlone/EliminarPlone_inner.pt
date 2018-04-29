@@ -132,7 +132,7 @@
                                    
                                 <h3>                        
                                     <tal:block tal:define="pSecondsNow PLONERES/seconds_now">
-                                        <a  href="#" tal:attributes="href python: '%sEliminarElementoPlone/?theUIDToDelete=%s&theSecondsNow=%s&theConfirmedDelete=Yes' % ( PLONERES[ 'url'], ERES[ 'UID'], pSecondsNow, )" 
+                                        <a  href="#" tal:attributes="href python: '%sEliminarElementoPlone/?theUIDToDelete=%s&theSN=%s&theConfirmedDelete=Yes' % ( PLONERES[ 'url'], ERES[ 'UID'], pSecondsNow, )" 
                                             title="">
                                             <font color="Red">
                                                 <img src="#" tal:attributes="src python: here.portal_url() + '/delete_icon.gif'"  
@@ -152,27 +152,31 @@
                                         </a>
                                     </tal:block>
                                 </h3>
+        <tal:block  tal:replace="nothing">
                                 <p>
                                     <font size="2">
-                                        <strong>
+                                        <strong tal:define="pDateTimeNow python: here.ModelDDvlPlone_tool.fDateTimeNow( );
+                                            pSecondsToReviewAndDelete python: here.ModelDDvlPlone_tool.fSecondsToReviewAndDelete( here);
+                                            pLatestDateToDelete python: here.ModelDDvlPlone_tool.fDateTimeAfterSeconds( pDateTimeNow, pSecondsToReviewAndDelete)">
                                             <span tal:content="python: '%s %d %s ' % (
                                                 here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
-                                                pDeleteImpactReport.get( 'seconds_to_delete', 0),
+                                                pSecondsToReviewAndDelete,
                                                 here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
                                             )" />
                                             <br/>
                                             <span tal:content="python: '%s %s' % (
                                                 here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
-                                                ( pDeleteImpactReport.get( 'latest_date_to_delete', None) and pDeleteImpactReport.get( 'latest_date_to_delete', None).rfc822()) or '',
+                                                pLatestDateToDelete.rfc822(),
                                             )" />
                                             <br/>
                                             <span tal:content="python: '%s %s' % (
                                                 here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
-                                                ( pDeleteImpactReport.get( 'date_now', None) and pDeleteImpactReport.get( 'date_now', None).rfc822()) or '',
+                                                pDateTimeNow.rfc822(),
                                             )" />
                                         </strong>
                                     </font>
                                 </p>
+        </tal:block>
                                 <br/>
                                 <br/>               
 

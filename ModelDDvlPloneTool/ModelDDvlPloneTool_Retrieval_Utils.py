@@ -56,20 +56,20 @@ class ModelDDvlPloneTool_Retrieval_Utils:
 # Accessor for timing constraints 
 #        
     
-    security.declarePrivate( 'fSecondsNow')
-    def fSecondsNow(self): 
-        return int( time())
+    #security.declarePrivate( 'fSecondsNow')
+    #def fSecondsNow(self): 
+        #return int( time())
             
     
     
-    security.declarePrivate( 'fMillisecondsNow')
-    def fMillisecondsNow(self):   
-        return int( time() * 1000)
+    #security.declarePrivate( 'fMillisecondsNow')
+    #def fMillisecondsNow(self):   
+        #return int( time() * 1000)
  
     
-    security.declarePrivate( 'fDateTimeNow')
-    def fDateTimeNow(self):   
-        return DateTime()
+    #security.declarePrivate( 'fDateTimeNow')
+    #def fDateTimeNow(self):   
+        #return DateTime()
     
     
     

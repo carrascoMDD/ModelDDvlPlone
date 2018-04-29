@@ -62,7 +62,7 @@
                                 return false;
                             }
                             var unSomeSelected = false;
-                            for( var unIdCounter=0; unIdCounter < 10000; unIdCounter++) {
+                            for( var unIdCounter=0; unIdCounter < 1000; unIdCounter++) {
                         
                                 var unElementCheckBox = document.getElementById( theIdTabla + '_Select_' +unIdCounter );
                                 if ( !unElementCheckBox) {
@@ -190,7 +190,7 @@
                             tal:attributes="title aDeleteLabel;
                                 onclick python: 'pMDDSubmit_varios( %cDelete%c, %c%s%c)%c return true%c' % ( 39, 39, 39, pIdTabla, 39, 59,59,);" >
                             <img src="#" alt="#" title="#" 
-                                tal:attributes="src python: '%s/cut_icon.gif' % SRES[ 'portal_url']; alt aDeleteLabel; title aDeleteLabel" 
+                                tal:attributes="src python: '%s/delete_icon.gif' % SRES[ 'portal_url']; alt aDeleteLabel; title aDeleteLabel" 
                                 id="icon-cut" />
                             <span tal:content="aDeleteLabel" />        
                         </a>

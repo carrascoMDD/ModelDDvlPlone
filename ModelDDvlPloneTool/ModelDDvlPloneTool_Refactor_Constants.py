@@ -71,6 +71,7 @@ cRefactorStatus_SourceRoot_Not_OK                                       = 'Refac
 cRefactorStatus_SourceResult_Not_OK                                     = 'RefactorStatus_SourceResult_Not_OK'
 cRefactorStatus_TargetResult_Not_OK                                     = 'RefactorStatus_TargetResult_Not_OK'
 cRefactorStatus_AggregatedSource_Not_OK                                 = 'RefactorStatus_AggregatedSource_Not_OK'
+cRefactorStatus_RelatedSource_None                                      = 'RefactorStatus_RelatedSource_None'
 cRefactorStatus_RelatedSource_Not_OK                                    = 'RefactorStatus_RelatedSource_Not_OK'
 cRefactorStatus_Missing_Parameter_TraversalResult                       = 'RefactorStatus_Missing_Parameter_TraversalResult'
 cRefactorStatus_Missing_Parameter_TraversalName                         = 'RefactorStatus_Missing_Parameter_TraversalName'

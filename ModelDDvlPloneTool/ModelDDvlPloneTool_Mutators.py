@@ -36,7 +36,14 @@ import logging
 
 from logging import ERROR as cLoggingLevel_ERROR
 
+
+
+from time import time
+
 from DateTime import DateTime
+
+from StringIO import StringIO
+
 
 from Acquisition  import aq_inner, aq_parent
 
@@ -45,24 +52,287 @@ from Products.CMFCore.exceptions import AccessControl_Unauthorized
 
 from AccessControl      import ClassSecurityInfo
 
+from Acquisition import aq_parent, aq_inner
+
+
 from Products.Archetypes.utils import shasattr
 
 from Products.Archetypes.config import REFERENCE_CATALOG, UID_CATALOG
 
 
 
-from Products.CMFCore import permissions
+from Products.CMFCore       import permissions
 from Products.CMFCore.utils import getToolByName
 
 from Products.Relations.config                  import RELATIONS_LIBRARY
 from Products.Relations                         import processor            as  gRelationsProcessor
 
 
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Mutators_Plone  import ModelDDvlPloneTool_Mutators_Plone
 
-from ModelDDvlPloneTool_Permissions_Definitions       import *
+
+from ModelDDvlPloneTool_Permissions_Definitions import *
+
+from ModelDDvlPloneTool_Retrieval               import cChangeLogFieldNameField
+
+from ModelDDvlPloneTool_Profiling               import ModelDDvlPloneTool_Profiling
+from ModelDDvlPloneTool_Retrieval               import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_Mutators_Plone          import ModelDDvlPloneTool_Mutators_Plone
+from ModelDDvlPloneTool_Mutators_Plone          import cModificationKind_DeletePloneSubElement, cModificationKind_DeletePloneSubElement_abbr
+from ModelDDvlPloneTool_Mutators_Plone          import cModificationKind_MovePloneSubObject,    cModificationKind_MovePloneSubObject_abbr
+
+from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
+
+from ModelDDvlPloneToolSupport                  import fEvalString,  fReprAsString, fSecondsNow 
+
+
+
+
+
+
+# #############################################
+"""Configuraton value should be in ModelDDvlPloneTool Preferences.
+
+"""
+cMaxChangeMillisDifference_ForSameEntries = 60 * 1000 # ACV OJO in debug. For runtime make it 100 ms
+
+
+
+
+
+
+# #############################################
+"""Token symbols for change entries representation, abbreviated and long.
+
+"""
+
+cModificationKind_ChangeValues         = 'Change Values'
+cModificationKind_MoveSubObject        = 'Move Sub Object'
+cModificationKind_MoveReferencedObject = 'Move Referenced Object'
+cModificationKind_Link                 = 'Link'
+cModificationKind_Unlink               = 'Unlink'
+cModificationKind_DeleteSubElement     = 'Delete SubElement'
+cModificationKind_Delete               = 'Delete'
+cModificationKind_CreateSubElement     = 'Create SubElement'
+cModificationKind_Create               = 'Create'
+cModificationKind_Process              = 'Process'
+
+cModificationKinds = [
+    cModificationKind_ChangeValues,
+    cModificationKind_MoveSubObject,
+    cModificationKind_MoveReferencedObject,
+    cModificationKind_Link,
+    cModificationKind_Unlink,
+    cModificationKind_DeleteSubElement,
+    cModificationKind_Delete,
+    cModificationKind_CreateSubElement,
+    cModificationKind_Create,
+    cModificationKind_DeletePloneSubElement,
+    cModificationKind_Process,
+]
+
+
+
+cModificationKind_ChangeValues_abbr         = 'chg'
+cModificationKind_MoveSubObject_abbr        = 'mvs'
+cModificationKind_MoveReferencedObject_abbr = 'mvr'
+cModificationKind_Link_abbr                 = 'lnk'
+cModificationKind_Unlink_abbr               = 'uln'
+cModificationKind_DeleteSubElement_abbr     = 'des'
+cModificationKind_Delete_abbr               = 'del'
+cModificationKind_CreateSubElement_abbr     = 'crs'
+cModificationKind_Create_abbr               = 'cre'
+cModificationKind_MovePloneSubObject_abbr   = 'mvp'
+cModificationKind_Process_abbr              = 'pro'
+
+cModificationKinds_Abbreviated = [
+    cModificationKind_ChangeValues_abbr,
+    cModificationKind_MoveSubObject_abbr,
+    cModificationKind_MoveReferencedObject_abbr,
+    cModificationKind_Link_abbr,
+    cModificationKind_Unlink_abbr,
+    cModificationKind_DeleteSubElement_abbr,
+    cModificationKind_Delete_abbr,
+    cModificationKind_CreateSubElement_abbr,
+    cModificationKind_Create_abbr,
+    cModificationKind_MovePloneSubObject_abbr,
+    cModificationKind_Process_abbr,
+]
+
+
+
+cModificationKinds_AbbreviationsByName = {
+    cModificationKind_ChangeValues:            cModificationKind_ChangeValues_abbr,
+    cModificationKind_MoveSubObject:           cModificationKind_MoveSubObject_abbr,
+    cModificationKind_MoveReferencedObject:    cModificationKind_MoveReferencedObject_abbr,
+    cModificationKind_Link:                    cModificationKind_Link_abbr,
+    cModificationKind_Unlink:                  cModificationKind_Unlink_abbr,
+    cModificationKind_DeleteSubElement:        cModificationKind_DeleteSubElement_abbr,
+    cModificationKind_Delete:                  cModificationKind_Delete_abbr,
+    cModificationKind_CreateSubElement:        cModificationKind_CreateSubElement_abbr,
+    cModificationKind_Create:                  cModificationKind_Create_abbr,
+    cModificationKind_DeletePloneSubElement:   cModificationKind_DeletePloneSubElement_abbr,
+    cModificationKind_MovePloneSubObject:      cModificationKind_MovePloneSubObject_abbr,
+    cModificationKind_Process:                 cModificationKind_Process_abbr,
+    
+}
+
+cModificationKinds_ByAbbreviation = dict( [ ( anAbbr, aKind) for aKind, anAbbr in cModificationKinds_AbbreviationsByName.items()])
+
+
+#cChangeDetails_Temp_TransactionObject = 'tran'
+
+    
+cChangeDetails_ChangeKind              = 'kind'
+cChangeDetails_UserId                  = 'user'
+cChangeDetails_ChangeDate              = 'ms'
+cChangeDetails_Details                 = 'dets'
+cChangeDetails_ChangeCounter           = 'ctr'
+cChangeDetails_NewFieldValue           = 'newv'
+cChangeDetails_FieldChanges            = 'flds'
+cChangeDetails_Relation                = 'rel'
+cChangeDetails_TargetPath              = 'tpath'
+cChangeDetails_TargetUID               = 'tuid'
+cChangeDetails_TargetTitle             = 'ttit'
+cChangeDetails_NewElementTitle         = 'ntit'
+cChangeDetails_NewElementId            = 'nid'
+cChangeDetails_NewElementUID           = 'nuid'
+cChangeDetails_NewElementMetaType      = 'nmt'
+cChangeDetails_NewElementArchetypeName = 'nar'
+cChangeDetails_DeletedElementTitle     = 'dtit'
+cChangeDetails_DeletedElementId        = 'did'
+cChangeDetails_DeletedElementPath      = 'dph'
+cChangeDetails_DeletedElementUID       = 'duid'
+cChangeDetails_DeletedElementMetaType  = 'dty'
+cChangeDetails_DeletedElementArchetypeName='dar'
+cChangeDetails_MovedElementTitle       = 'mtit'
+cChangeDetails_MovedElementId          = 'mid'
+cChangeDetails_MovedElementPath        = 'mph'
+cChangeDetails_MovedElementUID         = 'muid'
+cChangeDetails_MovedElementMetaType    = 'mty'
+cChangeDetails_MovedElementArchetypeName='mar'
+cChangeDetails_IncludedDeleted         = 'dele'
+cChangeDetails_Position                = 'pos'
+cChangeDetails_Delta                   = 'delta'
+cChangeDetails_TraversalName           = 'trav'
+cChangeDetails_ProcessName             = 'proc'
+cChangeDetails_ProcessParameters       = 'parms'
+
+
+cChangeDetails_keys = [
+    cChangeDetails_ChangeKind,
+    cChangeDetails_UserId,
+    cChangeDetails_ChangeDate,
+    cChangeDetails_Details,
+    cChangeDetails_ChangeCounter,
+    cChangeDetails_NewFieldValue, 
+    cChangeDetails_FieldChanges,  
+    cChangeDetails_Relation,      
+    cChangeDetails_TargetPath,    
+    cChangeDetails_TargetTitle,     
+    cChangeDetails_TargetUID,     
+    cChangeDetails_NewElementTitle,   
+    cChangeDetails_NewElementId,   
+    cChangeDetails_NewElementUID,
+    cChangeDetails_NewElementMetaType,
+    cChangeDetails_NewElementArchetypeName,
+    cChangeDetails_DeletedElementTitle,        
+    cChangeDetails_DeletedElementId,        
+    cChangeDetails_DeletedElementPath,      
+    cChangeDetails_DeletedElementUID,       
+    cChangeDetails_DeletedElementMetaType,  
+    cChangeDetails_DeletedElementArchetypeName,   
+    cChangeDetails_MovedElementTitle,        
+    cChangeDetails_MovedElementId,        
+    cChangeDetails_MovedElementPath,      
+    cChangeDetails_MovedElementUID,       
+    cChangeDetails_MovedElementMetaType,  
+    cChangeDetails_MovedElementArchetypeName,   
+    cChangeDetails_IncludedDeleted,
+    cChangeDetails_Position,
+    cChangeDetails_Delta,
+    cChangeDetails_TraversalName,
+    cChangeDetails_ProcessName,
+    cChangeDetails_ProcessParameters,
+]
+
+
+cChangeDetails_ChangeKind_long                        = 'Kind'
+cChangeDetails_UserId_long                            = 'User Id'
+cChangeDetails_ChangeDate_long                        = 'Date'
+cChangeDetails_Details_long                           = 'Details'
+cChangeDetails_ChangeCounter_long                     = 'Counter'
+cChangeDetails_NewFieldValue_long                     = 'New Field Value' 
+cChangeDetails_FieldChanges_long                      = 'Field Changes'  
+cChangeDetails_Relation_long                          = 'Relation'      
+cChangeDetails_TargetPath_long                        = 'Target Path'    
+cChangeDetails_TargetTitle_long                       = 'Target Title'     
+cChangeDetails_TargetUID_long                         = 'Target UID'     
+cChangeDetails_NewElementTitle_long                   = 'New Element Title'   
+cChangeDetails_NewElementId_long                      = 'New Element Id'   
+cChangeDetails_NewElementUID_long                     = 'New Element UID'
+cChangeDetails_NewElementMetaType_long                = 'New Element MetaType'
+cChangeDetails_NewElementArchetypeName_long           = 'New Element ArchetypeName'
+cChangeDetails_DeletedElementTitle_long               = 'Deleted Element Title'        
+cChangeDetails_DeletedElementId_long                  = 'Deleted Element Id'        
+cChangeDetails_DeletedElementPath_long                = 'Deleted Element Path'      
+cChangeDetails_DeletedElementUID_long                 = 'Deleted Element UID'       
+cChangeDetails_DeletedElementMetaType_long            = 'Deleted Element MetaType'  
+cChangeDetails_DeletedElementArchetypeName_long       = 'Deleted Element ArchetypeName'   
+cChangeDetails_MovedElementTitle_long                 = 'Moved Element Title'        
+cChangeDetails_MovedElementId_long                    = 'Moved Element Id'        
+cChangeDetails_MovedElementPath_long                  = 'Moved Element Path'      
+cChangeDetails_MovedElementUID_long                   = 'Moved Element UID'       
+cChangeDetails_MovedElementMetaType_long              = 'Moved Element MetaType'  
+cChangeDetails_MovedElementArchetypeName_long         = 'Moved Element ArchetypeName'   
+cChangeDetails_IncludedDeleted_long                   = 'Included Deleted'
+cChangeDetails_Position_long                          = 'Position'
+cChangeDetails_Delta_long                             = 'Delta'
+cChangeDetails_TraversalName_long                     = 'Traversal Name'
+cChangeDetails_ProcessName_long                       = 'Process Name'
+cChangeDetails_ProcessParameters_long                 = 'Process Parameters'
+    
+    
+
+cChangeDetails_long_byAbbreviation = {    
+    cChangeDetails_ChangeKind:                      cChangeDetails_ChangeKind_long,                  
+    cChangeDetails_UserId:                          cChangeDetails_UserId_long,                      
+    cChangeDetails_ChangeDate:                      cChangeDetails_ChangeDate_long,                  
+    cChangeDetails_Details:                         cChangeDetails_Details_long,                     
+    cChangeDetails_ChangeCounter:                   cChangeDetails_ChangeCounter_long,               
+    cChangeDetails_NewFieldValue:                   cChangeDetails_NewFieldValue_long,               
+    cChangeDetails_FieldChanges:                    cChangeDetails_FieldChanges_long,                
+    cChangeDetails_Relation:                        cChangeDetails_Relation_long,                    
+    cChangeDetails_TargetPath:                      cChangeDetails_TargetPath_long,                  
+    cChangeDetails_TargetTitle:                     cChangeDetails_TargetTitle_long,                   
+    cChangeDetails_TargetUID:                       cChangeDetails_TargetUID_long,                   
+    cChangeDetails_NewElementTitle:                 cChangeDetails_NewElementTitle_long,                
+    cChangeDetails_NewElementId:                    cChangeDetails_NewElementId_long,                
+    cChangeDetails_NewElementUID:                   cChangeDetails_NewElementUID_long,               
+    cChangeDetails_NewElementMetaType:              cChangeDetails_NewElementMetaType_long,          
+    cChangeDetails_NewElementArchetypeName:         cChangeDetails_NewElementArchetypeName_long,     
+    cChangeDetails_DeletedElementTitle:             cChangeDetails_DeletedElementTitle_long,            
+    cChangeDetails_DeletedElementId:                cChangeDetails_DeletedElementId_long,            
+    cChangeDetails_DeletedElementPath:              cChangeDetails_DeletedElementPath_long,          
+    cChangeDetails_DeletedElementUID:               cChangeDetails_DeletedElementUID_long,           
+    cChangeDetails_DeletedElementMetaType:          cChangeDetails_DeletedElementMetaType_long,      
+    cChangeDetails_DeletedElementArchetypeName:     cChangeDetails_DeletedElementArchetypeName_long, 
+    cChangeDetails_MovedElementTitle:               cChangeDetails_MovedElementTitle_long,              
+    cChangeDetails_MovedElementId:                  cChangeDetails_MovedElementId_long,              
+    cChangeDetails_MovedElementPath:                cChangeDetails_MovedElementPath_long,            
+    cChangeDetails_MovedElementUID:                 cChangeDetails_MovedElementUID_long,             
+    cChangeDetails_MovedElementMetaType:            cChangeDetails_MovedElementMetaType_long,        
+    cChangeDetails_MovedElementArchetypeName:       cChangeDetails_MovedElementArchetypeName_long,   
+    cChangeDetails_IncludedDeleted:                 cChangeDetails_IncludedDeleted_long,             
+    cChangeDetails_Position:                        cChangeDetails_Position_long,                    
+    cChangeDetails_Delta:                           cChangeDetails_Delta_long,                       
+    cChangeDetails_TraversalName:                   cChangeDetails_TraversalName_long,    
+    cChangeDetails_ProcessName:                     cChangeDetails_ProcessName_long,
+    cChangeDetails_ProcessParameters:               cChangeDetails_ProcessParameters_long,
+}    
+        
+    
+
+
 
 
 
@@ -86,10 +356,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     """
 
-
-    
-
-   
+        
     
     
     security.declarePrivate( 'pImpactChangeValuesIntoReport')
@@ -324,10 +591,14 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         unosImpactedObjectsUIDs = theChangeReport[ 'impacted_objects_UIDs']
         
         unContenedor = None
-        try:
-            unContenedor = theChangedElement.getContenedor()
-        except:
-            None
+        if shasattr( theChangedElement, 'getContenedor'):
+            try:
+                unContenedor = theChangedElement.getContenedor()
+            except:
+                None
+        else:
+            unContenedor = aq_parent( aq_inner( theChangedElement))
+                
         if  not ( ( unContenedor == None) or ( unContenedor == theChangedElement)):
             unaUIDContenedor = ''
             try:
@@ -340,10 +611,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     
     
         unPropietario = None
-        try:
-            unPropietario = theChangedElement.getPropietario()
-        except:
-            None
+        if shasattr( theChangedElement, 'getPropietario'):
+            try:
+                unPropietario = theChangedElement.getPropietario()
+            except:
+                None
+       
+            
         if not ( ( unPropietario == None) or ( unPropietario == unContenedor)  or ( unPropietario == theChangedElement)):
 
             unaUIDPropietario = ''
@@ -356,57 +630,55 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     unosImpactedObjectsUIDs.append( unaUIDPropietario)
                     
                  
-        unosPropagateDeleteImpactTo = None
-        try:
-            unosPropagateDeleteImpactTo = theChangedElement.propagate_delete_impact_to
-        except:
-            None
-
-            
-            
-        if unosPropagateDeleteImpactTo:
-            
-            for unPropagateDeleteImpactTo in unosPropagateDeleteImpactTo:
+        if shasattr( theChangedElement, 'propagate_delete_impact_to'):
+            unosPropagateDeleteImpactTo = None
+            try:
+                unosPropagateDeleteImpactTo = theChangedElement.propagate_delete_impact_to
+            except:
+                None
+            if unosPropagateDeleteImpactTo:
                 
-                if unPropagateDeleteImpactTo:
+                for unPropagateDeleteImpactTo in unosPropagateDeleteImpactTo:
                     
-                    unPropagateStep = unPropagateDeleteImpactTo[ 0]
-                    if unPropagateStep == 'contenedor_contenedorYPropietario':
+                    if unPropagateDeleteImpactTo:
                         
-                        if not ( unContenedor == None):
+                        unPropagateStep = unPropagateDeleteImpactTo[ 0]
+                        if unPropagateStep == 'contenedor_contenedorYPropietario':
                             
-                            unContenedor_Contenedor = None
-                            try:
-                                unContenedor_Contenedor = unContenedor.getContenedor()
-                            except:
-                                None
-                            
-                            if not ( unContenedor_Contenedor == None):   
-                                unaUIDContenedor_Contenedor = ''
+                            if not ( unContenedor == None):
+                                
+                                unContenedor_Contenedor = None
                                 try:
-                                    unaUIDContenedor_Contenedor = unContenedor_Contenedor.UID()
+                                    unContenedor_Contenedor = unContenedor.getContenedor()
                                 except:
                                     None
-                                if unaUIDContenedor_Contenedor:
-                                    if not ( unaUIDContenedor_Contenedor in unosImpactedObjectsUIDs):
-                                        unosImpactedObjectsUIDs.append( unaUIDContenedor_Contenedor)
-                            
-                            
-                            unContenedor_Propietario = None
-                            try:
-                                unContenedor_Propietario = unContenedor.getPropietario()
-                            except:
-                                None
-                            
-                            if not ( unContenedor_Propietario == None):   
-                                unaUIDContenedor_Propietario = ''
+                                
+                                if not ( unContenedor_Contenedor == None):   
+                                    unaUIDContenedor_Contenedor = ''
+                                    try:
+                                        unaUIDContenedor_Contenedor = unContenedor_Contenedor.UID()
+                                    except:
+                                        None
+                                    if unaUIDContenedor_Contenedor:
+                                        if not ( unaUIDContenedor_Contenedor in unosImpactedObjectsUIDs):
+                                            unosImpactedObjectsUIDs.append( unaUIDContenedor_Contenedor)
+                                
+                                
+                                unContenedor_Propietario = None
                                 try:
-                                    unaUIDContenedor_Propietario = unContenedor_Propietario.UID()
+                                    unContenedor_Propietario = unContenedor.getPropietario()
                                 except:
                                     None
-                                if unaUIDContenedor_Propietario:
-                                    if not ( unaUIDContenedor_Propietario in unosImpactedObjectsUIDs):
-                                        unosImpactedObjectsUIDs.append( unaUIDContenedor_Propietario)
+                                
+                                if not ( unContenedor_Propietario == None):   
+                                    unaUIDContenedor_Propietario = ''
+                                    try:
+                                        unaUIDContenedor_Propietario = unContenedor_Propietario.UID()
+                                    except:
+                                        None
+                                    if unaUIDContenedor_Propietario:
+                                        if not ( unaUIDContenedor_Propietario in unosImpactedObjectsUIDs):
+                                            unosImpactedObjectsUIDs.append( unaUIDContenedor_Propietario)
                                 
         return unContenedor
                                     
@@ -448,9 +720,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if ( theElement == None) or not theNewValuesDict:
                 return None
 
+    
+            
             aTranslationService = getToolByName( theElement, 'translation_service', None)            
              
-            unValueForId = theNewValuesDict.get( 'attribute_id', '')
+            unValueForId = theNewValuesDict.get( 'theIdAttribute', '')
             
             unosNombresAtributos = [ unNombreAtributo for unNombreAtributo  in theNewValuesDict.keys() if unNombreAtributo.__class__.__name__ == 'str']
             if not ( unosNombresAtributos or unValueForId):
@@ -473,8 +747,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 theTypeConfig               =None, 
                 theAllTypeConfigs           =None, 
                 theViewName                 ='', 
-                theRetrievalExtents         =[ 'dynamic_vocabularies',],
-                theWritePermissions         =[ 'object', 'attrs',],
+                theRetrievalExtents         =[ 'dynamic_vocabularies', 'audit',],
+                theWritePermissions         =[ 'object', 'attrs', ],
                 theFeatureFilters           ={ 'attrs': unosPosiblesNombresAtributos, 'aggregations' : [], 'relations' : [] }, 
                 theInstanceFilters          =None,
                 theTranslationsCaches       =None,
@@ -483,12 +757,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             )
             if not unResult:
                 return None
+            
+            
             someValueResults = unResult.get( 'values')
             if not ( someValueResults or unValueForId):
                 return None
-    
-            unAnyAttributeChanged = False
             
+
             if not unResult.get( 'read_permission', False):
                 aReportForObject = { 'effect': 'error', 'failure': 'object_read_permission',}
                 someObjectReports.append( aReportForObject)
@@ -499,6 +774,49 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someObjectReports.append( aReportForObject)
                 return aReport
             
+            
+          
+            unChangeCounterString = theNewValuesDict.get( 'theChgCtr', '')
+            unChangeCounter = None
+            if unChangeCounterString:
+                try:
+                    unChangeCounter = int( unChangeCounterString)
+                except:
+                    None
+            if not ( unChangeCounter == None):
+                
+                unCurrentChangeCounter = unResult.get( 'change_counter', None)
+                if not ( unCurrentChangeCounter == None):
+                    
+                    if not ( unChangeCounter == unCurrentChangeCounter):
+                        # #######################################################
+                        """Other Transaction(s) changed the element since the Edit form was presented to the User. Do not allow changes.
+                        Note that objects changed by a relation for which they are the dependency supplier (not the client) should not increment their change counter upon modifications of that relationship."
+                        """
+                        unChangeLogResult = { }
+                        self.fRetrieveChangeLog( 
+                            theTimeProfilingResults     =theTimeProfilingResults,
+                            theElement                  =theElement, 
+                            theRetrievalExtents         =[ 'change_entries', 'change_entries_summaries', 'change_entries_summaries_fields_values',],
+                            theTranslationsCaches       =None, 
+                            theCheckedPermissionsCache  =None, 
+                            theResult                   =unChangeLogResult,
+                            theAdditionalParams         ={ 'ChangesAfter': unChangeCounter + 1,})
+
+                        unChangeLog                 = unChangeLogResult.get( 'change_entries',                 [])
+                        unosChangeLogSummaries      = unChangeLogResult.get( 'change_entries_summaries',       [])
+                        unChangeLogAfter            = unChangeLogResult.get( 'change_entries_after',           unChangeLog)
+                        unosChangeLogAfterSummaries = unChangeLogResult.get( 'change_entries_after_summaries', unosChangeLogSummaries)
+                        unURLRecentChanges          = '%s/MDDChanges/?theCC=%d' % ( theElement.absolute_url_path(), unChangeCounter + 1,)
+                        
+                        aReportForObject = { 'effect': 'error', 'failure': 'changed_by_other_transactions', 'url_recent_changes': unURLRecentChanges, 'change_entries': unChangeLog, 'change_entries_summaries': unosChangeLogSummaries, 'change_entries_after': unChangeLogAfter, 'change_entries_after_summaries': unosChangeLogAfterSummaries, }
+                        someObjectReports.append( aReportForObject)
+                        return aReport
+                         
+                        
+                        
+    
+            unAnyAttributeChanged = False
             
             if unValueForId:
                 
@@ -576,17 +894,17 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                             theElement.setId( unNuevaId) 
                                             unChanged = True
                                         except:
-                                            aReportForField = { 'attribute_name': 'id', 'effect': 'error', 'failure': 'invoking_mutator', 'new_value': unNuevaId, 'previous_value': unCurrentIdResult,}                                                                                                                        
+                                            aReportForField = { 'attribute_name': 'id', 'effect': 'error', 'failure': 'invoking_setId', 'new_value': unNuevaId, 'previous_value': unCurrentIdResult,}                                                                                                                        
                                     finally:
                                         logging.getLogger('Zope.ZCatalog').manager.disable = aDisableLevel
                                         
                                     if unChanged:
                                         unAnyAttributeChanged = True
                                         aReportForField = { 'attribute_name': 'id', 'effect': 'changed', 'new_value': unNuevaId, 'previous_value': unCurrentIdResult,}                                                                                                                        
-                                        aFieldReportsByName[ aReportForField[ 'attribute_name']] = aReportForField
                                 
                                 
                                 if aReportForField:
+                                    aFieldReportsByName[ aReportForField[ 'attribute_name']] = aReportForField
                                     someFieldReports.append( aReportForField)
                         
                                      
@@ -631,7 +949,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                             unNewValue = unNewValue.strip()
                                                 
                                             unNewValue = self.fAsEncodedFromUIToDB( unNewValue, aTranslationService)
-                                            if unNewValue == unCurrentRawValue:
+                                            # ACV OJO 20091201 No change for null values 
+                                            if ( unNewValue == unCurrentRawValue) or ( ( not unNewValue) and ( not unCurrentRawValue)):
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                             else:
                                                 aInvokeMutator = True
@@ -643,7 +962,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                             unNewValue = unNewValue.strip()
                                                 
                                             unNewValue = self.fAsEncodedFromUIToDB( unNewValue, aTranslationService)
-                                            if unNewValue == unCurrentRawValue:
+                                            if ( unNewValue == unCurrentRawValue) or ( ( not unNewValue) and ( not unCurrentRawValue)):
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                             else:
                                                 aInvokeMutator = True
@@ -656,7 +975,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                             except ValueError:
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'value_error', 'previous_value': unValueResult, 'new_value': unFormValue,}                                                                                                                        
                                             if not( unNewValue == None):
-                                                if unNewValue == unCurrentRawValue:
+                                                if (unNewValue == unCurrentRawValue) or ( ( not unNewValue) and ( not unCurrentRawValue)):
                                                     aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                                 else:
                                                     aInvokeMutator = True
@@ -667,7 +986,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                                 unNewValue = float( unFormValue)    
                                             except ValueError:
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'value_error', 'previous_value': unValueResult, 'new_value': unFormValue,}                                                                                                                        
-                                            if not( unNewValue == None):
+                                            if not( unNewValue == None) or ( ( not unNewValue) and ( not unCurrentRawValue)):
                                                 if unNewValue == unCurrentRawValue:
                                                     aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                                 else:
@@ -675,7 +994,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
      
                                         elif unAttributeType == 'boolean':
                                             unNewValue = unFormValue == '1'
-                                            if unNewValue == unCurrentRawValue:
+                                            if ( unNewValue == unCurrentRawValue) or ( ( not unNewValue) and ( not unCurrentRawValue)):
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                             else:
                                                 aInvokeMutator = True
@@ -691,7 +1010,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                             elif not ( unFormValue in unVocabulary):
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'value_not_in_vocabulary', 'previous_value': unValueResult, 'new_value': unFormValue,}                                                                                                                       
                                             else:   
-                                                if unNewValue == unCurrentRawValue:
+                                                if ( unNewValue == unCurrentRawValue) or ( ( not unNewValue) and ( not unCurrentRawValue)):
                                                     aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                                 else:
                                                     aInvokeMutator = True
@@ -702,6 +1021,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                             unNewDayOfMonthValue = None
                                             aReportForField = None
                                             
+                                            unHasYear  = False
+                                            unHasMonth = False
+                                            unHasDay   = False
+                                            
                                             if theNewValuesDict.has_key( '%s_sub_value_year' % unAttributeName):
                                                 unFormYearValue = theNewValuesDict.get( '%s_sub_value_year' % unAttributeName, None)                                             
                                                 try:
@@ -710,6 +1033,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                                     aReportForField = { 'attribute_name': unAttributeName, 'sub_value': 'year',  'effect': 'error', 'failure': 'value_error', 'previous_value': unValueResult, 'new_value': unFormYearValue,}                                                                                                                        
                                             
                                             if not aReportForField and theNewValuesDict.has_key( '%s_sub_value_month' % unAttributeName):
+                                                unHasMonth = True
                                                 unFormMonthValue = theNewValuesDict.get( '%s_sub_value_month' % unAttributeName, None)                                             
                                                 try:
                                                     unNewMonthValue = int( unFormMonthValue)    
@@ -717,31 +1041,36 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                                     aReportForField = { 'attribute_name': unAttributeName, 'sub_value': 'month',  'effect': 'error', 'failure': 'value_error', 'previous_value': unValueResult, 'new_value': unFormMonthValue,}                                                                                                                                                                
                                             
                                             if not aReportForField and theNewValuesDict.has_key( '%s_sub_value_day_of_month' % unAttributeName):
+                                                unHasDay = True
                                                 unFormDayOfMonthValue = theNewValuesDict.get( '%s_sub_value_day_of_month' % unAttributeName, None)                                             
                                                 try:
                                                     unNewDayOfMonthValue = int( unFormDayOfMonthValue)    
                                                 except ValueError:
                                                     aReportForField = { 'attribute_name': unAttributeName, 'sub_value': 'day_of_month',  'effect': 'error', 'failure': 'value_error', 'previous_value': unValueResult, 'new_value': unFormDayOfMonthValue,}                                                                                                                        
                                             
-                                            if unNewYearValue or unNewMonthValue or unNewDayOfMonthValue:
-                                                if unNewYearValue < 1:
-                                                    unNewYearValue = 1900
-                                                if ( unNewMonthValue < 1) or ( unNewMonthValue > 12):
-                                                    unNewMonthValue = 1
-                                                if ( unNewDayOfMonthValue < 1) or ( unNewMonthValue > 31):
-                                                    unNewDayOfMonthValue = 1
-                                                unNewDateValue = None
-                                                try:
-                                                    unNewDateValue = DateTime( unNewYearValue, unNewMonthValue, unNewDayOfMonthValue)   
-                                                except:
-                                                    None
-                                                if not unNewDateValue:
-                                                    aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'value_error', 'previous_value': unValueResult,'new_value': unNewDateValue,}                                                                                                                                                                    
-                                                elif  unCurrentRawValue and ( unCurrentRawValue == unNewDateValue):
-                                                    aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
-                                                else:
-                                                    unNewValue = unNewDateValue
-                                                    aInvokeMutator = True
+                                            if not ( unHasYear and unHasDay):
+                                                aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
+                                            
+                                            else:    
+                                                if unNewYearValue or unNewMonthValue or unNewDayOfMonthValue:
+                                                    if unNewYearValue < 1:
+                                                        unNewYearValue = 1900
+                                                    if ( unNewMonthValue < 1) or ( unNewMonthValue > 12):
+                                                        unNewMonthValue = 1
+                                                    if ( unNewDayOfMonthValue < 1) or ( unNewMonthValue > 31):
+                                                        unNewDayOfMonthValue = 1
+                                                    unNewDateValue = None
+                                                    try:
+                                                        unNewDateValue = DateTime( unNewYearValue, unNewMonthValue, unNewDayOfMonthValue)   
+                                                    except:
+                                                        None
+                                                    if not unNewDateValue:
+                                                        aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'value_error', 'previous_value': unValueResult,'new_value': unNewDateValue,}                                                                                                                                                                    
+                                                    elif  unCurrentRawValue and ( unCurrentRawValue == unNewDateValue):
+                                                        aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
+                                                    else:
+                                                        unNewValue = unNewDateValue
+                                                        aInvokeMutator = True
                                                                                     
                 if aInvokeMutator and unMutator and not ( unNewValue == None ):
                     unChanged = False
@@ -767,7 +1096,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 
                 self.pImpactChangeValuesIntoReport( theElement, aReport)
                 
-                self.pSetAudit_Modification( theElement)       
+                self.pSetAudit_Modification( theElement, cModificationKind_ChangeValues, aReport)       
+                
                 
                 try:
                     theElement.at_post_edit_script()
@@ -793,14 +1123,19 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 #
 
                 
-    security.declarePrivate( 'fNewVoidLinkReport')
+    security.declarePrivate( 'fNewVoidMoveSubObjectReport')
     def fNewVoidMoveSubObjectReport( self,):
         aReport = {
+            'effect':                  'error', 
+            'failure':                 'Not executed',
+            'new_position':            -1,
+            'delta':                   0,
+            'moved_element':           None,
+            'parent_traversal_name':   '',
             'impacted_objects_UIDs':   [],
         } 
         return aReport
     
-  
     
     
     security.declarePrivate( 'fMoveSubObject')
@@ -910,8 +1245,47 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 self.pImpactMoveSubObjectIntoReport( theContainerElement, someContainedObjects, aMoveReport)
                 
                 theContainerElement.moveObjectsByDelta( [ theMovedObjectId, ], unDelta)
+                
+                
+                unPositionAfterMove  = -1
+                unMovedElementResult = None
+                
+                unResultAfterMove = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+                    theTimeProfilingResults     =theTimeProfilingResults,
+                    theElement                  =theContainerElement, 
+                    theParent                   =None,
+                    theParentTraversalName      ='',
+                    theTypeConfig               =None, 
+                    theAllTypeConfigs           =None, 
+                    theViewName                 ='', 
+                    theRetrievalExtents         =[ 'traversals', ],
+                    theWritePermissions         =[ 'object', 'aggregations', ],
+                    theFeatureFilters           ={ 'attrs': [], 'aggregations': [ theTraversalName,], 'relations': [], }, 
+                    theInstanceFilters          =None,
+                    theTranslationsCaches       =None,
+                    theCheckedPermissionsCache  =None,
+                    theAdditionalParams         =theAdditionalParams                
+                )
+                if unResultAfterMove:
+                    aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResultAfterMove, [ 'traversals',])
+                    
+                    unTraversalResultAfterMove =  unResultAfterMove[ 'traversals_by_name'].get( theTraversalName, None)
+                    if unTraversalResultAfterMove:
+                        
+                        someElementResultsAfterMove = unTraversalResultAfterMove[ 'elements']
+                        for unElementIndex in range( len( someElementResultsAfterMove)):
+                            
+                            unElementResult = someElementResultsAfterMove[ unElementIndex]
+                            if unElementResult.get( 'id', '') == theMovedObjectId:
+                                
+                                unMovedElementResult = unElementResult
+                                unPositionAfterMove = unElementIndex
+                                break
+                            
+                aMoveReport.update( { 'effect': 'moved', 'moved_element': unMovedElementResult, 'new_position': unPositionAfterMove, 'delta': unDelta, 'parent_traversal_name': theTraversalName,})
+                            
 
-                self.pSetAudit_Modification( theContainerElement)       
+                self.pSetAudit_Modification( theContainerElement, cModificationKind_MoveSubObject, aMoveReport)       
 
             return aMoveReport
        
@@ -970,7 +1344,21 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     #
 
 
-
+                
+    security.declarePrivate( 'fNewVoidLinkReport')
+    def fNewVoidMoveReferencedObjectReport( self,):
+        aReport = {
+            'effect':                  'error', 
+            'failure':                 'Not executed',
+            'new_position':            -1,
+            'delta':                   0,
+            'moved_element':           None,
+            'parent_traversal_name':   '',
+            'impacted_objects_UIDs':   [],
+        } 
+        return aReport
+    
+  
     security.declarePrivate( 'fMoveReferencedObject')
     def fMoveReferencedObject(self , 
         theTimeProfilingResults =None,
@@ -985,8 +1373,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
+            aMoveReport = self.fNewVoidMoveReferencedObjectReport()
+            
             if not theSourceElement or not  theReferenceFieldName or not theMovedReferenceUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
-                return self
+                return aMoveReport
             
             aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             unResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
@@ -1007,32 +1397,31 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 
             )
             if not unResult:
-                return self
+                return aMoveReport
         
             if not (  unResult[ 'read_permission'] and unResult[ 'write_permission']):
-                return self
+                return aMoveReport
     
             aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResult, [ 'traversals',])
 
             unTraversalResult =  unResult[ 'traversals_by_name'].get( theReferenceFieldName, None)
             if not unTraversalResult:
-                return self
+                return aMoveReport
                 
             if not (  unTraversalResult[ 'traversal_kind'] == 'relation'):
-                return self
+                return aMoveReport
 
             if not (  unTraversalResult[ 'read_permission'] and unTraversalResult[ 'write_permission']):
-                return self
+                return aMoveReport
               
             aRelationsLibrary = getToolByName( theSourceElement, RELATIONS_LIBRARY)        
             if not aRelationsLibrary:
-                self.logError('ACV OJO failed to getToolByName RELATIONS_LIBRARY')
-                return None
+                return aMoveReport
         
             someRelatedResults = unTraversalResult[ 'elements']
             unNumRelatedResults = len( someRelatedResults)
             if unNumRelatedResults < 2:
-                return self
+                return aMoveReport
 
             unFoundRelatedResult= None
             unFoundRelatedIndex = 0
@@ -1045,7 +1434,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                         break
     
             if not unFoundRelatedResult:
-                return self           
+                return aMoveReport           
         
             aMoveDirection = theMoveDirection.lower()
             
@@ -1054,31 +1443,31 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
             if aMoveDirection == 'top':
                 if unFoundRelatedIndex < 1:
-                    return self
+                    return aMoveReport
                 someToUnlink = [ unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults]
                 someToLink =   [ unFoundRelatedResult[ 'UID'] ] + [ unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults if not (unRelatedResult == unFoundRelated)]
             
             elif aMoveDirection == 'up':
                 if unFoundRelatedIndex < 1:
-                    return self
+                    return aMoveReport
                 someToUnlink = [ unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults[ unFoundRelatedIndex -1: unNumRelatedResults]]
                 someToLink =   [ unFoundRelatedResult[ 'UID'], ] + [unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults[ unFoundRelatedIndex - 1: unFoundRelatedIndex]] + [ unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults[ unFoundRelatedIndex + 1: unNumRelatedResults]]
                     
             elif aMoveDirection == 'down':
                 if unFoundRelatedIndex == (unNumRelatedResults - 1):
-                    return self
+                    return aMoveReport
                 someToUnlink = [ unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults[ unFoundRelatedIndex: unNumRelatedResults]]
                 someToLink =   [ unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults[ unFoundRelatedIndex + 1 : unFoundRelatedIndex + 2]] + [ unFoundRelatedResult[ 'UID'], ] + [ unRelatedResult[ 'UID'] for unRelatedResult in someRelatedResults[ unFoundRelatedIndex + 2: unNumRelatedResults]]
                     
             elif aMoveDirection == 'bottom':
                 if unFoundRelatedIndex == (unNumRelatedResults - 1):
-                    return self
+                    return aMoveReport
                 someToUnlink = [ unFoundRelatedResult[ 'UID'], ]
                 someToLink =   [ unFoundRelatedResult[ 'UID'], ] 
             
         
             if not someToLink and not someToUnlink:
-                return self
+                return aMoveReport
                 
             aSourceUID = unResult[ 'UID']
             
@@ -1094,14 +1483,56 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             gRelationsProcessor.process( aRelationsLibrary, connect= someToConnect, disconnect=[])
 
             
-            self.pSetAudit_Modification( theSourceElement)       
+            unPositionAfterMove  = -1
+            unMovedElementResult = None
+
+            unResultAfterMove = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+                theTimeProfilingResults     =theTimeProfilingResults,
+                theElement                  =theSourceElement, 
+                theParent                   =None,
+                theParentTraversalName      ='',
+                theTypeConfig               =None, 
+                theAllTypeConfigs           =None, 
+                theViewName                 ='', 
+                theRetrievalExtents         =[ 'traversals', ],
+                theWritePermissions         =[ 'object', 'relations', ],
+                theFeatureFilters           ={ 'attrs': [], 'aggregations': [], 'relations': [theReferenceFieldName], }, 
+                theInstanceFilters          =None,
+                theTranslationsCaches       =None,
+                theCheckedPermissionsCache  =None,
+                theAdditionalParams         =theAdditionalParams                
+            )
+            if unResultAfterMove:
+                aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResultAfterMove, [ 'traversals',])
+                
+                unTraversalResultAfterMove =  unResultAfterMove[ 'traversals_by_name'].get( theReferenceFieldName, None)
+                if unTraversalResultAfterMove:
+                    
+                    someElementResultsAfterMove = unTraversalResultAfterMove[ 'elements']
+                    for unElementIndex in range( len( someElementResultsAfterMove)):
+                        
+                        unElementResult = someElementResultsAfterMove[ unElementIndex]
+                        if unElementResult.get( 'UID', '') == theMovedReferenceUID:
+                            
+                            unMovedElementResult = unElementResult
+                            unPositionAfterMove = unElementIndex
+                            break
+                        
+            aMoveReport.update( { 'effect': 'moved', 'moved_element': unMovedElementResult, 'new_position': unPositionAfterMove, 'delta': 0, 'parent_traversal_name': theReferenceFieldName,})
+             
             
-            return self
+            self.pSetAudit_Modification( theSourceElement, cModificationKind_MoveReferencedObject, aMoveReport)       
+            
+            return aMoveReport
 
         finally:
             if not ( theTimeProfilingResults == None):
                 self.pProfilingEnd( 'fMoveReferencedObject', theTimeProfilingResults)
 
+                
+                
+                
+                
                 
                 
     security.declarePrivate( 'pImpactMoveReferencedObjectIntoReport')
@@ -1204,7 +1635,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 aReportForLink = { 'effect': 'error', 'failure': 'no_relation_name_in_field',}
                 someLinkReports.append( aReportForLink)
                 return aReport
-
+            
+            unInverseRelationName = ''
+            try:
+                unInverseRelationName = unField.inverse_relationship
+            except:
+                None
+          
             unInverseRelationFieldName = ''
             try:
                 unInverseRelationFieldName = unField.inverse_relation_field_name
@@ -1367,21 +1804,21 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 
                 self.pImpactLinkIntoReport( theSourceElement, unSourceElementUID, theReferenceFieldName, unRelationName, unTargetElement, theTargetUID, aReport)
 
+                aReportForLink = { 'effect': 'linked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName, 'inverse_relation': unInverseRelationName}
+                someLinkReports.append( aReportForLink)
                 
                 
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
                     if not ( unSourceObject == None):
-                        self.pSetAudit_Modification( unSourceObject)       
+                        self.pSetAudit_Modification( unSourceObject, cModificationKind_Link, aReport)       
 
                 if not unaTargetTraversalResult.get( 'dependency_supplier', False):
                     unTargetObject = unTargetElementResult.get( 'object', None)
                     if not ( unTargetObject == None):
-                        self.pSetAudit_Modification( unTargetObject)
+                        self.pSetAudit_Modification( unTargetObject, cModificationKind_Link, aReport, theReverseRelation=True)
                  
                         
-                aReportForLink = { 'effect': 'linked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName}
-                someLinkReports.append( aReportForLink)
                 return aReport
 
             else:
@@ -1390,15 +1827,15 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 
                 self.pImpactReferenceIntoReport( theSourceElement, unSourceElementUID, theReferenceFieldName, unRelationName, aReport)
 
+                aReportForLink = { 'effect': 'linked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName,}
+                someLinkReports.append( aReportForLink)
                 
                 
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
                     if not ( unSourceObject == None):
-                        self.pSetAudit_Modification( unSourceObject)       
+                        self.pSetAudit_Modification( unSourceObject, cModificationKind_Link, aReport)       
 
-                aReportForLink = { 'effect': 'linked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName}
-                someLinkReports.append( aReportForLink)
                 return aReport
             
         
@@ -1527,6 +1964,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someLinkReports.append( aReportForLink)
                 return aReport
 
+            
+            unInverseRelationName = ''
+            try:
+                unInverseRelationName = unField.inverse_relationship
+            except:
+                None
+          
             unInverseRelationFieldName = ''
             try:
                 unInverseRelationFieldName = unField.inverse_relation_field_name
@@ -1672,37 +2116,35 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 gRelationsProcessor.process( aRelationsLibrary, connect=[], disconnect=[( unSourceElementUID, theTargetUID, unRelationName ), ])
 
                 
+                aReportForLink = { 'effect': 'unlinked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName, 'inverse_relation': unInverseRelationName,}
+                someLinkReports.append( aReportForLink)
                 
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
                     if not ( unSourceObject == None):
-                        self.pSetAudit_Modification( unSourceObject)       
+                        self.pSetAudit_Modification( unSourceObject, cModificationKind_Unlink, aReport)       
 
                 if not unaTargetTraversalResult.get( 'dependency_supplier', False):
                     unTargetObject = unTargetElementResult.get( 'object', None)
                     if not ( unTargetObject == None):
-                        self.pSetAudit_Modification( unTargetObject)                       
+                        self.pSetAudit_Modification( unTargetObject, cModificationKind_Unlink, aReport, theReverseRelation=True)                       
                 
-                aReportForLink = { 'effect': 'unlinked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName}
-                someLinkReports.append( aReportForLink)
                 return aReport
 
             else:
                 
-                
                 theSourceElement.deleteReference( unTargetElement, unRelationName)
-                                
+                
                 self.pImpactReferenceIntoReport( theSourceElement, unSourceElementUID, theReferenceFieldName, unRelationName, aReport)
                 
-                
+                aReportForLink = { 'effect': 'unlinked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName}
+                someLinkReports.append( aReportForLink)
                                 
                 if not unaSourceTraversalResult.get( 'dependency_supplier', False):
                     unSourceObject = unSourceElementResult.get( 'object', None)
                     if not ( unSourceObject == None):
-                        self.pSetAudit_Modification( unSourceObject)       
-                
-                aReportForLink = { 'effect': 'unlinked', 'source': unSourceElementResult, 'target': unTargetElementResult, 'relation': unRelationName}
-                someLinkReports.append( aReportForLink)
+                        self.pSetAudit_Modification( unSourceObject, cModificationKind_Unlink, aReport)       
+                                                
                 return aReport
             
         
@@ -1750,6 +2192,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             'failure':                 'not_executed',
             'container_result':        {},
             'impacted_objects_UIDs':   [],
+            'field_reports':           [],
+            'field_reports_by_name':   {},
         } 
         return aReport
     
@@ -1779,7 +2223,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
 
-            aReport = self.fNewVoidChangeValuesReport()
+            aReport = self.fNewVoidCreateElementReport()
 
             if ( theContainerElement == None)  or not  theTypeName or not theTitle:
                 aReport.update( { 'effect': 'error', 'failure': 'required_parameters_missing', })
@@ -1957,9 +2401,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
             self.pImpactCreateIntoReport( theContainerElement, aNewObject, aReport)            
             
-            self.pSetAudit_Creation( aNewObject)       
-                            
-                            
             aReport.update( { 'effect': 'created', 'new_object_result': unResultadoNuevoElementoEncontrado, })
             
             unResultadoNuevoElemento = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
@@ -1988,6 +2429,24 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
             aReport.update( { 'effect': 'created', 'new_object_result': unResultadoNuevoElemento, })
             
+            someFieldReports    = aReport[ 'field_reports']
+            aFieldReportsByName = aReport[ 'field_reports_by_name']
+            
+            aReportForField = { 'attribute_name': 'id',          'effect': 'changed', 'new_value': aNewIdWithCounter, 'previous_value': '',}
+            someFieldReports.append( aReportForField)            
+            aFieldReportsByName[ aReportForField[ 'attribute_name']] = aReportForField
+            
+            aReportForField = { 'attribute_name': 'title',       'effect': 'changed', 'new_value': unTitle,           'previous_value': '',}
+            someFieldReports.append( aReportForField)            
+            aFieldReportsByName[ aReportForField[ 'attribute_name']] = aReportForField
+            
+            aReportForField = { 'attribute_name': 'description', 'effect': 'changed', 'new_value': unaDescription,    'previous_value': '',}
+            someFieldReports.append( aReportForField)            
+            aFieldReportsByName[ aReportForField[ 'attribute_name']] = aReportForField
+                               
+            self.pSetAudit_Creation( theContainerElement, cModificationKind_CreateSubElement, aReport, theUseCounter=True)       
+            self.pSetAudit_Creation( aNewObject,          cModificationKind_Create,           aReport)       
+                            
             for unaTraversalResult in unResultadoNuevoElemento.get( 'traversals', []):
                 if ( unaTraversalResult[ 'traversal_kind'] == 'aggregation') and  unaTraversalResult[ 'contains_collections']:
                     if unaTraversalResult[ 'factories']:
@@ -2162,7 +2621,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
             unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
                         
-            unSecondsNow = unModelDDvlPloneTool_Retrieval.fSecondsNow()            
+            unSecondsNow = fSecondsNow()            
             if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theElement)):
                 aDeleteReport.update( { 'effect': 'error', 'failure': 'time_out', })
                 return aDeleteReport                 
@@ -2176,7 +2635,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 aDeleteReport.update( { 'effect': 'error', 'failure': 'get_by_uid_failure', })
                 return aDeleteReport    
 
-                            
             unElementDeleteImpactReport = unModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
                 theModelDDvlPloneTool   =theModelDDvlPloneTool,
                 theTimeProfilingResults =theTimeProfilingResults,
@@ -2207,20 +2665,21 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
             
             self.pImpactDeleteImpactReportIntoReport( unTargetElement, unElementDeleteImpactReport, aDeleteReport)
-                  
-            self.pSetAudit_Modification( theElement)     
             
-            # ACV We are not really keeping defunct objects at this time, so we do not expend the effort on object that shall be gone immediately.
-            # self.pSetAudit_Deletion( unTargetElement)  
-            
-         
-            theElement.manage_delObjects( [ unaIdAEliminar, ])
-           
             aDeleteReport.update( { 
                 'effect':                'deleted', 
                 'parent_traversal_name': unElementDeleteImpactReport[ 'parent_traversal_name'], 
                 'impact_report':         unElementDeleteImpactReport,
             })
+                  
+            self.pSetAudit_Modification( theElement, cModificationKind_DeleteSubElement, aDeleteReport)     
+            
+            # ACV We are not really keeping defunct objects at this time, so we do not expend the effort on object that shall be gone immediately.
+            # self.pSetAudit_Deletion( unTargetElement, cModificationKind_Delete, aDeleteReport)  
+            
+         
+            theElement.manage_delObjects( [ unaIdAEliminar, ])
+           
             return aDeleteReport     
     
         finally:
@@ -2324,7 +2783,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
             unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             
-            unSecondsNow = unModelDDvlPloneTool_Retrieval.fSecondsNow()            
+            unSecondsNow = fSecondsNow()            
             if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theContainerElement)):
                 return [ { 'effect': 'error', 'failure': 'time_out', },]
  
@@ -2368,11 +2827,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someElementDeleteReports.append( { 'effect': 'error', 'failure': 'no elements to delete', })
                 return someElementDeleteReports
             
-            unAuditedContainerModification = False
+            #unAuditedContainerModification = False
                 
             unElementDeleteImpactReport = None
             for anElementUID, anElementId, unElementToDelete in someElementsToDelete:
                               
+                aDeleteReport = self.fNewVoidDeleteElementReport()
+            
                 unElementDeleteImpactReport = unModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
                     theModelDDvlPloneTool   =theModelDDvlPloneTool,
                     theTimeProfilingResults =theTimeProfilingResults,
@@ -2381,33 +2842,43 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 )
     
                 if not unElementDeleteImpactReport:
-                    someElementDeleteReports.append( { 'effect': 'error', 'failure': 'impact_report_retrieval_failure',  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                    aDeleteReport.update( { 'effect': 'error', 'failure': 'impact_report_retrieval_failure',  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                    someElementDeleteReports.append( aDeleteReport)
                     
                 elif not unElementDeleteImpactReport[ 'here'][ 'container_element'][ 'object'] == theContainerElement:
-                    someElementDeleteReports.append( { 'effect': 'error', 'failure': 'wrong_container_element', 'impact_report': unElementDeleteImpactReport,  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                    aDeleteReport.update( { 'effect': 'error', 'failure': 'wrong_container_element', 'impact_report': unElementDeleteImpactReport,  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                    someElementDeleteReports.append( aDeleteReport)
                             
                 elif not unElementDeleteImpactReport[ 'delete_permission']:
-                    someElementDeleteReports.append( { 'effect': 'error', 'failure': 'no_delete_permission', 'impact_report': unElementDeleteImpactReport,  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                    aDeleteReport.update( { 'effect': 'error', 'failure': 'no_delete_permission', 'impact_report': unElementDeleteImpactReport,  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                    someElementDeleteReports.append( aDeleteReport)
                         
                 else:
                     unaIdAEliminar = unElementDeleteImpactReport[ 'here'][ 'id']
                     if not unaIdAEliminar:
-                        someElementDeleteReports.append( { 'effect': 'error', 'failure': 'element_to_delete_without_id', 'impact_report': unElementDeleteImpactReport,  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                        aDeleteReport.update( { 'effect': 'error', 'failure': 'element_to_delete_without_id', 'impact_report': unElementDeleteImpactReport,  'uid': anElementUID, 'id': anElementId, 'element': unElementToDelete,})
+                        someElementDeleteReports.append( aDeleteReport)
         
                     else:
-                        if not unAuditedContainerModification:
-                            self.pSetAudit_Modification( theContainerElement)    
-                            unAuditedContainerModification = True
                         
-                        # ACV We are not really keeping defunct objects at this time, so we do not expend the effort on object that shall be gone immediately.
-                        # self.pSetAudit_Deletion( unElementToDelete)  
-                        
-                        theContainerElement.manage_delObjects( [ unaIdAEliminar, ])
+                        self.pImpactDeleteImpactReportIntoReport( unElementToDelete, unElementDeleteImpactReport, aDeleteReport)
                         
                         unParentTraversalName = ( unElementDeleteImpactReport and unElementDeleteImpactReport[ 'parent_traversal_name']) or ''
                         
-                        someElementDeleteReports.append( { 'effect': 'deleted', 'parent_traversal_name': unParentTraversalName, 'impact_report': unElementDeleteImpactReport,})
-   
+                        aDeleteReport.update( { 'effect': 'deleted', 'parent_traversal_name': unParentTraversalName, 'impact_report': unElementDeleteImpactReport,})
+                        someElementDeleteReports.append( aDeleteReport)
+                        
+                        #if not unAuditedContainerModification:
+                        self.pSetAudit_Modification( theContainerElement, cModificationKind_DeleteSubElement, aDeleteReport)    
+                            #unAuditedContainerModification = True
+                        
+                        # ACV We are not really keeping defunct objects at this time, so we do not expend the effort on object that shall be gone immediately.
+                        # self.pSetAudit_Deletion( unElementToDelete, cModificationKind_Delete, aDeleteReport)  
+                        
+                        theContainerElement.manage_delObjects( [ unaIdAEliminar, ])
+                        
+    
+            return someElementDeleteReports
     
         finally:
             if not ( theTimeProfilingResults == None):
@@ -2466,11 +2937,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
 
     security.declarePrivate(   'fGetAudit_MemberIdAndNow')
-    def fGetAudit_MemberIdAndNow(self,):     
+    def fGetAudit_MemberIdAndNow(self, theElement):     
     
         unMemberId = ''
         
-        aMembershipTool = getToolByName( self, 'portal_membership', None)
+        aMembershipTool = getToolByName( theElement, 'portal_membership', None)
         if aMembershipTool:
             unMember = aMembershipTool.getAuthenticatedMember()   
             if unMember:
@@ -2479,20 +2950,30 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 else:
                     unMemberId = unMember.getMemberId()   
     
-        unAhora = DateTime()
+        unAhora = int( time() * 1000)
     
         return [ unMemberId, unAhora,]
     
     
     
+
+    
+        
+        
+        
+        
+        
+        
+        
+        
         
     
     security.declarePrivate(   'pSetAudit_Creation')
-    def pSetAudit_Creation(self, theElement,):     
+    def pSetAudit_Creation(self, theElement, theChangeKind, theChangeReport, theUseCounter=False):     
         if ( theElement == None):
             return self
         
-        unMemberId, unAhora = self.fGetAudit_MemberIdAndNow()
+        unMemberId, unAhora = self.fGetAudit_MemberIdAndNow( theElement)
       
         unCreationDateFieldName = ''
         try:
@@ -2507,30 +2988,63 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             None
                 
                 
-        if not( unCreationDateFieldName or unCreationUserFieldName):
-            return self
-        
         unSchema = theElement.schema
         if not unSchema:
             return self
             
-        unCreationDateField = unSchema.get( unCreationDateFieldName, )
-        if unCreationDateField:
-            unMutator = unCreationDateField.getMutator( theElement)
-            if unMutator:
-                try:
-                    unMutator( unAhora) 
-                except:
-                    None
+        if unCreationDateFieldName:
+            unCreationDateField = unSchema.get( unCreationDateFieldName, )
+            if unCreationDateField:
+                unMutator = unCreationDateField.getMutator( theElement)
+                if unMutator:
+                    unDateValue = DateTime( unAhora / 1000)
+                    try:
+                        unMutator( unDateValue) 
+                    except:
+                        None
                             
-        unCreationUserField = unSchema.get( unCreationUserFieldName, )
-        if unCreationUserField:
-            unMutator = unCreationUserField.getMutator( theElement)
-            if unMutator:
-                try:
-                    unMutator( unMemberId) 
-                except:
-                    None
+        if unCreationUserFieldName:
+            unCreationUserField = unSchema.get( unCreationUserFieldName, )
+            if unCreationUserField:
+                unMutator = unCreationUserField.getMutator( theElement)
+                if unMutator:
+                    try:
+                        unMutator( unMemberId) 
+                    except:
+                        None
+
+                        
+        unNewCounter = 0
+        if theUseCounter:
+            
+            unChangeCounterFieldName = ''
+            try:
+                unChangeCounterFieldName = theElement.change_counter_field
+            except:
+                None
+                
+            if unChangeCounterFieldName:
+                unChangeCounterField = unSchema.get( unChangeCounterFieldName, )
+                if unChangeCounterField:
+                    unAccessor = unChangeCounterField.getAccessor( theElement)
+                    if unAccessor:
+                        unCurrentCounter = 0
+                        try:
+                            unCurrentCounter = int( unAccessor())
+                        except:
+                            None
+                        
+                        unNewCounter = unCurrentCounter + 1
+                        
+                        unMutator = unChangeCounterField.getMutator( theElement)
+                        if unMutator:
+                            try:
+                                unMutator( unNewCounter) 
+                            except:
+                                None
+                        
+                        
+        self.pAppendToChangeLog(  theElement, theChangeKind, theChangeReport, False, unMemberId, unAhora, unNewCounter)
                                         
         return self
     
@@ -2539,11 +3053,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     
     security.declarePrivate(   'pSetAudit_Modification')
-    def pSetAudit_Modification(self, theElement,):     
+    def pSetAudit_Modification(self, theElement, theChangeKind, theChangeReport, theReverseRelation=False):     
         if ( theElement == None):
             return self
       
-        unMemberId, unAhora = self.fGetAudit_MemberIdAndNow()
+        unMemberId, unAhora = self.fGetAudit_MemberIdAndNow( theElement)
       
         unChangeCounterFieldName = ''
         try:
@@ -2564,49 +3078,55 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             None
                 
                 
-        if not( unChangeCounterFieldName or unModificationDateFieldName or unModificationUserFieldName):
-            return self
         
         unSchema = theElement.schema
         if not unSchema:
             return self
             
-        unChangeCounterField = unSchema.get( unChangeCounterFieldName, )
-        if unChangeCounterField:
-            unAccessor = unChangeCounterField.getAccessor( theElement)
-            if unAccessor:
-                unCurrentCounter = 0
-                try:
-                    unCurrentCounter = int( unAccessor())
-                except:
-                    None
-                
-                unNewCounter = unCurrentCounter + 1
-                
-                unMutator = unChangeCounterField.getMutator( theElement)
+        unNewCounter = 0
+        
+        if unChangeCounterFieldName:
+            unChangeCounterField = unSchema.get( unChangeCounterFieldName, )
+            if unChangeCounterField:
+                unAccessor = unChangeCounterField.getAccessor( theElement)
+                if unAccessor:
+                    unCurrentCounter = 0
+                    try:
+                        unCurrentCounter = int( unAccessor())
+                    except:
+                        None
+                    
+                    unNewCounter = unCurrentCounter + 1
+                    
+                    unMutator = unChangeCounterField.getMutator( theElement)
+                    if unMutator:
+                        try:
+                            unMutator( unNewCounter) 
+                        except:
+                            None
+                        
+        if unModificationDateFieldName:
+            unModificationDateField = unSchema.get( unModificationDateFieldName, )
+            if unModificationDateField:
+                unMutator = unModificationDateField.getMutator( theElement)
+                if unMutator:
+                    unDateValue = DateTime( unAhora / 1000)
+                    try:
+                        unMutator( unDateValue) 
+                    except:
+                        None         
+                        
+        if unModificationUserFieldName:
+            unModificationUserField = unSchema.get( unModificationUserFieldName, )
+            if unModificationUserField:
+                unMutator = unModificationUserField.getMutator( theElement)
                 if unMutator:
                     try:
-                        unMutator( unNewCounter) 
+                        unMutator( unMemberId) 
                     except:
                         None
                         
-        unModificationDateField = unSchema.get( unModificationDateFieldName, )
-        if unModificationDateField:
-            unMutator = unModificationDateField.getMutator( theElement)
-            if unMutator:
-                try:
-                    unMutator( unAhora) 
-                except:
-                    None         
-                        
-        unModificationUserField = unSchema.get( unModificationUserFieldName, )
-        if unModificationUserField:
-            unMutator = unModificationUserField.getMutator( theElement)
-            if unMutator:
-                try:
-                    unMutator( unMemberId) 
-                except:
-                    None
+        self.pAppendToChangeLog(  theElement, theChangeKind, theChangeReport, theReverseRelation, unMemberId, unAhora, unNewCounter)
                                         
         return self
         
@@ -2616,14 +3136,15 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
   
     security.declarePrivate(   'pSetAudit_Deletion')
-    def pSetAudit_Deletion(self, theElement,):     
+    def pSetAudit_Deletion(self, theElement, theChangeKind, theChangeReport):     
         if ( theElement == None):
             return self
         
         
-        unMemberId, unAhora = self.fGetAudit_MemberIdAndNow()
+        unMemberId, unAhora = self.fGetAudit_MemberIdAndNow( theElement)
       
-        self.pSetAudit_Deletion_recursive( theElement, unMemberId, unAhora)
+        self.pSetAudit_Deletion_recursive( theElement, unMemberId, unAhora, theChangeKind, theChangeReport)
+        
         
         return self    
     
@@ -2631,7 +3152,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
 
     security.declarePrivate(   'pSetAudit_Deletion_recursive')
-    def pSetAudit_Deletion_recursive(self, theElement, theMemberId, theAhora):     
+    def pSetAudit_Deletion_recursive(self, theElement, theMemberId, theAhora, theChangeKind, theChangeReport):     
         if ( theElement == None):
             return self
         
@@ -2688,6 +3209,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 if unDeletionDateField:
                     unMutator = unDeletionDateField.getMutator( theElement)
                     if unMutator:
+                        unDateValue = DateTime( theAhora / 1000)
                         try:
                             unMutator( theAhora) 
                         except:
@@ -2710,6 +3232,8 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                             unMutator( True) 
                         except:
                             None
+                            
+        self.pAppendToChangeLog(  theElement, theChangeKind, theChangeReport, False, theMemberId, theAhora, -1)
 
         unosSubObjects = []
         
@@ -2731,4 +3255,1758 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     
     
+
     
+    security.declarePrivate('pAppendToChangeLog')
+    def pAppendToChangeLog(self, 
+        theElement                  =None, 
+        theChangeKind               =None,
+        theChangeReport             =None,
+        theReverseRelation          =False,
+        theMemberId                 =None, 
+        theAhora                    =None,
+        theChangeCounter            =None):
+        """Append a new entry to the change log.
+        
+        """
+        
+        
+        if ( theElement == None):
+            return self
+
+        unSchema = theElement.schema
+        if not unSchema:
+            return self
+                        
+        unFieldName = self.fChangeLogFieldNameForElement( theElement)
+        
+        if not unFieldName:
+            return self
+                     
+        unField = unSchema.get( unFieldName, None)
+        if not unField:
+            return self
+        
+        unAccessor = unField.getAccessor( theElement)
+        if not unAccessor:
+            return self
+        
+        unMutator = unField.getMutator( theElement)
+        if not unMutator:
+            return self
+        
+        
+        
+        
+        aCurrentLogValueString = None
+        try:
+            aCurrentLogValueString = unAccessor()
+        except:
+            None
+            
+        aCurrentLogObject = None
+        if aCurrentLogValueString:
+            aCurrentLogObject = fEvalString( aCurrentLogValueString)
+            if not ( aCurrentLogObject == None):
+                if not isinstance( aCurrentLogObject, list):
+                    aCurrentLogObject = [ aCurrentLogObject,]
+                    
+                    
+                    
+        aLastChangeEntry = None
+        if aCurrentLogObject:
+            aLastChangeEntry = aCurrentLogObject[ 0]
+            
+        aNewChangeEntry, anIsSameAsExisting = self.fNewChangeEntry_AndIsSameAs( theElement, theChangeKind, theChangeReport, theReverseRelation, theMemberId, theAhora, theChangeCounter, aLastChangeEntry)
+        if not aNewChangeEntry:
+            return self
+        
+        
+        aNewLogObject = []
+        if aCurrentLogObject:
+            aNewLogObject = aCurrentLogObject[:]
+        if anIsSameAsExisting:
+            if aLastChangeEntry in aNewLogObject: # ACV 20091203 redundant
+                aNewLogObject.remove( aLastChangeEntry)
+            
+        aNewLogObject = [ aNewChangeEntry,] + aNewLogObject
+            
+        aNewLogValueString = fReprAsString( aNewLogObject)
+        
+        unMutator( aNewLogValueString)
+        
+        aModelDDvlPloneTool_Transactions = ModelDDvlPloneTool_Transactions()
+        if aModelDDvlPloneTool_Transactions. fTransaction_CanAppendNote():
+            aChangeTransactionNote = self.fChangeEntryAsTransactionNote( theElement, aNewChangeEntry, None)
+            if aChangeTransactionNote:
+                aModelDDvlPloneTool_Transactions.fTransaction_AppendNote( aChangeTransactionNote)
+                               
+        return self
+        
+
+
+
+
+
+        
+           
+    
+    def fMustLogValueChanges( self, theElement):
+        """To delegate in the ModelDDvlPloneTool singleton, that shall have a configuration parameter, and to the root of the element model, which may override and turn off the log values settign in the tool.
+        
+        """
+        return True
+    
+    
+
+    
+    def fNewChangeEntry_AndIsSameAs( self,       
+        theElement                  =None, 
+        theChangeKind               =None,
+        theChangeReport             =None,
+        theReverseRelation          =False,
+        theMemberId                 =None, 
+        theAhora                    =None,
+        theChangeCounter            =None,
+        theExistingChangeEntry      =None):
+        
+        aMustLogValueChanges = self.fMustLogValueChanges( theElement)
+        
+        someDetails = None
+        
+        unaNewChangeEntry = self.fNewChangeEntry(       
+            theElement                  =theElement, 
+            theChangeKind               =theChangeKind,
+            theChangeReport             =theChangeReport,
+            theReverseRelation          =theReverseRelation,
+            theMemberId                 =theMemberId, 
+            theAhora                    =theAhora,
+            theChangeCounter            =theChangeCounter,
+        )
+        
+        if not theExistingChangeEntry:
+            return [ unaNewChangeEntry, False, ]
+        
+        if self.fChangeEntrySameAs( unaNewChangeEntry, theExistingChangeEntry):
+            return [ unaNewChangeEntry, True, ]
+        
+        return [ unaNewChangeEntry, False, ]
+    
+    
+    
+    
+    def fChangeEntrySameAs( self, theNewChangeEntry, theExistingChangeEntry):   
+        if ( not theNewChangeEntry) or ( not theExistingChangeEntry):
+            return False
+            
+        aChangeKind = theNewChangeEntry.get( cChangeDetails_ChangeKind, '')
+            
+        if not( aChangeKind == theExistingChangeEntry.get( cChangeDetails_ChangeKind, '')):
+            return False
+        
+        if not( theNewChangeEntry.get( cChangeDetails_UserId, '')     == theExistingChangeEntry.get( cChangeDetails_UserId, '')):
+            return False
+        
+        aNewChangeMillis      = theNewChangeEntry.get( cChangeDetails_ChangeDate, 0)
+        aExistingChangeMillis = theExistingChangeEntry.get( cChangeDetails_ChangeDate, 0)
+        
+        if ( aNewChangeMillis or aExistingChangeMillis):
+            if abs( aNewChangeMillis - aExistingChangeMillis) > cMaxChangeMillisDifference_ForSameEntries:
+                return False
+        
+
+        #if theAhora:
+            #aNewChangeEntry[ cChangeDetails_ChangeDate]   = theAhora
+            
+        #if not ( theChangeCounter == None):
+            #aNewChangeEntry[ cChangeDetails_ChangeCounter]  = theChangeCounter
+
+        someNewDetails      = theNewChangeEntry.get( cChangeDetails_Details, {})
+        someExistingDetails = theExistingChangeEntry.get( cChangeDetails_Details, {})
+            
+        if aChangeKind == cModificationKind_ChangeValues_abbr:
+            
+            someNewFieldChanges      = someNewDetails.get( cChangeDetails_FieldChanges, [])
+            someExistingFieldChanges = someExistingDetails.get( cChangeDetails_FieldChanges, [])
+            
+            if ( someNewFieldChanges or someExistingFieldChanges) and not ( someNewFieldChanges == someExistingFieldChanges):
+                return False
+            
+            someNewChangedValues      = someNewDetails.get( cChangeDetails_NewFieldValue, {})
+            someExistingChangedValues = someExistingDetails.get( cChangeDetails_NewFieldValue, {})
+            if ( someNewChangedValues or someExistingChangedValues) and not ( someNewChangedValues and someExistingChangedValues):
+                return False
+
+            if ( not someNewChangedValues)  and ( not someExistingChangedValues):
+                return True
+            
+            unasNewChangeValueFieldNames      = someNewChangedValues.keys()
+            unasExistingChangeValueFieldNames = someExistingChangedValues.keys()
+            
+            if ( unasNewChangeValueFieldNames or unasExistingChangeValueFieldNames) and not ( someNewFieldChanges == someExistingFieldChanges):
+                return False
+            
+            if ( not unasNewChangeValueFieldNames)  and ( not unasExistingChangeValueFieldNames):
+                return True
+            
+            for unValueFieldName in unasNewChangeValueFieldNames:
+                unNewValue      = someNewChangedValues.get( unValueFieldName, '')
+                unExistingValue = someExistingChangedValues.get( unValueFieldName, '')
+                if not ( unNewValue == unExistingValue):
+                    return False
+                
+            return True
+                
+                
+                
+                    
+        elif aChangeKind == cModificationKind_Link_abbr:
+            return False
+            #someLinkChangeReports = theChangeReport.get( 'link_reports', [])
+            #for aLinkChangeReport in someLinkChangeReports:
+                #if aLinkChangeReport.get( 'effect', '') == 'linked':
+                    
+                    #if theReverseRelation:
+                        
+                        #unRelation     = aLinkChangeReport.get( 'inverse_relation', '')
+                        #unTargetResult = aLinkChangeReport.get( 'source',   {})                
+                        
+                    #else:
+                        #unRelation     = aLinkChangeReport.get( 'relation', '')
+                        #unTargetResult = aLinkChangeReport.get( 'target',   {})
+                        
+                    #unTargetTitle  = unTargetResult.get(  'title', '')
+                    #unTargetPath   = unTargetResult.get(  'path', '')
+                    #unTargetUID    = unTargetResult.get(  'UID', '')
+                    
+                    #unLinkDetails = { }
+                    #if unRelation:
+                        #unLinkDetails[ cChangeDetails_Relation]   = unRelation
+                    #if unTargetTitle:
+                        #unLinkDetails[ cChangeDetails_TargetTitle]= unTargetTitle
+                    #if unTargetPath:
+                        #unLinkDetails[ cChangeDetails_TargetPath] = unTargetPath
+                    #if unTargetUID:
+                        #unLinkDetails[ cChangeDetails_TargetUID]  = unTargetUID
+                    #if unLinkDetails:
+                        #someDetails = unLinkDetails
+                        
+                        
+                        
+                        
+        elif aChangeKind == cModificationKind_Unlink_abbr:
+            return False
+            #someUnlinkChangeReports = theChangeReport.get( 'link_reports', [])
+            #for aUnlinkChangeReport in someUnlinkChangeReports:
+                #if aUnlinkChangeReport.get( 'effect', '') == 'unlinked':
+                    
+                    #if theReverseRelation:
+                        
+                        #unRelation     = aUnlinkChangeReport.get( 'inverse_relation', '')
+                        #unTargetResult = aUnlinkChangeReport.get( 'source',   {})                
+                        
+                    #else:
+                        #unRelation     = aUnlinkChangeReport.get( 'relation', '')
+                        #unTargetResult = aUnlinkChangeReport.get( 'target',   {})
+                    
+                    #unTargetTitle  = unTargetResult.get(  'title', '')
+                    #unTargetPath   = unTargetResult.get(  'path', '')
+                    #unTargetUID    = unTargetResult.get(  'UID', '')
+                    
+                    #unUnlinkDetails = { }
+                    #if unRelation:
+                        #unUnlinkDetails[ cChangeDetails_Relation]    = unRelation
+                    #if unTargetTitle:
+                        #unUnlinkDetails[ cChangeDetails_TargetTitle] = unTargetTitle
+                    #if unTargetPath:
+                        #unUnlinkDetails[ cChangeDetails_TargetPath]  = unTargetPath
+                    #if unTargetUID:
+                        #unUnlinkDetails[ cChangeDetails_TargetUID]   = unTargetUID
+                    #if unUnlinkDetails:
+                        #someDetails = unUnlinkDetails
+                        
+                        
+                        
+                        
+        elif aChangeKind == cModificationKind_CreateSubElement_abbr:  
+            return False
+            #if theChangeReport.get( 'effect', '') == 'created':
+                
+                #unNewObjectResult = theChangeReport.get( 'new_object_result', {})
+                #if unNewObjectResult and not ( unNewObjectResult.get( 'object', None) == None):
+                    
+                    #unNewElementTitle         = unNewObjectResult.get( 'title', '')
+                    #unNewElementId            = unNewObjectResult.get( 'id', '')
+                    #unNewElementUID           = unNewObjectResult.get( 'UID', '')
+                    #unNewElementMetaType      = unNewObjectResult.get( 'meta_type', '')
+                    #unNewElementArchetypeName = unNewObjectResult.get( 'archetype_name', '')
+                    
+                    #unCreateDetails = { }
+                    
+                    #if unNewElementTitle:
+                        #unCreateDetails[ cChangeDetails_NewElementTitle]         = unNewElementTitle
+                    #if unNewElementId:
+                        #unCreateDetails[ cChangeDetails_NewElementId]            = unNewElementId
+                    #if unNewElementUID:
+                        #unCreateDetails[ cChangeDetails_NewElementUID]           = unNewElementUID                        
+                    #if unNewElementMetaType:
+                        #unCreateDetails[ cChangeDetails_NewElementMetaType]      = unNewElementMetaType                        
+                    #if unNewElementArchetypeName:
+                        #unCreateDetails[ cChangeDetails_NewElementArchetypeName] = unNewElementArchetypeName                        
+            
+                    #someChangedFieldNames = [ ]
+                    #someChangedValues     = { }
+                    
+                    #someFieldChangeReports = theChangeReport.get( 'field_reports', [])
+                    #for aFieldChangeReport in someFieldChangeReports:
+                        #if aFieldChangeReport.get( 'effect', '') == 'changed':
+                            
+                            #aChangedFieldName = aFieldChangeReport.get( 'attribute_name', '')
+                            #if aChangedFieldName:
+                                #if aMustLogValueChanges:
+                                    #someChangedValues[ aChangedFieldName] = aFieldChangeReport.get( 'new_value', None)
+                                #else:
+                                    #someChangedFieldNames.append( aChangedFieldName)
+                    #if aMustLogValueChanges:   
+                        #if someChangedValues:
+                            #unCreateDetails[ cChangeDetails_NewFieldValue] = someChangedValues
+                    #elif someChangedFieldNames:
+                        #unCreateDetails[ cChangeDetails_FieldChanges] = someChangedFieldNames
+                        
+                    #if unCreateDetails:
+                        #someDetails = unCreateDetails
+                        
+                        
+                        
+                        
+                        
+        elif aChangeKind == cModificationKind_Create_abbr:  
+            return False
+            #if theChangeReport.get( 'effect', '') == 'created':
+                
+                #unNewObjectResult = theChangeReport.get( 'new_object_result', {})
+                #if unNewObjectResult and not ( unNewObjectResult.get( 'object', None) == None):
+                    
+                    #unNewElementTitle         = unNewObjectResult.get( 'title', '')
+                    #unNewElementId            = unNewObjectResult.get( 'id', '')
+                    #unNewElementUID           = unNewObjectResult.get( 'UID', '')
+                    #unNewElementMetaType      = unNewObjectResult.get( 'meta_type', '')
+                    #unNewElementArchetypeName = unNewObjectResult.get( 'archetype_name', '')
+                    
+                    #unCreateDetails = { }
+                    
+                    #if unNewElementTitle:
+                        #unCreateDetails[ cChangeDetails_NewElementTitle]         = unNewElementTitle
+                    #if unNewElementId:
+                        #unCreateDetails[ cChangeDetails_NewElementId]            = unNewElementId
+                    #if unNewElementUID:
+                        #unCreateDetails[ cChangeDetails_NewElementUID]           = unNewElementUID                        
+                    #if unNewElementMetaType:
+                        #unCreateDetails[ cChangeDetails_NewElementMetaType]      = unNewElementMetaType                        
+                    #if unNewElementArchetypeName:
+                        #unCreateDetails[ cChangeDetails_NewElementArchetypeName] = unNewElementArchetypeName                        
+            
+                    #someChangedFieldNames = [ ]
+                    #someChangedValues     = { }
+                    
+                    #someFieldChangeReports = theChangeReport.get( 'field_reports', [])
+                    #for aFieldChangeReport in someFieldChangeReports:
+                        #if aFieldChangeReport.get( 'effect', '') == 'changed':
+                            
+                            #aChangedFieldName = aFieldChangeReport.get( 'attribute_name', '')
+                            #if aChangedFieldName:
+                                #if aMustLogValueChanges:
+                                    #someChangedValues[ aChangedFieldName] = aFieldChangeReport.get( 'new_value', None)
+                                #else:
+                                    #someChangedFieldNames.append( aChangedFieldName)
+                    #if aMustLogValueChanges:   
+                        #if someChangedValues:
+                            #unCreateDetails[ cChangeDetails_NewFieldValue] = someChangedValues
+                    #elif someChangedFieldNames:
+                        #unCreateDetails[ cChangeDetails_FieldChanges] = someChangedFieldNames
+                        
+                    #if unCreateDetails:
+                        #someDetails = unCreateDetails
+                        
+                        
+                        
+                        
+                        
+        elif aChangeKind == cModificationKind_DeleteSubElement_abbr:  
+            return False
+            #if theChangeReport.get( 'effect', '') == 'deleted':
+                
+                #unDeletedImpactReport = theChangeReport.get( 'impact_report', {})
+                
+                #someElementsToDelete, someAffectedElements = ModelDDvlPloneTool_Retrieval().fObjectsToDeleteAndRelated_FromImpactReport( unDeletedImpactReport)
+                #unDeletedObjectResult = unDeletedImpactReport.get( 'here', {})
+                #if unDeletedObjectResult:
+                    
+                    #unDeletedElement = unDeletedObjectResult.get( 'object', None)
+                                         
+                    #if not ( unDeletedElement == None):
+                    
+                        #unDeletedElementTitle         = unDeletedObjectResult.get( 'title', '')
+                        #unDeletedElementId            = unDeletedObjectResult.get( 'id', '')
+                        #unDeletedElementUID           = unDeletedObjectResult.get( 'UID', '')
+                        #unDeletedElementMetaType      = unDeletedObjectResult.get( 'meta_type', '')
+                        #unDeletedElementArchetypeName = unDeletedObjectResult.get( 'archetype_name', '')
+                        
+                        #unDeletedDetails = { }
+                        
+                        #if unDeletedElementTitle:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementTitle]         = unDeletedElementTitle
+                        #if unDeletedElementId:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementId]            = unDeletedElementId
+                        #if unDeletedElementUID:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementUID]           = unDeletedElementUID                        
+                        #if unDeletedElementMetaType:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementMetaType]      = unDeletedElementMetaType                        
+                        #if unDeletedElementArchetypeName:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementArchetypeName] = unDeletedElementArchetypeName        
+                                                  
+                        #unDeletedElementPath = unDeletedElement.getPhysicalPath()
+                        
+                        #someDeletedElementsDetails = [ ]
+                        #for unSubDeletedElement in someElementsToDelete:
+                            #if not ( unSubDeletedElement == unDeletedElement):
+                                
+                                #unSubDeletedElementPath = []
+                                #try:
+                                    #unSubDeletedElementPath = unSubDeletedElement.getPhysicalPath()
+                                #except:
+                                    #None
+                                #if unSubDeletedElementPath:
+                                    #unSubDeletedElementPath = unSubDeletedElementPath[ len( unDeletedElementPath):]
+                                #if not unSubDeletedElementPath:
+                                    #unSubDeletedElementPath = ''
+                                #else:
+                                    #unSubDeletedElementPath = '/'.join( unSubDeletedElementPath)                                    
+                                #unSubDeletedElementUID = ''
+                                #try:
+                                    #unSubDeletedElementUID = unSubDeletedElement.UID()
+                                #except:
+                                    #None
+                                #unSubDeletedElementMetaType = ''
+                                #try:
+                                    #unSubDeletedElementMetaType = unSubDeletedElement.meta_type
+                                #except:
+                                    #None
+                                #unSubDeletedElementArchetypeName = ''
+                                #try:
+                                    #unSubDeletedElementArchetypeName = unSubDeletedElement.archetype_name
+                                #except:
+                                    #None
+                                
+                                #unSubDeletedElementDetails = { }
+                                #if unSubDeletedElementPath:
+                                    #unSubDeletedElementDetails[ cChangeDetails_DeletedElementPath]          = unSubDeletedElementPath
+                                #if unSubDeletedElementUID:
+                                    #unSubDeletedElementDetails[ cChangeDetails_DeletedElementUID]           = unSubDeletedElementUID                        
+                                #if unSubDeletedElementMetaType:
+                                    #unSubDeletedElementDetails[ cChangeDetails_DeletedElementMetaType]      = unSubDeletedElementMetaType                        
+                                #if unSubDeletedElementArchetypeName:
+                                    #unSubDeletedElementDetails[ cChangeDetails_DeletedElementArchetypeName] = unSubDeletedElementArchetypeName        
+                                #if unSubDeletedElementDetails:
+                                    #someDeletedElementsDetails.append( unSubDeletedElementDetails)
+                        
+                        #if someDeletedElementsDetails:   
+                            #unDeletedDetails.update( { 
+                                #cChangeDetails_IncludedDeleted:    someDeletedElementsDetails,  
+                            #})
+                            
+                        #if unDeletedDetails:
+                            #someDetails = unDeletedDetails
+            
+                        
+                            
+                            
+                            
+        elif aChangeKind == cModificationKind_DeletePloneSubElement_abbr:  
+            return False
+            #if theChangeReport.get( 'effect', '') == 'deleted':
+                                
+                #unDeletedObjectResult = theChangeReport.get( 'plone_element_result', {})
+                #if unDeletedObjectResult:
+                    
+                    #unDeletedElement = unDeletedObjectResult.get( 'object', None)
+                                         
+                    #if not ( unDeletedElement == None):
+                    
+                        #unDeletedElementTitle         = unDeletedObjectResult.get( 'title', '')
+                        #unDeletedElementId            = unDeletedObjectResult.get( 'id', '')
+                        #unDeletedElementUID           = unDeletedObjectResult.get( 'UID', '')
+                        #unDeletedElementMetaType      = unDeletedObjectResult.get( 'meta_type', '')
+                        #unDeletedElementArchetypeName = unDeletedObjectResult.get( 'archetype_name', '')
+                        
+                        #unDeletedDetails = { }
+                        
+                        #if unDeletedElementTitle:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementTitle]         = unDeletedElementTitle
+                        #if unDeletedElementId:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementId]            = unDeletedElementId
+                        #if unDeletedElementUID:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementUID]           = unDeletedElementUID                        
+                        #if unDeletedElementMetaType:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementMetaType]      = unDeletedElementMetaType                        
+                        #if unDeletedElementArchetypeName:
+                            #unDeletedDetails[ cChangeDetails_DeletedElementArchetypeName] = unDeletedElementArchetypeName        
+                        #if unDeletedDetails:
+                            #someDetails = unDeletedDetails
+           
+                            
+                            
+                            
+                        
+        elif aChangeKind in [ cModificationKind_MoveSubObject_abbr, cModificationKind_MovePloneSubObject_abbr, cModificationKind_MoveReferencedObject_abbr,]:
+
+            unNewMovedElementTitle          = someNewDetails.get( cChangeDetails_MovedElementTitle, '')
+            unNewMovedElementId             = someNewDetails.get( cChangeDetails_MovedElementId, '')
+            unNewMovedElementUID            = someNewDetails.get( cChangeDetails_MovedElementUID, '')
+            unNewPosition                   = someNewDetails.get( cChangeDetails_Position, '')
+            unNewDelta                      = someNewDetails.get( cChangeDetails_Delta, '')
+            # ACV 20091202 TraversalName not informed by the container elements move objects by delta
+            #
+            #unNewTraversalName              = someNewDetails[     cChangeDetails_TraversalName]
+            
+            unExistingMovedElementTitle     = someExistingDetails.get( cChangeDetails_MovedElementTitle, '')
+            unExistingMovedElementId        = someExistingDetails.get( cChangeDetails_MovedElementId, '')
+            unExistingMovedElementUID       = someExistingDetails.get( cChangeDetails_MovedElementUID, '')
+            unExistingPosition              = someExistingDetails.get( cChangeDetails_Position, '')
+            unExistingDelta                 = someExistingDetails.get( cChangeDetails_Delta, '')
+            # ACV 20091202 TraversalName not informed by the container elements move objects by delta
+            #
+            #unExistingTraversalName         = someExistingDetails[     cChangeDetails_TraversalName]
+            
+            if ( unNewMovedElementTitle or unExistingMovedElementTitle) and not ( unNewMovedElementTitle == unExistingMovedElementTitle):
+                return False
+            if ( unNewMovedElementId    or unExistingMovedElementId)    and not ( unNewMovedElementId    == unExistingMovedElementId):
+                return False
+            if ( unNewMovedElementUID   or unExistingMovedElementUID)   and not ( unNewMovedElementUID   == unExistingMovedElementUID):
+                return False
+            if ( ( unNewPosition >= 0)  or ( unExistingPosition >= 0) ) and not ( unNewPosition          == unExistingPosition):
+                return False
+            if ( unNewDelta             or unExistingDelta)             and not ( unNewDelta             == unExistingDelta):
+                return False
+            # ACV 20091202 TraversalName not informed by the container elements move objects by delta
+            #
+            #if ( unNewTraversalName     or unExistingTraversalName)     and not ( unNewTraversalName == unExistingTraversalName):
+                #return False
+                 
+            return True
+                
+            
+        return False
+    
+    
+    
+    
+    
+
+
+    
+    def fNewChangeEntry( self,       
+        theElement                  =None, 
+        theChangeKind               =None,
+        theChangeReport             =None,
+        theReverseRelation          =False,
+        theMemberId                 =None, 
+        theAhora                    =None,
+        theChangeCounter            =None):
+        
+        aMustLogValueChanges = self.fMustLogValueChanges( theElement)
+        
+        someDetails = None
+        
+        
+        
+        if theChangeKind == cModificationKind_ChangeValues:
+
+            someChangedFieldNames = [ ]
+            someChangedValues     = { }
+            
+            someFieldChangeReports = theChangeReport.get( 'field_reports', [])
+            for aFieldChangeReport in someFieldChangeReports:
+                if aFieldChangeReport.get( 'effect', '') == 'changed':
+                    
+                    aChangedFieldName = aFieldChangeReport.get( 'attribute_name', '')
+                    if aChangedFieldName:
+                        
+                        if aMustLogValueChanges:
+                            
+                            someChangedValues[ aChangedFieldName] = aFieldChangeReport.get( 'new_value', None)
+                            
+                        else:
+                            someChangedFieldNames.append( aChangedFieldName)
+            if aMustLogValueChanges:   
+                if someChangedValues:
+                    someDetails = {
+                        cChangeDetails_NewFieldValue: someChangedValues
+                    }
+            elif someChangedFieldNames:
+                someDetails = {
+                    cChangeDetails_FieldChanges: someChangedFieldNames
+                }
+                    
+                
+                
+                
+                    
+        elif theChangeKind == cModificationKind_Link:
+            someLinkChangeReports = theChangeReport.get( 'link_reports', [])
+            for aLinkChangeReport in someLinkChangeReports:
+                if aLinkChangeReport.get( 'effect', '') == 'linked':
+                    
+                    if theReverseRelation:
+                        
+                        unRelation     = aLinkChangeReport.get( 'inverse_relation', '')
+                        unTargetResult = aLinkChangeReport.get( 'source',   {})                
+                        
+                    else:
+                        unRelation     = aLinkChangeReport.get( 'relation', '')
+                        unTargetResult = aLinkChangeReport.get( 'target',   {})
+                        
+                    unTargetTitle  = unTargetResult.get(  'title', '')
+                    unTargetPath   = unTargetResult.get(  'path', '')
+                    unTargetUID    = unTargetResult.get(  'UID', '')
+                    
+                    unLinkDetails = { }
+                    if unRelation:
+                        unLinkDetails[ cChangeDetails_Relation]   = unRelation
+                    if unTargetTitle:
+                        unLinkDetails[ cChangeDetails_TargetTitle]= unTargetTitle
+                    if unTargetPath:
+                        unLinkDetails[ cChangeDetails_TargetPath] = unTargetPath
+                    if unTargetUID:
+                        unLinkDetails[ cChangeDetails_TargetUID]  = unTargetUID
+                    if unLinkDetails:
+                        someDetails = unLinkDetails
+                        
+                        
+                        
+                        
+        elif theChangeKind == cModificationKind_Unlink:
+            someUnlinkChangeReports = theChangeReport.get( 'link_reports', [])
+            for aUnlinkChangeReport in someUnlinkChangeReports:
+                if aUnlinkChangeReport.get( 'effect', '') == 'unlinked':
+                    
+                    if theReverseRelation:
+                        
+                        unRelation     = aUnlinkChangeReport.get( 'inverse_relation', '')
+                        unTargetResult = aUnlinkChangeReport.get( 'source',   {})                
+                        
+                    else:
+                        unRelation     = aUnlinkChangeReport.get( 'relation', '')
+                        unTargetResult = aUnlinkChangeReport.get( 'target',   {})
+                    
+                    unTargetTitle  = unTargetResult.get(  'title', '')
+                    unTargetPath   = unTargetResult.get(  'path', '')
+                    unTargetUID    = unTargetResult.get(  'UID', '')
+                    
+                    unUnlinkDetails = { }
+                    if unRelation:
+                        unUnlinkDetails[ cChangeDetails_Relation]    = unRelation
+                    if unTargetTitle:
+                        unUnlinkDetails[ cChangeDetails_TargetTitle] = unTargetTitle
+                    if unTargetPath:
+                        unUnlinkDetails[ cChangeDetails_TargetPath]  = unTargetPath
+                    if unTargetUID:
+                        unUnlinkDetails[ cChangeDetails_TargetUID]   = unTargetUID
+                    if unUnlinkDetails:
+                        someDetails = unUnlinkDetails
+                        
+                        
+                        
+                        
+        elif theChangeKind == cModificationKind_CreateSubElement:  
+            if theChangeReport.get( 'effect', '') == 'created':
+                
+                unNewObjectResult = theChangeReport.get( 'new_object_result', {})
+                if unNewObjectResult and not ( unNewObjectResult.get( 'object', None) == None):
+                    
+                    unNewElementTitle         = unNewObjectResult.get( 'title', '')
+                    unNewElementId            = unNewObjectResult.get( 'id', '')
+                    unNewElementUID           = unNewObjectResult.get( 'UID', '')
+                    unNewElementMetaType      = unNewObjectResult.get( 'meta_type', '')
+                    unNewElementArchetypeName = unNewObjectResult.get( 'archetype_name', '')
+                    
+                    unCreateDetails = { }
+                    
+                    if unNewElementTitle:
+                        unCreateDetails[ cChangeDetails_NewElementTitle]         = unNewElementTitle
+                    if unNewElementId:
+                        unCreateDetails[ cChangeDetails_NewElementId]            = unNewElementId
+                    if unNewElementUID:
+                        unCreateDetails[ cChangeDetails_NewElementUID]           = unNewElementUID                        
+                    if unNewElementMetaType:
+                        unCreateDetails[ cChangeDetails_NewElementMetaType]      = unNewElementMetaType                        
+                    if unNewElementArchetypeName:
+                        unCreateDetails[ cChangeDetails_NewElementArchetypeName] = unNewElementArchetypeName                        
+            
+                    someChangedFieldNames = [ ]
+                    someChangedValues     = { }
+                    
+                    someFieldChangeReports = theChangeReport.get( 'field_reports', [])
+                    for aFieldChangeReport in someFieldChangeReports:
+                        if aFieldChangeReport.get( 'effect', '') == 'changed':
+                            
+                            aChangedFieldName = aFieldChangeReport.get( 'attribute_name', '')
+                            if aChangedFieldName:
+                                if aMustLogValueChanges:
+                                    someChangedValues[ aChangedFieldName] = aFieldChangeReport.get( 'new_value', None)
+                                else:
+                                    someChangedFieldNames.append( aChangedFieldName)
+                    if aMustLogValueChanges:   
+                        if someChangedValues:
+                            unCreateDetails[ cChangeDetails_NewFieldValue] = someChangedValues
+                    elif someChangedFieldNames:
+                        unCreateDetails[ cChangeDetails_FieldChanges] = someChangedFieldNames
+                        
+                    if unCreateDetails:
+                        someDetails = unCreateDetails
+                        
+                        
+                        
+                        
+                        
+        elif theChangeKind == cModificationKind_Create:  
+            if theChangeReport.get( 'effect', '') == 'created':
+                
+                unNewObjectResult = theChangeReport.get( 'new_object_result', {})
+                if unNewObjectResult and not ( unNewObjectResult.get( 'object', None) == None):
+                    
+                    unNewElementTitle         = unNewObjectResult.get( 'title', '')
+                    unNewElementId            = unNewObjectResult.get( 'id', '')
+                    unNewElementUID           = unNewObjectResult.get( 'UID', '')
+                    unNewElementMetaType      = unNewObjectResult.get( 'meta_type', '')
+                    unNewElementArchetypeName = unNewObjectResult.get( 'archetype_name', '')
+                    
+                    unCreateDetails = { }
+                    
+                    if unNewElementTitle:
+                        unCreateDetails[ cChangeDetails_NewElementTitle]         = unNewElementTitle
+                    if unNewElementId:
+                        unCreateDetails[ cChangeDetails_NewElementId]            = unNewElementId
+                    if unNewElementUID:
+                        unCreateDetails[ cChangeDetails_NewElementUID]           = unNewElementUID                        
+                    if unNewElementMetaType:
+                        unCreateDetails[ cChangeDetails_NewElementMetaType]      = unNewElementMetaType                        
+                    if unNewElementArchetypeName:
+                        unCreateDetails[ cChangeDetails_NewElementArchetypeName] = unNewElementArchetypeName                        
+            
+                    someChangedFieldNames = [ ]
+                    someChangedValues     = { }
+                    
+                    someFieldChangeReports = theChangeReport.get( 'field_reports', [])
+                    for aFieldChangeReport in someFieldChangeReports:
+                        if aFieldChangeReport.get( 'effect', '') == 'changed':
+                            
+                            aChangedFieldName = aFieldChangeReport.get( 'attribute_name', '')
+                            if aChangedFieldName:
+                                if aMustLogValueChanges:
+                                    someChangedValues[ aChangedFieldName] = aFieldChangeReport.get( 'new_value', None)
+                                else:
+                                    someChangedFieldNames.append( aChangedFieldName)
+                    if aMustLogValueChanges:   
+                        if someChangedValues:
+                            unCreateDetails[ cChangeDetails_NewFieldValue] = someChangedValues
+                    elif someChangedFieldNames:
+                        unCreateDetails[ cChangeDetails_FieldChanges] = someChangedFieldNames
+                        
+                    if unCreateDetails:
+                        someDetails = unCreateDetails
+                        
+                        
+                        
+                        
+                        
+        elif theChangeKind == cModificationKind_DeleteSubElement:  
+            if theChangeReport.get( 'effect', '') == 'deleted':
+                
+                unDeletedImpactReport = theChangeReport.get( 'impact_report', {})
+                
+                someElementsToDelete, someAffectedElements = ModelDDvlPloneTool_Retrieval().fObjectsToDeleteAndRelated_FromImpactReport( unDeletedImpactReport)
+                unDeletedObjectResult = unDeletedImpactReport.get( 'here', {})
+                if unDeletedObjectResult:
+                    
+                    unDeletedElement = unDeletedObjectResult.get( 'object', None)
+                                         
+                    if not ( unDeletedElement == None):
+                    
+                        unDeletedElementTitle         = unDeletedObjectResult.get( 'title', '')
+                        unDeletedElementId            = unDeletedObjectResult.get( 'id', '')
+                        unDeletedElementUID           = unDeletedObjectResult.get( 'UID', '')
+                        unDeletedElementMetaType      = unDeletedObjectResult.get( 'meta_type', '')
+                        unDeletedElementArchetypeName = unDeletedObjectResult.get( 'archetype_name', '')
+                        
+                        unDeletedDetails = { }
+                        
+                        if unDeletedElementTitle:
+                            unDeletedDetails[ cChangeDetails_DeletedElementTitle]         = unDeletedElementTitle
+                        if unDeletedElementId:
+                            unDeletedDetails[ cChangeDetails_DeletedElementId]            = unDeletedElementId
+                        if unDeletedElementUID:
+                            unDeletedDetails[ cChangeDetails_DeletedElementUID]           = unDeletedElementUID                        
+                        if unDeletedElementMetaType:
+                            unDeletedDetails[ cChangeDetails_DeletedElementMetaType]      = unDeletedElementMetaType                        
+                        if unDeletedElementArchetypeName:
+                            unDeletedDetails[ cChangeDetails_DeletedElementArchetypeName] = unDeletedElementArchetypeName        
+                                                  
+                        unDeletedElementPath = unDeletedElement.getPhysicalPath()
+                        
+                        someDeletedElementsDetails = [ ]
+                        for unSubDeletedElement in someElementsToDelete:
+                            if not ( unSubDeletedElement == unDeletedElement):
+                                
+                                unSubDeletedElementPath = []
+                                try:
+                                    unSubDeletedElementPath = unSubDeletedElement.getPhysicalPath()
+                                except:
+                                    None
+                                if unSubDeletedElementPath:
+                                    unSubDeletedElementPath = unSubDeletedElementPath[ len( unDeletedElementPath):]
+                                if not unSubDeletedElementPath:
+                                    unSubDeletedElementPath = ''
+                                else:
+                                    unSubDeletedElementPath = '/'.join( unSubDeletedElementPath)                                    
+                                unSubDeletedElementUID = ''
+                                try:
+                                    unSubDeletedElementUID = unSubDeletedElement.UID()
+                                except:
+                                    None
+                                unSubDeletedElementMetaType = ''
+                                try:
+                                    unSubDeletedElementMetaType = unSubDeletedElement.meta_type
+                                except:
+                                    None
+                                unSubDeletedElementArchetypeName = ''
+                                try:
+                                    unSubDeletedElementArchetypeName = unSubDeletedElement.archetype_name
+                                except:
+                                    None
+                                
+                                unSubDeletedElementDetails = { }
+                                if unSubDeletedElementPath:
+                                    unSubDeletedElementDetails[ cChangeDetails_DeletedElementPath]          = unSubDeletedElementPath
+                                if unSubDeletedElementUID:
+                                    unSubDeletedElementDetails[ cChangeDetails_DeletedElementUID]           = unSubDeletedElementUID                        
+                                if unSubDeletedElementMetaType:
+                                    unSubDeletedElementDetails[ cChangeDetails_DeletedElementMetaType]      = unSubDeletedElementMetaType                        
+                                if unSubDeletedElementArchetypeName:
+                                    unSubDeletedElementDetails[ cChangeDetails_DeletedElementArchetypeName] = unSubDeletedElementArchetypeName        
+                                if unSubDeletedElementDetails:
+                                    someDeletedElementsDetails.append( unSubDeletedElementDetails)
+                        
+                        if someDeletedElementsDetails:   
+                            unDeletedDetails.update( { 
+                                cChangeDetails_IncludedDeleted:    someDeletedElementsDetails,  
+                            })
+                            
+                        if unDeletedDetails:
+                            someDetails = unDeletedDetails
+            
+                        
+                            
+                            
+                            
+        elif theChangeKind == cModificationKind_DeletePloneSubElement:  
+            if theChangeReport.get( 'effect', '') == 'deleted':
+                                
+                unDeletedObjectResult = theChangeReport.get( 'plone_element_result', {})
+                if unDeletedObjectResult:
+                    
+                    unDeletedElement = unDeletedObjectResult.get( 'object', None)
+                                         
+                    if not ( unDeletedElement == None):
+                    
+                        unDeletedElementTitle         = unDeletedObjectResult.get( 'title', '')
+                        unDeletedElementId            = unDeletedObjectResult.get( 'id', '')
+                        unDeletedElementUID           = unDeletedObjectResult.get( 'UID', '')
+                        unDeletedElementMetaType      = unDeletedObjectResult.get( 'meta_type', '')
+                        unDeletedElementArchetypeName = unDeletedObjectResult.get( 'archetype_name', '')
+                        
+                        unDeletedDetails = { }
+                        
+                        if unDeletedElementTitle:
+                            unDeletedDetails[ cChangeDetails_DeletedElementTitle]         = unDeletedElementTitle
+                        if unDeletedElementId:
+                            unDeletedDetails[ cChangeDetails_DeletedElementId]            = unDeletedElementId
+                        if unDeletedElementUID:
+                            unDeletedDetails[ cChangeDetails_DeletedElementUID]           = unDeletedElementUID                        
+                        if unDeletedElementMetaType:
+                            unDeletedDetails[ cChangeDetails_DeletedElementMetaType]      = unDeletedElementMetaType                        
+                        if unDeletedElementArchetypeName:
+                            unDeletedDetails[ cChangeDetails_DeletedElementArchetypeName] = unDeletedElementArchetypeName        
+                        if unDeletedDetails:
+                            someDetails = unDeletedDetails
+           
+                            
+                            
+                            
+                        
+        elif theChangeKind in [ cModificationKind_MoveSubObject, cModificationKind_MovePloneSubObject, cModificationKind_MoveReferencedObject]:
+            if theChangeReport.get( 'effect', '') == 'moved':
+                                
+                unMovedObjectResult = theChangeReport.get( 'moved_element', {})
+                if unMovedObjectResult:
+                    
+                    unMovedElement = unMovedObjectResult.get( 'object', None)
+                                         
+                    if not ( unMovedElement == None):
+                    
+                        unMovedElementTitle          = unMovedObjectResult.get( 'title', '')
+                        unMovedElementId             = unMovedObjectResult.get( 'id', '')
+                        unMovedElementUID            = unMovedObjectResult.get( 'UID', '')
+                        #unMovedElementMetaType      = unMovedObjectResult.get( 'meta_type', '')
+                        #unMovedElementArchetypeName = unMovedObjectResult.get( 'archetype_name', '')
+                        unNewPosition                = theChangeReport.get( 'new_position', -1)
+                        unDelta                      = theChangeReport.get( 'delta', -1)
+                        unTraversalName              = theChangeReport.get( 'parent_traversal_name', -1)
+                        
+                        unMovedDetails = { }
+                        if unMovedElementTitle:
+                            unMovedDetails[ cChangeDetails_MovedElementTitle]         = unMovedElementTitle
+                        if unMovedElementId:
+                            unMovedDetails[ cChangeDetails_MovedElementId]            = unMovedElementId
+                        if unMovedElementUID:
+                            unMovedDetails[ cChangeDetails_MovedElementUID]           = unMovedElementUID                        
+                        #if unMovedElementMetaType:
+                            #unMovedDetails[ cChangeDetails_MovedElementMetaType]      = unMovedElementMetaType                        
+                        #if unMovedElementArchetypeName:
+                            #unMovedDetails[ cChangeDetails_MovedElementArchetypeName] = unMovedElementArchetypeName      
+                        if unNewPosition >= 0:
+                            unMovedDetails[ cChangeDetails_Position]                  = unNewPosition                                  
+                        if unDelta:
+                            unMovedDetails[ cChangeDetails_Delta]                     = unDelta                                  
+                        if unTraversalName:
+                            unMovedDetails[ cChangeDetails_TraversalName]             = unTraversalName                                  
+                        if unMovedDetails:
+                            someDetails = unMovedDetails
+            
+            
+        
+        aNewChangeEntry = { }
+        
+        aChangeKind = theChangeKind
+        if aChangeKind:
+            aChangeKind = cModificationKinds_AbbreviationsByName.get( theChangeKind, theChangeKind)    
+        if aChangeKind:
+            aNewChangeEntry[ cChangeDetails_ChangeKind] = aChangeKind
+            
+        if theMemberId:
+            aNewChangeEntry[ cChangeDetails_UserId] = theMemberId
+         
+        if theAhora:
+            aNewChangeEntry[ cChangeDetails_ChangeDate]   = theAhora
+            
+        if not ( theChangeCounter == None):
+            aNewChangeEntry[ cChangeDetails_ChangeCounter]  = theChangeCounter
+
+        if someDetails:
+            aNewChangeEntry[ cChangeDetails_Details] = someDetails
+            
+            
+        return aNewChangeEntry
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    
+
+    
+    security.declarePrivate('fRetrieveChangeLog')
+    def fRetrieveChangeLog(self, 
+        theTimeProfilingResults     =None,
+        theElement                  =None, 
+        theRetrievalExtents         =None,
+        theTranslationsCaches       =None, 
+        theCheckedPermissionsCache  =None, 
+        theResult                   =None,
+        theAdditionalParams         =None):
+        """Retrieve a result structure for an element, initialized with the change log.
+        
+        """
+        
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fRetrieveChangeLog', theTimeProfilingResults)
+
+        try:
+        
+            if ( theElement == None):
+                return []
+
+            unLogValue = ''
+            
+            unSchema = theElement.schema
+            if not unSchema:
+                return []
+                
+            unFieldName = self.fChangeLogFieldNameForElement( theElement)
+            
+            if not unFieldName:
+                return []
+            
+                    
+            unField = unSchema.get( unFieldName, None)
+            if not unField:
+                return []
+                    
+            unAccessor = unField.getAccessor( theElement)
+            if not unAccessor:
+                return []
+
+            unLogValueString = None
+            try:
+                unLogValueString = unAccessor()
+            except:
+                None
+            if not unLogValueString:
+                return []
+                
+            unLogValue = fEvalString( unLogValueString)            
+            if not unLogValue:
+                return []
+            
+            someChangedEntries = unLogValue[:]
+            
+            if not ( theResult == None):
+                theResult[ 'change_entries' ]      = someChangedEntries
+                theResult[ 'change_entries_after'] = someChangedEntries
+                
+
+            unIncludeFieldValuesInSummaries = theRetrievalExtents and ( 'change_entries_summaries_fields_values' in theRetrievalExtents)
+                
+            someTranslations = self.fTranslationsBundle_ForChanges( theElement)
+            someChangeEntriesSummaries = self.fChangeEntriesI18NSummaries( theElement, someChangedEntries, someTranslations, unIncludeFieldValuesInSummaries)
+            if someChangeEntriesSummaries:
+                theResult[ 'change_entries_summaries' ]      = someChangeEntriesSummaries
+                theResult[ 'change_entries_after_summaries'] = someChangeEntriesSummaries
+                
+ 
+            if ( 'change_entries_summaries' in theRetrievalExtents) or  ( 'change_entries_summaries_fields_values' in theRetrievalExtents):
+                for aChangeEntry in someChangedEntries:
+                    aChangeEntrySummary = self.fChangeEntryDetailsSummaryI18N( theElement, aChangeEntry, someTranslations, unIncludeFieldValuesInSummaries)
+                    aChangeEntry[ 'summary'] = aChangeEntrySummary
+                    
+                    
+            if theAdditionalParams:
+                
+                unEarliestChangeCounter = theAdditionalParams.get( 'ChangesAfter', -1)
+                if ( isinstance( unEarliestChangeCounter, int) and ( unEarliestChangeCounter >= 0)) or isinstance( unEarliestChangeCounter, str) or  isinstance( unEarliestChangeCounter, unicode):
+                    if isinstance( unEarliestChangeCounter, str) or  isinstance( unEarliestChangeCounter, unicode):
+                        unEarliestChangeCounterString = unEarliestChangeCounter
+                        unEarliestChangeCounter = -1
+                        if unEarliestChangeCounterString:
+                            unEarliestChangeCounter = -1
+                            try:
+                                unEarliestChangeCounter = int( unEarliestChangeCounterString)
+                            except:
+                                None
+                            
+                    if unEarliestChangeCounter >= 0:
+                        
+                        someChangeEntriesAfter     = [ unChgEntry for unChgEntry in someChangedEntries if unChgEntry.get( cChangeDetails_ChangeCounter, -1) >= unEarliestChangeCounter]
+                        someChangeEntriesAfterSummaries = self.fChangeEntriesI18NSummaries( theElement, someChangeEntriesAfter, someTranslations, unIncludeFieldValuesInSummaries)
+                                    
+                        theResult[ 'change_entries_after']           = someChangeEntriesAfter
+                        theResult[ 'change_entries_after_summaries'] = someChangeEntriesAfterSummaries                 
+                    
+            return someChangedEntries
+            
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fRetrieveChangeLog', theTimeProfilingResults)
+                  
+    
+    
+    
+    
+    
+
+    def fTranslationsBundle_ForChanges( self, theContextElement):
+        """The translations of change kinds, and property names of changes and change details, to be used in the presentation of changes.
+        
+        """
+        
+        someSymbolsAndDefaults = [ ]
+        someDomainsStringsAndDefaults = [ [ 'ModelDDvlPlone', someSymbolsAndDefaults]]
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        
+        for aModificationKindAbbreviated in cModificationKinds_ByAbbreviation.keys():
+            aSymbol  = 'ModelDDvlPlone_ChangeKind_%s' % aModificationKindAbbreviated
+            aDefault = cModificationKinds_ByAbbreviation.get( aModificationKindAbbreviated, aModificationKindAbbreviated)
+            someSymbolsAndDefaults.append( [ aSymbol, aDefault,])
+            
+        for aDetailKey in cChangeDetails_keys:
+            aSymbol  = 'ModelDDvlPlone_ChangeDetail_%s' % aDetailKey
+            aDefault = cChangeDetails_long_byAbbreviation.get( aDetailKey, aDetailKey)
+            someSymbolsAndDefaults.append( [ aSymbol, aDefault,])
+        
+        someSymbolsAndDefaults.append( [ 'ModelDDvlPlone_ChangeDetails', 'Details-',])
+        
+        someTranslations = { }
+        aModelDDvlPloneTool_Retrieval.fTranslateI18NManyIntoDict( theContextElement, someDomainsStringsAndDefaults, someTranslations)
+
+        return someTranslations
+       
+            
+    
+        
+     
+    security.declarePrivate( 'fChangeEntriesI18NSummaries')
+    def fChangeEntriesI18NSummaries( self, theElement, theChangeEntries, theTranslations=None, theIncludeFieldValuesInSummaries=False):
+
+        if not theChangeEntries:
+            return u''
+        
+        someTranslations = theTranslations
+        if not someTranslations:
+            someTranslations = self.fTranslationsBundle_ForChanges( theElement)
+            
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        someTranslations[ 'ModelDDvlPlone_ChangesAfterNumChanges'] = aModelDDvlPloneTool_Retrieval.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_ChangesAfterNumChanges', 'changes-', theElement)
+        someTranslations[ 'ModelDDvlPlone_Audit_ChangesSince']     = aModelDDvlPloneTool_Retrieval.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangesSince',     'since-',   theElement)
+        someTranslations[ 'ModelDDvlPlone_Audit_ChangeBy']         = aModelDDvlPloneTool_Retrieval.fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_ChangeBy',         'by-',      theElement)
+        
+        anEarliestMillis  = int( time() * 1000) + 1000000
+        aLatestMillis     = 0
+        someUserIds       = set( )
+        someEntriesByKind = { }
+        
+        
+        for unChangeEntry in theChangeEntries:
+            
+                    
+            unChangeEntryKind  = unChangeEntry.get( cChangeDetails_ChangeKind, '')
+            someEntriesOfTheKind = someEntriesByKind.get( unChangeEntryKind, [])
+            if not someEntriesOfTheKind:
+                someEntriesOfTheKind = []
+                someEntriesByKind[ unChangeEntryKind] = someEntriesOfTheKind
+            someEntriesOfTheKind.append( unChangeEntry)
+                    
+            unChangeEntryUserId = unChangeEntry.get( cChangeDetails_UserId, '')
+            if unChangeEntryUserId:
+                someUserIds.add( unChangeEntryUserId)
+                
+            unChangeEntryMillis = unChangeEntry.get( cChangeDetails_ChangeDate, '')
+            if unChangeEntryMillis:
+                if unChangeEntryMillis < anEarliestMillis:
+                    anEarliestMillis = unChangeEntryMillis
+                elif unChangeEntryMillis > aLatestMillis:
+                    aLatestMillis = unChangeEntryMillis
+                    
+        if ( not someUserIds) and ( not someChangesByKind) and ( not someEntriesByKind):
+            return u''
+        
+        someUserIds = sorted( someUserIds)
+        
+        
+        someSummaries = [ ]
+        
+        someSummaries.append( u'%d %s %s %s' % ( 
+            len( theChangeEntries),
+            someTranslations.get( 'ModelDDvlPlone_ChangesAfterNumChanges', 'changes-',),
+            ( anEarliestMillis and ( u'%s %s' % ( someTranslations.get( 'ModelDDvlPlone_Audit_ChangesSince', 'since-'), self.fMillisecondsToDateTime( anEarliestMillis)))) or '',
+            ( someUserIds      and ( u'%s %s' % ( ( someTranslations.get( 'ModelDDvlPlone_Audit_ChangeBy', 'by-') ,u', '.join( someUserIds))))) or '',
+        ))
+        
+        for aChangeKind in sorted( someEntriesByKind.keys()):
+            aChangeDetailsString = self.fChangeEntriesOfAKindCombinedSummariesI18NString( theElement, aChangeKind, someEntriesByKind[ aChangeKind], someTranslations, theIncludeFieldValuesInSummaries)
+            if aChangeDetailsString:
+                someSummaries.append( u'%s: %s' % ( 
+                    someTranslations.get( 'ModelDDvlPlone_ChangeKind_%s' % aChangeKind, aChangeKind),
+                    aChangeDetailsString,
+                ))
+
+        return someSummaries
+        
+             
+            
+            
+            
+    # ACV 20091215 Unused. Removed.       
+    #security.declarePrivate( 'fChangeEntryAsI18NString')
+    #def fChangeEntryAsI18NString( self, theElement, theChangeEntry, theTranslations=None):
+        
+        #if not theChangeEntry:
+            #return u''
+        
+        
+        #someTranslations = theTranslations
+        #if not someTranslations:
+            #someTranslations = self.fTranslationsBundle_ForChanges( theElement)
+
+        #aChangeEntryDetailsSummary = self.fChangeEntryDetailsSummaryI18N( theElement, theChangeEntry, someTranslations)
+        #if aChangeEntryDetailsSummary:
+            #aChangeEntryDetailsSummary = '[%s]' % aChangeEntryDetailsSummary
+            
+            
+        #aChangeEntryAsI18NString = u'%s: %s %s %s %s %s' % ( 
+            #someTranslations.get( 'ModelDDvlPlone_ChangeKind_%s' % theChangeEntry.get( cChangeDetails_ChangeKind, ''), theChangeEntry.get( cChangeDetails_ChangeKind, '')),
+            #aChangeEntryDetailsSummary,
+            #someTranslations.get( 'ModelDDvlPlone_Audit_ChangeOn', 'on-'),
+            #self.fMillisecondsToDateTime( theChangeEntry.get( cChangeDetails_ChangeDate, '')),
+            #someTranslations.get( 'ModelDDvlPlone_Audit_ChangeBy', 'by-'),
+            #theChangeEntry.get( cChangeDetails_UserId, '')
+        #)
+            
+        #return aChangeEntryAsI18NString
+    
+    
+    
+    
+    
+    
+    
+    security.declarePrivate( 'fChangeEntryAsTransactionNote')
+    def fChangeEntryAsTransactionNote( self, theElement, theChangeEntry, theTranslations=None):
+        
+        if not theChangeEntry:
+            return u''
+        
+        
+        someTranslations = theTranslations
+        if not someTranslations:
+            someTranslations = self.fTranslationsBundle_ForChanges( theElement)
+
+        aChangeEntryDetailsSummary = self.fChangeEntryDetailsSummaryI18N( theElement, theChangeEntry, someTranslations, False) # unIncludeFieldValuesInSummaries
+        if aChangeEntryDetailsSummary:
+            aChangeEntryDetailsSummary = '[%s]' % aChangeEntryDetailsSummary
+            
+        
+        aType = ''
+        try:
+            aType = theElement.archetype_name
+        except:
+            None
+        if not aType:
+            try:
+                aType = theElement.meta_type
+            except:
+                None
+        if not aType:
+            aType = u'Element'
+            
+            
+        aChangeEntryAsTransactionNote = u'%s title=%s, path=%s; %s %s. ' % ( 
+            aType,
+            theElement.Title(),
+            '/'.join( theElement.getPhysicalPath()),
+            someTranslations.get( 'ModelDDvlPlone_ChangeKind_%s' % theChangeEntry.get( cChangeDetails_ChangeKind, ''), theChangeEntry.get( cChangeDetails_ChangeKind, '')),
+            aChangeEntryDetailsSummary,
+            #someTranslations.get( 'ModelDDvlPlone_Audit_ChangeOn', 'on-'),
+            #self.fMillisecondsToDateTime( theChangeEntry.get( cChangeDetails_ChangeDate, '')),
+            #someTranslations.get( 'ModelDDvlPlone_Audit_ChangeBy', 'by-'),
+            #theChangeEntry.get( cChangeDetails_UserId, '')
+        )
+            
+        return aChangeEntryAsTransactionNote
+        
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+                                        
+    security.declarePrivate( 'fChangeEntriesOfAKindCombinedSummariesI18NString')
+    def fChangeEntriesOfAKindCombinedSummariesI18NString( self, theElement, theChangeKind, theChangeEntries, theTranslations=None, theIncludeFieldValues=False):
+        if not theChangeKind:
+            return u''
+
+
+        someTranslations = theTranslations
+        if not someTranslations:
+            someTranslations = self.fTranslationsBundle_ForChanges( theElement)
+
+            
+        if theChangeKind == cModificationKind_ChangeValues_abbr:
+            
+            if not theIncludeFieldValues:
+                someAllFieldNames = set( )
+                
+                for aChangeEntry in theChangeEntries:
+                    
+                    aChangeDetails = aChangeEntry.get( cChangeDetails_Details, {})
+                    if aChangeDetails:
+                        someChangedFieldNames = aChangeDetails.get( cChangeDetails_NewFieldValue, {}).keys() or aChangeDetails.get( cChangeDetails_FieldChanges, [])                 
+                        if someChangedFieldNames:
+                            someAllFieldNames.update( someChangedFieldNames)
+                        
+                if not someAllFieldNames:
+                    return u''
+                
+                aChangeDetailsString = u', '.join( sorted( someAllFieldNames))
+                return aChangeDetailsString
+
+                    
+            else:
+                
+                someAllFieldValues = { }
+                someAllFieldNames = set( )
+                
+                someReversedEntries = theChangeEntries[:]
+                someReversedEntries.reverse()
+                for aChangeEntry in someReversedEntries:
+                    
+                    aChangeDetails = aChangeEntry.get( cChangeDetails_Details, {})
+                    if aChangeDetails:
+                        someNewFieldValuesNames = aChangeDetails.get( cChangeDetails_NewFieldValue, {})                  
+                        if someNewFieldValuesNames:
+                            someAllFieldValues.update( someNewFieldValuesNames)
+                            
+                        someChangedFieldNames = aChangeDetails.get( cChangeDetails_FieldChanges, [])                 
+                        if someChangedFieldNames:
+                            someAllFieldNames.update( someChangedFieldNames)
+                        
+                if ( not someAllFieldNames) and ( not someAllFieldValues):
+                    return u''
+                
+                aChangeDetailsString = u''
+                
+                if someAllFieldValues:
+                    aSortedFieldKeys = sorted ( someAllFieldValues.keys())
+                    someFieldValueStrings = [ '%s=%s' % ( aFieldName, someAllFieldValues[ aFieldName]) for aFieldName in aSortedFieldKeys]
+                    aChangeDetailsString += u', '.join( someFieldValueStrings)
+                    
+
+                someUnreportedChangedFieldNames = set( someAllFieldNames).difference( set( someAllFieldValues.keys()))
+                if someUnreportedChangedFieldNames:
+                    if someNewFieldValuesNames:
+                        aChangeDetailsString += u', '
+                    aChangeDetailsString += u', '.join( sorted( someUnreportedChangedFieldNames))
+                    
+                return aChangeDetailsString
+
+
+        
+        elif theChangeKind in(  cModificationKind_Link_abbr, cModificationKind_Unlink_abbr):
+            
+            aChangeDetailsString = u''
+            someTitlesByRelation = { }
+            
+            for aChangeEntry in theChangeEntries:
+                aChangeDetails = aChangeEntry.get( cChangeDetails_Details, {})
+                if aChangeDetails:
+                    unRelation           = aChangeDetails.get( cChangeDetails_Relation,    '')
+                    unTitlesForRelation  = someTitlesByRelation.get( unRelation, [])
+                    if not unTitlesForRelation:
+                        unTitlesForRelation = set( )
+                        someTitlesByRelation[ unRelation] = unTitlesForRelation
+                    
+                    unRelatedTitle       = aChangeDetails.get( cChangeDetails_TargetTitle, '')
+                    if unRelatedTitle:
+                        unTitlesForRelation.add( unRelatedTitle)
+             
+            if someTitlesByRelation:
+                someRelations = sorted( someTitlesByRelation.keys())
+                aChangeDetailsString = u', '.join( 
+                    [ '( %s: %s)' % (
+                        aRelation,
+                        ', '.join( someTitlesByRelation[ aRelation]),) for aRelation in someRelations
+                    ]
+                )
+            return aChangeDetailsString
+
+                    
+          
+        
+        
+        elif theChangeKind in ( cModificationKind_CreateSubElement_abbr, cModificationKind_Create_abbr,):  
+            aChangeDetailsString = u''
+            someTitlesByArchetypeName = { }
+            
+            for aChangeEntry in theChangeEntries:
+                aChangeDetails = aChangeEntry.get( cChangeDetails_Details, {})
+                if aChangeDetails:
+                    unArchetypeName     = aChangeDetails.get( cChangeDetails_NewElementArchetypeName,    '')
+                    unTitlesForArchetypeName  = someTitlesByArchetypeName.get( unArchetypeName, [])
+                    if not unTitlesForArchetypeName:
+                        unTitlesForArchetypeName = set( )
+                        someTitlesByArchetypeName[ unArchetypeName] = unTitlesForArchetypeName
+                    
+                    unCreatedTitle       = aChangeDetails.get( cChangeDetails_NewElementTitle, '')
+                    if unCreatedTitle:
+                        unTitlesForArchetypeName.add( unCreatedTitle)
+             
+            if someTitlesByArchetypeName:
+                someArchetypeNames = sorted( someTitlesByArchetypeName.keys())
+                aChangeDetailsString = u', '.join( 
+                    [ '( %s: %s)' % (
+                        anArchetypeName,
+                        ', '.join( someTitlesByArchetypeName[ anArchetypeName]),) for anArchetypeName in someArchetypeNames
+                    ]
+                )
+            return aChangeDetailsString
+            
+                    
+        
+
+                         
+        elif theChangeKind in [ cModificationKind_DeleteSubElement_abbr, cModificationKind_DeletePloneSubElement_abbr,]:  
+            aChangeDetailsString      = u''
+            someTitlesByArchetypeName = { }
+            unTotalIncludedDeleted    = 0 
+            
+            for aChangeEntry in theChangeEntries:
+                aChangeDetails = aChangeEntry.get( cChangeDetails_Details, {})
+                if aChangeDetails:
+                    unArchetypeName     = aChangeDetails.get( cChangeDetails_DeletedElementArchetypeName,    '')
+                    unTitlesForArchetypeName  = someTitlesByArchetypeName.get( unArchetypeName, [])
+                    if not unTitlesForArchetypeName:
+                        unTitlesForArchetypeName = set( )
+                        someTitlesByArchetypeName[ unArchetypeName] = unTitlesForArchetypeName
+                    
+                    unDeletedTitle       = aChangeDetails.get( cChangeDetails_DeletedElementTitle, '')
+                    if unDeletedTitle:
+                        unTitlesForArchetypeName.add( unDeletedTitle)
+             
+                    someIncludedDeleted = aChangeDetails.get( cChangeDetails_IncludedDeleted, [])     
+                    if someIncludedDeleted:
+                        unTotalIncludedDeleted += len( someIncludedDeleted)
+                        
+            if someTitlesByArchetypeName:
+                someArchetypeNames = sorted( someTitlesByArchetypeName.keys())
+                aChangeDetailsString = u', '.join( 
+                    [ '( %s: %s)' % (
+                        anArchetypeName,
+                        ', '.join( someTitlesByArchetypeName[ anArchetypeName]),) for anArchetypeName in someArchetypeNames
+                    ]
+                )
+                
+            if unTotalIncludedDeleted:
+                aChangeDetailsString = u'%s%s %s %d %s' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    ModelDDvlPloneTool_Retrieval().fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_and', 'and-', theElement),
+                    unTotalIncludedDeleted,
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_IncludedDeleted, cChangeDetails_IncludedDeleted_long), 
+                )
+                
+            return aChangeDetailsString
+             
+         
+   
+        
+                          
+        elif theChangeKind in [ cModificationKind_MoveSubObject_abbr, cModificationKind_MovePloneSubObject_abbr, cModificationKind_MoveReferencedObject_abbr]:
+            aChangeDetailsString = u''
+            someTitlesByTraversal = { }
+            
+            for aChangeEntry in theChangeEntries:
+                aChangeDetails = aChangeEntry.get( cChangeDetails_Details, {})
+                if aChangeDetails:
+                    unTraversal           = aChangeDetails.get( cChangeDetails_TraversalName,    '')
+                    unTitlesForTraversal  = someTitlesByTraversal.get( unTraversal, [])
+                    if not unTitlesForTraversal:
+                        unTitlesForTraversal = set( )
+                        someTitlesByTraversal[ unTraversal] = unTitlesForTraversal
+                    
+                    unMovedTitle       = aChangeDetails.get( cChangeDetails_MovedElementTitle, '')
+                    if unMovedTitle:
+                        unTitlesForTraversal.add( unMovedTitle)
+             
+            if someTitlesByTraversal:
+                someTraversals = sorted( someTitlesByTraversal.keys())
+                aChangeDetailsString = u', '.join( 
+                    [ '( %s: %s)' % (
+                        aTraversal,
+                        ', '.join( someTitlesByTraversal[ aTraversal]),) for aTraversal in someTraversals
+                    ]
+                )
+            return aChangeDetailsString
+            
+             
+        return u''
+        
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    security.declarePrivate( 'fChangeEntryDetailsSummaryI18N')
+    def fChangeEntryDetailsSummaryI18N( self, theElement, theChangeEntry, theTranslations=None, theIncludeFieldValues=True):
+        if not theChangeEntry:
+            return u''
+
+        aChangeDetails = theChangeEntry.get( cChangeDetails_Details, {})
+        if not aChangeDetails:
+            return u''
+        
+        aChangeKind =  theChangeEntry.get( cChangeDetails_ChangeKind, '')
+        if ( not aChangeKind) or not ( aChangeKind in cModificationKinds_Abbreviated):
+            return u''
+        
+        someTranslations = theTranslations
+        if not someTranslations:
+            someTranslations = self.fTranslationsBundle_ForChanges( theElement)
+
+        aChangeDetailsString = u''
+        
+        
+        
+        
+         
+        if aChangeKind == cModificationKind_ChangeValues_abbr:
+
+            if not theIncludeFieldValues:
+                someChangedFieldNames = aChangeDetails.get( cChangeDetails_NewFieldValue, {}).keys() or aChangeDetails.get( cChangeDetails_FieldChanges, [])                 
+                if someChangedFieldNames:
+                    aChangeDetailsString = u'%s: %s' % ( 
+                        someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_FieldChanges, cChangeDetails_FieldChanges_long), 
+                        u', '.join( someChangedFieldNames),
+                    )
+                return aChangeDetailsString
+            
+            else:
+
+                someNewFieldValuesNames = aChangeDetails.get( cChangeDetails_NewFieldValue, {})                                          
+                someChangedFieldNames   = aChangeDetails.get( cChangeDetails_FieldChanges, [])                 
+            
+                if someNewFieldValuesNames or someChangedFieldNames:
+                    aChangeDetailsString = u'%s: ' % someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_FieldChanges, cChangeDetails_FieldChanges_long)
+                    
+                if someNewFieldValuesNames:
+                    aSortedFieldKeys = sorted ( someNewFieldValuesNames.keys())
+                    someFieldValueStrings = [ '%s=%s' % ( aFieldName, someNewFieldValuesNames[ aFieldName]) for aFieldName in aSortedFieldKeys]
+                    aChangeDetailsString += u', '.join( someFieldValueStrings)
+                
+                someUnreportedChangedFieldNames = set( someChangedFieldNames).difference( set( someNewFieldValuesNames.keys()))
+                if someUnreportedChangedFieldNames:
+                    if someNewFieldValuesNames:
+                        aChangeDetailsString += u', '
+                    aChangeDetailsString += u', '.join( sorted( someUnreportedChangedFieldNames))
+                
+                return aChangeDetailsString
+
+        
+        
+        
+        
+        
+        elif aChangeKind in [ cModificationKind_Link_abbr, cModificationKind_Unlink_abbr,]:
+            
+            unRelation           = aChangeDetails.get( cChangeDetails_Relation,    '')
+            if unRelation:
+                aChangeDetailsString = u'%s: %s' % ( 
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_Relation, cChangeDetails_Relation_long), 
+                    unRelation,
+                )
+            unRelatedTitle       = aChangeDetails.get( cChangeDetails_TargetTitle, '')
+            if unRelatedTitle:
+                aChangeDetailsString = u' %s%s%s: %s' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_TargetTitle, cChangeDetails_TargetTitle_long), 
+                    unRelatedTitle
+                )
+            return aChangeDetailsString
+
+                    
+       
+        
+        
+        elif aChangeKind in ( cModificationKind_CreateSubElement_abbr, cModificationKind_Create_abbr):  
+            unNewElementArchetypeName         = aChangeDetails.get( cChangeDetails_NewElementArchetypeName, '')
+            if unNewElementArchetypeName:
+                aChangeDetailsString = u'%s: %s' % ( 
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_NewElementArchetypeName, cChangeDetails_NewElementArchetypeName), 
+                    unNewElementArchetypeName,
+                )
+            unNewElementTitle = aChangeDetails.get( cChangeDetails_NewElementTitle, '')
+            if unNewElementTitle:
+                aChangeDetailsString = u' %s%s%s: %s' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_NewElementTitle, cChangeDetails_TargetTitle_long), 
+                    unNewElementTitle
+                )
+                
+                
+            if not theIncludeFieldValues:
+                someChangedFieldNames = aChangeDetails.get( cChangeDetails_NewFieldValue, {}).keys() or aChangeDetails.get( cChangeDetails_FieldChanges, [])                 
+                if someChangedFieldNames:
+                    aChangeDetailsString = u'%s%s%s: %s' % ( 
+                        aChangeDetailsString,
+                        ( aChangeDetailsString and ', ') or '',
+                        someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_FieldChanges, cChangeDetails_FieldChanges_long), 
+                        u', '.join( someChangedFieldNames),
+                    )
+                return aChangeDetailsString
+            
+            else:
+
+                someNewFieldValuesNames = aChangeDetails.get( cChangeDetails_NewFieldValue, {})                                          
+                someChangedFieldNames   = aChangeDetails.get( cChangeDetails_FieldChanges, [])                 
+            
+                if someNewFieldValuesNames or someChangedFieldNames:
+                    aChangeDetailsString = u'%s%s%s: ' % ( 
+                        aChangeDetailsString,
+                        ( aChangeDetailsString and ', ') or '',
+                        someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_FieldChanges, cChangeDetails_FieldChanges_long),
+                    )
+                    
+                if someNewFieldValuesNames:
+                    aSortedFieldKeys = sorted ( someNewFieldValuesNames.keys())
+                    someFieldValueStrings = [ '%s=%s' % ( aFieldName, someNewFieldValuesNames[ aFieldName]) for aFieldName in aSortedFieldKeys]
+                    aChangeDetailsString += u', '.join( someFieldValueStrings)
+                
+                someUnreportedChangedFieldNames = set( someChangedFieldNames).difference( set( someNewFieldValuesNames.keys()))
+                if someUnreportedChangedFieldNames:
+                    if someNewFieldValuesNames:
+                        aChangeDetailsString += u', '
+                    aChangeDetailsString += u', '.join( sorted( someUnreportedChangedFieldNames))
+                
+                
+            return aChangeDetailsString
+        
+        
+
+        
+        
+                        
+        elif aChangeKind in [ cModificationKind_DeleteSubElement_abbr, cModificationKind_DeletePloneSubElement_abbr,]:  
+            unDeletedElementArchetypeName         = aChangeDetails.get( cChangeDetails_DeletedElementArchetypeName, '')
+            if unDeletedElementArchetypeName:
+                aChangeDetailsString = u'%s: %s' % ( 
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_DeletedElementArchetypeName, cChangeDetails_DeletedElementArchetypeName_long), 
+                    unDeletedElementArchetypeName,
+                )
+            unDeletedElementTitle = aChangeDetails.get( cChangeDetails_DeletedElementTitle, '')
+            if unDeletedElementTitle:
+                aChangeDetailsString = u' %s%s%s: %s' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_DeletedElementTitle, cChangeDetails_DeletedElementTitle_long), 
+                    unDeletedElementTitle
+                )
+            someIncludedDeleted = aChangeDetails.get( cChangeDetails_IncludedDeleted, [])                
+            if someIncludedDeleted:
+                aChangeDetailsString = u'%s%s%s %d %s' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    ModelDDvlPloneTool_Retrieval().fTranslateI18N( 'ModelDDvlPlone', 'ModelDDvlPlone_and', 'and-', theElement),
+                    len( someIncludedDeleted),
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_IncludedDeleted, cChangeDetails_IncludedDeleted_long), 
+                )
+            return aChangeDetailsString
+                        
+        
+
+        
+        
+        
+                        
+        elif aChangeKind in [ cModificationKind_MoveSubObject_abbr, cModificationKind_MovePloneSubObject_abbr, cModificationKind_MoveReferencedObject_abbr]:
+            unTraversalName           = aChangeDetails.get( cChangeDetails_TraversalName,    '')
+            if unTraversalName:
+                aChangeDetailsString = u'%s: %s' % ( 
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_TraversalName, cChangeDetails_TraversalName_long), 
+                    unTraversalName,
+                )
+            unMovedTitle       = aChangeDetails.get( cChangeDetails_MovedElementTitle, '')
+            if unMovedTitle:
+                aChangeDetailsString = u' %s%s%s: %s' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_MovedElementTitle, cChangeDetails_MovedElementTitle_long), 
+                    unMovedTitle
+                )
+            unPosition       = aChangeDetails.get( cChangeDetails_Position, -1)
+            if unPosition >= 0:
+                aChangeDetailsString = u' %s%s%s: %d' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_Position, cChangeDetails_Position_long), 
+                    unPosition
+                )
+            unDelta       = aChangeDetails.get( cChangeDetails_Delta, 0)
+            if unDelta >= 0:
+                aChangeDetailsString = u' %s%s%s: %d' % ( 
+                    aChangeDetailsString,
+                    ( aChangeDetailsString and ', ') or '',
+                    someTranslations.get( 'ModelDDvlPlone_ChangeDetail_%s' % cChangeDetails_Delta, cChangeDetails_Delta_long), 
+                    unDelta
+                )
+            return aChangeDetailsString
+
+            
+             
+        return u''
+        
+        
+        
+
+    
+            
+        
+        
+        
+        
+        
+        
+        
+
+        
+
+                                
+    def fChangeLogFieldNameForElement( self, theElement):
+        if theElement == None:
+            return ''
+        aChangeLogFieldName = ''
+        try:
+            aChangeLogFieldName = theElement.change_log_field
+        except:
+            None   
+            
+        return aChangeLogFieldName
+    
+    
+        
+                 
+
+        
+    security.declarePrivate( 'fMillisecondsToDateTime')
+    def fMillisecondsToDateTime( self, theMilliseconds):
+        """Duplicated from ModelDDvlPloneToolSupport.
+        
+        """
+        
+        if not theMilliseconds:
+            return None
+        
+        if isinstance( theMilliseconds, DateTime):
+            return theMilliseconds
+        
+        unDateTime = None
+        try:
+            unDateTime = DateTime( theMilliseconds / 1000)
+        except:
+            None
+            
+        return unDateTime
+    
+            
+
+                

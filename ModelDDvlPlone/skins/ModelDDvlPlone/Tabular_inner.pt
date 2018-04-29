@@ -38,7 +38,7 @@
     
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
  
- <tal:block tal:replace="nothing">
+<tal:block tal:replace="nothing">OJO ACV 20091129 Actions to be performed by the outer Tabular.pt, or they won't be performed when pages are found in Cache.
         <tal:block tal:define="pPasteRequested pPasteRequested | nothing">
             <tal:block tal:condition="pPasteRequested">
                 <tal:block tal:define="
@@ -88,10 +88,8 @@
                 </tal:block>
             </tal:block>
         </tal:block>
- 
         
-        
- 
+
         <tal:block tal:define="pContainerElement nocall: here">
             <metal:block metal:use-macro="here/MoverElementos_i18n_view/macros/tMoverElementos_i18n" />   
         </tal:block>
@@ -99,13 +97,14 @@
         <tal:block tal:define="pSourceElement nocall: here">
             <metal:block metal:use-macro="here/MoverReferencias_i18n_view/macros/tMoverReferencias_i18n" />   
         </tal:block>
-    
-        <tal:block tal:define="pContainerElement nocall: here">
-            <metal:block metal:use-macro="here/MoverElementosPlone_i18n_view/macros/tMoverElementosPlone_i18n" />   
-        </tal:block>
-        
+   
+       <tal:block tal:define="pContainerElement nocall: here">
+           <metal:block metal:use-macro="here/MoverElementosPlone_i18n_view/macros/tMoverElementosPlone_i18n" />   
+       </tal:block>
+       
 </tal:block>
-        
+
+                    
         <tal:block tal:define=" global pTrue            python: True;
                                 global pFalse           python: False;
                                 global pPagina          string:Tabular;
@@ -157,8 +156,8 @@
         
 
             <tal:block tal:define="
-                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                 unosArgs python: { 
                     'theTimeProfilingResults'     :pProfilingResults,
                     'theElement'                  :here, 
@@ -187,7 +186,7 @@
  
                 <tal:block tal:replace="nothing">  
                     <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />   
-                    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+                    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( here [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
                 </tal:block>
 
 
@@ -197,8 +196,8 @@
          
                 <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
 
+                
                 <metal:block metal:use-macro="here/TabularFeatures_i18n_view/macros/tTabularFeatures_i18n" />
-
 
 
                 <metal:block metal:use-macro="here/ColeccionEnTabla_ElementosPlone_i18n_view/macros/tColeccionesEnTabla_ElementosPlone_i18n" />

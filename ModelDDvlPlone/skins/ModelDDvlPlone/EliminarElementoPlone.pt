@@ -31,11 +31,11 @@
 
     <tal:block tal:define="global pRedirectURL python: '%s/Tabular/' % here.absolute_url();
         global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-        pCanDelete python: request.has_key('theConfirmedDelete') and request['theConfirmedDelete'] == 'Yes' and request.has_key('theUIDToDelete') and request['theUIDToDelete'] and request.has_key('theSecondsNow') and request['theSecondsNow']" >
+        pCanDelete python: request.has_key('theConfirmedDelete') and request['theConfirmedDelete'] == 'Yes' and request.has_key('theUIDToDelete') and request['theUIDToDelete'] and request.has_key('theSN') and request['theSN']" >
         <tal:block tal:condition="pCanDelete">      
             <tal:block tal:define="
                 pUIDToDelete            request/theUIDToDelete; 
-                pSecondsRequest         python: int( request['theSecondsNow']);
+                pSecondsRequest         python: int( request['theSN']);
                 pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: {

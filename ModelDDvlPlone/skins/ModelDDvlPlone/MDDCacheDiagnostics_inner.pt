@@ -1,0 +1,605 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDCacheDiagnostics_inner.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tCacheDiagnosticsInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        <tal:block tal:define=" 
+			pTrue                        python: True;
+			pFalse                       python: False;
+			pCacheNames      	         request/form/theCacheName | string:;  
+			
+			global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
+			
+			<p>
+				<a class="state-visible" id="cid_backToElement" href="#" tal:attributes="href python: '%s/' % here.absolute_url()">
+					<font size="3">
+						<strong tal:content="python: u'%s %s' % (
+							here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
+							here.ModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
+					</font>
+				</a>
+				
+				&emsp;&emsp;
+ 				<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus/' % here.absolute_url()" >
+					<font size="2">
+						<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+					</font>
+				</a>        
+			</p>
+			
+			<p>    
+				<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheDiagnostics/' % here.absolute_url()"
+					tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+					<img src="#" alt="#" title="#" 
+						tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
+						id="icon-refrescar" />
+					<strong tal:content="python: aRefreshLabel" />
+				</a>
+			</p>
+			
+			<tal:block tal:define="
+
+				pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+				pCachesDiagnostics python: here.ModelDDvlPlone_tool.fCachesDiagnostics( here, theCacheNames=pCacheNames);
+				pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+				pPagina string:;
+				pPaginaRefrescar string:MDDCacheDiagnostics" 
+				tal:condition="python: pCachesDiagnostics" >
+				
+				<tal:block tal:define="pDomainsStringsAndDefaults python: [
+				[ 'ModelDDvlPlone', [
+					[ 'ModelDDvlPlone_DiagnosticsForAllCaches_title', 'Diagnostics For All Caches-',],
+					[ 'ModelDDvlPlone_NumCacheEntriesInStructures',   'Entries In Structures-',],
+					[ 'ModelDDvlPlone_NumCacheEntriesWithProblems',   'Entries With Problems-',],
+					[ 'ModelDDvlPlone_UIDs_Registry_Size',            'UIDs in Registry-',],
+					[ 'ModelDDvlPlone_UniqueIDs_Registry_Size',       'Entries in Unique Entry Id Registry-',],
+					[ 'ModelDDvlPlone_NumEntriesIn_UIDs_Registry',    'Entries in UIDs Registry-',],
+					[ 'ModelDDvlPlone_NumEntries_WithoutUID',         'Entries without UID-',],
+					[ 'ModelDDvlPlone_NumEntries_structures_UIDs_withoutElement',   'Entries in structure without element by UID-',],
+					[ 'ModelDDvlPlone_invalid_entries_in_UniqueId_registry',         'Invalid Entries in Unique Id registry-',],
+					[ 'ModelDDvlPlone_broken_promise_entries_in_UniqueId_registry',  'Broken Promise Entries in Unique Id registry-',],					
+					[ 'ModelDDvlPlone_invalid_entries_in_UID_registry',         'Invalid Entries in UID registry-',],
+					[ 'ModelDDvlPlone_broken_promise_entries_in_UID_registry',  'Broken Promise Entries in UID registry-',],
+					[ 'ModelDDvlPlone_NumUIDsInEntries_ElementNotFoundByUID',  'UIDs in Entries Element not found-',],
+					[ 'ModelDDvlPlone_NumEntries_InUniqueIdRegistry_NotInStructure',  'Entries in Unique Entry Id Registry not in structure-',],
+					[ 'ModelDDvlPlone_NumEntries_InUIDRegistry_NotInStructure',  'Entries in UID Registry not in structure-',],
+					[ 'ModelDDvlPlone_NumEntries_WithNamesInconsistentWithElement',  'Entries with names inconsistent with element-',],
+					[ 'ModelDDvlPlone_CacheDiagnostics_CountersSection',  'Counters-',],
+					[ 'ModelDDvlPlone_CacheDiagnostics_ErrorsSection',  'Errors-',],
+					[ 'ModelDDvlPlone_CacheDiagnostics_NoErrors',       'None-',],
+					[ 'ModelDDvlPlone_CacheDiagnostics_ErrorsFound',    'ERRORS FOUND-',],
+					[ 'ModelDDvlPlone_DiagnosticForCache_title',      'Diagnostic For Cache-',],
+					[ 'ModelDDvlPlone_NumCacheEntriesInStructure',    'Entries In Structure-',],
+					[ 'ModelDDvlPlone_structure_missing_entries',     'Entries missing in structure-',],
+					[ 'ModelDDvlPlone_structure_voids',               'Voids in structure-',],
+					[ 'ModelDDvlPlone_structure_inconsistent_entries','Entries inconsistent with structure-',],
+					[ 'ModelDDvlPlone_linkedlist_size',               'Entries in Linked List-',],
+					[ 'ModelDDvlPlone_CacheDiagnostics_CountersSection',  'Counters-',],
+					[ 'ModelDDvlPlone_CacheDiagnostics_ErrorsSection',  'Errors-',],
+					[ 'ModelDDvlPlone_structure_entries_found_more_than_once',  'Entries found more than once in structure-',],
+					[ 'ModelDDvlPlone_structure_and_linkedlist_size_difference',  'Difference in structure and linked list size-',],
+					[ 'ModelDDvlPlone_structure_entries_without_UID',  'Structure Entries without UID-',],
+					
+					[ 'ModelDDvlPlone_structure_entries_not_in_uniqueid_registry', 'Entries in structure not in Unique Id Registry-',],
+					[ 'ModelDDvlPlone_structure_entries_not_in_UID_registry',   'Entries in structure not in UID Registry-',],
+					[ 'ModelDDvlPlone_structure_UIDs_withoutElement',   'UIDs for which no element was found-',],
+					[ 'ModelDDvlPlone_list_errors',                     'Errors in linked list-',],
+					[ 'ModelDDvlPlone_linkedlist_size_direction_difference',  'Difference in len of linked list direction-',],	
+					[ 'ModelDDvlPlone_invalid_entries_in_list',         'Invalid entries in list-',],	
+					[ 'ModelDDvlPlone_broken_promise_entries_in_list',  'Broken Promise entries in list-',],	
+					[ 'ModelDDvlPlone_found_fromOldToNew_moreThanOnce', 'Entries found in list more than once from old to new-',],
+					[ 'ModelDDvlPlone_found_fromNewToOld_moreThanOnce', 'Entries found in list more than once from new to old-',],
+					[ 'ModelDDvlPlone_entries_WithNext_NoPrevious',     'Entries whose Next has No Previous-',],
+					[ 'ModelDDvlPlone_entries_WithNext_WrongPrevious',  'Entries whose Next Previous is not the same entry-',],
+					[ 'ModelDDvlPlone_entries_WithoutNext',             'Entries without Next-',],
+					[ 'ModelDDvlPlone_entries_WithPrevious_NoNext',     'Entries whose previous has no Next-',],
+					[ 'ModelDDvlPlone_entries_WithPrevious_WrongNext',  'Entries whose Previous Next is not the same entry-',],
+					[ 'ModelDDvlPlone_entries_WithoutPrevious',         'Entries without Previous-',],
+				]]];
+				pTranslations python: {};
+				pvoid python: here.ModelDDvlPlone_tool.fTranslateI18NManyIntoDict( here, pDomainsStringsAndDefaults, pTranslations)" >
+
+					<metal:block metal:use-macro="here/MDDCacheDiagnostics_inner/macros/tAllCachesDiagnostics" />   
+					
+					<tal:block tal:repeat="pCacheName python: [ 'ElementIndependent', 'ForElements', 'ForUsers',]" >
+						<tal:block tal:define="pCacheDiagnostic python: pCachesDiagnostics.get( 'caches_diagnostics', {}).get( pCacheName, {})" 
+							tal:condition="pCacheDiagnostic">
+							<metal:block metal:use-macro="here/MDDCacheDiagnostics_inner/macros/tCacheDiagnostic" />   
+							<br/>
+							<br/>
+						</tal:block>
+					</tal:block>
+				
+				
+				</tal:block>
+			</tal:block>
+		</tal:block>
+		
+    </div>
+    
+	
+	
+	
+    <div metal:define-macro="tAllCachesDiagnostics" >
+		<tal:block tal:condition="pCachesDiagnostics" >
+			
+			<br>
+			<h2 id="cid_MDDAllCaches_section">
+				<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_DiagnosticsForAllCaches_title']" />
+			</h2>
+			<table tal:define=" global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even')"
+				class="listing" id="cid_MDDAllCachesDiagnostics_table" summary="All Caches Diagnostics" >
+				<thead>
+					<tr>
+						<th align="left" colspan="2" class="nosort">
+							<font size="2">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_CountersSection']" />
+							</font>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumCacheEntriesInStructures']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'allcacheEntriesInStructures', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_UIDs_Registry_Size']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % pCachesDiagnostics.get( 'UIDs_registry_size', 0)" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumEntriesIn_UIDs_Registry']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % pCachesDiagnostics.get( 'numentries_in_UIDs_registry', 0)" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_UniqueIDs_Registry_Size']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % pCachesDiagnostics.get( 'uniqueIDs_registry_size', 0)" />
+					</tr>
+				</tbody>
+				<thead>
+					<tr height="4" bgcolor="silver" ><td colspan="2"/></tr>
+					<tr>
+						<th align="left" class="nosort">
+							<font size="2">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_ErrorsSection']" />
+							</font>
+						</th>
+						<th align="left"  class="nosort">
+							<font tal:condition="python: pCachesDiagnostics.get( 'success', False)" size="2" >
+								<strong  tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_NoErrors']" />
+							</font>
+							<font tal:condition="python: not pCachesDiagnostics.get( 'success', False)" size="2" color="Red" >
+								<strong  tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_ErrorsFound']" />
+							</font>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumCacheEntriesWithProblems']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'allEntriesWithProblems', {}).keys())" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumEntries_structures_UIDs_withoutElement']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'structures_UIDs_withoutElement', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_invalid_entries_in_UniqueId_registry']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'invalid_entries_in_UniqueId_registry', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_broken_promise_entries_in_UniqueId_registry']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'broken_promise_entries_in_UniqueId_registry', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_invalid_entries_in_UID_registry']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'invalid_entries_in_UID_registry', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_broken_promise_entries_in_UID_registry']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'broken_promise_entries_in_UID_registry', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumUIDsInEntries_ElementNotFoundByUID']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'entry_UIDs_withoutElement', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumEntries_InUniqueIdRegistry_NotInStructure']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'entriesByUniqueId_Not_in_structure', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumEntries_InUIDRegistry_NotInStructure']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'entriesByUID_Not_in_structure', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumEntries_WithNamesInconsistentWithElement']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCachesDiagnostics.get( 'elementnames_inconsistent_entries', []))" />
+					</tr>
+				</tbody>
+			</table>		
+		</tal:block>		
+    </div>
+	
+	
+
+	
+    <div metal:define-macro="tCacheDiagnostic" >
+		<tal:block tal:condition="pCacheDiagnostic" >
+			<br>
+			<h2  id="#" tal:attributes="id python: 'cid_MDDCache_%s_section' % pCacheName">
+				<strong tal:content="python: '%s %s ' % (
+					pTranslations[ 'ModelDDvlPlone_DiagnosticForCache_title'],
+					pCacheDiagnostic.get( 'cache_name', ''),)" />
+			</h2>
+			<table tal:define=" global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even');
+			    pCacheName python: pCacheDiagnostic.get( 'cache_name', '');
+				pCacheKind python: pCacheDiagnostic.get( 'cache_kind', '')"
+				class="listing" id="#" summary="#" 
+					tal:attributes="summary python: 'Cache %s Diagnostics' % pCacheName;
+						id python: 'cid_MDDCaches_%s_Diagnostics_table' % pCacheName">
+				<thead>
+					<tr>
+						<th  colspan="2" class="nosort">
+							<font size="2">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_CountersSection']" />
+							</font>
+							&emsp;&emsp;
+							<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus/#cid_MDDCache_%s_section' % ( here.absolute_url(), pCacheName,)" >
+								<font size="2">
+									<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+								</font>
+							</a>      
+							&emsp;&emsp;
+							<a class="state-visible" id="cid_InspectCache_Link" href="#" tal:attributes="href python: '%s/MDDInspectCache/?theCacheName=%s' % ( here.absolute_url(), pCacheName,)">
+								<font size="2">
+									<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectCache_action_label', 'Inspect Cache-',)" />
+								</font>
+							</a>
+						</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumCacheEntriesInStructure']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'cacheEntriesInStructure', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_linkedlist_size']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % pCacheDiagnostic.get( 'linkedlist_size', 0)" />
+					</tr>
+				</tbody>
+				<thead>
+					<tr height="4" bgcolor="silver" ><td colspan="2"/></tr>
+					<tr>
+						<th align="left" class="nosort">
+							<font size="2">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_ErrorsSection']" />
+							</font>
+						</th>
+						<th align="left" class="nosort">
+							<font tal:condition="python: pCacheDiagnostic.get( 'success', False)" size="2" >
+								<strong  tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_NoErrors']" />
+							</font>
+							<font tal:condition="python: not pCacheDiagnostic.get( 'success', False)" size="2" color="Red" >
+								<strong  tal:content="python: pTranslations[ 'ModelDDvlPlone_CacheDiagnostics_ErrorsFound']" />
+							</font>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_NumCacheEntriesWithProblems']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'entriesWithProblems', {}).keys())" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_missing_entries']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'structure_missing_entries', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_voids']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'structure_voids', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_inconsistent_entries']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'structure_inconsistent_entries', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_entries_found_more_than_once']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'structure_entries_found_more_than_once', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_entries_not_in_uniqueid_registry']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'structure_entries_not_in_uniqueid_registry', []))" />
+					</tr>
+					<tr tal:condition="python: pCacheKind in [ 'ForElements', 'ForUsers',]"
+					    class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_entries_without_UID']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'structure_entries_without_UID', []))" />
+					</tr>
+					<tr tal:condition="python: pCacheKind in [ 'ForElements', 'ForUsers',]"
+					    class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_entries_not_in_UID_registry']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'structure_entries_not_in_UID_registry', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_structure_and_linkedlist_size_difference']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % pCacheDiagnostic.get( 'structure_and_linkedlist_size_difference', 0)" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_list_errors']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'list_errors', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_invalid_entries_in_list']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'invalid_entries_in_list', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_broken_promise_entries_in_list']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'broken_promise_entries_in_list', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_linkedlist_size_direction_difference']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % pCacheDiagnostic.get( 'linkedlist_size_direction_difference', 0)" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_found_fromOldToNew_moreThanOnce']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'found_fromOldToNew_moreThanOnce', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_found_fromNewToOld_moreThanOnce']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'found_fromNewToOld_moreThanOnce', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_entries_WithNext_NoPrevious']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'entries_WithNext_NoPrevious', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_entries_WithNext_WrongPrevious']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'entries_WithNext_WrongPrevious', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_entries_WithoutNext']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'entries_WithoutNext', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_entries_WithPrevious_NoNext']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'entries_WithPrevious_NoNext', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_entries_WithPrevious_WrongNext']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'entries_WithPrevious_WrongNext', []))" />
+					</tr>
+					<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+						tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+						<td align="left"  >
+							<font size="1">
+								<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_entries_WithoutPrevious']" />
+							</font>
+						</td>
+						<td align="right" tal:content="python: '%d' % len( pCacheDiagnostic.get( 'entries_WithoutPrevious', []))" />
+					</tr>
+					
+					
+					
+				</tbody>
+			</table>
+		
+		</tal:block>		
+    </div>
+		
+</body>
+</html>
+    

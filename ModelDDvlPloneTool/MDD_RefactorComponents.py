@@ -36,7 +36,6 @@ import sys
 import traceback
 import logging
 
-import transaction
 
 from StringIO  import StringIO
 from cStringIO import StringIO   as clsFastStringIO
@@ -66,16 +65,21 @@ from Products.Relations.config                  import RELATIONS_LIBRARY
 from Products.Relations                         import processor            as  gRelationsProcessor
 
 
-#from ModelDDvlPloneTool                         import ModelDDvlPloneTool
-#from ModelDDvlPloneTool_Retrieval               import ModelDDvlPloneTool_Retrieval
-#from ModelDDvlPloneTool_Mutators                import ModelDDvlPloneTool_Mutators
 
-from PloneElement_TraversalConfig               import cPloneTypes
+from PloneElement_TraversalConfig               import cExportConfig_PloneElements_MetaTypes, cPloneTypes
 
 from ModelDDvlPloneTool_Refactor_Constants      import *
 from ModelDDvlPloneTool_ImportExport_Constants  import *
 
-from PloneElement_TraversalConfig import cExportConfig_PloneElements_MetaTypes
+from ModelDDvlPloneToolSupport                  import fEvalString, fReprAsString
+
+from ModelDDvlPloneTool_Mutators                import cModificationKind_ChangeValues, cModificationKind_CreateSubElement, cModificationKind_Create
+
+from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
+
+
+
+
 
 cLogExceptions = True
 
@@ -92,74 +96,6 @@ gcMarker = object()
 
 class MDDRefactor:
     """Manage the refactoring when pasting a source information structure.
-        
-    Roles:
-
-    Source Info Manager, with uses Source MetaInfo Manager.
-
-    Target Info Manager, with uses Target MetaInfo Manager.
-    
-    Refactoring Walker, with a Refactoring Stack, with Refactoring Stack Frames.
-    
-    
-    Responsibilities:
-    
-    To know the target "root".
-    
-    To known the source "roots".
-    
-    To know the "container" target instance under which to create new instances from corresponding some source instances.
-    Initially is the target "root". Will be switched to new instances aggregated under the target root, recursively.
-    
-    To know the source instances from which to create new instances under the "container" target instance.
-    Initially are the source "roots". Will be switched to new instances aggregated or related to the source root, recursively.
-    
-    To know the type of new instance to create under the "container" target corresponding to the source instances.
-    
-    To create under target root a new instance of the specified type, corresponding to the source root.
-    
-    To know the "current" target instance to populate with values, from a corresponding source instance.
-    Will become "container" for a new recursion of the refactoring.
-    
-    To know the source instance from which to populate target instance values, aggregations and relations.
-    
-    (recording the above) To know the source instance from which a given target was created.
-    
-    To populate attribute values in new instances under "current" target , with values (or computations of values) of corresponding attributes of source element .
-    
-    To know the "current" target instance to populate.
-    
-    
-    
-    To know with source aggregation (or expression on aggregations/relations to retrieve and flatten) to traverse to obtain source instances from which to aggregate new target instances under a target instance of a type.
-    
-    To know the type of the new instance to create under the target, corresponding to the instance aggregated under the source.
-    
-    To aggregate under new target instances, additional instances of the specified type corresponding to instances aggregated to the source instance.
-    
-    To know which source relation (or expression on aggregations/relations to retrieve and flatten) to traverse to populate a relation of a target instance, to obtain the source instances whose copied target (or themselves) must be related to the target through the target relation.
-    
-    To know which source instances have participated in the refactoring.
-    
-    To know the target instance created from each source instance.
-    
-    To create relationships between new target instances, corresponding to relationships between source instances.
-    
-    To create relationships from new target instances to instances not included in the refactoring (neither as source or target), corresponding to relationships from source instances to instances not included in the sources of the refactoring.
-    
-    
-    
-    NOTE:
-    In the first recursion level, when refactoring the initial source "roots" under the initial target "root",
-    we have not traversed any source aggregation/relation, therefore we do not know under which target aggregation to add new instances.
-    Fortunately, the underlying technology is Plone, that does not requiere specific aggregations, and only enforces a set of types that can be aggregated under certain type.
-    On the other side, we have the traversal specs, so for each source instance, we can search the traversal spec for an aggregation of the target instance type that allows content of the source instance type.
-    
-    When recursing (therefore we intend to add to known target aggregations) and the source and target aggregations have not the same name, we could search as above:
-    
-    To populate aggregations: 
-    First: target driven: for each target aggregation, create target instances from source instances obtained by traversal of source aggregation of same name (or a configured mapped aggregation name, or a derivation expression)
-
 
     """ 
     
@@ -252,6 +188,11 @@ class MDDRefactor:
                 self.vNumPloneElementsBypassed = 0
                 self.vNumAttributesBypassed    = 0
                 self.vNumLinksBypassed         = 0
+                
+                self.vCreatedElements          = set( )
+                self.vChangedElements          = set( )
+                
+                self.vImpactedObjectUIDs       = [ ]
                 
                 
                 """Enforce all role members required.
@@ -356,10 +297,10 @@ class MDDRefactor:
     
     
     
-    def fGetContextParam( self, theKey):
+    def fGetContextParam( self, theKey, theDefault=None):
         if not theKey:
             return None
-        unValue = self.vContext.get( theKey, None)   
+        unValue = self.vContext.get( theKey, theDefault)   
         return unValue
     
     
@@ -667,7 +608,7 @@ class MDDRefactor_Paste_SourceInfoMgr_TraversalResult ( MDDRefactor_Role_SourceI
     
     def fIsSourceOk( self, theSourceElementResult):
         if not self.vInitialized or not self.vRefactor.vInitialized:
-            raise self.vRefactor.vExceptionToRaise, cRefactorStatus_Error_Paste_Internal_Refactor_NotInitialized
+            raise self.vRefactor.vExceptionToRaise, cRefactorStatus_Error_Paste_Internal_Refactor_NotInitialized 
         
         if not theSourceElementResult or ( theSourceElementResult.get( 'object', None) == None):
             return False
@@ -756,7 +697,7 @@ class MDDRefactor_Paste_SourceInfoMgr_TraversalResult ( MDDRefactor_Role_SourceI
         unPath  = self.fGetPath(  theSource)
         unaId   = self.fGetUID(   theSource)
         
-        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( repr( unTitle), repr( unaId), repr( unPath), repr( unaUID),)
+        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( str( unTitle), str( unaId), str( unPath), str( unaUID),)
 
         return unaIdentification
     
@@ -1214,10 +1155,85 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
         unTargetRootResult = self.vRefactor.fGetContextParam( 'target_root_result',) 
         if not unTargetRootResult:
             return False
-        
+
+        aModelDDvlPloneTool_Transactions = ModelDDvlPloneTool_Transactions()
+        self.vRefactor.pSetContextParam( 'aModelDDvlPloneTool_Transactions', aModelDDvlPloneTool_Transactions)
+            
+        unAuditChanges = self.vRefactor.fGetContextParam( 'audit_changes', None) 
+        if unAuditChanges == None:
+            self.vRefactor.pSetContextParam( 'audit_changes', True)
         
         return True
       
+
+    
+    
+    def fAuditChanges( self,):
+        unAuditChanges = self.vRefactor.fGetContextParam( 'audit_changes', False) 
+        return unAuditChanges
+
+     
+    
+    def pSetAudit_Creation( self, theTarget, theModificationKind, theReport, theUseCounter=False):
+        if not self.fAuditChanges():
+            return self
+        
+        self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Creation( theTarget, theModificationKind, theReport, theUseCounter=theUseCounter)    
+    
+        return self
+    
+
+    
+    
+    def pSetAudit_Modification( self, theTarget, theModificationKind, theReport):
+        if not self.fAuditChanges():
+            return self
+        
+        self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( theTarget, theModificationKind, theReport)    
+    
+        return self
+    
+    
+     
+    
+    
+    
+    
+    
+    
+    def fTransaction_Commit( self, ):
+        aModelDDvlPloneTool_Transactions = self.vRefactor.fGetContextParam( 'aModelDDvlPloneTool_Transactions',) 
+        if not aModelDDvlPloneTool_Transactions:
+            return False
+        
+        aResult = aModelDDvlPloneTool_Transactions.fTransaction_Commit()
+        return aResult
+    
+    
+    
+    
+    
+    def fTransaction_Savepoint( self, theOptimistic=True):
+        aModelDDvlPloneTool_Transactions = self.vRefactor.fGetContextParam( 'aModelDDvlPloneTool_Transactions',) 
+        if not aModelDDvlPloneTool_Transactions:
+            return False
+        
+        aResult = aModelDDvlPloneTool_Transactions.fTransaction_Savepoint()
+        return aResult
+    
+        
+    
+    
+    def fTransaction_Abort( self, ):
+        aModelDDvlPloneTool_Transactions = self.vRefactor.fGetContextParam( 'aModelDDvlPloneTool_Transactions',) 
+        if not aModelDDvlPloneTool_Transactions:
+            return False
+        
+        aResult = aModelDDvlPloneTool_Transactions.fTransaction_Abort()
+        return aResult
+    
+    
+           
 
 
     def fElementIdentificationForErrorMsg( self, theTarget):
@@ -1230,7 +1246,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
         unPath  = self.fGetPath(  theTarget)
         unaUID   = self.fGetUID(   theTarget)
         
-        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( repr( unTitle), repr( unaId), repr( unPath), repr( unaUID),)
+        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( str( unTitle), str( unaId), str( unPath), str( unaUID),)
 
         return unaIdentification
     
@@ -1306,6 +1322,9 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
             raise self.vRefactor.vExceptionToRaise, cRefactorStatus_Error_Paste_Internal_Refactor_NotInitialized
         unTargetRoot = self.vRefactor.fGetContextParam( 'target_root',) 
         return unTargetRoot
+    
+    
+    
     
     
     def fGetTargetRootResult( self,):
@@ -1400,6 +1419,32 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                 self.vRefactor.vNumElementsPasted += 1
                 self.vRefactor.vNumMDDElementsPasted += 1
                 
+                self.vRefactor.vChangedElements.add( theTarget )
+                self.vRefactor.vCreatedElements.add( unCreatedElement )
+                
+                if self.fAuditChanges():
+                
+                    aCreateReport = self.vRefactor.vModelDDvlPloneTool_Mutators.fNewVoidCreateElementReport()
+                    someFieldReports    = aCreateReport[ 'field_reports']
+                    aFieldReportsByName = aCreateReport[ 'field_reports_by_name']
+                    
+                    aCreatedElementResult = self.vRefactor.vModelDDvlPloneTool_Retrieval.fNewResultForElement( unCreatedElement)
+                    aCreateReport.update( { 'effect': 'created', 'new_object_result': aCreatedElementResult, })
+                    
+                    aReportForField = { 'attribute_name': 'id',          'effect': 'changed', 'new_value': unNewTargetId,     'previous_value': '',}
+                    someFieldReports.append( aReportForField)            
+                    aFieldReportsByName[ aReportForField[ 'attribute_name']] = aReportForField
+                    
+                    aReportForField = { 'attribute_name': 'title',       'effect': 'changed', 'new_value': unNewTargetTitle,  'previous_value': '',}
+                    someFieldReports.append( aReportForField)            
+                    aFieldReportsByName[ aReportForField[ 'attribute_name']] = aReportForField
+                                                       
+                    unUseCounter = False
+                    if not ( theTarget in self.vRefactor.vCreatedElements):
+                        unUseCounter = True
+                    self.pSetAudit_Creation( theTarget,           cModificationKind_CreateSubElement, aCreateReport, theUseCounter=unUseCounter)       
+                    self.pSetAudit_Creation( unCreatedElement,    cModificationKind_Create,           aCreateReport)       
+                
                 unHasBeenCreated = True
                 
                 return unCreatedElement
@@ -1427,7 +1472,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
             else:    
                 self.vRefactor.vNumElementsFailed += 1
                 self.vRefactor.vNumMDDElementsFailed += 1
@@ -1593,6 +1638,15 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                 
                 unNumAttributesToSet = len( unosTargetAttributesNameTypesAndAttrConfig)
                 
+                aChangeReport     = None
+                someFieldReports  = None
+                anAuditChanges = self.fAuditChanges()
+                if anAuditChanges:
+                    aChangeReport = self.vRefactor.vModelDDvlPloneTool_Mutators.fNewVoidChangeValuesReport()
+                    someFieldReports  = aChangeReport.get( 'field_reports')
+
+                unAnythingChanged = False
+                
                 for unTargetAttributeNameTypeAndAttrConfig in unosTargetAttributesNameTypesAndAttrConfig:
                     unAttributeProcessed = False
                     
@@ -1622,13 +1676,19 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                             unAttributeProcessed = True
 
                             if unHasBeenSet:
+                                if anAuditChanges:
+                                    aReportForField = { 'attribute_name': unTargetAttributeName, 'effect': 'changed', 'new_value': unValueToSet, 'previous_value': None,}                                                                                                                        
+                                    someFieldReports.append( aReportForField)
+                                
                                 unAnythingChanged = True
                     
                     if not unAttributeProcessed:
                         unosAttributesNotProcessed.append( unTargetAttributeName or 'unknownAttributeName')
                         
+                        
                 if unAnythingChanged:
-                    self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( theTarget)
+                    if anAuditChanges:
+                        self.pSetAudit_Modification( theTarget, cModificationKind_ChangeValues, aChangeReport)
                     
                 if unAnythingChanged or theMustReindexTarget:
                     theTarget.reindexObject()
@@ -1658,16 +1718,29 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                         'params': { 
                             'theTarget':         self.vRefactor.vTargetInfoMgr.fElementIdentificationForErrorMsg_Unicode( theTarget), 
                             'numAttrsToSet':     unicode( str( unNumAttributesToSet)),
-                            'attrsNotProcessed': unicode( repr( unosAttributesNotProcessed)),
+                            'attrsNotProcessed': unicode( fReprAsString( unosAttributesNotProcessed)),
                         }, 
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
 
 
                 
-                
+            
+                    
+    
+    def fSetTitle( self, theTarget, theTitle):
+        if not theTitle:
+            return False
+        
+        theTarget.setTitle( theTitle)
+        self.vRefactor.vChangedElements.add( theTarget )
+        return True
+                   
+    
+    
+    
     
     def fSetAttributeValue( self, theTarget, theAttrName, theValueToSet, theAttributeConfig=None):
         
@@ -1738,21 +1811,14 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                             unTargetAccessor = unSourcesCountersField.getAccessor( theTarget)
                             unTargetSourcesCountersString = unTargetAccessor()
                             if unTargetSourcesCountersString:   
-                                try:
-                                    unTargetSourcesCounters = eval( unTargetSourcesCountersString)
-                                except:
-                                    None
+                                unTargetSourcesCounters = fEvalString( unTargetSourcesCountersString)
                                 if not unTargetSourcesCounters:
                                     unTargetSourcesCounters = { }
                                     if not ( unTargetSourcesCounters.__class__.__name__ == 'dict'):
                                         unTargetSourcesCounters = { }
     
                                         
-                            unSourceSourcesCounters = { }
-                            try:
-                                unSourceSourcesCounters = eval( unValueToSet)
-                            except:
-                                None
+                            unSourceSourcesCounters = fEvalString( unValueToSet)
                             if not unSourceSourcesCounters:
                                 unSourceSourcesCounters = { }
                                 if not ( unSourceSourcesCounters.__class__.__name__ == 'dict'):
@@ -1761,7 +1827,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                             unNewSourcesCounters = unTargetSourcesCounters.copy()
                             unNewSourcesCounters.update( unSourceSourcesCounters)
                             
-                            unValueToSet = repr( unNewSourcesCounters)
+                            unValueToSet = fReprAsString( unNewSourcesCounters)
                 
                 
                 
@@ -1803,7 +1869,8 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                     self.vRefactor.vAnyWritesDone = True
                     unAttributeHasBeenSet = True
                     self.vRefactor.vNumAttributesPasted += 1
-                    
+                    self.vRefactor.vChangedElements.add( theTarget )
+                   
                     return True
                 
                 
@@ -1867,6 +1934,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                         self.vRefactor.vAnyWritesDone = True
                         self.vRefactor.vNumAttributesPasted += 1
                         unAttributeHasBeenSet = True
+                        self.vRefactor.vChangedElements.add( theTarget )
     
                         return True 
                     
@@ -1897,6 +1965,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                         self.vRefactor.vAnyWritesDone = True
                         self.vRefactor.vNumAttributesPasted += 1
                         unAttributeHasBeenSet = True
+                        self.vRefactor.vChangedElements.add( theTarget )
     
                         return True
                         
@@ -1920,6 +1989,24 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                     if not unField:
                         return False
                     
+                    # ACV OJO 20091201 Added check to avoid setting attribute when new value is the same as the current value, or both null values
+                    unAccessor = unField.getAccessor( theTarget)
+                    if not unAccessor:
+                        return False
+                    
+                    unCurrentValue = unAccessor()
+                    if unCurrentValue == unValueToSet:
+                        unCanBypassAttribute = True
+                        return False
+                    
+                    if ( unCurrentValue == None) and ( unValueToSet == None):
+                        unCanBypassAttribute = True
+                        return False
+                        
+                    if ( not unCurrentValue) and ( not unValueToSet):
+                        unCanBypassAttribute = True
+                        return False
+
                     unMutator = unField.getMutator( theTarget)
                     if not unMutator:
                         return False
@@ -1932,6 +2019,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                     self.vRefactor.vAnyWritesDone = True
                     self.vRefactor.vNumAttributesPasted += 1
                     unAttributeHasBeenSet = True
+                    self.vRefactor.vChangedElements.add( theTarget )
                 
                     return True
 
@@ -1952,12 +2040,12 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                         'params': { 
                             'theTarget': self.vRefactor.vTargetInfoMgr.fElementIdentificationForErrorMsg_Unicode( theTarget), 
                             'theAttrName': unicode( theAttrName),
-                            'theValueToSet': self.vRefactor.vModelDDvlPloneTool.fAsUnicode( self.vRefactor.fGetContextParam( 'target_root'), repr( theValueToSet),)
+                            'theValueToSet': self.vRefactor.vModelDDvlPloneTool.fAsUnicode( self.vRefactor.fGetContextParam( 'target_root'), fReprAsString( theValueToSet),)
                         }, 
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
             else:
                 self.vRefactor.vNumAttributesFailed += 1
 
@@ -2328,6 +2416,9 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                             
                             gRelationsProcessor.process( aRelationsLibrary, connect=[( unTargetUID, unTargetToBeRelatedUID, unRelationName ), ], disconnect=[])
                             self.vRefactor.vNumLinksPasted += 1
+                            self.vRefactor.vChangedElements.add( theTargetFrom )
+                            self.vRefactor.vChangedElements.add( unTargetToBeRelated )
+
                             unHasBeenLinked = True
                     
                     if unAnyNotLinked:
@@ -2389,7 +2480,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
             else:
                 self.vRefactor.vNumLinksFailed += 1
                 
@@ -3019,7 +3110,7 @@ class MDDRefactor_Paste_MapperInfoMgr ( MDDRefactor_Role_MapperInfoMgr):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
                     
     
     
@@ -3613,7 +3704,7 @@ class MDDRefactor_Import ( MDDRefactor):
             unInitialContextParms,
             MDDRefactor_Import_SourceInfoMgr_XMLElements(), 
             MDDRefactor_Import_SourceMetaInfoMgr_XMLElements(), 
-            MDDRefactor_Paste_TargetInfoMgr_MDDElement(), 
+            MDDRefactor_Import_TargetInfoMgr_MDDElement(), 
             MDDRefactor_Paste_TargetMetaInfoMgr_MDDElement(), 
             MDDRefactor_Paste_MapperInfoMgr(), 
             MDDRefactor_Paste_MapperMetaInfoMgr_ConvertTypes(), 
@@ -3677,7 +3768,7 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
         unPath  = self.fGetPath(  theSource)
         unaId   = self.fGetUID(   theSource)
         
-        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( repr( unTitle), repr( unaId), repr( unPath), repr( unaUID),)
+        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( str( unTitle), str( unaId), str( unPath), str( unaUID),)
 
         return unaIdentification
     
@@ -4469,6 +4560,36 @@ class MDDRefactor_Import_TraceabilityMgr( MDDRefactor_Role_TraceabilityMgr):
             
     
     
+           
+
+class MDDRefactor_Import_TargetInfoMgr_MDDElement ( MDDRefactor_Paste_TargetInfoMgr_MDDElement):
+    """
+    
+    """
+    def fInitInRefactor( self, theRefactor):
+        if not MDDRefactor_Paste_TargetInfoMgr_MDDElement.fInitInRefactor( self, theRefactor,):
+            return False
+
+        return True
+      
+    
+    
+    def fAuditChanges( self,):
+        
+        if not MDDRefactor_Paste_TargetInfoMgr_MDDElement.fAuditChanges( self):
+            return False
+        
+        unStack = self.vRefactor.fGetContextParam( 'stack', None)
+        if ( unStack == None):
+            return False
+        
+        if unStack.fIsSameElementAsRoot():
+            return True
+        
+        return False
+
+     
+        
         
     
     
@@ -4542,37 +4663,47 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     unErrorReason = cRefactorStatus_TargetRoot_Not_Writable
                     return  False
                 
-                transaction.savepoint(optimistic=True)
+                self.vRefactor.vTargetInfoMgr.fTransaction_Savepoint( theOptimistic=True)
                 
-                aIntoRootResult = self.fRefactor_IntoRoot( unosSourceRoots, unTargetRoot)
-
-                if aIntoRootResult or self.vRefactor.vAllowPartialCopies:
-                    transaction.savepoint(optimistic=True)
-                else:
-                    unErrorReason = cRefactorStatus_IntoRoot_NotCompleted
-                    return  False
-        
-                
-                
-                unIsMoveOperation =  self.vRefactor.fGetContextParam( 'is_move_operation')
-                if unIsMoveOperation:
-                    
-                    aMovesResult = self.fRefactor_Moves()
-
-                    if aMovesResult:
-                        transaction.savepoint(optimistic=True)
+                try:
+                    aIntoRootResult = self.fRefactor_IntoRoot( unosSourceRoots, unTargetRoot)
+    
+                    if aIntoRootResult or self.vRefactor.vAllowPartialCopies:
+                        self.vRefactor.vTargetInfoMgr.fTransaction_Savepoint( theOptimistic=True)
                     else:
-                        unErrorReason = cRefactorStatus_Moves_NotCompleted
+                        unErrorReason = cRefactorStatus_IntoRoot_NotCompleted
                         return  False
+            
+                    
+                    
+                    unIsMoveOperation =  self.vRefactor.fGetContextParam( 'is_move_operation')
+                    if unIsMoveOperation:
                         
-        
-                        
-                aRelationsResult = self.fRefactor_Relations( )
-                if aRelationsResult  or self.vRefactor.vAllowPartialCopies:
-                    transaction.savepoint(optimistic=True)
-                else:
-                    unErrorReason = cRefactorStatus_Relations_NotCompleted
-                    return  False
+                        aMovesResult = self.fRefactor_Moves()
+    
+                        if aMovesResult:
+                            self.vRefactor.vTargetInfoMgr.fTransaction_Savepoint( theOptimistic=True)
+                        else:
+                            unErrorReason = cRefactorStatus_Moves_NotCompleted
+                            return  False
+                            
+            
+                            
+                    aRelationsResult = self.fRefactor_Relations( )
+                    if aRelationsResult  or self.vRefactor.vAllowPartialCopies:
+                        self.vRefactor.vTargetInfoMgr.fTransaction_Savepoint( theOptimistic=True)
+                    else:
+                        unErrorReason = cRefactorStatus_Relations_NotCompleted
+                        return  False
+                    
+                finally:
+                    
+                    someChangedElements = self.vRefactor.vChangedElements
+                    someCreatedElements = self.vRefactor.vCreatedElements
+                    someImpactedElements = someChangedElements.difference( someCreatedElements)
+                    someImpactedUIDs = [ self.vRefactor.vTargetInfoMgr.fGetUID( anImpactedElement) for anImpactedElement in someImpactedElements]
+                    self.vRefactor.vImpactedObjectUIDs.extend( someImpactedUIDs)
+
         
                 unCompleted = True
                 
@@ -4594,7 +4725,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
             
     
     
@@ -4651,6 +4782,11 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                 
                 someSourcesMappedToSameTypeAsTargetRoot     = [ ]
                 someSourcesMappedToAggregationsInTargetRoot = [ ]
+                
+                someImpactedUIDs = [ ]
+                anImpactReport = { 'impacted_objects_UIDs': someImpactedUIDs,}
+                self.vRefactor.vModelDDvlPloneTool_Mutators.fImpactChangedContenedorYPropietario_IntoReport( theTargetRoot, anImpactReport)
+                self.vRefactor.vImpactedObjectUIDs.extend( someImpactedUIDs)
                 
                 for unSourceRoot in theSourceRoots:
                     if not self.vRefactor.vSourceInfoMgr.fIsSourceOk( unSourceRoot):
@@ -4746,7 +4882,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                     
                     
                 
-                if ( someSourcesMappedToAggregationsInTargetRoot):
+                if ( someSourcesMappedToAggregationsInTargetRoot):                    
                     
                     unRefactorRootAggregationsResult = self.fRefactor_RootAggregations( someSourcesMappedToAggregationsInTargetRoot, theTargetRoot)
                     if not unRefactorRootAggregationsResult:
@@ -4765,6 +4901,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                             
                 if ( someSourcesMappedToSameTypeAsTargetRoot):
                     
+
                     unRefactorSameRootTypesResult = self.fRefactor_SameRootTypes( someSourcesMappedToSameTypeAsTargetRoot, theTargetRoot)
                     if not unRefactorSameRootTypesResult:
                         unErrorReason = cRefactorStatus_RootAggregations_NotCompleted
@@ -4799,7 +4936,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
     
     
                 
@@ -4913,7 +5050,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                         if not ( unTargetRootTitle == unSourceRootTitle):
                             unNewTargetRootTitle = self.vRefactor.vTargetInfoMgr.fUniqueStringWithCounter( unSourceRootTitle, unosExistingRootSiblingsTitles)
                             if unNewTargetRootTitle:
-                                theTargetRoot.setTitle( unNewTargetRootTitle)
+                                self.vRefactor.vTargetInfoMgr.fSetTitle( theTargetRoot, unNewTargetRootTitle)
                                 unMustReindexTarget = True
                         
                         #unSourceRootDescription = self.vRefactor.vSourceInfoMgr.fGetAttributeValue( unSourceRoot, 'description', 'text',)
@@ -5014,7 +5151,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
     
                     
                 
@@ -5153,7 +5290,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                 
                                                 unNewTargetTitle = self.vRefactor.vTargetInfoMgr.fUniqueAggregatedTitle( theTargetRoot, unSourceRootTitle)
                                                 if unNewTargetTitle:
-                                                    unaCollectionToMergeWith.setTitle( unNewTargetTitle)
+                                                    self.vRefactor.vTargetInfoMgr.fSetTitle( unaCollectionToMergeWith, unNewTargetTitle)
                                                     unMustReindexTargetCollection = True
 
                                                     
@@ -5389,8 +5526,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                                         unRefactorStack.fPopStackFrame()
                                                                     
                                                                 
-                if unAnythingAdded:
-                    self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( theTargetRoot)
+                #if unAnythingAdded:
+                    #self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( theTargetRoot)
                     
                 unCompleted = True
                 
@@ -5417,7 +5554,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
     
                     
                     
@@ -5453,7 +5590,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                 unPopulateAttributesResult = self.vRefactor.vTargetInfoMgr.fPopulateElementAttributes( theRefactorFrame.vSource, theRefactorFrame.vTarget, theRefactorFrame.vTargetTypeConfig, theRefactorFrame.vMapping, theRefactorFrame.vMustReindexTarget)
                 
                 if unPopulateAttributesResult:
-                    transaction.savepoint( optimistic=True)
+                    self.vRefactor.vTargetInfoMgr.fTransaction_Savepoint( theOptimistic=True)
                 else:
                     unErrorReason = cRefactorStatus_Error_PopulateAttributes_Not_Completed
                     if not self.vRefactor.vAllowPartialCopies:
@@ -5470,7 +5607,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                 unRefactorFrameAggregationsResult = self.fRefactor_Frame_Aggregations( theRefactorFrame)
                 
                 if unRefactorFrameAggregationsResult:
-                    transaction.savepoint( optimistic=True)
+                    self.vRefactor.vTargetInfoMgr.fTransaction_Savepoint( theOptimistic=True)
                 else:
                     unErrorReason = cRefactorStatus_Error_RefactorFrameAggregations_Not_Completed
                     if not self.vRefactor.vAllowPartialCopies:
@@ -5506,7 +5643,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
     
                    
     
@@ -5666,7 +5803,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                                 
                                                                 unNewTargetTitle = self.vRefactor.vTargetInfoMgr.fUniqueAggregatedTitle( theRefactorFrame.vTarget, unAggregatedSourceTitle)
                                                                 if unNewTargetTitle:
-                                                                    unaCollectionToMergeWith.setTitle( unNewTargetTitle)
+                                                                    self.vRefactor.vTargetInfoMgr.fSetTitle( unaCollectionToMergeWith, unNewTargetTitle)
                                                                     unMustReindexTargetCollection = True
                                             
                                                             #unSourceCollectionDescription = self.vRefactor.vSourceInfoMgr.fGetAttributeValue( unAggregatedSource,       'description', 'text',)
@@ -5784,7 +5921,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                             
                                                             unAnythingAdded = True
 
-                                                            transaction.savepoint( optimistic=True)
+                                                            self.vRefactor.vTargetInfoMgr.fTransaction_Savepoint( theOptimistic=True)
         
                                                             unRegisterCorrespondenceResult = self.vRefactor.vMapperInfoMgr.fRegisterSourceToTargetCorrespondence( unAggregatedSource, unCreatedAggregatedElement, unMapping)
                                                             if not unRegisterCorrespondenceResult:
@@ -5853,8 +5990,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                                             unRefactorStack.fPopStackFrame()
                                                                         
                                                 
-                if unAnythingAdded:
-                    self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( theRefactorFrame.vTarget)
+                #if unAnythingAdded:
+                    #self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( theRefactorFrame.vTarget)
                         
                 unCompleted = True
                 return True
@@ -5879,7 +6016,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
     
                    
         
@@ -5960,7 +6097,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
     
                        
     
@@ -6110,8 +6247,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                     unosRelatedSources = self.vRefactor.vSourceInfoMgr.fGetTraversalValues( unSource, unSourceTraversalNameToRetrieve, [])
                                                     if unosRelatedSources:
                                                         for unRelatedSource in unosRelatedSources:
-                                                            if not self.vRefactor.vSourceInfoMgr.fIsSourceOk( unRelatedSource):
-                                                                unErrorReason = cRefactorStatus_RelatedSource_Not_OK
+                                                            if unRelatedSource == None:
+                                                                unErrorReason = cRefactorStatus_RelatedSource_None
                                                                 if not self.vRefactor.vAllowPartialCopies:
                                                                     return False
                                                                 else:
@@ -6119,6 +6256,17 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                                         'theclass': self.__class__.__name__, 
                                                                         'method': unMethodName, 
                                                                         'status': '%s traversalName=%s source=%s' % ( unicode( unErrorReason), unicode( unSourceTraversalNameToRetrieve), self.vRefactor.vSourceInfoMgr.fElementIdentificationForErrorMsg( unSource)),
+                                                                    }
+                                                                    self.vRefactor.pAppendErrorReport( anErrorReport)
+                                                            elif not self.vRefactor.vSourceInfoMgr.fIsSourceOk( unRelatedSource):
+                                                                unErrorReason = cRefactorStatus_RelatedSource_Not_OK
+                                                                if not self.vRefactor.vAllowPartialCopies:
+                                                                    return False
+                                                                else:
+                                                                    anErrorReport = { 
+                                                                        'theclass': self.__class__.__name__, 
+                                                                        'method': unMethodName, 
+                                                                        'status': '%s traversalName=%s source=%s relatedSource=%' % ( unicode( unErrorReason), unicode( unSourceTraversalNameToRetrieve), self.vRefactor.vSourceInfoMgr.fElementIdentificationForErrorMsg( unSource),self.vRefactor.vSourceInfoMgr.fElementIdentificationForErrorMsg( unRelatedSource)),
                                                                     }
                                                                     self.vRefactor.pAppendErrorReport( anErrorReport)
                                                                 
@@ -6241,8 +6389,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                                                 unTargetLinked = True
 
         
-                    if unTargetLinked:
-                        self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( unTarget)
+                    #if unTargetLinked:
+                        #self.vRefactor.vModelDDvlPloneTool_Mutators.pSetAudit_Modification( unTarget)
      
                          
                          
@@ -6266,7 +6414,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
     
                            
             
@@ -6308,6 +6456,17 @@ class MDDRefactor_Paste_Walker_Stack:
     
     
     
+    def fLastRootStackFrame( self,):
+        
+        if not self.vRootFrames:
+            return None
+    
+        unLastFrame = self.vRootFrames[-1:][ 0]        
+        return unLastFrame    
+    
+            
+    
+    
     def fPushStackFrame( self, theWalker, theSourceRoot, theCreatedElement, theCreatedElementTypeConfig, theMapping):
         if ( not theWalker) or ( not theSourceRoot) or ( not theCreatedElement) or ( not theCreatedElementTypeConfig):
             return None
@@ -6332,6 +6491,15 @@ class MDDRefactor_Paste_Walker_Stack:
         
         return unStackFrame
     
+
+    
+    def fLastStackFrame( self,):
+        
+        if not self.vStack:
+            return None
+    
+        unLastFrame = self.vStack[-1:][ 0]        
+        return unLastFrame    
     
     
     
@@ -6347,6 +6515,34 @@ class MDDRefactor_Paste_Walker_Stack:
         self.vStack.pop()
         
         return unLastFrame
+    
+    
+    
+    
+    
+    
+    
+    def fIsSameElementAsRoot( self,):
+        
+        unLastRootStackFrame     = self.fLastRootStackFrame()
+        unLastRootTargetElement  = unLastRootStackFrame.vTarget
+
+        unLastStackFrame     = self.fLastStackFrame()
+        unLastTargetElement  = unLastStackFrame.vTarget
+        
+        if ( unLastRootTargetElement == None):
+            return False
+        
+        if ( unLastTargetElement == None):
+            return False
+        
+        if ( unLastTargetElement == unLastRootTargetElement):
+            return True
+        
+        return False
+    
+    
+    
     
     
     
@@ -6822,7 +7018,7 @@ class MDDRefactor_NewVersion_SourceInfoMgr_MDDElements( MDDRefactor_Role_SourceI
         unPath  = self.fGetPath(  theSource)
         unaId   = self.fGetUID(   theSource)
         
-        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( repr( unTitle), repr( unaId), repr( unPath), repr( unaUID),)
+        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( str( unTitle), str( unaId), str( unPath), str( unaUID),)
 
         return unaIdentification
     
@@ -7132,7 +7328,7 @@ class MDDRefactor_NewVersion_SourceInfoMgr_MDDElements( MDDRefactor_Role_SourceI
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
                     
     
     
@@ -7252,6 +7448,22 @@ class MDDRefactor_NewVersion_TargetInfoMgr_MDDElement ( MDDRefactor_Paste_Target
       
     
     
+    def fAuditChanges( self,):
+        
+        unStack = self.vRefactor.vSetContextParam( 'stack', None)
+        if ( unStack == None):
+            return False
+        
+        if unStack.fIsSameElementAsRoot():
+            return True
+        
+        return False
+
+     
+        
+        
+     
+        
 
     
     
@@ -7417,10 +7629,7 @@ class MDDRefactor_NewVersion_TraceabilityMgr( MDDRefactor_Role_TraceabilityMgr):
                     unTargetAccessor = unSourcesCountersField.getAccessor( theTarget)
                     unTargetSourcesCountersString = unTargetAccessor()
                     if unTargetSourcesCountersString:   
-                        try:
-                            unTargetSourcesCounters = eval( unTargetSourcesCountersString)
-                        except:
-                            None
+                        unTargetSourcesCounters = fEvalString( unTargetSourcesCountersString)
                         if not unTargetSourcesCounters:
                             unTargetSourcesCounters = { }
                             if not ( unTargetSourcesCounters.__class__.__name__ == 'dict'):
@@ -7428,7 +7637,7 @@ class MDDRefactor_NewVersion_TraceabilityMgr( MDDRefactor_Role_TraceabilityMgr):
                     
                     unTargetSourcesCounters[ unSourceUID] = unSourceChangeCounter
                 
-                    unNewTargetSourcesCountersString = repr( unTargetSourcesCounters)    
+                    unNewTargetSourcesCountersString = fReprAsString( unTargetSourcesCounters)    
                     unTargetMutator = unSourcesCountersField.getMutator( theTarget)
                     
                     if not unTargetMutator:
@@ -7462,7 +7671,7 @@ class MDDRefactor_NewVersion_TraceabilityMgr( MDDRefactor_Role_TraceabilityMgr):
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
                     
     
     
@@ -7653,7 +7862,7 @@ class MDDRefactor_NewVersion_MapperInfoMgr_NoConversion ( MDDRefactor_Role_Mappe
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
                     
     
     
@@ -8442,7 +8651,7 @@ class MDDRefactor_NewTranslation_SourceInfoMgr_MDDElements( MDDRefactor_Role_Sou
         unPath  = self.fGetPath(  theSource)
         unaId   = self.fGetUID(   theSource)
         
-        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( repr( unTitle), repr( unaId), repr( unPath), repr( unaUID),)
+        unaIdentification = 'Title=%s; id=%s; path=%s UID=%s' % ( str( unTitle), str( unaId), str( unPath), str( unaUID),)
 
         return unaIdentification
     
@@ -8752,7 +8961,7 @@ class MDDRefactor_NewTranslation_SourceInfoMgr_MDDElements( MDDRefactor_Role_Sou
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
                     
     
     
@@ -8872,7 +9081,10 @@ class MDDRefactor_NewTranslation_TargetInfoMgr_MDDElement ( MDDRefactor_Paste_Ta
       
     
     
+    def fAuditChanges( self,):
+        return False
 
+     
     
     
                         
@@ -9037,10 +9249,7 @@ class MDDRefactor_NewTranslation_TraceabilityMgr( MDDRefactor_Role_TraceabilityM
                     unTargetAccessor = unSourcesCountersField.getAccessor( theTarget)
                     unTargetSourcesCountersString = unTargetAccessor()
                     if unTargetSourcesCountersString:   
-                        try:
-                            unTargetSourcesCounters = eval( unTargetSourcesCountersString)
-                        except:
-                            None
+                        unTargetSourcesCounters = fEvalString( unTargetSourcesCountersString)
                         if not unTargetSourcesCounters:
                             unTargetSourcesCounters = { }
                             if not ( unTargetSourcesCounters.__class__.__name__ == 'dict'):
@@ -9048,7 +9257,7 @@ class MDDRefactor_NewTranslation_TraceabilityMgr( MDDRefactor_Role_TraceabilityM
                     
                     unTargetSourcesCounters[ unSourceUID] = unSourceChangeCounter
                 
-                    unNewTargetSourcesCountersString = repr( unTargetSourcesCounters)    
+                    unNewTargetSourcesCountersString = fReprAsString( unTargetSourcesCounters)    
                     unTargetMutator = unSourcesCountersField.getMutator( theTarget)
                     
                     if not unTargetMutator:
@@ -9082,7 +9291,7 @@ class MDDRefactor_NewTranslation_TraceabilityMgr( MDDRefactor_Role_TraceabilityM
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
                     
     
     
@@ -9274,7 +9483,7 @@ class MDDRefactor_NewTranslation_MapperInfoMgr_NoConversion ( MDDRefactor_Role_M
                     }
                     self.vRefactor.pAppendErrorReport( anErrorReport)
                     if not self.vRefactor.vAllowPartialCopies:
-                        raise self.vRefactor.vExceptionToRaise, repr( anErrorReport)
+                        raise self.vRefactor.vExceptionToRaise, fReprAsString( anErrorReport)
                     
     
     

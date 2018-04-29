@@ -55,6 +55,13 @@ msgstr "The Cache has NOT been Flushed"
 msgid "ModelDDvlPlone_Cached"
 msgstr "Cached"
 
+
+#. Default: "Almacenada en Disco"
+#: Textual.pt
+msgid "ModelDDvlPlone_DiskCached"
+msgstr "Disk Cached"
+
+
 #. Default: "Completados"
 #: MDDRefactorResultsDump_i18n_view.pt
 msgid "ModelDDvlPlone_Completed"
@@ -90,10 +97,10 @@ msgstr "Date"
 msgid "ModelDDvlPlone_Deadline"
 msgstr "Deadline"
 
-#. Default: "Debe confirmar en los siguientes:"
+#. Default: "Debe confirmar en los siguientes"
 #: Eliminar_inner.pt
 msgid "ModelDDvlPlone_DeleteConfirmation_TimeOut_Help"
-msgstr "Debe confirmar en los siguientes:"
+msgstr "You must confirm within the next"
 
 #. Default: "No tiene permitido Deshabilitar el Almacen"
 #: MDDInspectCache_inner.py
@@ -176,37 +183,37 @@ msgid "ModelDDvlPlone_Failed"
 msgstr "Failed"
 
 #. Default: "Error: Elemento no encontrado por su identificador."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_get_by_uid_failure"
 msgstr "Error: Element not found by its identifier."
 
 #. Default: "Error Interno: Fallo recuperando informe de impacto de la eliminacion."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_internal_impact_report_retrieval_failure"
 msgstr "Internal Error: Failure retrieving delete impact report."
 
 #. Default: "Error Interno: Elemento sin identificador."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_internal_no_element_id"
 msgstr "Internal Error: Element without identifier."
 
 #. Default: "Error: No tiene permiso para eliminar los elementos, o cualquiera de los elementos contenidos, o afectar a los elementos relacionados."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_no_delete_permission"
 msgstr "Error: You have no permission to delete the elements, or any of the contained elements, or affect the related elements."
 
 #. Default: "Error: Faltan parametros requeridos."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_required_parameters_missing"
 msgstr "Error: Required Parameters Missing."
 
 #. Default: "Error: Ha expirado el plazo de tiempo."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_time_out"
 msgstr "Error: Deadline has expired."
 
 #. Default: "Error: Contenedor del elemento incorrecto."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_wrong_container_element"
 msgstr "Error: Wrong container for the element."
 
@@ -228,14 +235,25 @@ msgid "ModelDDvlPlone_FlushCache_action_NotAllowed"
 msgstr "You Can Not Flush the Cache"
 
 #. Default: "Vaciar Almacena"
-#: MDDInspectCacheInner.pt
+#: MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_FlushCache_action_page_title"
 msgstr "Flush Cache"
+
+#. Default: "Eliminar de Almacen"
+#: ModelDDvlPloneTool_Cache.py
+msgid "ModelDDvlPlone_FlushFromCacheLink_label"
+msgstr "Flush from cache"
+
+#. Default: "Eliminar de Almacen en Disco"
+#: ModelDDvlPloneTool_Cache.py
+msgid "ModelDDvlPlone_FlushFromDiskCacheLink_label"
+msgstr "Flush from disc cache"
 
 #. Default: "Eliminar de almacen de preparadas"
 #: ModelDDvlPloneTool_Cache.py
 msgid "ModelDDvlPlone_FlushFromCacheLink_label"
 msgstr "Flush from cache"
+
 
 #. Default: "TdC"
 #: MDDNewVersion_inner.pt
@@ -323,7 +341,7 @@ msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCacheEntries"
 msgstr "Total Cache Entries"
 
 #. Default: "Fallos"
-#: MDDInspectCache_inner.pt MDDInspectCacheInner.pt
+#: MDDInspectCache_inner.pt MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCacheFaults"
 msgstr "Faults"
 
@@ -332,35 +350,54 @@ msgstr "Faults"
 msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCacheHits"
 msgstr "Hits"
 
+
+#. Default: "Aciertos en Disco"
+#: MDDInspectCache_inner.pt
+msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCacheDiskHits"
+msgstr "Hits on Disc"
+
+
+#. Default: "Generaciones"
+#: MDDInspectCache_inner.pt
+msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalRenderings"
+msgstr "Renderings"
+
 #. Default: "Caracteres Usados"
 #: MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCharsCached"
 msgstr "Characters Used"
 
 #. Default: "Caracteres Ahorrados"
-#: MDDInspectCache_inner.pt MDDInspectCacheInner.pt
+#: MDDInspectCache_inner.pt MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCharsSaved"
 msgstr "Characters Saved"
 
 #. Default: "Tiempo Ahorrado"
-#: MDDInspectCache_inner.pt MDDInspectCacheInner.pt
+#: MDDInspectCache_inner.pt MDDInspectCache_inner.pt
 msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalTimeSaved"
 msgstr "Time Saved"
 
-#. Default: "Entradas Independientes de Elemento alguno"
+
+
+#. Default: "Para Todos los almacenes"
 #: MDDInspectCache_inner.pt
-msgid "ModelDDvlPlone_InspectCache_Acumulators_CacheEntriesElementIndependent"
+msgid "ModelDDvlPlone_InspectCache_CacheName_"
+msgstr "For All caches"
+
+#. Default: "Entradas Independientes de Elementos"
+#: MDDInspectCache_inner.pt
+msgid "ModelDDvlPlone_InspectCache_CacheName_ElementIndependent"
 msgstr "Element-Independent Cache Entries"
 
 #. Default: "Entradas para Elementos"
 #: MDDInspectCache_inner.pt
-msgid "ModelDDvlPlone_InspectCache_Acumulators_CacheEntriesForElements"
+msgid "ModelDDvlPlone_InspectCache_CacheName_ForElements"
 msgstr "Cache Entries For Elements"
 
-#. Default: "Entradas Independientes de Elementos"
+#. Default: "Entradas para Usuarios"
 #: MDDInspectCache_inner.pt
-msgid "ModelDDvlPlone_InspectCache_CacheEntriesElementIndependent"
-msgstr "Element-Independent Cache Entries"
+msgid "ModelDDvlPlone_InspectCache_CacheName_ForUsers"
+msgstr "Cache Entries For Users"
 
 #. Default: "Tiempo de Arranque del Almacenamiento de paginas preparadas"
 #: MDDInspectCache_inner.pt
@@ -414,22 +451,22 @@ msgstr "Last User who Flushed the Cache"
 
 #. Default: "Bloquear Una o Dos veces"
 #: MDDInspectCache_inner.py
-msgid "ModelDDvlPlone_InspectCache_LockOnceOrTwice"
+msgid "Deprecated_ModelDDvlPlone_InspectCache_LockOnceOrTwice"
 msgstr "Lock Once or Twice"
 
 #. Default: "Bloquear una vez"
 #: MDDInspectCache_inner.py
-msgid "ModelDDvlPlone_InspectCache_LockOnceOrTwice_Once"
+msgid "Deprecated_ModelDDvlPlone_InspectCache_LockOnceOrTwice_Once"
 msgstr "Once"
 
 #. Default: "Bloquear dos veces"
 #: MDDInspectCache_inner.py
-msgid "ModelDDvlPlone_InspectCache_LockOnceOrTwice_Twice"
+msgid "Deprecated_ModelDDvlPlone_InspectCache_LockOnceOrTwice_Twice"
 msgstr "Twice"
 
 #. Default: "Maximo de memoria (en caracteres)"
 #: MDDInspectCache_inner.pt
-msgid "ModelDDvlPlone_InspectCache_MaxCharsCachedForElements"
+msgid "ModelDDvlPlone_InspectCache_MaxCharsCached"
 msgstr "Maximum of memory (in chars)"
 
 #. Default: "Puede invalidar todas las paginas almacenadas actualmente, pulsando sobre el boton Vacias, si esta autorizado a hacerlo."
@@ -727,7 +764,7 @@ msgstr "Unique Identifier (UID)"
 msgid "ModelDDvlPlone_URL_label"
 msgstr "Page HTTP address"
 
-#. Default: "ModelDDvlPloneTool"
+#. Default: "User"
 #: ModelDDvlPloneTool.py
 msgid "ModelDDvlPlone_User_label"
 msgstr "User"
@@ -1362,10 +1399,10 @@ msgstr "Textual"
 msgid "ModelDDvlPlone_tiempoconfirmacioneliminar_help"
 msgstr "You must confirm within a limited interval of time. If you need additional time to review the impact, please request again the deletion of this element."
 
-#. Default: "Tipo de elemento"
+#. Default: "Tipo"
 #: ColeccionEnTabla.pt
 msgid "ModelDDvlPlone_tipo_label"
-msgstr "Element type"
+msgstr "Type"
 
 #. Default: "Titulo que identifica el elemento."
 #: ReferenciasEnTabla_view.pt ElementoGeneral_I18N.py
@@ -1434,13 +1471,13 @@ msgstr "Delete operation Failed"
 
 
 #. Default: "Error en Eliminacion."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure"
 msgstr "Error while Deleting"
 
 
 #. Default: "Error en Eliminacion."
-#: MDDInspectCacheInner.pt ModelDDvlPloneTool_Mutators.pt
+#: MDDInspectCache_inner.pt ModelDDvlPloneTool_Mutators.pt
 msgid "ModelDDvlPlone_Failure_"
 msgstr "Error while Deleting"
 
@@ -1451,8 +1488,798 @@ msgstr "You may sort the table contents by clicking on the column headers."
 
 
 #. Default: "Parametros de Configuracion"
-#: MDDInspectCacheInner.pt 
+#: MDDInspectCache_inner.pt 
 msgid "ModelDDvlPlone_InspectCache_ConfigurationParameters"
 msgstr "Configuration Parameters"
+
+#. Default: "Parametros de Configuracion Actuales"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_CurrentConfigurationParameters"
+msgstr "Current Configuration Parameters"
+
+
+
+#. Default: "Umbral Minimo de Memoria para borrar entradas"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_MinThresholdCharsToRelease"
+msgstr "Minimum Memory Threshold To Release Entries (in chars)"
+
+
+#. Default: "Expirar tras (segundos)"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_ExpireAfter"
+msgstr "Expire after (seconds)"
+
+
+#. Default: "Expirar en Disco tras (segundos)"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_ExpireDiskAfter"
+msgstr "Expire in Disk after (seconds)"
+
+#. Default: "Forzar Expirar"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_ForceExpire"
+msgstr "Force Expiration"
+
+#. Default: "Ruta para Cache en Disco"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_CacheDiskPath"
+msgstr "Path for Cache on Disk"
+
+
+
+#. Default: "Para Usuarios: Expirar tras (segundos)"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_ExpireAfter_ForUsers"
+msgstr "For Users: Expire after (seconds)"
+
+
+
+#. Default: "Habilitado Almacen en Disco"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_CacheDiskEnabled"
+msgstr "Cache in Disk Enabled"
+
+
+#. Default: "Para Todos los almacenes"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_ConfigurationForAllCaches_title"
+msgstr "For All caches"
+
+
+
+
+#. Default: "Parametros de Configuracion"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Cache_ConfigurationParameters"
+msgstr "Configuration parameters"
+
+
+
+
+#. Default: "Asociados a Notificar de Cambios"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_PeersToNotify"
+msgstr "Peers to Notify of Changes"
+
+
+
+#. Default: "Identificacion para Asociados"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_IdentificationStringForPeers"
+msgstr "Identification For Peers"
+
+
+
+#. Default: "Autentificacion Para Asociados"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_AuthenticationStringForPeers"
+msgstr "Authentication For Peers"
+
+
+
+
+#. Default: "Autentificacion De Asociados"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_AuthenticationStringFromPeers"
+msgstr "Authentication From Peers"
+
+
+
+#. Default: "Almacen de paginas generadas"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_RenderedTemplatesCache_Title"
+msgstr "Cache with rendered pages"
+
+
+
+
+#. Default: "Medidas de Actividad"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Cache_ActivityMetrics"
+msgstr "Activity Metrics"
+
+
+
+#. Default: "Fecha del informe de estado"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_StatusReportTime"
+msgstr "Status Report Time"
+
+
+
+#. Default: "Minimo"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Minimum"
+msgstr "Minimum"
+
+
+#. Default: "Maximo"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Maximum"
+msgstr "Maximum"
+
+
+#. Default: "Por defecto"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Default"
+msgstr "Default"
+
+
+#. Default: "Operaciones"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Cache_Operations"
+msgstr "Operations"
+
+
+
+#. Default: "Portapapeles"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_Title"
+msgstr "Clipboard"
+
+
+#. Default: "El Portapapeles esta Vacio"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_Empty"
+msgstr "Clipboard is Empty"
+
+
+#. Default: "Numero de elementos"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_NumElements"
+msgstr "Number of elements"
+
+
+#. Default: "Contenidos"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_NumContainedElements"
+msgstr "Contained"
+
+
+
+#. Default: "Total"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_TotalElements"
+msgstr "Total"
+
+
+
+#. Default: "Los elementos fueron CORTADOS y seran MOVIDOS con la operacion de Pegar"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_ElementsWereCut"
+msgstr "Elements were CUT and Shall be MOVED upon Paste operation."
+
+
+#. Default: "Los elementos fueron COPIADOS y seran REPLICADOS con la operacion de Pegar"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_ElementsWereCopied"
+msgstr "Elements were COPIED and Shall be REPLICATED upon Paste operation."
+
+
+#. Default: "El Contenido del Portapapeles viene de "
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_ContentsFrom"
+msgstr "Clipboard Contents comes from "
+
+#. Default: "Mismo modelo"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_ContentsSameRoot"
+msgstr "Same model"
+
+
+#. Default: "otros modelos"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_ContentsOtherRoots"
+msgstr "other models"
+
+
+
+#. Default: "y"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_and"
+msgstr "and"
+
+
+#. Default: "fuera de las aplicaciones"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_ContentsFromOutsideOfApplicationRoots"
+msgstr "outside of the applications"
+
+
+
+#. Default: "Vaciar Portapapeles"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Clipboard_Clear_action"
+msgstr "Clear Clipboard"
+
+
+
+
+#. Default: "Almacen Inactivo"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_IsInactive"
+msgstr "Cache is Inactive"
+
+
+
+#. Default: "Almacen Activo"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_IsActive"
+msgstr "Cache is Active"
+
+
+#. Default: "Realmente desea VACIAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Flush_Confirmation1"
+msgstr "Do you really want to FLUSH the Cache"
+
+
+#. Default: "Realmente REALMENTE desea VACIAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Flush_Confirmation2"
+msgstr "Do you REALLY REALLY want to FLUSH the Cache"
+
+
+#. Default: "Realmente desea INICIALIZAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Reset_Confirmation1"
+msgstr "Do you really want to RESET the Cache"
+
+
+#. Default: "Realmente REALMENTE desea INICIALIZAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Reset_Confirmation2"
+msgstr "Do you really REALLY want to RESET the Cache"
+
+
+#. Default: "Realmente desea HABILITAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Enable_Confirmation1"
+msgstr "Do you really want to ENABLE the Cache"
+
+
+#. Default: "Realmente REALMENTE desea HABILITAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Enable_Confirmation2"
+msgstr "Do you really REALLY want to ENABLE the Cache"
+
+
+
+#. Default: "Realmente desea DESHABILITAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Disable_Confirmation1"
+msgstr "Do you really want to DISABLE the Cache"
+
+
+#. Default: "Realmente REALMENTE desea DESHABILITAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Disable_Confirmation2"
+msgstr "Do you really REALLY want to DISABLE the Cache"
+
+
+
+
+#. Default: "Realmente desea CONFIGURAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Configure_Confirmation1"
+msgstr "Do you really want to CONFIGURE the Cache"
+
+
+#. Default: "Realmente REALMENTE desea CONFIGURAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Configure_Confirmation2"
+msgstr "Do you really REALLY want to CONFIGURE the Cache"
+
+
+
+#. Default: "Realmente desea ACTIVAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Activate_Confirmation1"
+msgstr "Do you really want to ACTIVATE the Cache"
+
+
+#. Default: "Realmente REALMENTE desea ACTIVAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Activate_Confirmation2"
+msgstr "Do you really REALLY want to ACTIVATE the Cache"
+
+
+#. Default: "Realmente desea DESACTIVAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Deactivate_Confirmation1"
+msgstr "Do you really want to DEACTIVATE the Cache"
+
+
+#. Default: "Realmente REALMENTE desea DESACTIVAR el cache"
+#: MDDInspectClipboard_inner.pt 
+msgid "ModelDDvlPlone_Cache_Deactivate_Confirmation2"
+msgstr "Do you really REALLY want to DEACTIVATE the Cache"
+
+
+#. Default: "Error modificando el elemento"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Edit_Error_Object_"
+msgstr "Error modifying the element"
+
+#. Default: "Error modificando el elemento: has sido cambiado por otras transacciones mientras editaba el formulario."
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Edit_Error_Object_changed_by_other_transactions"
+msgstr "Error modifying the element: it has been changed by other transactions while editing the form."
+
+#. Default: "Error modificando el elemento: el elemento no es visible para Vd. en este momento."
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Edit_Error_Object_object_read_permission"
+msgstr "Error modifying the element: the element is not visible for you at this moment."
+
+
+#. Default: "Error modificando el elemento: no puede modificar el elemento en este momento."
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Edit_Error_Object_object_write_permission"
+msgstr "Error modifying the element: you can not change the element at this moment."
+
+
+
+
+#. Default: "Historia de Cambios"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangesHistory_page_title"
+msgstr "Changes History"
+
+
+
+
+
+
+
+
+#. Default: "New Field Value"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_newv"
+msgstr "New Field Value"
+
+
+#. Default: "Deleted Element ArchetypeName"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_dar"
+msgstr "Deleted Element ArchetypeName"
+
+
+#. Default: "Create"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_cre"
+msgstr "Create"
+
+
+#. Default: "Traversal Name"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_trav"
+msgstr "Traversal Name"
+
+
+#. Default: "Target Path"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_tpath"
+msgstr "Target Path"
+
+
+#. Default: "New Element ArchetypeName"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_nar"
+msgstr "New Element ArchetypeName"
+
+
+#. Default: "Create SubElement"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_crs"
+msgstr "Create SubElement"
+
+
+#. Default: "Change Values"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_chg"
+msgstr "Change Values"
+
+
+#. Default: "Included Deleted"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_dele"
+msgstr "Included Deleted"
+
+
+#. Default: "User Id"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_user"
+msgstr "User Id"
+
+#. Default: "Deleted UID"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_duid"
+msgstr "Deleted UID"
+
+
+#. Default: "Deleted Path"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_dph"
+msgstr "Deleted Path"
+
+
+#. Default: "Moved Element UID"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_muid"
+msgstr "Moved Element UID"
+
+#. Default: "Moved Element Path"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_mph"
+msgstr "Moved Element Path"
+
+
+#. Default: "Counter"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_ctr"
+msgstr "Counter"
+
+
+#. Default: "Moved Element MetaType"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_dty"
+msgstr "Moved Element MetaType"
+
+
+#. Default: "Link"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_lnk"
+msgstr "Link"
+
+
+#. Default: "Date"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_ms"
+msgstr "Date"
+
+
+#. Default: "Delta"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_delta"
+msgstr "Delta"
+
+
+#. Default: "Delete SubElement"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_des"
+msgstr "Delete SubElement"
+
+
+#. Default: "Kind"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_kind"
+msgstr "Kind"
+
+
+#. Default: "Field Changes"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_flds"
+msgstr "Field Changes"
+
+
+#. Default: "Relation"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_rel"
+msgstr "Relation"
+
+
+#. Default: "Delete"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_del"
+msgstr "Delete"
+
+
+#. Default: "Details"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_dets"
+msgstr "Details"
+
+
+#. Default: "Unlink"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_uln"
+msgstr "Unlink"
+
+
+#. Default: "DeletePloneSubElement"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_dpl"
+msgstr "DeletePloneSubElement"
+
+
+#. Default: "Created Title"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_ntit"
+msgstr "Created Title"
+
+#. Default: "Deleted Title"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_mtit"
+msgstr "Deleted Title"
+
+
+#. Default: "Moved Title"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_mtit"
+msgstr "Moved Title"
+
+
+
+#. Default: "New Element Id"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_nid"
+msgstr "New Element Id"
+
+
+#. Default: "New Element UID"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_nuid"
+msgstr "New Element UID"
+
+
+#. Default: "Move Sub Object"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_mvs"
+msgstr "Move Sub Object"
+
+
+#. Default: "Move Referenced Object"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_mvr"
+msgstr "Move Referenced Object"
+
+
+#. Default: "New Element MetaType"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_nmt"
+msgstr "New Element MetaType"
+
+
+#. Default: "MovePloneSubObject"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeKind_mvp"
+msgstr "MovePloneSubObject"
+
+
+#. Default: "Position"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_pos"
+msgstr "Position"
+
+
+#. Default: "Target UID"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_tuid"
+msgstr "Target UID"
+
+
+#. Default: "Moved Element Id"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetail_did"
+msgstr "Moved Element Id"
+
+
+
+#. Default: "No se han hecho cambios"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_NoChangesMade"
+msgstr "No Changes made"
+
+
+
+#. Default: "Contador de cambios"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_ChangeCounter_label"
+msgstr "Changes counter"
+
+
+#. Default: "Ultimo Cambio"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Audit_LastChange"
+msgstr "Last Change"
+
+
+#. Default: "el"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Audit_ChangeOn"
+msgstr "on"
+
+
+
+#. Default: "por"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_Audit_ChangeBy"
+msgstr "by"
+
+
+
+#. Default: "fecha"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_EditOnTime_label"
+msgstr "date"
+
+
+
+
+#. Default: "desde"
+#: ModelDDvlPloneTool_Mutators.py 
+msgid "ModelDDvlPlone_Audit_ChangesSince"
+msgstr "since"
+
+
+#. Default: "cambios"
+#: ModelDDvlPloneTool_Mutators.py 
+msgid "ModelDDvlPlone_ChangesAfterNumChanges"
+msgstr "changes"
+
+
+
+
+
+
+#. Default: "Detalles"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_ChangeDetails"
+msgstr "Details"
+
+
+
+
+#. Default: "Todos los Cambios"
+#: MDDChanges_inner.pt 
+msgid "ModelDDvlPlone_AllChanges_link"
+msgstr "All Changes"
+
+
+#. Default: "de"
+#: MDDRenderTabular.py 
+msgid "ModelDDvlPlone_desenlazar_DE"
+msgstr "from"
+
+#. Default: "Historia de Cambios Vacia"
+#: MDDChanges.pt 
+msgid "ModelDDvlPlone_ChangesHistory_Empty_page_title"
+msgstr "Empty Changes History"
+
+
+
+
+#. Default: "Inspeccionar Cambios Recientes"
+#: Editar_inner.pt 
+msgid "ModelDDvlPlone_InspectRecentChanges"
+msgstr "Inspect Recent Changes"
+
+
+
+
+#. Default: "Mostrar Generada"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_ShowNoFromCacheLink_label"
+msgstr "Show generated"
+
+
+
+
+#. Default: "Archivo"
+#: ModelDDvlPloneTool_Cache.pt 
+msgid "ModelDDvlPlone_FilePath_label"
+msgstr "File"
+
+
+
+
+#. Default: "Estado en"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Cache_Status_At"
+msgstr "Status at"
+
+
+#. Default: "Diferencia con"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Cache_Delta_From"
+msgstr "Delta from"
+
+
+
+
+#. Default: "Diferencia"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_Cache_Delta"
+msgstr "Delta"
+
+
+
+#. Default: "Entradas Vaciadas"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalEntriesFlushed"
+msgstr "Entries Flushed"
+
+
+#. Default: "Caracteres Vaciados"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCharsFlushed"
+msgstr "Chars Flushed"
+
+
+#. Default: "Ficheros Escritos"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalFilesWritten"
+msgstr "Files Written"
+
+
+
+#. Default: "Caracteres Escritos"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCharsWritten"
+msgstr "Chars Written"
+
+
+
+#. Default: "Ficheros Vaciados"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_Acumulator_FilesCleared"
+msgstr "Files Cleared"
+
+
+
+#. Default: "Caracteres Vaciados de Disco"
+#: MDDInspectCache_inner.pt 
+msgid "ModelDDvlPlone_InspectCache_Acumulator_TotalCharsDiskFreed"
+msgstr "Chars Cleared from Disk"
+
+
+
+
+#. Default: "Caracteristicas"
+#: MDDRenderTabular.pt 
+msgid "ModelDDvlPlone_Tabular_Section_Features"
+msgstr "Features"
+
+
+#. Default: "Secciones"
+#: MDDRenderTabular.pt 
+msgid "ModelDDvlPlone_Tabular_Sections"
+msgstr "Sections"
+
+#. Default: "Arriba"
+#: MDDRenderTabular.pt 
+msgid "ModelDDvlPlone_Tabular_Section_Top"
+msgstr "Top"
+
+
+
+#. Default: "esta Bloqueado contra modificaciones."
+#: MDDRenderTabular.pt 
+msgid "ModelDDvlPlone_ElementLockedAgainstModifications"
+msgstr "is Locked against modifications."
+
+
+
 
 

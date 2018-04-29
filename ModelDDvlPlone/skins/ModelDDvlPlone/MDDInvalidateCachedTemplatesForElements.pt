@@ -30,5 +30,5 @@
     tal:define="
         theFlushedElementsUIDs    request/ELUID;
         theAuthenticationString   request/UAUTH"
-    tal:replace="structure python: here.ModelDDvlPlone_tool.fInvalidateCachedTemplatesForElements( here, theFlushedElementsUIDs, theAuthenticationString)" />
+    tal:replace="structure python: here.ModelDDvlPlone_tool.pReceiveNotification_FlushCachedTemplatesForElementsUIDs( here, theFlushedElementsUIDs, thePeerIdentificationString, thePeerAuthenticationString)" />
     

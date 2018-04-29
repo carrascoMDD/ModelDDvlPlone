@@ -43,6 +43,9 @@ from Products.CMFCore.utils import getToolByName
 
 
 
+from ModelDDvlPloneToolSupport import fSecondsNow
+
+
 
 class ModelDDvlPloneTool_Retrieval_Impact:
     """
@@ -164,6 +167,14 @@ class ModelDDvlPloneTool_Retrieval_Impact:
             if not someElementsToDelete:
                 return aDeleteManyImpactReports
             
+            someAdditionalParams = theAdditionalParams
+            if someAdditionalParams == None:
+                someAdditionalParams = { }
+            else:
+                someAdditionalParams = someAdditionalParams.copy()
+                
+            someAdditionalParams[ 'DoNotForbidDeletionFor_Aggregations_ReadOnly'] =  True
+            
             
             for unElementToDelete in someElementsToDelete:
                               
@@ -192,7 +203,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                         allRelatedElements, 
                         allRelatedResults, 
                         unCanDeleteHolder, 
-                        theAdditionalParams
+                        someAdditionalParams
                     )
                     if aReport:
                         aReport[ 'delete_permission'] = unCanDeleteHolder[ 0] and aReport[ 'here'][ 'delete_permission'] and \
@@ -209,7 +220,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                             allRelatedElements, 
                             allRelatedResults, 
                             unCanDeleteHolder, 
-                            theAdditionalParams
+                            someAdditionalParams
                         )
                         
                         aDeleteManyImpactReports[ 'impact_reports'].append( aReport)
@@ -222,6 +233,15 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                     break
                 
                 
+            for anImpactReport in someImpactReports:
+                someRelated = anImpactReport.get( 'related', [])
+                for anIncludedElement in allIncludedElements:
+                    try:
+                        someRelated.remove( anIncludedElement)
+                    except:
+                        None
+                        
+                    
             aReport.update( {
                 'num_elements_to_delete':  len( allIncludedElements),
                 'num_elements_to_affect':  len( allRelatedElements),
@@ -229,7 +249,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
             
             
             
-            aSecondsNow          = self.fSecondsNow()
+            aSecondsNow          = fSecondsNow()
             
             aDateNow             = DateTime( aSecondsNow * 1.0)
             aSecondsToDelete     = theModelDDvlPloneTool.fSecondsToReviewAndDelete( theContainerElement)
@@ -313,7 +333,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
         someElementsToDeleteReports = theElementDeleteImpactReport[ 'included']
         
         for unElementToDeleteReport in someElementsToDeleteReports:
-            self.pObjectsToDeleteAndRelated_FromElementImpactReport_recursive( 
+            self.pObjectsToDelete_FromElementImpactReport_recursive( 
                 unElementToDeleteReport, 
                 someElementsToDelete, 
                 someRelatedElements
@@ -345,10 +365,11 @@ class ModelDDvlPloneTool_Retrieval_Impact:
             if theModelDDvlPloneTool == None:
                 return None
 
-            unSecondsNow = self.fSecondsNow()            
+            unSecondsNow = fSecondsNow()            
             if ( theElement == None):
                 return None
                               
+            
             unRootResult = self.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theElement, 
@@ -370,6 +391,14 @@ class ModelDDvlPloneTool_Retrieval_Impact:
 
 
             
+            someAdditionalParams = theAdditionalParams
+            if someAdditionalParams == None:
+                someAdditionalParams = { }
+            else:
+                someAdditionalParams = someAdditionalParams.copy()
+                
+            someAdditionalParams[ 'DoNotForbidDeletionFor_Aggregations_ReadOnly'] =  True
+            
             
             allIncludedElements = []
             allRelatedElements = []
@@ -383,7 +412,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                 allRelatedElements, 
                 allRelatedResults, 
                 unCanDeleteHolder, 
-                theAdditionalParams
+                someAdditionalParams
             )
             if not aReport:
                 return None
@@ -400,7 +429,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                 allRelatedElements, 
                 allRelatedResults, 
                 unCanDeleteHolder, 
-                theAdditionalParams
+                someAdditionalParams
             )
             
             #self.pBuildDeleteImpactReport_PropagatedPass(
@@ -422,7 +451,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                 
             
             
-            aSecondsNow          = self.fSecondsNow()
+            aSecondsNow          = fSecondsNow()
             
             aDateNow             = DateTime( aSecondsNow * 1.0)
             aSecondsToDelete     = theModelDDvlPloneTool.fSecondsToReviewAndDelete( theElement)
@@ -495,7 +524,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
     
                 if unTraversalResult[ 'traversal_kind'] == 'aggregation':
                     if theCanDeleteHolder[ 0]:
-                        if not ( unTraversalResult[ 'read_permission'] and unTraversalResult[ 'write_permission']):
+                        if not ( unTraversalResult[ 'read_permission'] and ( unTraversalResult[ 'write_permission'] or ( theAdditionalParams and theAdditionalParams.get('DoNotForbidDeletionFor_Aggregations_ReadOnly', False)))):
                             theCanDeleteHolder[ 0] = False 
                 
                     if unTraversalResult[ 'contains_collections']:
@@ -606,7 +635,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                 
                 
             somePloneSubItemsByTypeName = {}
-            somePloneSubItemsParameters = self.fDefaultPloneSubItemsParameters()
+            somePloneSubItemsParameters = self.fDefaultPloneSubItemsParameters( theElements[ 0])
             for aPloneSubItemsParameters in somePloneSubItemsParameters:
                 someMetaTypeNames = aPloneSubItemsParameters[ 'allowed_types']
                 for unMetaTypeName in someMetaTypeNames:

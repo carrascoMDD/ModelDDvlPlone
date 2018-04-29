@@ -49,9 +49,22 @@ from Products.Relations.config                  import RELATIONS_LIBRARY
 from Products.Relations                         import processor            as  gRelationsProcessor
 
 
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+
+
+from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
   
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
+
+
+from ModelDDvlPloneToolSupport          import fSecondsNow
+
+
+
+cModificationKind_DeletePloneSubElement = 'DeletePloneSubElement'
+cModificationKind_MovePloneSubObject    = 'MovePloneSubObject'
+
+cModificationKind_DeletePloneSubElement_abbr = 'dpl'
+cModificationKind_MovePloneSubObject_abbr    = 'mvp'
 
 
 
@@ -60,6 +73,19 @@ class ModelDDvlPloneTool_Mutators_Plone:
     """
     security = ClassSecurityInfo()
                 
+    
+    
+    security.declarePrivate( 'fNewVoidDeletePloneElementReport')
+    def fNewVoidDeletePloneElementReport( self,):
+        aReport = {
+            'parent_traversal_name':   '',
+            'impact_report':           None,
+            'impacted_objects_UIDs':   [],
+            'effect':                  'error', 
+            'failure':                 'Not executed',
+        } 
+        return aReport
+        
    
     security.declarePrivate(   'fEliminarElementoPlone')
     def fEliminarElementoPlone(self , 
@@ -78,25 +104,27 @@ class ModelDDvlPloneTool_Mutators_Plone:
 
         try:
 
+            aDeleteReport = self.fNewVoidDeletePloneElementReport()
+
             aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             
             if theModelDDvlPloneTool == None:
                 aDeleteReport.update( { 'effect': 'error', 'failure': 'No theModelDDvlPloneTool', })
                 return aDeleteReport                 
 
-            unSecondsNow = ModelDDvlPloneTool_Retrieval().fSecondsNow()            
+            unSecondsNow = fSecondsNow()            
             if not ( (unSecondsNow >= theRequestSeconds) and ( ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theContainerElement))):
-                anActionReport = { 'effect': 'error', 'failure': 'time_out', }
-                return anActionReport                     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'time_out', })
+                return aDeleteReport                     
 
             if ( theContainerElement == None)  or not theUIDToDelete or not theRequestSeconds:
-                anActionReport = { 'effect': 'error', 'failure': 'required_parameters_missing', }
-                return anActionReport     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'required_parameters_missing', })
+                return aDeleteReport     
             
             unResultadoContenedor = aModelDDvlPloneTool_Retrieval.fRetrievePloneContent( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theContainerElement         =theContainerElement, 
-                thePloneSubItemsParameters  =aModelDDvlPloneTool_Retrieval.fDefaultPloneSubItemsParameters(), 
+                thePloneSubItemsParameters  =aModelDDvlPloneTool_Retrieval.fDefaultPloneSubItemsParameters( theContainerElement), 
                 theRetrievalExtents         =[ 'traversals', ],
                 theWritePermissions         =[ 'object', 'aggregations', 'plone', 'delete_plone', ],
                 theFeatureFilters           =None, 
@@ -107,57 +135,62 @@ class ModelDDvlPloneTool_Mutators_Plone:
             )                
 
             if not unResultadoContenedor:
-                anActionReport = { 'effect': 'error', 'failure': 'container_retrieval_failure', }
-                return anActionReport     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'container_retrieval_failure', })
+                return aDeleteReport     
             
             if not unResultadoContenedor[ 'traversals']:
-                anActionReport = { 'effect': 'error', 'failure': 'traversal_retrieval_failure', }
-                return anActionReport     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'traversal_retrieval_failure', })
+                return aDeleteReport     
                 
             unTraversalResult = unResultadoContenedor[ 'traversals'][ 0]
             if not unTraversalResult[ 'elements']:
-                anActionReport = { 'effect': 'error', 'failure': 'traversal_elements_retrieval_failure',}
-                return anActionReport  
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'traversal_elements_retrieval_failure',})
+                return aDeleteReport  
                 
             unTraversalName = unTraversalResult[ 'traversal_name' ]                   
             if not unTraversalResult[ 'elements']:
-                anActionReport = { 'effect': 'error', 'failure': 'traversal_name_retrieval_failure', }
-                return anActionReport  
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'traversal_name_retrieval_failure', })
+                return aDeleteReport  
             
             unElementResult = unTraversalResult[ 'elements'][ 0]
             if not unElementResult:
-                anActionReport = { 'effect': 'error', 'failure': 'target_retrieval_failure', 'parent_traversal_name': unTraversalName, }
-                return anActionReport     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'target_retrieval_failure', 'parent_traversal_name': unTraversalName, })
+                return aDeleteReport     
             
             if not ( unElementResult[ 'UID'] == theUIDToDelete):
-                anActionReport = { 'effect': 'error', 'failure': 'get_by_id_failure', 'parent_traversal_name': unTraversalName, }
-                return anActionReport     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'get_by_id_failure', 'parent_traversal_name': unTraversalName, })
+                return aDeleteReport     
                 
             unTargetElement = unElementResult[ 'object']
             if not unTargetElement:
-                anActionReport = { 'effect': 'error', 'failure': 'target_object_retrieval_failure', 'parent_traversal_name': unTraversalName, }
-                return anActionReport     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'target_object_retrieval_failure', 'parent_traversal_name': unTraversalName, })
+                return aDeleteReport     
                                               
             unaIdToDelete = unElementResult[ 'id']
             if not unaIdToDelete:
-                anActionReport = { 'effect': 'error', 'failure': 'target_id_retrieval_failure', 'parent_traversal_name': unTraversalName, }
-                return anActionReport     
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'target_id_retrieval_failure', 'parent_traversal_name': unTraversalName, })
+                return aDeleteReport     
 
     
             if not ( unResultadoContenedor[ 'read_permission'] and unResultadoContenedor[ 'write_permission'] and unElementResult[ 'read_permission'] and unElementResult[ 'write_permission']):
-                anActionReport = { 'effect': 'error', 'failure': 'no_delete_permission', }
+                aDeleteReport.update(  { 'effect': 'error', 'failure': 'no_delete_permission', })
+                return aDeleteReport     
                            
                 
+            self.pImpactDeletePloneIntoReport( unTargetElement, aDeleteReport)
+            
+            aDeleteReport.update(  { 'effect': 'deleted', 'parent_traversal_name': unTraversalName, 'plone_element_result': unElementResult })
+
             unContenedor = aq_parent( aq_inner( unTargetElement))
             if unContenedor:
-                self.pSetAudit_Modification( unContenedor)       
+                self.pSetAudit_Modification( unContenedor, cModificationKind_DeletePloneSubElement, aDeleteReport)    
             
-            self.pSetAudit_Deletion( unTargetElement)  
+            # ACV We are not really keeping defunct objects at this time, so we do not expend the effort on object that shall be gone immediately.
+            # self.pSetAudit_Deletion( unTargetElement, cModificationKind_DeletePloneSubElement, aDeleteReport)  
                             
             theContainerElement.manage_delObjects( [ unaIdToDelete, ])
                 
-            anActionReport = { 'effect': 'deleted', 'parent_traversal_name': unTraversalName, }
-            return anActionReport     
+            return aDeleteReport     
     
         finally:
             if not ( theTimeProfilingResults == None):
@@ -166,15 +199,56 @@ class ModelDDvlPloneTool_Mutators_Plone:
        
        
        
-       
+
+    
+    security.declarePrivate( 'ImpactReport')
+    def pImpactDeletePloneIntoReport( self, theElement, theDeleteReport):
+ 
+        if ( theElement == None) or ( not theDeleteReport):
+            return self
+
+        unosImpactedObjectsUIDs = theDeleteReport[ 'impacted_objects_UIDs']
+        
+        
+        unaUIDDeletedElement = None
+        try:
+            unaUIDDeletedElement = theElement.UID()
+        except:
+            None
+        if unaUIDDeletedElement:
+            if not ( unaUIDDeletedElement in unosImpactedObjectsUIDs):
+                unosImpactedObjectsUIDs.append( unaUIDDeletedElement)
+                
+        unContenedorSource = self.fImpactChangedContenedorYPropietario_IntoReport( theElement, theDeleteReport)
+        
+        return self
+                    
+                
+                       
 
 # #############################################################
 # Plone content order mutators
 #
 
+                
+    security.declarePrivate( 'fNewVoidMoveSubPloneObjectReport')
+    def fNewVoidMoveSubPloneObjectReport( self,):
+        aReport = {
+            'effect':                  'error', 
+            'failure':                 'Not executed',
+            'new_position':            -1,
+            'delta':                   0,
+            'moved_element':           None,
+            'parent_traversal_name':   '',
+            'impacted_objects_UIDs':   [],
+        } 
+        return aReport
+    
+    
+    
 
-    security.declarePrivate( 'pMoveSubObjectPlone')
-    def pMoveSubObjectPlone(self , 
+    security.declarePrivate( 'fMoveSubObjectPlone')
+    def fMoveSubObjectPlone(self , 
         theTimeProfilingResults =None,                          
         theContainerElement     =None,  
         theTraversalName        ='', 
@@ -190,16 +264,17 @@ class ModelDDvlPloneTool_Mutators_Plone:
             self.pProfilingStart( 'pMoveSubObjectPlone', theTimeProfilingResults)
 
         try:
+            aMoveReport = self.fNewVoidMoveSubObjectReport()
 
             if ( theContainerElement == None)  or not  theTraversalName or not theMovedObjectUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
-                return self
+                return aMoveReport
 
             aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
             
             unResult = aModelDDvlPloneTool_Retrieval.fRetrievePloneContent( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theContainerElement         =theContainerElement, 
-                thePloneSubItemsParameters  =aModelDDvlPloneTool_Retrieval.fDefaultPloneSubItemsParameters(), 
+                thePloneSubItemsParameters  =aModelDDvlPloneTool_Retrieval.fDefaultPloneSubItemsParameters( theContainerElement), 
                 theRetrievalExtents         =[ 'traversals', ],
                 theWritePermissions         =[ 'object', 'aggregations', 'plone', ],
                 theFeatureFilters           ={ 'aggregations': [ theTraversalName], }, 
@@ -210,20 +285,22 @@ class ModelDDvlPloneTool_Mutators_Plone:
             )
                         
             if not unResult:
-                return self
+                return aMoveReport
         
             if not (  unResult[ 'read_permission'] and unResult[ 'write_permission']):
-                return self
+                return aMoveReport
     
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResult, [ 'traversals',])
+            
             unTraversalResult =  unResult[ 'traversals_by_name'].get( theTraversalName, None)
             if not unTraversalResult:
-                return self
+                return aMoveReport
 
             if not (  unTraversalResult[ 'traversal_kind'] == 'aggregation-plone'):
-                return self
+                return aMoveReport
                 
             if not (  unTraversalResult[ 'read_permission'] and unTraversalResult[ 'write_permission']):
-                return self
+                return aMoveReport
     
             someAllContainedObjects = theContainerElement.objectValues()
             
@@ -270,11 +347,49 @@ class ModelDDvlPloneTool_Mutators_Plone:
                 if not ( unResultToMove[ 'read_permission'] and unResultToMove[ 'write_permission']):
                     return self
                 
+                
+                self.pImpactMoveSubObjectIntoReport( theContainerElement, someContainedObjects, aMoveReport)
+                
                 theContainerElement.moveObjectsByDelta( [ unResultToMove[ 'id'], ], unDelta)
 
-                self.pSetAudit_Modification( theContainerElement)   
+               
+                unPositionAfterMove  = -1
+                unMovedElementResult = None
                 
-            return self
+                unResultAfterMove = aModelDDvlPloneTool_Retrieval.fRetrievePloneContent( 
+                    theTimeProfilingResults     =theTimeProfilingResults,
+                    theContainerElement         =theContainerElement, 
+                    thePloneSubItemsParameters  =aModelDDvlPloneTool_Retrieval.fDefaultPloneSubItemsParameters( theContainerElement), 
+                    theRetrievalExtents         =[ 'traversals', ],
+                    theWritePermissions         =[ 'object', 'aggregations', 'plone', ],
+                    theFeatureFilters           ={ 'aggregations': [ theTraversalName], }, 
+                    theInstanceFilters          =None,
+                    theTranslationsCaches       =None,
+                    theCheckedPermissionsCache  =None,
+                    theAdditionalParams         =theAdditionalParams
+                )
+                if unResultAfterMove:
+                    aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unResultAfterMove, [ 'traversals',])
+                    
+                    unTraversalResultAfterMove =  unResultAfterMove[ 'traversals_by_name'].get( theTraversalName, None)
+                    if unTraversalResultAfterMove:
+                        
+                        someElementResultsAfterMove = unTraversalResultAfterMove[ 'elements']
+                        for unElementIndex in range( len( someElementResultsAfterMove)):
+                            
+                            unElementResult = someElementResultsAfterMove[ unElementIndex]
+                            if unElementResult.get( 'UID', '') == theMovedObjectUID:
+                                
+                                unMovedElementResult = unElementResult
+                                unPositionAfterMove = unElementIndex
+                                break
+                            
+                aMoveReport.update( { 'effect': 'moved', 'moved_element': unMovedElementResult, 'new_position': unPositionAfterMove, 'delta': unDelta, 'parent_traversal_name': theTraversalName,})
+                            
+
+                self.pSetAudit_Modification( theContainerElement, cModificationKind_MovePloneSubObject, aMoveReport)       
+                
+            return aMoveReport
             
        
         finally:

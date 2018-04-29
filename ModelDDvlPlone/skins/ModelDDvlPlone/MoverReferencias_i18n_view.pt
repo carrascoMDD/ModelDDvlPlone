@@ -46,7 +46,7 @@
                         'theMovedReferenceUID'    :pMovedElementID, 
                         'theMoveDirection'        :pMoveDirection,
                         'theAdditionalParams'     :None, };                      
-                    dummy python: here.ModelDDvlPlone_tool.pMoveReferencedObject( **unosArgs);
+                    dummy python: here.ModelDDvlPlone_tool.fMoveReferencedObject( **unosArgs);
                     pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">     
 
 <p class="formHelp" tal:content="python: 'MoveReferences Time %s' % str( int( pRetrievalEndTime - pRetrievalStartTime))" />   

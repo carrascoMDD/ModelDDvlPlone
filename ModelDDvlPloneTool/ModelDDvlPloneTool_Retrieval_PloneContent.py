@@ -145,7 +145,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
     
     
     security.declarePrivate('fDefaultPloneSubItemsParameters')
-    def fDefaultPloneSubItemsParameters(self):
+    def fDefaultPloneSubItemsParameters(self, fDefaultPloneSubItemsTypes):
         return cPloneSubItemsParameters
     
     
@@ -154,7 +154,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
     
         somePloneTypes = [ ]
             
-        somePloneSubItemsParameters =self.fDefaultPloneSubItemsParameters()
+        somePloneSubItemsParameters =self.fDefaultPloneSubItemsParameters( fDefaultPloneSubItemsTypes)
         if not somePloneSubItemsParameters:
             return somePloneTypes      
         
@@ -265,7 +265,7 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
 
             unPloneSubItemsParameters = thePloneSubItemsParameters
             if not unPloneSubItemsParameters:
-                unPloneSubItemsParameters = self.fDefaultPloneSubItemsParameters()
+                unPloneSubItemsParameters = self.fDefaultPloneSubItemsParameters( theContainerElement)
                 if not unPloneSubItemsParameters:
                     return None             
                                 

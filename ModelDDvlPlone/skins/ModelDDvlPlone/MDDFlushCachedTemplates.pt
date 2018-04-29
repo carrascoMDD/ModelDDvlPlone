@@ -51,7 +51,9 @@
               Get the byline - contains details about author and modification date.
             </div>
     
-            <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.fFlushCachedTemplates( here)" />
+            <tal:block tal:define="
+                pCacheName request/theCacheName | string:;
+                dummy python: here.ModelDDvlPlone_tool.fFlushAllCachedTemplates( here, pCacheName, )" />
             
             <tal:block tal:define="dummy python:request.response.redirect( '%s/' % here.absolute_url())" />
                    

@@ -50,9 +50,26 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     security = ClassSecurityInfo()
 
 
+ 
 
+    # used to generate GNU gettext PO catalog entries from the translations bundle (a dict of key symbol: value translation)
+    #aS= StringIO()
+    #for aTK in someTranslations.keys():
+        #aS.write("""
+    ##. Default: "%s"
+    ##: MDDChanges_inner.pt 
+    #msgid "%s"
+    #msgstr "%s"
+    
+    #""" % ( someTranslations[ aTK], aTK, someTranslations[ aTK],))
+    #logging.getLogger( 'MDD').info( aS.getvalue())
 
+    
+    
+    
 
+    
+    
 
     security.declarePrivate('fNewVoidAttributeTranslationResult')
     def fNewVoidAttributeTranslationResult(self):
@@ -411,10 +428,6 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         if not theMetaTypeName or ( theContextualElement == None):
                 return []
         
-        unArchetypeClass = theContextualElement.fArchetypeClassByName( theMetaTypeName)
-        if not unArchetypeClass:
-                return []
-            
         unArchetypeName             = theMetaTypeName
         unTypeDescription           = theMetaTypeName
         unPluralName                = theMetaTypeName
@@ -423,7 +436,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         unArchetypeNameMsgId        = ''
         unTypeDescriptionMsgId      = ''
         unContentIcon               = ''
-         
+
         unObjectTranslationResult = self.fNewVoidObjectTranslationResult()
         unObjectTranslationResult.update( {
             'meta_type':                    theMetaTypeName,
@@ -436,6 +449,14 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             'content_icon':                 '',   
         })
 
+        unArchetypeClass = None
+        try:
+            unArchetypeClass = theContextualElement.fArchetypeClassByName( theMetaTypeName)
+        except:
+            None
+            
+        if not unArchetypeClass:
+            unArchetypeClass = theContextualElement.__class__
             
         try:
             unArchetypeName        = unArchetypeClass.archetype_name
@@ -446,7 +467,7 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         except:
             None
         try:
-            unArchetypeNameMsgId    = unArchetypeClass.archetype_name_msgid            
+            unArchetypeNameMsgId   = unArchetypeClass.archetype_name_msgid            
         except:
             None            
         try:
@@ -1224,7 +1245,27 @@ class ModelDDvlPloneTool_Retrieval_I18N:
             return None
 
         unI18NDomain = self.fTranslationI18NDomain( None, theElement)
-        unArchetypeSchema = theElement.fArchetypeSchemaByName( theElement.meta_type)
+        unArchetypeSchema = None
+        try:
+            unArchetypeSchema = theElement.fArchetypeSchemaByName( theElement.meta_type)
+        except:
+            None
+        if unArchetypeSchema == None:
+            try:
+                unArchetypeSchema = theElement.schema
+            except:
+                None
+            if unArchetypeSchema == None:
+                try:
+                    unArchetypeSchema = getattr( theElement.meta_type, 'schema', None)
+                except:
+                    None
+                if unArchetypeSchema == None:
+                    try:
+                        unArchetypeSchema = theElement.meta_type.schema
+                    except:
+                        None
+            
         anAttributeTranslations = self.fAttributeTranslationsFromCacheOrArchetypeSchema( theElement, theElement.meta_type, unArchetypeSchema, unI18NDomain, theFieldName, theTranslationsCaches)
 
         if not( theResultDict == None) and theResultKey:
