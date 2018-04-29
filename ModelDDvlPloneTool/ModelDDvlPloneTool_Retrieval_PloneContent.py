@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_PloneContent.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -28,7 +28,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -42,7 +42,7 @@ from Products.CMFCore.utils import getToolByName
 
 from PloneElement_TraversalConfig            import cPloneTypes
 from PloneElement_TraversalConfig            import cPloneSubItemsParameters
-
+from PloneElement_TraversalConfig            import cPloneElement_ColumnName_Details
 
 
 
@@ -357,8 +357,12 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
             unTraversalResult = self.fNewVoidTraversalResult_PloneContent()
             
             unTraversalName = thePloneSubItemsParameter[ 'traversal_name']
-            unTraversalResult[ 'traversal_name']    = unTraversalName
-            
+            unTraversalResult.update( { 
+                'traversal_kind' :          'aggregation-plone', 
+                'traversal_name' :          unTraversalName, 
+                'traversal_config':         thePloneSubItemsParameter, 
+            })
+
             unCanReturnValues = theCanReturnValues
             unCanChangeValues = unCanReturnValues and theResult[ 'write_permission']
             if unCanReturnValues:
@@ -400,10 +404,8 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
 
             unosElementResults = [ ]        
             unTraversalResult.update( { 
-                'traversal_kind' :          'aggregation-plone', 
-                'traversal_config':         None, 
                 'elements':                 unosElementResults, 
-                'column_names':             [ 'title', 'description', 'details', ],
+                'column_names':             [ 'title', 'description', cPloneElement_ColumnName_Details, ],
                 'column_translations':      { 'title': unTitleColumnTranslation,  'description': unDescriptionColumnTranslation,  'details': unDetailsColumnTranslation, }
             })
              

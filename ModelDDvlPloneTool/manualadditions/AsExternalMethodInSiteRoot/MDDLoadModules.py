@@ -2,7 +2,7 @@
 #
 # File: MDDLoadModules.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -39,8 +39,10 @@ from Products.CMFCore.utils              import getToolByName
 
 
 
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool import ModelDDvlPloneTool
 
+
+cInstall_Tools_On_PortalRoot     = False
+cInstall_Tools_Path              = [ 'portal_skins', 'custom',]
 
 cMethodName_pgSetImportedModules    = 'pgSetImportedModules'
 
@@ -79,11 +81,7 @@ cModuleNamesWithTool = {
 #
 
 
-cModelDDvlPloneToolId = 'ModelDDvlPlone_tool'
 
-cInstall_Tools_On_PortalSkinsCustom = True
-
-cInstallPath_PortalSkinsCustom = [ 'portal_skins', 'custom',]
 
 
 cModuleNamesToImport = [
@@ -91,6 +89,7 @@ cModuleNamesToImport = [
     'Products.ModelDDvlPloneTool.MDDNestedContext',
     'Products.ModelDDvlPloneTool.MDDStringConversions',
     'Products.ModelDDvlPloneTool.PloneElement_TraversalConfig',
+    'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Inicializacion_Constants',
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Refactor_Constants',
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_ImportExport_Constants',
     'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport',
@@ -119,6 +118,7 @@ cModuleNamesToImport = [
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache',  
     'Products.ModelDDvlPloneTool.ModelDDvlPloneTool',
     'Products.ModelDDvlPloneConfiguration.ModelDDvlPloneConfiguration',
+    'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Inicializacion',    
 ]
 
 
@@ -157,15 +157,15 @@ def fInstallContainer_Tools( theContextualElement):
     if unPortalRoot == None:
         return None
     
-    if not cInstall_Tools_On_PortalSkinsCustom:
+    if cInstall_Tools_On_PortalRoot:
         return unPortalRoot
     
-    if not cInstallPath_PortalSkinsCustom:
+    if not cInstall_Tools_Path:
         return unPortalRoot
         
     
     aTraversedObject = unPortalRoot
-    for aTraversal in cInstallPath_PortalSkinsCustom:
+    for aTraversal in cInstall_Tools_Path:
         aNextObject = None
         try:
             aNextObject = aTraversedObject[ aTraversal]

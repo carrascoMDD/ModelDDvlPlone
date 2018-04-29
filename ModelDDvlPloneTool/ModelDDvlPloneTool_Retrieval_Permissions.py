@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_Permissions.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -28,7 +28,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -161,7 +161,12 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
         unasPermissionsToCheck = thePermissionsToCheck[:]
         
         unSchema = theObject.schema
-        if not unSchema.has_key( theFieldName):
+        unFieldInSchema = False
+        try:
+            unFieldInSchema = unSchema.has_key( theFieldName)
+        except:
+            None
+        if not unFieldInSchema:
             return False
                         
         unField             = unSchema[ theFieldName]

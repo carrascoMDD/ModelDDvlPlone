@@ -1,5 +1,5 @@
 <tal:block replace="nothing">
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -35,7 +35,8 @@ tal:condition="python: SRES[ 'non_text_field_names']"><tal:block
         tal:condition="python: ( not ( unAttributeName.lower() == 'title')) and ATTRRES and not ATTRRES.get( 'attribute_config', {}).get('exclude_from_values_paragraph', False) and not ( ATTRRES.get( 'attribute_config', {}).get('exclude_from_values_paragraph_when', '123dsad12332sad') == ATTRRES['value'])and not( ATTRRES[ 'attribute_config'].has_key( 'custom_presentation_view') and ATTRRES[ 'attribute_config'][ 'custom_presentation_view'])"><tal:block
             tal:condition="python: ATTRRES['type'] == 'boolean'"><tal:block 
                 tal:condition="not: pEsPrimerAtributo" tal:content="string: , " />*<tal:block
-                tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label_and_value'].strip()"/>* </tal:block><tal:block 
+                tal:content="python: ATTRRES[ 'attribute_translations'][ 'translated_label_and_value'].strip()"
+                tal:define="global pEsPrimerAtributo python: False"/>* </tal:block><tal:block 
 
             tal:condition="python: ATTRRES['type'] in [ 'string', 'text', 'integer' , 'float', 'fixedpoint', ]"><tal:block
                 tal:condition="python: ATTRRES[ 'uvalue'] and ATTRRES[ 'uvalue'].strip() and not (ATTRRES[ 'uvalue'].strip() == 'None') "><tal:block 

@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Cache.py
 #
-# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #anElementUIDModulus
@@ -26,7 +26,7 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 
-__author__ = """Model Driven Development sl <gvSIGwhys@ModelDD.org>,
+__author__ = """Model Driven Development sl <ModelDDvlPlone@ModelDD.org>,
 Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
@@ -4662,483 +4662,979 @@ class ModelDDvlPloneTool_Cache:
     
             
     
+    security.declarePrivate( '_pDestroyFailedPromise')
+    def _pDestroyFailedPromise(self, theModelDDvlPloneTool, theContextualObject, theRenderPhaseResult):
+        
+        if not theRenderPhaseResult:
+            return self
+        
+        aPromiseMade = theRenderPhaseResult.get( 'promise_made', None)
+        if not aPromiseMade:
+            return self
+        
+            
+        someObjectsToDelete = set()
+        someObjectsToDelete.add( aPromiseMade)
+        
+            
+        try:
+            
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        
+
+            try:
+                aPromiseHolder = theRenderPhaseResult.get( 'promise_holder', None)
+                if aPromiseHolder:        
+                    aPromiseKey = theRenderPhaseResult.get( 'promise_key', None)
+                    if aPromiseKey:
+                        aPromiseInHolder = aPromiseHolder.get( aPromiseKey, None)
+                        if aPromiseInHolder == aPromiseMade:
+                            aPromiseHolder.pop( aPromiseKey)        
+            except:
+                None
+                
+                
+            try:
+                aPromiseMade.pUnLink()      
+            except:
+                None
+                
+            
+            unCachedHTML = aPromiseMade.vHTML
+            if unCachedHTML:            
+                someObjectsToDelete.add( unCachedHTML)
+                
+            try:
+                self._pRemoveCacheEntriesFromUniqueIdIndex( theModelDDvlPloneTool, theContextualObject, [ aPromiseMade,])
+            except:
+                None                
+
+            if aPromiseMade.fIsForElement():
+                try:
+                    self._pRemoveCacheEntriesFromUIDIndex( theModelDDvlPloneTool, theContextualObject, [ aPromiseMade,])
+                except:
+                    None       
+                    
+            try:
+                aPromiseMade.pBeGone()      
+            except:
+                None                
+           
+                    
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                
+            
+        if someObjectsToDelete:
+            del someObjectsToDelete
+                                            
+        return self
     
+    
+    
+     
     
     # ###################################################################
     """Rendering service for templates that are Element Independent. Searching Cache entries NOT associated with any specific element. 
     
     """
-       
+    
     
        
+    security.declarePrivate( '_fRenderError')
+    def _fRenderError(self, theErrorCode, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None,):
+        """ Return HTML with an error message.
+        
+        """
+        
+        anErrorCode = theErrorCode
+        if not anErrorCode:
+            anErrorCode = cRenderError_UnknownError
+            
+        anErrorMsgId = '%s%s' % ( cRenderError_MsgIdPrefix, anErrorCode,)
+        
+        anTranslatedError = theModelDDvlPloneTool.fTranslateI18N( theContextualObject, 'ModelDDvlPlone', anErrorMsgId, anErrorMsgId, )
+        
+        anErrorHTML = cRenderError_HTML % fCGIE( anTranslatedError)        
+        
+        return anErrorHTML
+    
+    
+         
+    
+
+    
     security.declarePrivate( 'fRenderTemplateOrCachedElementIndependent')
     def fRenderTemplateOrCachedElementIndependent(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None):
         """ Return theHTML, from cache or just rendered, for a project, for the specified view, and for the currently negotiared language.
         
         """
         
-        if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
-            if not theModelDDvlPloneTool:
-                return '<h2>No parameter theModelDDvlPloneTool</h2>'
-            
-            return theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-        
-        
-        aResultAndHTMLOrVariablesPhase_TryMemory = self._fRenderTemplateOrCachedElementIndependent_Phase_TryMemory( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams)
-        
-        if aResultAndHTMLOrVariablesPhase_TryMemory[ 0]:
-            return aResultAndHTMLOrVariablesPhase_TryMemory[ 1]
-        
-        someVariables = aResultAndHTMLOrVariablesPhase_TryMemory[ 1]
-        
-        aResultAndHTMLPhase_TryDisc = self._fRenderTemplateOrCachedElementIndependent_Phase_TryDisk( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
-        if aResultAndHTMLPhase_TryDisc[ 0]:
-            return aResultAndHTMLPhase_TryDisc[ 1]
-        
-        aResultAndHTMLPhase_Render = self._fRenderTemplateOrCachedElementIndependent_Phase_Render( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
-        if not aResultAndHTMLPhase_Render[ 0]:
-            return '<h2>Error Rendering Page</h2>'
-            
-        aResultPhase_StoreDisc = self._fRenderTemplateOrCachedElementIndependent_Phase_StoreDisk( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
-        
-        return aResultAndHTMLPhase_Render[ 1]
+        someRenderHandlers = self.fRenderHandlers_ElementIndependent(  theModelDDvlPloneTool, theContextualObject)
+        return self.fRenderTemplateOrCached_withHandlers( someRenderHandlers, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=theAdditionalParams)
+       
     
     
     
-        
-    
-    
-    
-    
-    
-    security.declarePrivate( '_fRenderTemplateOrCachedElementIndependent_Phase_TryMemory')
-    def _fRenderTemplateOrCachedElementIndependent_Phase_TryMemory(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None):
+     
+    security.declarePrivate( 'fRenderTemplateOrCachedForElement')
+    def fRenderTemplateOrCachedForElement(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None):
         """ Return theHTML, from cache or just rendered, for a project, for the specified view, and for the currently negotiared language.
         
         """
+        
+        someRenderHandlers = self.fRenderHandlers_ForElement(  theModelDDvlPloneTool, theContextualObject)
+        return self.fRenderTemplateOrCached_withHandlers( someRenderHandlers, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=theAdditionalParams)
+       
+    
+       
+     
+    security.declarePrivate( 'fRenderCallableOrCachedForElement')
+    def fRenderCallableOrCachedForElement(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theCallable=None, theCallableCtxt=None, theCallableParams=None):
+        """ Return theHTML, from cache or just rendered, for a project, for the specified view, and for the currently negotiared language.
+        
+        """
+        
+        someRenderHandlers = self.fRenderHandlers_ForElement(  theModelDDvlPloneTool, theContextualObject)
+        
+        someAdditionalParams = { }
+        someAdditionalParams.update( {
+            'callable':      theCallable,
+            'callable_ctxt': theCallableCtxt,
+            'callable_parms':theCallableParams,
+        })
+        
+        return self.fRenderTemplateOrCached_withHandlers( someRenderHandlers, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=someAdditionalParams)
+       
+        
+    
+    security.declarePrivate( 'fRenderTemplateOrCached_withHandlers')
+    def fRenderTemplateOrCached_withHandlers(self, theRenderHandlers, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None):
+        """ Return theHTML, from cache or just rendered, for a project, for the specified view, and for the currently negotiared language.
+        
+        """
+        
+        # ###################################################################
+        """Can not proceed without handlers.
+        
+        """
+        if not theRenderHandlers:
+            return self._fRenderError( cRenderError_MissingHandlers, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+        aMemoryHandler = theRenderHandlers.get( 'memory', None)
+        aDiscHandler   = theRenderHandlers.get( 'disc',   None)
+        aRenderHandler = theRenderHandlers.get( 'render', None)
+        aStoreHandler  = theRenderHandlers.get( 'store',  None)
+        
+        if not ( aMemoryHandler and aDiscHandler and aRenderHandler and  aStoreHandler):
+            return self._fRenderError( cRenderError_MissingHandlers, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+            
+        
+        # ###################################################################
+        """If caching not active, render now.
+        
+        """
+        if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
+            if not theModelDDvlPloneTool:
+                return self._fRenderError( cRenderError_MissingParameters, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+        
+            unRenderedTemplate = self._fInvokeCallable_Or_RenderTemplate( 
+                theModelDDvlPloneTool=theModelDDvlPloneTool, 
+                theContextualObject  =theContextualObject, 
+                theTemplateName      =theTemplateName, 
+                theAdditionalParams =theAdditionalParams,
+            )
+            
+            return unRenderedTemplate
+        
+        someVariables = { }
+        
+         
+        # ###################################################################
+        """Try to retrieve from memory the already rendered HTML.
+        
+        """
+        aRenderResult_Phase_TryMemory = aMemoryHandler( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
+        if not aRenderResult_Phase_TryMemory:
+            return self._fRenderError( cRenderError_NothingRendered, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+        
+        
+        aRenderStatus_Memory = aRenderResult_Phase_TryMemory.get( 'status',    '')
+        if not aRenderStatus_Memory:
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( cRenderError_UnknownError, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+ 
+        
+        if aRenderStatus_Memory == cRenderStatus_Completed:
+            aRenderedHTML_Memory       = aRenderResult_Phase_TryMemory.get( 'rendered_html',        None)
+            if not aRenderedHTML_Memory:
+                self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+                return self._fRenderError( cRenderError_NothingRendered, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+            return   aRenderedHTML_Memory
+        
+       
+        if aRenderStatus_Memory == cRenderStatus_ForceRender:
+            aRenderedHTML = self._fInvokeCallable_Or_RenderTemplate( 
+                theModelDDvlPloneTool=theModelDDvlPloneTool, 
+                theContextualObject  =theContextualObject, 
+                theTemplateName      =theTemplateName, 
+                theAdditionalParams =theAdditionalParams,
+            )
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return aRenderedHTML
+
+        
+        if aRenderStatus_Memory == cRenderStatus_ShowError:
+            aRenderError = aRenderResult_Phase_TryMemory.get( 'error',    '')
+            if not aRenderError:
+                aRenderError = cRenderError_UnknownError
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( aRenderError, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+      
+
+        if not ( aRenderStatus_Memory == cRenderStatus_Continue):
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( cRenderError_Discontinued, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+            
+
+        
+        
+        
+        
+        # ###################################################################
+        """Try to retrieve from disc the already rendered HTML.
+        
+        """        
+        
+        aRenderResult_Phase_TryDisk = aDiscHandler( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
+        if not aRenderResult_Phase_TryDisk:
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( cRenderError_NothingRendered, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+        
+        
+        aRenderStatus_Disc = aRenderResult_Phase_TryDisk.get( 'status',    '')
+        if not aRenderStatus_Disc:
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( cRenderError_UnknownError, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+ 
+        
+        if aRenderStatus_Disc == cRenderStatus_Completed:
+            aRenderedHTML_Disc       = aRenderResult_Phase_TryDisk.get( 'rendered_html',        None)
+            if not aRenderedHTML_Disc:
+                self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+                return self._fRenderError( cRenderError_NothingRendered, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+            return   aRenderedHTML_Disc
+        
+       
+        if aRenderStatus_Disc == cRenderStatus_ForceRender:
+            aRenderedHTML = self._fInvokeCallable_Or_RenderTemplate( 
+                theModelDDvlPloneTool=theModelDDvlPloneTool, 
+                theContextualObject  =theContextualObject, 
+                theTemplateName      =theTemplateName, 
+                theAdditionalParams =theAdditionalParams,
+            )
+            return aRenderedHTML
+
+        
+        if aRenderStatus_Disc == cRenderStatus_ShowError:
+            aRenderError = aRenderResult_Phase_TryDisk.get( 'error',    '')
+            if not aRenderError:
+                aRenderError = cRenderError_UnknownError
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( aRenderError, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+      
+
+        if not ( aRenderStatus_Disc == cRenderStatus_Continue):
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( cRenderError_Discontinued, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+        
+
+
+        
+        
+
+                   
+        # ###################################################################
+        """Try to render HTML.
+        
+        """        
+        aRenderResult_Phase_Render = aRenderHandler( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
+        if not aRenderResult_Phase_Render:
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( cRenderError_NothingRendered, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+        
+        
+        aRenderStatus_Render = aRenderResult_Phase_Render.get( 'status',    '')
+        if not aRenderStatus_Render:
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( cRenderError_UnknownError, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+ 
+        
+        if aRenderStatus_Render == cRenderStatus_Completed:
+            aRenderedHTML_Render       = aRenderResult_Phase_Render.get( 'rendered_html',        None)
+            if not aRenderedHTML_Render:
+                self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+                return self._fRenderError( cRenderError_NothingRendered, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+
+            aResultPhase_StoreDisc = aStoreHandler( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
+
+            return   aRenderedHTML_Render
+        
+       
+        if aRenderStatus_Render == cRenderStatus_ForceRender:
+            aRenderedHTML = self._fInvokeCallable_Or_RenderTemplate( 
+                theModelDDvlPloneTool=theModelDDvlPloneTool, 
+                theContextualObject  =theContextualObject, 
+                theTemplateName      =theTemplateName, 
+                theAdditionalParams =theAdditionalParams,
+            )
+            return aRenderedHTML
+
+        
+        if aRenderStatus_Render == cRenderStatus_ShowError:
+            aRenderError = aRenderResult_Phase_Render.get( 'error',    '')
+            if not aRenderError:
+                aRenderError = cRenderError_UnknownError
+            self._pDestroyFailedPromise( theModelDDvlPloneTool, theContextualObject, aRenderResult_Phase_TryMemory)
+            return self._fRenderError( aRenderError, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+      
+
+        return self._fRenderError( cRenderError_UnknownError, theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams,)
+
+    
+    
+    
+        
+    
+    
+    
+    
+
+    
+    
+    security.declarePrivate( '_fNewVoidRenderResult_Phase_TryMemory')
+    def _fNewVoidRenderResult_Phase_TryMemory(self, ):
+        aResult = {
+            'status':              cRenderStatus_NotExecuted,
+            'error':               None,
+            'rendered_html':       None,
+            'cache_name':          None,
+            'promise_made':        None,
+            'promise_holder':      None,
+            'promise_key':         None,
+        }
+        return aResult
+        
+        
+    
+
+     
+    security.declarePrivate( '_fNewVoidRenderResult_Phase_TryDisk')
+    def _fNewVoidRenderResult_Phase_TryDisk(self, ):
+        aResult = {
+            'status':              cRenderStatus_NotExecuted,
+            'error':               None,
+            'rendered_html':       None,
+        }     
+        
+        return aResult
+            
+         
+        
+
+     
+    security.declarePrivate( '_fNewVoidRenderResult_Phase_Render')
+    def _fNewVoidRenderResult_Phase_Render(self, ):
+        aResult = {
+            'status':              cRenderStatus_NotExecuted,
+            'error':               None,
+            'rendered_html':       None,
+        }     
+        
+        return aResult
+            
+         
+       
+    
+    
+    security.declarePrivate( '_fNewVoidCachedEntryInWrongStateInfo')
+    def _fNewVoidCachedEntryInWrongStateInfo(self, ):
+        aCachedEntryInWrongStateInfo = {
+            'cached_entry':        None,
+            'cached_entry_holder': None,
+            'cached_entry_key':    None,            
+        }
+        return aCachedEntryInWrongStateInfo
+   
+    
+         
+
+     
+    security.declarePrivate( '_pRemoveCachedEntriesInWrongState')
+    def _pRemoveCachedEntriesInWrongState(self, theCachedEntriesInWrongStateInfos):
+        """Invoked from within thread-safe critical section. Remove cache entries that are in wrong state, more likely because of an error while trying to fulfill the promise to be rendered.
+        
+        """
+        if not theCachedEntriesInWrongStateInfos:
+            return self
+        
+        unosObjectsToDelete = set()
+                           
+        for aCachedEntryInWrongStateInfo in theCachedEntriesInWrongStateInfos:
+            
+            
+            if aCachedEntryInWrongStateInfo: 
+                aCachedEntry         = aCachedEntryInWrongStateInfo.get( 'cached_entry', None)
+                aCachedEntryHolder   = aCachedEntryInWrongStateInfo.get( 'cached_entry_holder', None)
+                aCachedEntryKey      = aCachedEntryInWrongStateInfo.get( 'cached_entry_key', None)
+                
+                if aCachedEntry and aCachedEntryHolder and aCachedEntryKey:
+                    """Remove the cache entry from all structures
+                    
+                    """
+                    try:
+                        
+                        try:
+                            aCachedEntryHolder.pop( aCachedEntryKey)
+                        except:
+                            None
+                        
+                        unNumEntriesFlushed = 0
+                        unTotalCharsFlushed = 0
+                        
+                        aFilePath    = aCachedEntry.vFilePath
+                        if aFilePath:
+                            someFilesToDelete.append( aFilePath)
+                        
+                        aCachedEntry.pUnLink()
+                        
+                        unosObjectsToDelete.append( aCachedEntry)
+        
+                        unNumEntriesFlushed += 1
+                        
+                        if anExistingCacheEntryInWrongState.vValid:
+                                
+                            unCachedHTML = anExistingCacheEntryInWrongState.vHTML
+                            if unCachedHTML:
+                                unTotalCharsFlushed += len( unCachedHTML)
+                                unosObjectsToDelete.append( unCachedHTML)
+        
+                        unStatisticsUpdate = {
+                            cCacheStatistics_TotalEntriesFlushed: unNumEntriesFlushed,
+                            cCacheStatistics_TotalCharsFlushed:   unTotalCharsFlushed,
+                            cCacheStatistics_TotalCacheEntries:   0 - unNumEntriesFlushed,
+                            cCacheStatistics_TotalCharsCached:    0 - unTotalCharsFlushed,
+                        }
+                        self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
+                
+                            
+                        self._pRemoveCacheEntriesFromUniqueIdIndex( theModelDDvlPloneTool, theContextualObject, [ anExistingCacheEntryInWrongState,])
+            
+                        # not for element independent self._pRemoveCacheEntriesFromUIDIndex( theModelDDvlPloneTool, theContextualObject, [anExistingCacheEntryInWrongState,])
+                    
+                        anExistingCacheEntryInWrongState.pBeGone()
+                    except:
+                        None
+                                
+               
+        if unosObjectsToDelete:
+            try:
+                del unosObjectsToDelete
+            except:
+                None
+                
+        
+            
+        return self
+    
+    
+    
+    
+    
+
+    
+    security.declarePrivate( '_fRenderTemplateOrCachedElementIndependent_Phase_TryMemory')
+    def _fRenderTemplateOrCachedElementIndependent_Phase_TryMemory(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None, 
+        theVariables={}):
+        """ Return theHTML, from cache or just rendered, for a project, for the specified view, and for the currently negotiared language.
+        
+        """
+        
+        aRenderResult = self._fNewVoidRenderResult_Phase_TryMemory()
         
         unosMillisBeforeMatch   = fMillisecondsNow()
         
         if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
             if not theModelDDvlPloneTool:
-                return [ True, '<h2>No parameter theModelDDvlPloneTool</h2>',]
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+                aRenderResult.update( {
+                    'status':           cRenderStatus_ShowError, 
+                    'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
     
+        
         if theModelDDvlPloneTool == None:
-            return [ True, '<h2>No parameter theModelDDvlPloneTool</h2>',]
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
         
         if theContextualObject == None:
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
         
         if cForbidCaches or not self.fGetCacheConfigParameter_CacheEnabled( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent):
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
         
         unMemberId = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)
         
             
-        someVariables = {}
-        
+        if theVariables == None:
+            if not theModelDDvlPloneTool:
+                aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
+           
         unCacheEntryUniqueId = ''
         unCachedTemplate = None
         
         aBeginMillis = fMillisecondsNow()
-        try:
                 
           
+        # ###########################################################
+        """Gather all information to look up the cache for a matching cached entry with a rendered template. Fall back to non-cached template rendering if any information can not be obtained.
+        
+        """
+        aProjectName = ''
+        try:
+            aProjectName = theContextualObject.getNombreProyecto()
+        except:
+            None
+        if not aProjectName:    
+            aProjectName = cDefaultNombreProyecto
+          
+            
+            
+        unosPreferredLanguages = getLangPrefs( theContextualObject.REQUEST)
+        if not unosPreferredLanguages:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+        aNegotiatedLanguage = unosPreferredLanguages[ 0]   
+        if not aNegotiatedLanguage:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+                
+        aViewName = theTemplateName
+        if not aViewName:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+        if aViewName.find( '%s') >= 0:
+            if not ( aProjectName == cDefaultNombreProyecto):
+                aViewName = aViewName % aProjectName
+            else:
+                aViewName = aViewName.replace( '%s', '')
+        if not aViewName:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+                
+        unMemberId = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)           
+         
+                    
+            
+        # ###################################################################
+        """CRITICAL SECTION to access and modify cache control structure, for Cache entries associated with specific elements.
+        
+        """
+        unExistingOrPromiseCacheEntry = None
+        unCachedTemplate              = None
+        unPromiseMade                 = None                      
+        
+        anActionToDo                  = None
+        somePossibleActions           = [ 'UseFoundEntry', 'MakePromise', 'JustFallbackToRenderNow', ] # Just to document the options handled by logic below
+        
+        someFilesToDelete = [ ]
+        
+        someExistingCacheEntriesInWrongState = [ ]
+        
+        
+        try:
+            
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
             # ###########################################################
-            """Gather all information to look up the cache for a matching cached entry with a rendered template. Fall back to non-cached template rendering if any information can not be obtained.
+            """Retrieve within thread safe section, to be used later, the configuration paameters specifying: whether to render a cache hit information collapsible section at the top or bottom of the view, or none at all, whether the disk caching is enabled, and the disk cache files base path.
             
             """
-            aProjectName = ''
-            try:
-                aProjectName = theContextualObject.getNombreProyecto()
-            except:
-                None
-            if not aProjectName:    
-                aProjectName = cDefaultNombreProyecto
-              
-                
-                
-            unosPreferredLanguages = getLangPrefs( theContextualObject.REQUEST)
-            if not unosPreferredLanguages:
-                return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+            aDisplayCacheHitInformation = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_DisplayCacheHitInformation)
+            aCacheDiskEnabled           = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_CacheDiskEnabled)
+            aCacheDiskPath              = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_CacheDiskPath)
+            unExpireDiskAfterSeconds    = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_ExpireDiskAfterSeconds)
+
             
-            aNegotiatedLanguage = unosPreferredLanguages[ 0]   
-            if not aNegotiatedLanguage:
-                return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
-                    
-            aViewName = theTemplateName
-            if not aViewName:
-                return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+            # ###########################################################
+            """All Cache Entries that have expired and are forced to expire shall be flushed, whether memory used is over the limit, or not.
             
-            if aViewName.find( '%s') >= 0:
-                if not ( aProjectName == cDefaultNombreProyecto):
-                    aViewName = aViewName % aProjectName
-                else:
-                    aViewName = aViewName.replace( '%s', '')
-            if not aViewName:
-                return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
-            
-                    
-            unMemberId = ModelDDvlPloneTool_Retrieval().fGetMemberId(  theContextualObject)           
-             
+            """  
+            self._pFlushCacheEntriesForcedtoExpire(theModelDDvlPloneTool, theContextualObject, theFilesToDelete=someFilesToDelete)       
                         
-                
-            # ###################################################################
-            """CRITICAL SECTION to access and modify cache control structure, for Cache entries associated with specific elements.
+
+            
+            
+            # ###########################################################
+            """Traverse cache control structures to access the cache entry corresponding to the parameters. Elements found missing shall be created, to hook up the new cache entry.
             
             """
-            unExistingOrPromiseCacheEntry = None
-            unCachedTemplate              = None
-            unPromiseMade                 = None                      
-            
-            anActionToDo                  = None
-            somePossibleActions           = [ 'UseFoundEntry', 'MakePromise', 'JustFallbackToRenderNow', ] # Just to document the options handled by logic below
-            
-            someFilesToDelete = [ ]
-            
-            try:
-                
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            someCachedTemplatesForProject = self.fGetOrInitCachedTemplatesForProject( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, aProjectName)              
 
-                # ###########################################################
-                """Retrieve within thread safe section, to be used later, the configuration paameters specifying: whether to render a cache hit information collapsible section at the top or bottom of the view, or none at all, whether the disk caching is enabled, and the disk cache files base path.
-                
-                """
-                aDisplayCacheHitInformation = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_DisplayCacheHitInformation)
-                aCacheDiskEnabled           = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_CacheDiskEnabled)
-                aCacheDiskPath              = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_CacheDiskPath)
-                unExpireDiskAfterSeconds    = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_ExpireDiskAfterSeconds)
-
-                
-                # ###########################################################
-                """All Cache Entries that have expired and are forced to expire shall be flushed, whether memory used is over the limit, or not.
-                
-                """  
-                self._pFlushCacheEntriesForcedtoExpire(theModelDDvlPloneTool, theContextualObject, theFilesToDelete=someFilesToDelete)       
-                            
-
-                
-                
-                # ###########################################################
-                """Traverse cache control structures to access the cache entry corresponding to the parameters. Elements found missing shall be created, to hook up the new cache entry.
-                
-                """
-                someCachedTemplatesForProject = self.fGetOrInitCachedTemplatesForProject( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, aProjectName)              
-
-        
-                someCachedTemplatesForLanguage = someCachedTemplatesForProject.get( aNegotiatedLanguage, None)
-                if someCachedTemplatesForLanguage == None:
-                    someCachedTemplatesForLanguage = { }
-                    someCachedTemplatesForProject[ aNegotiatedLanguage] = someCachedTemplatesForLanguage
-        
-                    
-                    
-                # ###########################################################
-                """Obtain the Cache entry, if exists.
-                
-                """
-                anExistingCacheEntry = someCachedTemplatesForLanguage.get( aViewName, None)
-                
-                
-                
-                
-                # ###########################################################
-                """Analyze the Cache entry, if retrieved, and decide how to proceed: using it, promissing to create a new one, or just fallback to render the template now and return it.
-                
-                """
-                
-                if not anExistingCacheEntry:
-                    # ###########################################################
-                    """If not found, it shall be created, and be hooked up into the cache control structure.
-                    
-                    """
-                    anActionToDo = 'MakePromise'
-                    
-                elif not anExistingCacheEntry.vValid:
-                    # ###########################################################
-                    """If found invalid, it shall be created, and shall replace the existing one in the cache control structure.
-                    
-                    """
-                    anActionToDo = 'MakePromise'
-                    
-                elif not anExistingCacheEntry.vPromise:
-                    # ###########################################################
-                    """A null promise is a sign something went wrong with its resolution. A new entry shall be created, and shall replace the existing one in the cache control structure.
-                    
-                    """
-                    anActionToDo = 'MakePromise'
-                    
-                elif not ( anExistingCacheEntry.vPromise == cCacheEntry_PromiseFulfilled_Sentinel):
-                    # ###########################################################
-                    """If a promisse made, but promissed not fulfilled, somebody else is trying to complete the rendering. Just fallback to render it now.
-                    
-                    """
-                    anActionToDo = 'JustFallbackToRenderNow'
-                
-                else:
-                    # ###########################################################
-                    """This is a proper entry, if its cached rendered template result HTML is something.
-                    
-                    """
-                
-                    unCachedTemplate = anExistingCacheEntry.vHTML
-                    
-                    if not unCachedTemplate: 
-                        # ###########################################################
-                        """A totally empty rendered template HTML is a sign something went wrong with its resolution (it shall always return a smallish string or HTML element. A new entry shall be created, and shall replace the existing one in the cache control structure.
-                        
-                        """
-                        anActionToDo = 'MakePromise'
-                        
-                    else:
-                        # ###########################################################
-                        """Found cached template: Cache Hit. Update expiration time for the cache entry. Update cache hit statistics, and decide to use the HTML cached in the found entry.
-                        
-                        """
-                        unMillisecondsNow = fMillisecondsNow()
-
-                        anExistingCacheEntry.vHits += 1
-                        anExistingCacheEntry.vLastHit  = unMillisecondsNow                         
-                        anExistingCacheEntry.vLastUser = unMemberId                         
-                        
-                        unExistingCacheEntryChars = 0
-                        if anExistingCacheEntry.vHTML:
-                            unExistingCacheEntryChars = len( anExistingCacheEntry.vHTML)
-        
-                        unStatisticsUpdate = {
-                            cCacheStatistics_TotalCacheHits:    1,
-                            cCacheStatistics_TotalCharsSaved:   unExistingCacheEntryChars,
-                            cCacheStatistics_TotalTimeSaved:    max( anExistingCacheEntry.vMilliseconds, 0),
-                        }
-                        self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
-                        
-                    
-                        
-                        # ###########################################################
-                        """Renew the age of the cache entry in the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
-                        See section above with comment starting with : MEMORY consumed maintenance: Release memory if exceed max ...
-                        
-                        """
-                        
-                        unListNewSentinel = self.fGetCacheStoreListSentinel_New( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent)
-                        if unListNewSentinel:
-                            anExistingCacheEntry.pUnLink()   # if for some bad reason there is no list new sentinel, do not remove from the list, or it will never be flushed at any age.
-                            unListNewSentinel.pLink( anExistingCacheEntry) 
-                        
-                        
-                        
-                        
-                        # ###########################################################
-                        """Determined the cache entry found, and an indication that no promise was made (so no rendering has to be produced to fullfill it), and there is no need to just fallback and render it now
-                        
-                        """
-                        unExistingOrPromiseCacheEntry = anExistingCacheEntry
-                        anActionToDo                  = 'UseFoundEntry'
     
-                        
-                        
-                        
-                if not ( anActionToDo == 'UseFoundEntry'):
+            someCachedTemplatesForLanguage = someCachedTemplatesForProject.get( aNegotiatedLanguage, None)
+            if someCachedTemplatesForLanguage == None:
+                someCachedTemplatesForLanguage = { }
+                someCachedTemplatesForProject[ aNegotiatedLanguage] = someCachedTemplatesForLanguage
+    
+                
+                
+            # ###########################################################
+            """Obtain the Cache entry, if exists.
+            
+            """
+            anExistingCacheEntry = someCachedTemplatesForLanguage.get( aViewName, None)
+            
+            
+            
+            
+            # ###########################################################
+            """Analyze the Cache entry, if retrieved, and decide how to proceed: using it, promissing to create a new one, or just fallback to render the template now and return it.
+            
+            """
+            
+            
+            if not anExistingCacheEntry:
+                # ###########################################################
+                """If not found, it shall be created, and be hooked up into the cache control structure.
+                
+                """
+                anActionToDo = 'MakePromise'
+                
+            elif not anExistingCacheEntry.vValid:
+                # ###########################################################
+                """If found invalid, it shall be created, and shall replace the existing one in the cache control structure.
+                
+                """
+                aCacheEntryInWrongStateInfo = self._fNewVoidCachedEntryInWrongStateInfo()
+                aCacheEntryInWrongStateInfo.update( {
+                    'cached_entry':        anExistingCacheEntry,
+                    'cached_entry_holder': someCachedTemplatesForLanguage,
+                    'cached_entry_key':    aViewName,            
+                })                    
+                someExistingCacheEntriesInWrongState.append( aCacheEntryInWrongStateInfo)
+                anActionToDo = 'MakePromise'
+                
+            elif not anExistingCacheEntry.vPromise:
+                # ###########################################################
+                """A null promise is a sign something went wrong with its resolution. A new entry shall be created, and shall replace the existing one in the cache control structure.
+                
+                """
+                aCacheEntryInWrongStateInfo = self._fNewVoidCachedEntryInWrongStateInfo()
+                aCacheEntryInWrongStateInfo.update( {
+                    'cached_entry':        anExistingCacheEntry,
+                    'cached_entry_holder': someCachedTemplatesForLanguage,
+                    'cached_entry_key':    aViewName,            
+                })                    
+                someExistingCacheEntriesInWrongState.append( aCacheEntryInWrongStateInfo)
+                
+                anActionToDo = 'MakePromise'
+                
+            elif not ( anExistingCacheEntry.vPromise == cCacheEntry_PromiseFulfilled_Sentinel):
+                # ###########################################################
+                """If a promisse made, but promissed not fulfilled, somebody else is trying to complete the rendering. Just fallback to render it now.
+                
+                """
+                anActionToDo = 'JustFallbackToRenderNow'
+            
+            else:
+                # ###########################################################
+                """This is a proper entry, if its cached rendered template result HTML is something.
+                
+                """
+            
+                unCachedTemplate = anExistingCacheEntry.vHTML
+                
+                if not unCachedTemplate: 
                     # ###########################################################
-                    """Not Found usable cached template: Cache Fault. Update cache fault statistics.
+                    """A totally empty rendered template HTML is a sign something went wrong with its resolution (it shall always return a smallish string or HTML element. A new entry shall be created, and shall replace the existing one in the cache control structure.
                     
                     """
+                    aCacheEntryInWrongStateInfo = self._fNewVoidCachedEntryInWrongStateInfo()
+                    aCacheEntryInWrongStateInfo.update( {
+                        'cached_entry':        anExistingCacheEntry,
+                        'cached_entry_holder': someCachedTemplatesForLanguage,
+                        'cached_entry_key':    aViewName,            
+                    })                    
+                    someExistingCacheEntriesInWrongState.append( aCacheEntryInWrongStateInfo)
+
+                    anActionToDo = 'MakePromise'
+                    
+                else:
+                    # ###########################################################
+                    """Found cached template: Cache Hit. Update expiration time for the cache entry. Update cache hit statistics, and decide to use the HTML cached in the found entry.
+                    
+                    """
+                    unMillisecondsNow = fMillisecondsNow()
+
+                    anExistingCacheEntry.vHits += 1
+                    anExistingCacheEntry.vLastHit  = unMillisecondsNow                         
+                    anExistingCacheEntry.vLastUser = unMemberId                         
+                    
+                    unExistingCacheEntryChars = 0
+                    if anExistingCacheEntry.vHTML:
+                        unExistingCacheEntryChars = len( anExistingCacheEntry.vHTML)
+    
                     unStatisticsUpdate = {
-                        cCacheStatistics_TotalCacheFaults:    1,
+                        cCacheStatistics_TotalCacheHits:    1,
+                        cCacheStatistics_TotalCharsSaved:   unExistingCacheEntryChars,
+                        cCacheStatistics_TotalTimeSaved:    max( anExistingCacheEntry.vMilliseconds, 0),
                     }
                     self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
                     
-                    
-                    
-                if anActionToDo == 'MakePromise':
-                    # ###########################################################
-                    """Create a new cache entry as a promise to be fullfilled after the CRITICAL SECTION, and hook it up in the cache control structure.
-                    
-                    """
-                    
-                    
-                    
                 
-                     
                     
                     # ###########################################################
-                    """Allocate a new unique id for the cache entry, 
-                    
-                    """
-                        
-                    unCacheEntryUniqueId  = self.fGetCacheStoreNewUniqueId(  theModelDDvlPloneTool, theContextualObject,) 
-                    unMillisecondsNow     = fMillisecondsNow()
-                    unExpireAfterSeconds  = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_ExpireAfterSeconds)
-                    unForceExpire         = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_ForceExpire)
-    
-                    unPromiseMade = unMillisecondsNow
-                    
-                    aNewCacheEntry = MDDRenderedTemplateCacheEntry_ElementIndependent(
-                        theCacheName         =cCacheName_ElementIndependent,
-                        theCacheKind         =cCacheKind_ElementIndependent,
-                        theProjectName       =aProjectName,
-                        theUniqueId          =unCacheEntryUniqueId,
-                        theValid             =True,
-                        thePromise           =unPromiseMade,
-                        theUser              =unMemberId,
-                        theDateMillis        =unMillisecondsNow,
-                        theProject           =aProjectName,
-                        theView              =aViewName,
-                        theLanguage          =aNegotiatedLanguage,
-                        theHTML              =None,
-                        theMilliseconds      =0,
-                        theExpireAfterSeconds =unExpireAfterSeconds,
-                        theForceExpire       =unForceExpire,
-                    )
-                    
-                    unExistingOrPromiseCacheEntry = aNewCacheEntry
-                    
-                    
-                    
-                    
-                    # ###########################################################
-                    """Add unique id of cache entry to the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
+                    """Renew the age of the cache entry in the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
                     See section above with comment starting with : MEMORY consumed maintenance: Release memory if exceed max ...
                     
                     """
+                    
                     unListNewSentinel = self.fGetCacheStoreListSentinel_New( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent)
                     if unListNewSentinel:
-                        unListNewSentinel.pLink( aNewCacheEntry) 
-        
+                        anExistingCacheEntry.pUnLink()   
+                        unListNewSentinel.pLink( anExistingCacheEntry) 
                     
-                    
-                    # ###########################################################
-                    """Hook up the new cache entry promise in the cache control structure, to be fullfilled after the CRITICAL SECTION.
-                    
-                    """
-                    someCachedTemplatesForLanguage[ aViewName] = aNewCacheEntry
                     
                     
                     
                     # ###########################################################
-                    """Add the entry to the index by Cache Entry Unique Id.
+                    """Determined the cache entry found, and an indication that no promise was made (so no rendering has to be produced to fullfill it), and there is no need to just fallback and render it now
                     
                     """
-                    self._pAddCacheEntryToUniqueIdIndex( theModelDDvlPloneTool, theContextualObject, aNewCacheEntry)
-                    
+                    unExistingOrPromiseCacheEntry = anExistingCacheEntry
+                    anActionToDo                  = 'UseFoundEntry'
 
                     
-                    # ###########################################################
-                    """Update cache statistics.
                     
-                    """                    
-                    unStatisticsUpdate = {
-                        cCacheStatistics_TotalCacheEntries:    1,
-                    }
-                    self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
-                    
-                        
-                    
-                
-                    
-            finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                
-                
-            if someFilesToDelete:
-                self._pRemoveDiskCacheFiles(  theModelDDvlPloneTool, theContextualObject, someFilesToDelete)
-                
-                
-                
             # ###########################################################
-            """Act according to the analysis made of the Cache entry, and decide how to proceed: using it if retrieved, promissing to create a new one, or just fallback to render the template now and return it.
+            """Remove cache entries that are in wrong state, more likely because of an error while trying to fulfill the promise to be rendered.
             
             """
+            if someExistingCacheEntriesInWrongState:
+                self._pRemoveCachedEntriesInWrongState( someExistingCacheEntriesInWrongState)
+               
+                    
+                    
+            if not ( anActionToDo == 'UseFoundEntry'):
+                # ###########################################################
+                """Not Found usable cached template: Cache Fault. Update cache fault statistics.
+                
+                """
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalCacheFaults:    1,
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
+                
+                
+                
+            if anActionToDo == 'MakePromise':
+                # ###########################################################
+                """Create a new cache entry as a promise to be fullfilled after the CRITICAL SECTION, and hook it up in the cache control structure.
+                
+                """
+                
+                
+                
+            
+                # ###########################################################
+                """Allocate a new unique id for the cache entry, 
+                
+                """
+                    
+                unCacheEntryUniqueId  = self.fGetCacheStoreNewUniqueId(  theModelDDvlPloneTool, theContextualObject,) 
+                unMillisecondsNow     = fMillisecondsNow()
+                unExpireAfterSeconds  = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_ExpireAfterSeconds)
+                unForceExpire         = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, cCacheName_ElementIndependent, cCacheConfigPpty_ForceExpire)
 
-            someTranslations = { }
-            someDomainsStringsAndDefaults = [
-                [ 'ModelDDvlPlone', [    
-                    [ 'ModelDDvlPlone_Cached',                           'Cached-',], 
-                    [ 'ModelDDvlPlone_JustRendered',                     'Just Rendered-',],
-                ]],                                                      
-            ]        
-            theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
-                    
-            
-            
-            if anActionToDo == 'UseFoundEntry':
+                unPromiseMade = unMillisecondsNow
+                
+                aNewCacheEntry = MDDRenderedTemplateCacheEntry_ElementIndependent(
+                    theCacheName         =cCacheName_ElementIndependent,
+                    theCacheKind         =cCacheKind_ElementIndependent,
+                    theProjectName       =aProjectName,
+                    theUniqueId          =unCacheEntryUniqueId,
+                    theValid             =True,
+                    thePromise           =unPromiseMade,
+                    theUser              =unMemberId,
+                    theDateMillis        =unMillisecondsNow,
+                    theProject           =aProjectName,
+                    theView              =aViewName,
+                    theLanguage          =aNegotiatedLanguage,
+                    theHTML              =None,
+                    theMilliseconds      =0,
+                    theExpireAfterSeconds =unExpireAfterSeconds,
+                    theForceExpire       =unForceExpire,
+                )
+                
+                unExistingOrPromiseCacheEntry = aNewCacheEntry
+                
+                
+                
                 # ###########################################################
-                """Found entry was good: sucessful cache hit.
+                """Hook up the new cache entry promise in the cache control structure, to be fullfilled after the CRITICAL SECTION.
                 
                 """
-                if unCachedTemplate:
-                    # ###########################################################
-                    """If no HTML (in cache entry to use, something is wrong in the logic of the entry search and analysis. The unCachedTemplate variable should hold HTML. Falling back in the code following to render now.
+                someCachedTemplatesForLanguage[ aViewName] = aNewCacheEntry
+                
+                aRenderResult.update( {
+                    'cache_name':     cCacheName_ElementIndependent,
+                    'promise_made':   unExistingOrPromiseCacheEntry,
+                    'promise_holder': someCachedTemplatesForLanguage,
+                    'promise_key':    aViewName,
+                })
+                
+                                    
+                
+                # ###########################################################
+                """Add unique id of cache entry to the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
+                See section above with comment starting with : MEMORY consumed maintenance: Release memory if exceed max ...
+                
+                """
+                unListNewSentinel = self.fGetCacheStoreListSentinel_New( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent)
+                if unListNewSentinel:
+                    unListNewSentinel.pLink( aNewCacheEntry) 
+    
+                
+
+                
+                # ###########################################################
+                """Add the entry to the index by Cache Entry Unique Id.
+                
+                """
+                self._pAddCacheEntryToUniqueIdIndex( theModelDDvlPloneTool, theContextualObject, aNewCacheEntry)
+                
+
+                
+                # ###########################################################
+                """Update cache statistics.
+                
+                """                    
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalCacheEntries:    1,
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
+                
                     
-                    """
-                    unRenderedTemplateToReturn = unCachedTemplate.replace(    
-                        u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
-                        u'<span>%(ModelDDvlPlone_Cached)s' % someTranslations,
-                    )   
+                
+            
+                
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            
+            
+        if someFilesToDelete:
+            self._pRemoveDiskCacheFiles(  theModelDDvlPloneTool, theContextualObject, someFilesToDelete)
+            
+            
+            
+        # ###########################################################
+        """Act according to the analysis made of the Cache entry, and decide how to proceed: using it if retrieved, promissing to create a new one, or just fallback to render the template now and return it.
         
-                    aEndMillis = fMillisecondsNow()
-                    aMilliseconds = aEndMillis - aBeginMillis
-                    unDurationString = '%d ms' % aMilliseconds
-                    
-                    unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
-                        u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
-                        u'%s</span>' % unDurationString
-                    )
-                    unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                       cMagicReplacementString_CacheCode, 
-                       '%d' % aEndMillis
-                    )
-                    #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                        #u'theFlushCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                        #u'theFlushCacheCode=%s' % aEndMillis
-                    #)
-                    #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                        #u'theNoCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                        #u'theNoCacheCode=%s' % aEndMillis
-                    #)
-                    
-                    return [ True, unRenderedTemplateToReturnWithDuration,]
+        """
+
+        someTranslations = { }
+        someDomainsStringsAndDefaults = [
+            [ 'ModelDDvlPlone', [    
+                [ 'ModelDDvlPlone_Cached',                           'Cached-',], 
+                [ 'ModelDDvlPlone_JustRendered',                     'Just Rendered-',],
+            ]],                                                      
+        ]        
+        theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
                 
-                
-                
-                
+        
+        
+        if anActionToDo == 'UseFoundEntry':
+            # ###########################################################
+            """Found entry was good: sucessful cache hit.
             
-                
-            if ( anActionToDo == 'UseFoundEntry') or ( anActionToDo == 'JustFallbackToRenderNow') or ( ( anActionToDo == 'MakePromise') and ( not unPromiseMade)) or not ( anActionToDo == 'MakePromise') or (unExistingOrPromiseCacheEntry == None):
+            """
+            if unCachedTemplate:
                 # ###########################################################
-                """Entry was found, but something was wrong, or it has been decided that the action is to just render now, or a promise has been made but there is no promise code, or a the action is not the remaining possiblity of MakePromise , or no promise entry has been created. Fallback to render now.
-                ACV OJO 20091219 Should remove the found entry: pages that fail usually leave the entry in a bad state, and are never cached again.
+                """If no HTML (in cache entry to use, something is wrong in the logic of the entry search and analysis. The unCachedTemplate variable should hold HTML. Falling back in the code following to render now.
                 
                 """
-                
-                unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-                
-                if aDisplayCacheHitInformation:
-                    if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
-                        unRenderedTemplateToReturn = unRenderedTemplate + ( u'\n<br/><br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font>' % someTranslations)
-                    elif aDisplayCacheHitInformation == cDisplayCacheHitInformation_Top:          
-                        unRenderedTemplateToReturn = ( u'<br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font><br/>\n' % someTranslations) + unRenderedTemplate
-                    else:
-                        unRenderedTemplateToReturn = unRenderedTemplate[:]
-                        
-                unosMillisAfterMatch   = fMillisecondsNow()
-                        
-                unosMilliseconds = unosMillisAfterMatch - unosMillisBeforeMatch
-                unDurationString = '%d ms' % unosMilliseconds
+                unRenderedTemplateToReturn = unCachedTemplate.replace(    
+                    u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
+                    u'<span>%(ModelDDvlPlone_Cached)s' % someTranslations,
+                )   
+    
+                aEndMillis = fMillisecondsNow()
+                aMilliseconds = aEndMillis - aBeginMillis
+                unDurationString = '%d ms' % aMilliseconds
                 
                 unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
                     u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
@@ -5146,46 +5642,91 @@ class ModelDDvlPloneTool_Cache:
                 )
                 unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
                    cMagicReplacementString_CacheCode, 
-                   '%d' % unosMillisAfterMatch
+                   '%d' % aEndMillis
                 )
-                #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                   #u'theFlushCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                   #u'theFlushCacheCode=%s' % unosMillisAfterMatch
-                #)
-                #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                    #u'theNoCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                    #u'theNoCacheCode=%s' % unosMillisAfterMatch
-                #)
-               
-                return [ True, unRenderedTemplateToReturnWithDuration, ]
                 
-                
-                    
-                
-            someVariables = {
-                'aBeginMillis':                  aBeginMillis,
-                'anActionToDo':                  anActionToDo,
-                'unExistingOrPromiseCacheEntry': unExistingOrPromiseCacheEntry,
-                'unPromiseMade':                 unPromiseMade,
-                'unCacheEntryUniqueId':          unCacheEntryUniqueId,
-                'aProjectName':                  aProjectName,
-                'aNegotiatedLanguage':           aNegotiatedLanguage,
-                'unCacheId':                     unCacheEntryUniqueId,
-                'aViewName':                     aViewName,
-                'unMemberId':                    unMemberId,
-                'unCachedTemplate':              unCachedTemplate,
-                'someTranslations':              someTranslations,
-                'aDisplayCacheHitInformation':   aDisplayCacheHitInformation,
-                'aCacheDiskEnabled':             aCacheDiskEnabled,
-                'aCacheDiskPath':                aCacheDiskPath,
-                'unExpireDiskAfterSeconds':      unExpireDiskAfterSeconds,
-            }
-                
-        except:
-            raise
+                aRenderResult.update( {
+                    'status':            cRenderStatus_Completed, 
+                    'rendered_html':     unRenderedTemplateToReturnWithDuration,
+                })                                    
+                return aRenderResult
+            
+            
+            
+            
         
-                
-        return [ False, someVariables,]
+            
+        if ( anActionToDo == 'UseFoundEntry') or ( anActionToDo == 'JustFallbackToRenderNow') or ( ( anActionToDo == 'MakePromise') and ( not unPromiseMade)) or not ( anActionToDo == 'MakePromise') or (unExistingOrPromiseCacheEntry == None):
+            # ###########################################################
+            """Entry was found, but something was wrong, or it has been decided that the action is to just render now, or a promise has been made but there is no promise code, or a the action is not the remaining possiblity of MakePromise , or no promise entry has been created. Fallback to render now.
+            ACV OJO 20091219 Should remove the found entry: pages that fail usually leave the entry in a bad state, and are never cached again.
+            
+            """
+            
+            anActionToDo = 'JustFallbackToRenderNow'
+            
+            
+            unRenderedTemplate = self._fInvokeCallable_Or_RenderTemplate( 
+                theModelDDvlPloneTool=theModelDDvlPloneTool, 
+                theContextualObject  =theContextualObject, 
+                theTemplateName      =theTemplateName, 
+                theAdditionalParams =theAdditionalParams,
+            )
+           
+            if aDisplayCacheHitInformation:
+                if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
+                    unRenderedTemplateToReturn = unRenderedTemplate + ( u'\n<br/><br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font>' % someTranslations)
+                elif aDisplayCacheHitInformation == cDisplayCacheHitInformation_Top:          
+                    unRenderedTemplateToReturn = ( u'<br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font><br/>\n' % someTranslations) + unRenderedTemplate
+                else:
+                    unRenderedTemplateToReturn = unRenderedTemplate[:]
+                    
+            unosMillisAfterMatch   = fMillisecondsNow()
+                    
+            unosMilliseconds = unosMillisAfterMatch - unosMillisBeforeMatch
+            unDurationString = '%d ms' % unosMilliseconds
+            
+            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+                u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
+                u'%s</span>' % unDurationString
+            )
+            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+               cMagicReplacementString_CacheCode, 
+               '%d' % unosMillisAfterMatch
+            )
+           
+            aRenderResult.update( {
+                'status':            cRenderStatus_Completed, 
+                'rendered_html':     unRenderedTemplateToReturnWithDuration,
+            })                                    
+            return aRenderResult
+            
+            
+        theVariables.update( {
+            'aBeginMillis':                  aBeginMillis,
+            'anActionToDo':                  anActionToDo,
+            'unExistingOrPromiseCacheEntry': unExistingOrPromiseCacheEntry,
+            'unPromiseMade':                 unPromiseMade,
+            'unCacheEntryUniqueId':          unCacheEntryUniqueId,
+            'aProjectName':                  aProjectName,
+            'aNegotiatedLanguage':           aNegotiatedLanguage,
+            'unCacheId':                     unCacheEntryUniqueId,
+            'aViewName':                     aViewName,
+            'unMemberId':                    unMemberId,
+            'unCachedTemplate':              unCachedTemplate,
+            'someTranslations':              someTranslations,
+            'aDisplayCacheHitInformation':   aDisplayCacheHitInformation,
+            'aCacheDiskEnabled':             aCacheDiskEnabled,
+            'aCacheDiskPath':                aCacheDiskPath,
+            'unExpireDiskAfterSeconds':      unExpireDiskAfterSeconds,
+        })
+            
+        aRenderResult.update( {
+            'status':            cRenderStatus_Continue, 
+        })                                    
+        return aRenderResult
+
+        
                 
        
     
@@ -5193,21 +5734,43 @@ class ModelDDvlPloneTool_Cache:
  
     
     security.declarePrivate( '_fRenderTemplateOrCachedElementIndependent_Phase_TryDisk')
-    def _fRenderTemplateOrCachedElementIndependent_Phase_TryDisk(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None, theVariables={}):
+    def _fRenderTemplateOrCachedElementIndependent_Phase_TryDisk(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None, 
+        theVariables={}):
         """No usable cache entry has been found. Try to find the cached HTML on disc, for the project, for the currently negotiated language, and for the specified view.
         
         """
         
+        aRenderResult = self._fNewVoidRenderResult_Phase_TryDisk()
+        
         if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
             if not theModelDDvlPloneTool:
-                return '<h2>No parameter theModelDDvlPloneTool</h2>'
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+                aRenderResult.update( {
+                    'status':           cRenderStatus_ShowError, 
+                    'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
     
         
         if not theVariables:
             if not theModelDDvlPloneTool:
-                return '<h2>No parameters theVariables and theModelDDvlPloneTool</h2>'
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+                aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
         
         aBeginMillis                  = theVariables[ 'aBeginMillis']
         anActionToDo                  = theVariables[ 'anActionToDo']
@@ -5226,280 +5789,285 @@ class ModelDDvlPloneTool_Cache:
         unExpireDiskAfterSeconds      = theVariables[ 'unExpireDiskAfterSeconds']
         
         if not aCacheDiskEnabled:
-            return [ False, None]
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
         
 
+        if not aCacheDiskPath:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
         
+        # ###########################################################
+        """Assemble the name of the disk file holding the cached HTML for the entry.
             
-            
+        """            
+        aProjectPath  = os.path.join( aCacheDiskPath, aProjectName)
+        aLanguagePath = os.path.join( aProjectPath, aNegotiatedLanguage)
+        aFileName     = '%s%s' % (  aViewName, cCacheDiskFilePostfix)
+        aFilePath     = os.path.join( aLanguagePath, aFileName)
+
+        theVariables[ 'aFilePath']         = aFilePath
 
         
+        
+        # ###########################################################
+        """Try to access the directory containing the element independent files with cached HTML.
+            
+        """            
+        aCacheDiskPathExist = False
         try:
-            if not aCacheDiskPath:
-                return [ False, None,]
-            
-            # ###########################################################
-            """Assemble the name of the disk file holding the cached HTML for the entry.
-                
-            """            
-            aProjectPath  = os.path.join( aCacheDiskPath, aProjectName)
-            aLanguagePath = os.path.join( aProjectPath, aNegotiatedLanguage)
-            aFileName     = '%s%s' % (  aViewName, cCacheDiskFilePostfix)
-            aFilePath     = os.path.join( aLanguagePath, aFileName)
- 
-            theVariables[ 'aFilePath']         = aFilePath
-
-            
-            
-            # ###########################################################
-            """Try to access the directory containing the element independent files with cached HTML.
-                
-            """            
-            aCacheDiskPathExist = False
-            try:
-                aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
-            except:
-                None
-            if not aCacheDiskPathExist:
-                return [ False, None]
-            
-            
-            # ###########################################################
-            """Try to access directories for project and language.
-                
-            """
-            aProjectPathExist = False
-            try:
-                aProjectPathExist = os.path.exists( aProjectPath)
-            except:
-                None
-            if not aProjectPathExist:
-                return [ False, None]
-                
-            
-            aLanguagePathExist = False
-            try:
-                aLanguagePathExist = os.path.exists( aLanguagePath)
-            except:
-                None
-            if not aLanguagePathExist:
-                return [ False, None]
-
-            
-            # ###########################################################
-            """Try to retrieve the page from disk cache file.
-                
-            """
-            aFilePathExist = False
-            try:
-                aFilePathExist = os.path.exists( aFilePath)
-            except:
-                None
-            if not aFilePathExist:
-                return [ False, None]
-
-            anHTML = ''
-            try:
-                aViewFile = None
-                try:
-                    aViewFile = open( aFilePath, cCacheDisk_ElementIndependent_FileOpenReadMode_View, cCacheDisk_ElementIndependent_FileOpenReadBuffering_View)
-                    anHTML = aViewFile.read()
-                finally:
-                    if aViewFile:
-                        aViewFile.close()
-                    
-            except IOError:
-                return [ False, None]
-      
-            if ( not anHTML) or ( len( anHTML) < cMinCached_HTMLFileLen):
-                return [ False, None]
-                
-            
-            
-            unosMillisAfterRead = fMillisecondsNow()
-            unosMilliseconds   = unosMillisAfterRead - aBeginMillis
-
-
-      
-
-            # ###########################################################
-            """Read the HTML timestamp, and determine if the file has expired.
-                
-            """
-            if unExpireDiskAfterSeconds:
-                
-                aFirstLinesChunk = anHTML[:cHTMLFirstLinesChunkLen]
-                unIndex = aFirstLinesChunk.find( cHTMLRenderingTimeComment_Keyword)
-                if unIndex < 0:
-                    return [ False, None]
-                
-                unMillisecondsHTMLString = aFirstLinesChunk[ unIndex + len( cHTMLRenderingTimeComment_Keyword):]
-                if not unMillisecondsHTMLString:
-                    return [ False, None]
-                
-                unLastIndex = unMillisecondsHTMLString.index( ' ')
-                if unLastIndex < 0:
-                    unLastIndex = unMillisecondsHTMLString.index( '-')
-                    
-                if unLastIndex >=0:
-                    unMillisecondsHTMLString = unMillisecondsHTMLString[:unLastIndex]
-                if not unMillisecondsHTMLString:
-                    return [ False, None]
-                    
-                    
-                unMillisecondsHTML = 0
-                try:
-                    unMillisecondsHTML = int( unMillisecondsHTMLString)
-                except:
-                    None
-                if not unMillisecondsHTML:
-                    return [ False, None]
-                
-                unTimePassed = int( ( unosMillisAfterRead - unMillisecondsHTML) / 1000)
-               
-                if unTimePassed >= unExpireDiskAfterSeconds:
-                    # ###########################################################
-                    """HTML has expired. Flush the file.
-                        
-                    """
-                    self._pRemoveDiskCacheFiles( theModelDDvlPloneTool, theContextualObject, [ aFilePath,])
-                    return [ False, None]
-                    
-                            
-   
-            
-            # ###########################################################
-            """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
-            
-            """
-            try:
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                
-                  
-                # ###########################################################
-                """Check if somebody messed with the promised cache entry, so it is not being updated here.
-                
-                """
-                if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
-
-                    unMillisecondsNow = fMillisecondsNow()
-                            
-                    unExistingOrPromiseCacheEntry.vHTML            = anHTML
-                    unExistingOrPromiseCacheEntry.vFilePath        = aFilePath
-                    unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
-                    unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
-                    unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
-                    
-                    unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
-                    
-                    unHTMLLen = len( unExistingOrPromiseCacheEntry.vHTML)
-                    
-                    unStatisticsUpdate = {
-                        cCacheStatistics_TotalCacheDiskHits:    1,
-                        cCacheStatistics_TotalCharsCached:      unHTMLLen,
-                        cCacheStatistics_TotalCharsSaved:       unHTMLLen,
-                    }
-                    self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
-                    
-
-                        
-                             
-                # ###########################################################
-                """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
-                
-                """
-                self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent)
-                   
-                
-                 
-                
-            finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                            
-            
-            theVariables[ 'unTemplateToCache'] = anHTML[:]
-    
-            # ###########################################################
-            """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
-            
-            """
-            someDomainsStringsAndDefaults = [
-                [ 'ModelDDvlPlone', [    
-                    [ 'ModelDDvlPlone_DiskCached',                     'Disk Cached-',], 
-                ]],                                                      
-            ]        
-            theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
-            
-            unRenderedTemplateToReturn = anHTML.replace(    
-                u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
-                u'<span>%s' % someTranslations[ 'ModelDDvlPlone_DiskCached'],
-            )   
-            
-            unDurationString = '%d ms' % unosMilliseconds
-            
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
-                u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
-                u'%s</span>' % unDurationString
-            )
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               cMagicReplacementString_CacheCode, 
-               '%d' % unosMillisAfterRead
-            )
-            #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               #u'theFlushCacheCode=%s' % cMagicReplacementString_CacheCode, 
-               #u'theFlushCacheCode=%s' % unosMillisAfterRead
-            #)
-            #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               #u'theNoCacheCode=%s' % cMagicReplacementString_CacheCode, 
-               #u'theNoCacheCode=%s' % unosMillisAfterRead
-            #)
-            
-            theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
-                        
-                
-            return [ True, unRenderedTemplateToReturnWithDuration,]
-            
-            
-        
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
         except:
-            raise
-            #unaExceptionInfo = sys.exc_info()
-            #unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
-            
-            #unInformeExcepcion = 'Exception during access to a page from cache of rendered templates' 
-            #unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            #unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            #unInformeExcepcion += unaExceptionFormattedTraceback   
-            
-            #if cLogExceptions:
-                #logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
-            #unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-            
-            #unRenderedTemplateToReturn = u'%s\n<br/><br/><font size="1"><strong>%s</strong></font>' % ( unRenderedTemplate, theModelDDvlPloneTool.fTranslateI18N( theContextualObject, 'ModelDDvlPlone', 'ModelDDvlPlone_ExceptionRetrievingPageFromCachedRenderedTemplate', 'Exception rendering page-'), unExceptionReport)
+            None
+        if not aCacheDiskPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
         
-            #aEndMillis = int( time() * 1000)
-            #unRenderedTemplateToReturn = '%s\n<br/>%d ms<br/>' % ( unRenderedTemplateToReturn, aEndMillis - aBeginMillis,)
+        
+        # ###########################################################
+        """Try to access directories for project and language.
+            
+        """
+        aProjectPathExist = False
+        try:
+            aProjectPathExist = os.path.exists( aProjectPath)
+        except:
+            None
+        if not aProjectPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+            
+        
+        aLanguagePathExist = False
+        try:
+            aLanguagePathExist = os.path.exists( aLanguagePath)
+        except:
+            None
+        if not aLanguagePathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
 
-            #return unRenderedTemplateToReturn
+        
+        # ###########################################################
+        """Try to retrieve the page from disk cache file.
+            
+        """
+        aFilePathExist = False
+        try:
+            aFilePathExist = os.path.exists( aFilePath)
+        except:
+            None
+        if not aFilePathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+
+        anHTML = ''
+        try:
+            aViewFile = None
+            try:
+                aViewFile = open( aFilePath, cCacheDisk_ElementIndependent_FileOpenReadMode_View, cCacheDisk_ElementIndependent_FileOpenReadBuffering_View)
+                anHTML = aViewFile.read()
+            finally:
+                if aViewFile:
+                    aViewFile.close()
                 
-       
+        except IOError:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+  
+        if ( not anHTML) or ( len( anHTML) < cMinCached_HTMLFileLen):
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+            
+        
+        
+        unosMillisAfterRead = fMillisecondsNow()
+        unosMilliseconds   = unosMillisAfterRead - aBeginMillis
+
+
+  
+
+        # ###########################################################
+        """Read the HTML timestamp, and determine if the file has expired.
+            
+        """
+        if unExpireDiskAfterSeconds:
+            
+            aFirstLinesChunk = anHTML[:cHTMLFirstLinesChunkLen]
+            unIndex = aFirstLinesChunk.find( cHTMLRenderingTimeComment_Keyword)
+            if unIndex < 0:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+                    
+            unMillisecondsHTMLString = aFirstLinesChunk[ unIndex + len( cHTMLRenderingTimeComment_Keyword):]
+            if not unMillisecondsHTMLString:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+            
+            unLastIndex = unMillisecondsHTMLString.index( ' ')
+            if unLastIndex < 0:
+                unLastIndex = unMillisecondsHTMLString.index( '-')
+                
+            if unLastIndex >=0:
+                unMillisecondsHTMLString = unMillisecondsHTMLString[:unLastIndex]
+            if not unMillisecondsHTMLString:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+                
+                
+            unMillisecondsHTML = 0
+            try:
+                unMillisecondsHTML = int( unMillisecondsHTMLString)
+            except:
+                None
+            if not unMillisecondsHTML:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+            
+            unTimePassed = int( ( unosMillisAfterRead - unMillisecondsHTML) / 1000)
+           
+            if unTimePassed >= unExpireDiskAfterSeconds:
+                # ###########################################################
+                """HTML has expired. Flush the file.
+                    
+                """
+                self._pRemoveDiskCacheFiles( theModelDDvlPloneTool, theContextualObject, [ aFilePath,])
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+                
+                        
+
+        
+        # ###########################################################
+        """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
+        
+        """
+        try:
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
             
+              
+            # ###########################################################
+            """Check if somebody messed with the promised cache entry, so it is not being updated here.
+            
+            """
+            if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
+
+                unMillisecondsNow = fMillisecondsNow()
+                        
+                unExistingOrPromiseCacheEntry.vHTML            = anHTML
+                unExistingOrPromiseCacheEntry.vFilePath        = aFilePath
+                unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
+                unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
+                unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
+                
+                unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
+                
+                unHTMLLen = len( unExistingOrPromiseCacheEntry.vHTML)
+                
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalCacheDiskHits:    1,
+                    cCacheStatistics_TotalCharsCached:      unHTMLLen,
+                    cCacheStatistics_TotalCharsSaved:       unHTMLLen,
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
+                
+
+                    
+                         
+            # ###########################################################
+            """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
+            
+            """
+            self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent)
+               
+            
+             
+            
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+                        
+        
+        theVariables[ 'unTemplateToCache'] = anHTML[:]
+
+        # ###########################################################
+        """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
+        
+        """
+        someDomainsStringsAndDefaults = [
+            [ 'ModelDDvlPlone', [    
+                [ 'ModelDDvlPlone_DiskCached',                     'Disk Cached-',], 
+            ]],                                                      
+        ]        
+        theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
+        
+        unRenderedTemplateToReturn = anHTML.replace(    
+            u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
+            u'<span>%s' % someTranslations[ 'ModelDDvlPlone_DiskCached'],
+        )   
+        
+        unDurationString = '%d ms' % unosMilliseconds
+        
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+            u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
+            u'%s</span>' % unDurationString
+        )
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+           cMagicReplacementString_CacheCode, 
+           '%d' % unosMillisAfterRead
+        )
+
+        
+        theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
+                    
+            
+        aRenderResult.update( {
+            'status':            cRenderStatus_Completed, 
+            'rendered_html':     unRenderedTemplateToReturnWithDuration,
+        })                                    
+        return aRenderResult
+        
+        
+     
             
             
             
@@ -5507,21 +6075,43 @@ class ModelDDvlPloneTool_Cache:
  
     
     security.declarePrivate( '_fRenderTemplateOrCachedElementIndependent_Phase_Render')
-    def _fRenderTemplateOrCachedElementIndependent_Phase_Render(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None, theVariables={}):
+    def _fRenderTemplateOrCachedElementIndependent_Phase_Render(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None, 
+        theVariables={}):
         """No usable cache entry has been found. Render the template, for the project, for the currently negotiated language, and for the specified view.
         
         """
                 
+        aRenderResult = self._fNewVoidRenderResult_Phase_Render()
+        
         if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
             if not theModelDDvlPloneTool:
-                return [ True, '<h2>No parameter theModelDDvlPloneTool</h2>', ]
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+                aRenderResult.update( {
+                    'status':           cRenderStatus_ShowError, 
+                    'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
     
         
         if not theVariables:
             if not theModelDDvlPloneTool:
-                return [ True, '<h2>No parameters theVariables and theModelDDvlPloneTool</h2>', ]
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+                aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
         
         aBeginMillis                  = theVariables[ 'aBeginMillis']
         anActionToDo                  = theVariables[ 'anActionToDo']
@@ -5547,354 +6137,328 @@ class ModelDDvlPloneTool_Cache:
             
         aMillisecondsNow = theModelDDvlPloneTool.fMillisecondsNow()
         
-        try:
 
-            
-            # ###########################################################
-            """Retrieve localized strings for internationalized symbols (l10n4i18n).
-                
-            """
-            moreDomainsStringsAndDefaults = [
-                [ 'ModelDDvlPlone', [    
-                    [ 'ModelDDvlPlone_JustCached',                       'Just Cached-',],
-                    [ 'ModelDDvlPlone_Time_label',                       'Date-',], 
-                    [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
-                    [ 'ModelDDvlPlone_User_label',                       'User-',], 
-                    [ 'ModelDDvlPlone_Date_label',                       'Date-',], 
-                    [ 'ModelDDvlPlone_Project_label',                    'Project-',], 
-                    [ 'ModelDDvlPlone_Language_label',                   'Language-',], 
-                    [ 'ModelDDvlPlone_View_label',                       'View-',],
-                    [ 'ModelDDvlPlone_FilePath_label',                   'File-',],
-                    [ 'ModelDDvlPlone_RoleKind_label',                   'Role kind-',], 
-                    [ 'ModelDDvlPlone_Path_label',                       'Path-',], 
-                    [ 'ModelDDvlPlone_UID_label',                        'UID-',], 
-                    [ 'ModelDDvlPlone_URL_label',                        'URL-',], 
-                    [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
-                    [ 'title_label',                                     'Title-',], 
-                    [ 'ModelDDvlPlone_Relation_label',                   'Relation-'],
-                    [ 'ModelDDvlPlone_ShowNoFromCacheLink_label',        'Show generated-',], 
-                    [ 'ModelDDvlPlone_FlushFromCacheLink_label',         'Flush from cache-',], 
-                    [ 'ModelDDvlPlone_FlushFromDiskCacheLink_label',     'Flush from diskcache-',], 
-                    [ 'ModelDDvlPlone_RelatedElement_label',             'Related Element-',],
-                ]],                                                      
-            ]        
-            theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, moreDomainsStringsAndDefaults, someTranslations)
-            
-            
-            
-            
-            
-            # ###########################################################
-            """Render a caching information collapsible section to append to the rendered template HTML.
-                
-            """
-            unRenderedCacheInfo = u''
-            if aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]:
-                
-                # ###########################################################
-                """Prepare internationalized strings, and info values.
-                    
-                """
-                
-                unPagina = ''
-                if aViewName in [ 'Textual', 'Textual_NoHeaderNoFooter',]:
-                    unPagina = '/'
-                elif aViewName in [ 'Tabular', 'Tabular_NoHeaderNoFooter',]:
-                    unPagina = '/Tabular/'
-                elif aViewName.endswith( '_NoHeaderNoFooter'):
-                    unPagina = '/%s/' % aViewName[: 0 - len( '_NoHeaderNoFooter')]
-                else:
-                    unPagina = '/%s/' % aViewName
-                
-                aCacheEntryValuesDict = someTranslations.copy()
-                aCacheEntryValuesDict.update( {
-                    'unBaseURL':                                       theContextualObject.getRaiz().absolute_url(),
-                    'cMagicReplacementString_CacheCode':               cMagicReplacementString_CacheCode,
-                    'cMagicReplacementString_TimeToRetrieve':          cMagicReplacementString_TimeToRetrieve,
-                    'cMagicReplacementString_Milliseconds':            cMagicReplacementString_Milliseconds,
-                    'cMagicReplacementString_Len':                     cMagicReplacementString_Len,
-                    'cMagicReplacementString_Date':                    cMagicReplacementString_Date,
-                    'cMagicReplacementString_CollapsibleSectionTitle': cMagicReplacementString_CollapsibleSectionTitle,
-                    'cMagicReplacementString_UniqueId':                cMagicReplacementString_UniqueId,                    
-                    'aProjectName':                  aProjectName,
-                    'aNegotiatedLanguage':           aNegotiatedLanguage,
-                    'unCacheId':                     unCacheEntryUniqueId,
-                    'aViewName':                     aViewName,
-                    'unMemberId':                    unMemberId,
-                    'unPagina':                      unPagina,
-                    'aFilePath':                     aFilePath,
-                    'aMillisecondsNow':              aMillisecondsNow,
-                })                   
-                    
-                
-                
-                
-                
-                unRenderedCacheInfo = u"""
-                    <!-- ######### Start collapsible  section ######### 
-                        # ##################################################################################################
-                        With placeholder for the title of the section (to be later set as Just Rendered, Just Cached, Cached 
-                    --> 
-                    <dl id="cid_MDDCachedElementView" class="collapsible inline collapsedInlineCollapsible" >
-                        <dt class="collapsibleHeader">
-                            <span>%(cMagicReplacementString_CollapsibleSectionTitle)s %(cMagicReplacementString_TimeToRetrieve)s</span>                        
-                        </dt>
-                        <dd class="collapsibleContent">
-                            <br/>
-                            <form style="display: inline" action="%(unBaseURL)s%(unPagina)s" method="get" enctype="multipart/form-data">
-                                <input type="hidden" name="theNoCache"   value="on" />
-                                <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="submit" value="%(ModelDDvlPlone_ShowNoFromCacheLink_label)s" 
-                                    name="theCacheControl" 
-                                    id="cid_MDDShowNoFromCache_Button" 
-                                    style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
-                            </form>
-                            &emsp;
-                            <form style="display: inline"  action="%(unBaseURL)s/MDDFlushCachedTemplateByUniqueId/"
-                                method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="theCacheEntryUniqueId"   value="%(cMagicReplacementString_UniqueId)s" />
-                                <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="hidden" name="theCacheName" value="ElementIndependent" />
-                                <input type="submit" value="%(ModelDDvlPlone_FlushFromCacheLink_label)s" 
-                                    name="theCacheControl" 
-                                    id="cid_MDDFlushCache_Button" 
-                                    style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
-                            </form>
-                            &emsp;
-                            <form style="display: inline"  action="%(unBaseURL)s/MDDFlushCachedTemplateByUniqueId/"
-                                method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="theCacheEntryUniqueId"   value="%(cMagicReplacementString_UniqueId)s" />
-                                <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="hidden" name="theCacheName" value="ElementIndependent" />
-                                <input type="hidden" name="theFlushDiskCache" value="on" />
-                                <input type="submit" value="%(ModelDDvlPlone_FlushFromDiskCacheLink_label)s" 
-                                    name="theCacheControl" 
-                                    id="cid_MDDFlushDiskCacheCache_Button" 
-                                    style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
-                            </form>
-                            <br/>
-                            <table class="listing" ">
-                                <thead>
-                                    <tr>
-                                        <th class="nosort"/>
-                                        <th class="nosort"/>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="odd">
-                                        <td align="left"><strong>Id</strong></td>
-                                        <td align="right">%(cMagicReplacementString_UniqueId)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_FilePath_label)s</strong></td>
-                                        <td align="left">%(aFilePath)s</td>
-                                    </tr>
-                                    <tr class="even">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Time_label)s</strong></td>
-                                        <td align="right">%(cMagicReplacementString_Milliseconds)s ms</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Len_label)s</strong></td>
-                                        <td align="right">%(cMagicReplacementString_Len)s chars</td>
-                                    </tr>
-                                    <tr class="even">
-                                        <td align="left"><strong>%(ModelDDvlPlone_User_label)s</strong></td>
-                                        <td align="left">%(unMemberId)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Date_label)s</strong></td>
-                                        <td align="left">%(cMagicReplacementString_Date)s</td>
-                                    </tr>
-                                    <tr class="even">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Project_label)s</strong></td>
-                                        <td align="left">%(aProjectName)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Language_label)s</strong></td>
-                                        <td align="left">%(aNegotiatedLanguage)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_View_label)s</strong></td>
-                                        <td align="left">%(aViewName)s</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <br/>   
-                        </dd>
-                    </dl>
-                    <!-- ######### End collapsible  section ######### --> 
-                """  % aCacheEntryValuesDict
-                
-                
-                
-            
-            
-            # ###########################################################
-            """Render template, because it was not found (valid) in the cache. This may take some significant time. Status of cache may have changed since.
-            
-            """
-            
-
-            unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-            
-            aEndMillis       = fMillisecondsNow()
-            unosMilliseconds = aEndMillis - aBeginMillis
-                    
-            unRenderedTemplateWithCacheInfo = unRenderedTemplate
-            
-            
         
+        # ###########################################################
+        """Retrieve localized strings for internationalized symbols (l10n4i18n).
+            
+        """
+        moreDomainsStringsAndDefaults = [
+            [ 'ModelDDvlPlone', [    
+                [ 'ModelDDvlPlone_JustCached',                       'Just Cached-',],
+                [ 'ModelDDvlPlone_Time_label',                       'Date-',], 
+                [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
+                [ 'ModelDDvlPlone_User_label',                       'User-',], 
+                [ 'ModelDDvlPlone_Date_label',                       'Date-',], 
+                [ 'ModelDDvlPlone_Project_label',                    'Project-',], 
+                [ 'ModelDDvlPlone_Language_label',                   'Language-',], 
+                [ 'ModelDDvlPlone_View_label',                       'View-',],
+                [ 'ModelDDvlPlone_FilePath_label',                   'File-',],
+                [ 'ModelDDvlPlone_RoleKind_label',                   'Role kind-',], 
+                [ 'ModelDDvlPlone_Path_label',                       'Path-',], 
+                [ 'ModelDDvlPlone_UID_label',                        'UID-',], 
+                [ 'ModelDDvlPlone_URL_label',                        'URL-',], 
+                [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
+                [ 'title_label',                                     'Title-',], 
+                [ 'ModelDDvlPlone_Relation_label',                   'Relation-'],
+                [ 'ModelDDvlPlone_ShowNoFromCacheLink_label',        'Show generated-',], 
+                [ 'ModelDDvlPlone_FlushFromCacheLink_label',         'Flush from cache-',], 
+                [ 'ModelDDvlPlone_FlushFromDiskCacheLink_label',     'Flush from diskcache-',], 
+                [ 'ModelDDvlPlone_RelatedElement_label',             'Related Element-',],
+            ]],                                                      
+        ]        
+        theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, moreDomainsStringsAndDefaults, someTranslations)
+        
+        
+        
+        
+        
+        # ###########################################################
+        """Render a caching information collapsible section to append to the rendered template HTML.
+            
+        """
+        unRenderedCacheInfo = u''
+        if aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]:
+            
             # ###########################################################
-            """If so configured: Fill in the date in the caching information collapsible section appended to the rendered template HTML.
-            
+            """Prepare internationalized strings, and info values.
+                
             """
-            if not( aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]):
-                unRenderedTemplateWithCacheInfo = unRenderedTemplate[:]
             
+            unPagina = ''
+            if aViewName in [ 'Textual', 'Textual_NoHeaderNoFooter',]:
+                unPagina = '/'
+            elif aViewName in [ 'Tabular', 'Tabular_NoHeaderNoFooter',]:
+                unPagina = '/Tabular/'
+            elif aViewName.endswith( '_NoHeaderNoFooter'):
+                unPagina = '/%s/' % aViewName[: 0 - len( '_NoHeaderNoFooter')]
             else:
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_UniqueId,     str( unCacheEntryUniqueId))
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Milliseconds, fStrGrp( unosMilliseconds))
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Len,          fStrGrp( len( unRenderedTemplate)))
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Date,         fMillisecondsToDateTime( aEndMillis).rfc822())
-                   
-                if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
-                    unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedTemplate, unRenderedCacheInfo,)
-                else:
-                    unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedCacheInfo, unRenderedTemplate,)
-                
+                unPagina = '/%s/' % aViewName
             
-                    
-                    
-                    
-             # ###########################################################
-            """Add a comment with the rendering time at the top of the rendered HTML, to be used when reading from disk to determine if the HTML on disk has expired or can be reused.
-            
-            """
-            unRenderingMillisecondsHTMLComment = """<!-- %s%s -->""" % ( cHTMLRenderingTimeComment_Keyword, aEndMillis, )
-            unRenderedTemplateWithCacheInfo = '%s\n%s' % ( unRenderingMillisecondsHTMLComment, unRenderedTemplateWithCacheInfo,)
-            
-                  
-            
-            
-            
-            # ###########################################################
-            """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
-            
-            """
-            try:
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                
-                  
-                # ###########################################################
-                """Check if somebody messed with the promised cache entry, so it is not being updated here.
-                
-                """
-                if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
 
-                    unMillisecondsNow   = fMillisecondsNow()
-                    
-                    unExistingOrPromiseCacheEntry.vHTML            = unRenderedTemplateWithCacheInfo
-                    unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
-                    unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
-                    unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
-                    
-                    unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
-                    
-                    unStatisticsUpdate = {
-                        cCacheStatistics_TotalRenderings:    1,
-                        cCacheStatistics_TotalCharsCached: len( unExistingOrPromiseCacheEntry.vHTML),
-                    }
-                    self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
-                    
-                    
-                # ###########################################################
-                """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
-                
-                """
-                self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent)
-                   
-                
-   
-    
-                
-            finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                
-                 
-            theVariables[ 'unTemplateToCache'] = unRenderedTemplateWithCacheInfo[:]
-    
-            # ###########################################################
-            """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
             
-            """
-            unRenderedTemplateToReturn = unRenderedTemplateWithCacheInfo.replace(    
-                '<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
-                '<span>%s' % someTranslations[ 'ModelDDvlPlone_JustCached'],
-            )   
-            
-            unDurationString = '%d ms' % unosMilliseconds
-
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
-                u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
-                u'%s</span>' % unDurationString
-            )
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               cMagicReplacementString_CacheCode, 
-               '%d' % aEndMillis
-            )
-            #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               #u'theFlushCacheCode=%s' % cMagicReplacementString_CacheCode, 
-               #u'theFlushCacheCode=%s' % aEndMillis
-            #)
-            #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               #u'theNoCacheCode=%s' % cMagicReplacementString_CacheCode, 
-               #u'theNoCacheCode=%s' % aEndMillis
-            #)
-            
-            theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
-            
-            return [ True, unRenderedTemplateToReturnWithDuration,]
         
-        except:
-            raise
-            #unaExceptionInfo = sys.exc_info()
-            #unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
-            
-            #unInformeExcepcion = 'Exception during access to a page from cache of rendered templates' 
-            #unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            #unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            #unInformeExcepcion += unaExceptionFormattedTraceback   
-            
-            #if cLogExceptions:
-                #logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
-            #unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-            
-            #unRenderedTemplateToReturn = u'%s\n<br/><br/><font size="1"><strong>%s</strong></font>' % ( unRenderedTemplate, theModelDDvlPloneTool.fTranslateI18N( theContextualObject, 'ModelDDvlPlone', 'ModelDDvlPlone_ExceptionRetrievingPageFromCachedRenderedTemplate', 'Exception rendering page-'), unExceptionReport)
         
-            #aEndMillis = int( time() * 1000)
-            #unRenderedTemplateToReturn = '%s\n<br/>%d ms<br/>' % ( unRenderedTemplateToReturn, aEndMillis - aBeginMillis,)
+        # ###########################################################
+        """Render template, because it was not found (valid) in the cache. This may take some significant time. Status of cache may have changed since.
+        
+        """
+        
 
-            #return unRenderedTemplateToReturn
+        unRenderedTemplate = self._fInvokeCallable_Or_RenderTemplate( 
+            theModelDDvlPloneTool=theModelDDvlPloneTool, 
+            theContextualObject  =theContextualObject, 
+            theTemplateName      =theTemplateName, 
+            theAdditionalParams =theAdditionalParams,
+        )
+        
+        aEndMillis       = fMillisecondsNow()
+        unosMilliseconds = aEndMillis - aBeginMillis
                 
-       
-                        
+        unRenderedTemplateWithCacheInfo = unRenderedTemplate
+        
+        
+    
+        # ###########################################################
+        """If so configured: Fill in the date in the caching information collapsible section appended to the rendered template HTML.
+        
+        """
+        if not( aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]):
+            unRenderedTemplateWithCacheInfo = unRenderedTemplate[:]
+        
+        else:
+            
+            aCacheEntryValuesDict = someTranslations.copy()
+            aCacheEntryValuesDict.update( {
+                'unBaseURL':                                       theContextualObject.getRaiz().absolute_url(),
+                'cMagicReplacementString_CacheCode':               cMagicReplacementString_CacheCode,
+                'cMagicReplacementString_TimeToRetrieve':          cMagicReplacementString_TimeToRetrieve,
+                'cMagicReplacementString_Milliseconds':            cMagicReplacementString_Milliseconds,
+                'cMagicReplacementString_Len':                     cMagicReplacementString_Len,
+                'cMagicReplacementString_Date':                    cMagicReplacementString_Date,
+                'cMagicReplacementString_CollapsibleSectionTitle': cMagicReplacementString_CollapsibleSectionTitle,
+                'cMagicReplacementString_UniqueId':                cMagicReplacementString_UniqueId,                    
+                'aProjectName':                  aProjectName,
+                'aNegotiatedLanguage':           aNegotiatedLanguage,
+                'unCacheId':                     unCacheEntryUniqueId,
+                'aViewName':                     aViewName,
+                'unMemberId':                    unMemberId,
+                'unPagina':                      unPagina,
+                'aFilePath':                     aFilePath,
+                'aMillisecondsNow':              aMillisecondsNow,
+            })                   
+                
+            
+            unRenderedCacheInfo = u"""
+                <!-- ######### Start collapsible  section ######### 
+                    # ##################################################################################################
+                    With placeholder for the title of the section (to be later set as Just Rendered, Just Cached, Cached 
+                --> 
+                <dl id="cid_MDDCachedElementView" class="collapsible inline collapsedInlineCollapsible" >
+                    <dt class="collapsibleHeader">
+                        <span>%(cMagicReplacementString_CollapsibleSectionTitle)s %(cMagicReplacementString_TimeToRetrieve)s</span>                        
+                    </dt>
+                    <dd class="collapsibleContent">
+                        <br/>
+                        <form style="display: inline" action="%(unBaseURL)s%(unPagina)s" method="get" enctype="multipart/form-data">
+                            <input type="hidden" name="theNoCache"   value="on" />
+                            <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="submit" value="%(ModelDDvlPlone_ShowNoFromCacheLink_label)s" 
+                                name="theCacheControl" 
+                                id="cid_MDDShowNoFromCache_Button" 
+                                style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
+                        </form>
+                        &emsp;
+                        <form style="display: inline"  action="%(unBaseURL)s/MDDFlushCachedTemplateByUniqueId/"
+                            method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheEntryUniqueId"   value="%(cMagicReplacementString_UniqueId)s" />
+                            <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="hidden" name="theCacheName" value="ElementIndependent" />
+                            <input type="submit" value="%(ModelDDvlPlone_FlushFromCacheLink_label)s" 
+                                name="theCacheControl" 
+                                id="cid_MDDFlushCache_Button" 
+                                style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
+                        </form>
+                        &emsp;
+                        <form style="display: inline"  action="%(unBaseURL)s/MDDFlushCachedTemplateByUniqueId/"
+                            method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theCacheEntryUniqueId"   value="%(cMagicReplacementString_UniqueId)s" />
+                            <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="hidden" name="theCacheName" value="ElementIndependent" />
+                            <input type="hidden" name="theFlushDiskCache" value="on" />
+                            <input type="submit" value="%(ModelDDvlPlone_FlushFromDiskCacheLink_label)s" 
+                                name="theCacheControl" 
+                                id="cid_MDDFlushDiskCacheCache_Button" 
+                                style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
+                        </form>
+                        <br/>
+                        <table class="listing" ">
+                            <thead>
+                                <tr>
+                                    <th class="nosort"/>
+                                    <th class="nosort"/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="odd">
+                                    <td align="left"><strong>Id</strong></td>
+                                    <td align="right">%(cMagicReplacementString_UniqueId)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_FilePath_label)s</strong></td>
+                                    <td align="left">%(aFilePath)s</td>
+                                </tr>
+                                <tr class="even">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Time_label)s</strong></td>
+                                    <td align="right">%(cMagicReplacementString_Milliseconds)s ms</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Len_label)s</strong></td>
+                                    <td align="right">%(cMagicReplacementString_Len)s chars</td>
+                                </tr>
+                                <tr class="even">
+                                    <td align="left"><strong>%(ModelDDvlPlone_User_label)s</strong></td>
+                                    <td align="left">%(unMemberId)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Date_label)s</strong></td>
+                                    <td align="left">%(cMagicReplacementString_Date)s</td>
+                                </tr>
+                                <tr class="even">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Project_label)s</strong></td>
+                                    <td align="left">%(aProjectName)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Language_label)s</strong></td>
+                                    <td align="left">%(aNegotiatedLanguage)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_View_label)s</strong></td>
+                                    <td align="left">%(aViewName)s</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <br/>   
+                    </dd>
+                </dl>
+                <!-- ######### End collapsible  section ######### --> 
+            """  % aCacheEntryValuesDict
+            
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_UniqueId,     str( unCacheEntryUniqueId))
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Milliseconds, fStrGrp( unosMilliseconds))
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Len,          fStrGrp( len( unRenderedTemplate)))
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Date,         fMillisecondsToDateTime( aEndMillis).rfc822())
+               
+            if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
+                unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedTemplate, unRenderedCacheInfo,)
+            else:
+                unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedCacheInfo, unRenderedTemplate,)
+            
+        
+                
+                
+                
+         # ###########################################################
+        """Add a comment with the rendering time at the top of the rendered HTML, to be used when reading from disk to determine if the HTML on disk has expired or can be reused.
+        
+        """
+        unRenderingMillisecondsHTMLComment = """<!-- %s%s -->""" % ( cHTMLRenderingTimeComment_Keyword, aEndMillis, )
+        unRenderedTemplateWithCacheInfo = '%s\n%s' % ( unRenderingMillisecondsHTMLComment, unRenderedTemplateWithCacheInfo,)
+        
+              
+        
+        
+        
+        # ###########################################################
+        """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
+        
+        """
+        try:
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
             
+              
+            # ###########################################################
+            """Check if somebody messed with the promised cache entry, so it is not being updated here.
+            
+            """
+            if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
+
+                unMillisecondsNow   = fMillisecondsNow()
+                
+                unExistingOrPromiseCacheEntry.vHTML            = unRenderedTemplateWithCacheInfo
+                unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
+                unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
+                unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
+                
+                unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
+                
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalRenderings:    1,
+                    cCacheStatistics_TotalCharsCached: len( unExistingOrPromiseCacheEntry.vHTML),
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
+                
+                
+            # ###########################################################
+            """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
+            
+            """
+            self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent)
+               
+            
+
+
+            
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            
+             
+        theVariables[ 'unTemplateToCache'] = unRenderedTemplateWithCacheInfo[:]
+        
+
+        # ###########################################################
+        """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
+        
+        """
+        unRenderedTemplateToReturn = unRenderedTemplateWithCacheInfo.replace(    
+            '<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
+            '<span>%s' % someTranslations[ 'ModelDDvlPlone_JustCached'],
+        )   
+        
+        unDurationString = '%d ms' % unosMilliseconds
+
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+            u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
+            u'%s</span>' % unDurationString
+        )
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+           cMagicReplacementString_CacheCode, 
+           '%d' % aEndMillis
+        )
+
+        theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
+        
+        aRenderResult.update( {
+            'status':            cRenderStatus_Completed, 
+            'rendered_html':     unRenderedTemplateToReturnWithDuration,
+        })                                    
+        return aRenderResult
+        
+        
 
             
             
@@ -5902,7 +6466,12 @@ class ModelDDvlPloneTool_Cache:
  
     
     security.declarePrivate( '_fRenderTemplateOrCachedElementIndependent_Phase_StoreDisk')
-    def _fRenderTemplateOrCachedElementIndependent_Phase_StoreDisk(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None, theVariables={}):
+    def _fRenderTemplateOrCachedElementIndependent_Phase_StoreDisk(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None, 
+        theVariables={}):
         """Store the rendered HTML on disc, for the project, for the currently negotiated language, and for the specified view.
         
         """
@@ -5941,172 +6510,153 @@ class ModelDDvlPloneTool_Cache:
             return False
         
         
-        
-        
+        # ###########################################################
+        """Try to access the directory containing the element independent files with cached HTML.
+            
+        """
+        if not aCacheDiskPath:
+            return False
+
+        aCacheDiskPathExist = False
         try:
-            # ###########################################################
-            """Try to access the directory containing the element independent files with cached HTML.
-                
-            """
-            if not aCacheDiskPath:
-                return False
- 
-            aCacheDiskPathExist = False
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+        except:
+            None
+        if not aCacheDiskPathExist:
+            try:
+                os.makedirs(aCacheDiskPath)
+            except:
+                None
             try:
                 aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
             except:
                 None
             if not aCacheDiskPathExist:
-                try:
-                    os.makedirs(aCacheDiskPath)
-                except:
-                    None
-                try:
-                    aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
-                except:
-                    None
-                if not aCacheDiskPathExist:
-                    return [ False, None]
+                return False
+        
+        
+        # ###########################################################
+        """Access directories for project and language, creating them if the directories do not exist.
             
-            
-            # ###########################################################
-            """Access directories for project and language, creating them if the directories do not exist.
-                
-            """
-            aProjectPath = os.path.join( aCacheDiskPath, aProjectName)
-            aProjectPathExist = False
+        """
+        aProjectPath = os.path.join( aCacheDiskPath, aProjectName)
+        aProjectPathExist = False
+        try:
+            aProjectPathExist = os.path.exists( aProjectPath)
+        except:
+            None
+        if not aProjectPathExist:
+            try:
+                os.mkdir( aProjectPath, cCacheDisk_ElementIndependent_FolderCreateMode_Project)
+            except:
+                None
             try:
                 aProjectPathExist = os.path.exists( aProjectPath)
             except:
                 None
             if not aProjectPathExist:
-                try:
-                    os.mkdir( aProjectPath, cCacheDisk_ElementIndependent_FolderCreateMode_Project)
-                except:
-                    None
-                try:
-                    aProjectPathExist = os.path.exists( aProjectPath)
-                except:
-                    None
-                if not aProjectPathExist:
-                    return False
-            
-            aLanguagePath = os.path.join( aProjectPath, aNegotiatedLanguage)
-            aLanguagePathExist = False
+                return False
+        
+        aLanguagePath = os.path.join( aProjectPath, aNegotiatedLanguage)
+        aLanguagePathExist = False
+        try:
+            aLanguagePathExist = os.path.exists( aLanguagePath)
+        except:
+            None
+        if not aLanguagePathExist:
+            try:
+                os.mkdir( aLanguagePath, cCacheDisk_ElementIndependent_FolderCreateMode_Language)
+            except:
+                None
             try:
                 aLanguagePathExist = os.path.exists( aLanguagePath)
             except:
                 None
             if not aLanguagePathExist:
-                try:
-                    os.mkdir( aLanguagePath, cCacheDisk_ElementIndependent_FolderCreateMode_Language)
-                except:
-                    None
-                try:
-                    aLanguagePathExist = os.path.exists( aLanguagePath)
-                except:
-                    None
-                if not aLanguagePathExist:
-                    return False
-            
-                
-                
-            # ###########################################################
-            """Write the page on disk cache file.
-                
-            """
-            aViewFileName  = '%s%s' % (  aViewName, cCacheDiskFilePostfix)
-            aViewPath      = os.path.join( aLanguagePath, aViewFileName)
- 
-            aWritten = False
-            try:
-                aViewFile  = None
-                try:
-                    aViewFile = open( aViewPath, cCacheDisk_ElementIndependent_FileOpenWriteMode_View, cCacheDisk_ElementIndependent_FileOpenWriteBuffering_View)
-                    aViewFile.write( unTemplateToCache)
-                finally:
-                    if aViewFile:
-                        aViewFile.close()
-                aWritten = True
-            except IOError:
                 return False
-      
-            if not aWritten:
-                return False
-            
-            unExistingOrPromiseCacheEntry.vFilePath = aViewPath
+        
             
             
+        # ###########################################################
+        """Write the page on disk cache file.
+            
+        """
+        aViewFileName  = '%s%s' % (  aViewName, cCacheDiskFilePostfix)
+        aViewPath      = os.path.join( aLanguagePath, aViewFileName)
 
-            # ###########################################################
-            """Update statistics of written file and chars.
-                
-            """
+        aWritten = False
+        try:
+            aViewFile  = None
             try:
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                unExistingOrPromiseCacheEntry.vFilePath        = aViewPath
-                    
-                unStatisticsUpdate = {
-                    cCacheStatistics_TotalFilesWritten:   1,
-                    cCacheStatistics_TotalCharsWritten:   len( unTemplateToCache),
-                }
-                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
- 
-            
+                aViewFile = open( aViewPath, cCacheDisk_ElementIndependent_FileOpenWriteMode_View, cCacheDisk_ElementIndependent_FileOpenWriteBuffering_View)
+                aViewFile.write( unTemplateToCache)
             finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            return True
+                if aViewFile:
+                    aViewFile.close()
+            aWritten = True
+        except IOError:
+            return False
+  
+        if not aWritten:
+            return False
         
-        except:
-            raise
-            #unaExceptionInfo = sys.exc_info()
-            #unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
-            
-            #unInformeExcepcion = 'Exception during access to a page from cache of rendered templates' 
-            #unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            #unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            #unInformeExcepcion += unaExceptionFormattedTraceback   
-            
-            #if cLogExceptions:
-                #logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
-            #unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-            
-            #unRenderedTemplateToReturn = u'%s\n<br/><br/><font size="1"><strong>%s</strong></font>' % ( unRenderedTemplate, theModelDDvlPloneTool.fTranslateI18N( theContextualObject, 'ModelDDvlPlone', 'ModelDDvlPlone_ExceptionRetrievingPageFromCachedRenderedTemplate', 'Exception rendering page-'), unExceptionReport)
+        unExistingOrPromiseCacheEntry.vFilePath = aViewPath
         
-            #aEndMillis = int( time() * 1000)
-            #unRenderedTemplateToReturn = '%s\n<br/>%d ms<br/>' % ( unRenderedTemplateToReturn, aEndMillis - aBeginMillis,)
+        
 
-            #return unRenderedTemplateToReturn
-                
-       
+        # ###########################################################
+        """Update statistics of written file and chars.
             
+        """
+        try:
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            unExistingOrPromiseCacheEntry.vFilePath        = aViewPath
+                
+            unStatisticsUpdate = {
+                cCacheStatistics_TotalFilesWritten:   1,
+                cCacheStatistics_TotalCharsWritten:   len( unTemplateToCache),
+            }
+            self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, cCacheName_ElementIndependent, unStatisticsUpdate)
+
+        
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        return True
+
                         
             
             
             
             
             
-            
-            
-            
-            
-            
-            
+       
+    security.declarePrivate( 'fRenderHandlers_ElementIndependent')
+    def fRenderHandlers_ElementIndependent(self, theModelDDvlPloneTool, theContextualObject,):
+        """methods to handle the rendering phases for element independent cache entries.
+        """
+        someHandlers = {
+            'memory':  self._fRenderTemplateOrCachedElementIndependent_Phase_TryMemory,
+            'disc':    self._fRenderTemplateOrCachedElementIndependent_Phase_TryDisk,
+            'render':  self._fRenderTemplateOrCachedElementIndependent_Phase_Render,
+            'store':   self._fRenderTemplateOrCachedElementIndependent_Phase_StoreDisk,
+        }
+        return someHandlers
+    
+        
             
             
             
@@ -6123,38 +6673,6 @@ class ModelDDvlPloneTool_Cache:
     
     """
 
-       
-    security.declarePrivate( 'fRenderTemplateOrCachedForElement')
-    def fRenderTemplateOrCachedForElement(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None):
-        """ Return theHTML, from cache or just rendered, for a project, for an element (by it's UID), for the specified view, and for the currently negotiared language.
-        
-        """
-        if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
-            if not theModelDDvlPloneTool:
-                return '<h2>No parameter theModelDDvlPloneTool</h2>'
-            return theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-        
-
-    
-        aResultAndHTMLOrVariablesPhase_TryMemory = self._fRenderTemplateOrCachedForElement_Phase_TryMemory( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams)
-        
-        if aResultAndHTMLOrVariablesPhase_TryMemory[ 0]:
-            return aResultAndHTMLOrVariablesPhase_TryMemory[ 1]
-        
-        someVariables = aResultAndHTMLOrVariablesPhase_TryMemory[ 1]
-        
-        aResultAndHTMLPhase_TryDisc = self._fRenderTemplateOrCachedForElement_Phase_TryDisk( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
-        if aResultAndHTMLPhase_TryDisc[ 0]:
-            return aResultAndHTMLPhase_TryDisc[ 1]
-        
-        aResultAndHTMLPhase_Render = self._fRenderTemplateOrCachedForElement_Phase_Render( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
-        if not aResultAndHTMLPhase_Render[ 0]:
-            return '<h2>Error Rendering Page</h2>'
-            
-        aResultPhase_StoreDisc = self._fRenderTemplateOrCachedForElement_Phase_StoreDisk( theModelDDvlPloneTool,  theContextualObject, theTemplateName, theAdditionalParams, someVariables)
-        
-        return aResultAndHTMLPhase_Render[ 1]
-    
         
     
 
@@ -6163,23 +6681,46 @@ class ModelDDvlPloneTool_Cache:
 
        
     security.declarePrivate( '_fRenderTemplateOrCachedForElement_Phase_TryMemory')
-    def _fRenderTemplateOrCachedForElement_Phase_TryMemory(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None):
+    def _fRenderTemplateOrCachedForElement_Phase_TryMemory(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None,
+        theVariables={}):
         """ Return theHTML, from cache or just rendered, for a project, for an element (by it's UID), for the specified view, and for the currently negotiared language.
         
         """
-        
+                
+        aRenderResult = self._fNewVoidRenderResult_Phase_TryMemory()
+
         unosMillisBeforeMatch   = fMillisecondsNow()
         
         if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
             if not theModelDDvlPloneTool:
-                return [ True, '<h2>No parameter theModelDDvlPloneTool</h2>',]
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+                aRenderResult.update( {
+                    'status':           cRenderStatus_ShowError, 
+                    'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+    
         
         if theModelDDvlPloneTool == None:
-            return [ True, '<h2>No parameter theModelDDvlPloneTool</h2>', ]
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
         
         if theContextualObject == None:
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
         
         
         # ###########################################################
@@ -6206,545 +6747,602 @@ class ModelDDvlPloneTool_Cache:
                 
         
         if not aRoleKindToIndex:
-            return  [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
             
         
         if cForbidCaches or not self.fGetCacheConfigParameter_CacheEnabled( theModelDDvlPloneTool, theContextualObject, aCacheName):
-            return  [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
         
-        
-        
-        someVariables  = {}
+           
+        if theVariables == None:
+            if not theModelDDvlPloneTool:
+                aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
+           
         
         unCacheEntryUniqueId = ''
         unCachedTemplate = None
               
         aBeginMillis = fMillisecondsNow()
+                
+        # ###########################################################
+        """Only cache objects that allow caching.
+        
+        """
+        anIsCacheable = False
         try:
-                
-            # ###########################################################
-            """Only cache objects that allow caching.
-            
-            """
-            anIsCacheable = False
-            try:
-                anIsCacheable = theContextualObject.fIsCacheable()
-            except:
-                None
-            if not anIsCacheable:    
-                return  [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
-            
-            
-            
-            # ###########################################################
-            """Gather all information to look up the cache for a matching cached entry with a rendered template. Fall back to non-cached template rendering if any information can not be obtained.
-            
-            """
-            aProjectName = ''
-            try:
-                aProjectName = theContextualObject.getNombreProyecto()
-            except:
-                None
-            if not aProjectName:    
-                aProjectName = cDefaultNombreProyecto
-              
-                
-                
-            unosPreferredLanguages = getLangPrefs( theContextualObject.REQUEST)
-            if not unosPreferredLanguages:
-                return  [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-            
-            aNegotiatedLanguage = unosPreferredLanguages[ 0]   
-            if not aNegotiatedLanguage:
-                return  [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-            
-            
-            unElementId = theContextualObject.getId()
-             
-            unElementUID = ''
-            try:
-                unElementUID = theContextualObject.UID()
-            except:
-                None
-            if not unElementUID:
-                return  [ True,theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-            
-                   
-            unElementTitle = theContextualObject.Title()
-            if not unElementTitle:
-                return  [ True,theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-    
-            unElementURL   = theContextualObject.absolute_url()
-            if not unElementURL:
-                return  [ True,theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-               
-            unElementPath = '/'.join( theContextualObject.getPhysicalPath())
-            if not unElementPath:
-                return  [ True,theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-    
-            
-            unElementMetaType = ''
-            try:
-                unElementMetaType =theContextualObject.meta_type
-            except:
-                None
-
-            unElementArchetypeName = ''
-            try:
-                unElementArchetypeName =theContextualObject.archetype_name
-            except:
-                None
-                
-            unElementPortalType = ''
-            try:
-                unElementPortalType =theContextualObject.portal_type
-            except:
-                None
-     
-            unRootElementUID = ''
-            unRootElementPath = ''
-            
-            unRootElement = None
-            try:
-                unRootElement = theContextualObject.getRaiz()
-            except:
-                None
-            if ( unRootElement == None):
-                unRootElementUID  = unElementUID
-                unRootElementPath = unElementPath
-            else:
-                unRootElementPath = '/'.join( unRootElement.getPhysicalPath())
-                try:
-                    unRootElementUID     = unRootElement.UID()
-                except:
-                    None
-                if not unRootElementUID:
-                    unRootElementUID = unElementUID
-                    unRootElementPath = unElementPath
-                    
-                
-                
-                
-            
-                    
-            aViewName = theTemplateName
-            if not aViewName:
-                return  [ True,theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-            if aViewName.find( '%s') >= 0:
-                if not ( aProjectName == cDefaultNombreProyecto):
-                    aViewName = aViewName % aProjectName
-                else:
-                    aViewName = aViewName.replace( '%s', '')
-            if not aViewName:
-                return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
-            
-
-            
-            unRelationCursorName = ''
-            unCurrentElementUID  = ''
-            
-            unaRequest = theContextualObject.REQUEST
-            if unaRequest:
-                unRelationCursorName = unaRequest.get( 'theRelationCursorName', '')
-                unCurrentElementUID = unaRequest.get( 'theCurrentElementUID', '')
-                    
-            if not unRelationCursorName:
-                unRelationCursorName = cNoRelationCursorName
-            if not unCurrentElementUID:
-                unCurrentElementUID = cNoCurrentElementUID
-                
-                        
-                        
-                        
-                
-            # ###################################################################
-            """CRITICAL SECTION to access and modify cache control structure, for Cache entries associated with specific elements.
-            
-            """
-            unExistingOrPromiseCacheEntry = None
-            unCachedTemplate              = None
-            unPromiseMade                 = None                      
-            
-            anActionToDo                  = None
-            somePossibleActions           = [ 'UseFoundEntry', 'MakePromise', 'JustFallbackToRenderNow', ] # Just to document the options handled by logic below
-            
-            someFilesToDelete = [ ]
-            
-            try:
-                
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                
-                # ###########################################################
-                """Retrieve within thread safe section, to be used later, the configuration paameters specifying: whether to render a cache hit information collapsible section at the top or bottom of the view, or none at all, whether the disk caching is enabled, and the disk cache files base path.
-                
-                """
-                aDisplayCacheHitInformation = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_DisplayCacheHitInformation)
-                aCacheDiskEnabled           = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_CacheDiskEnabled)
-                aCacheDiskPath              = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_CacheDiskPath)
-                unExpireDiskAfterSeconds    = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_ExpireDiskAfterSeconds)
-                
-
-                # ###########################################################
-                """All Cache Entries that have expired and are forced to expire shall be flushed, whether memory used is over the limit, or not.
-                
-                """  
-                self._pFlushCacheEntriesForcedtoExpire(theModelDDvlPloneTool, theContextualObject, theFilesToDelete=someFilesToDelete)       
+            anIsCacheable = theContextualObject.fIsCacheable()
+        except:
+            None
+        if not anIsCacheable:    
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+        
+        
+        # ###########################################################
+        """Gather all information to look up the cache for a matching cached entry with a rendered template. Fall back to non-cached template rendering if any information can not be obtained.
+        
+        """
+        aProjectName = ''
+        try:
+            aProjectName = theContextualObject.getNombreProyecto()
+        except:
+            None
+        if not aProjectName:    
+            aProjectName = cDefaultNombreProyecto
           
+            
+            
+        unosPreferredLanguages = getLangPrefs( theContextualObject.REQUEST)
+        if not unosPreferredLanguages:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+        aNegotiatedLanguage = unosPreferredLanguages[ 0]   
+        if not aNegotiatedLanguage:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+        
+        unElementId = theContextualObject.getId()
+         
+        unElementUID = ''
+        try:
+            unElementUID = theContextualObject.UID()
+        except:
+            None
+        if not unElementUID:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+               
+        unElementTitle = theContextualObject.Title()
+        if not unElementTitle:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+
+        unElementURL   = theContextualObject.absolute_url()
+        if not unElementURL:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+           
+        unElementPath = '/'.join( theContextualObject.getPhysicalPath())
+        if not unElementPath:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+
+        
+        unElementMetaType = ''
+        try:
+            unElementMetaType =theContextualObject.meta_type
+        except:
+            None
+
+        unElementArchetypeName = ''
+        try:
+            unElementArchetypeName =theContextualObject.archetype_name
+        except:
+            None
+            
+        unElementPortalType = ''
+        try:
+            unElementPortalType =theContextualObject.portal_type
+        except:
+            None
+ 
+        unRootElementUID = ''
+        unRootElementPath = ''
+        
+        unRootElement = None
+        try:
+            unRootElement = theContextualObject.getRaiz()
+        except:
+            None
+        if ( unRootElement == None):
+            unRootElementUID  = unElementUID
+            unRootElementPath = unElementPath
+        else:
+            unRootElementPath = '/'.join( unRootElement.getPhysicalPath())
+            try:
+                unRootElementUID     = unRootElement.UID()
+            except:
+                None
+            if not unRootElementUID:
+                unRootElementUID = unElementUID
+                unRootElementPath = unElementPath
+                
+            
+            
+            
+        
+                
+        aViewName = theTemplateName
+        if not aViewName:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+        if aViewName.find( '%s') >= 0:
+            if not ( aProjectName == cDefaultNombreProyecto):
+                aViewName = aViewName % aProjectName
+            else:
+                aViewName = aViewName.replace( '%s', '')
+        if not aViewName:
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+        
+
+        
+        unRelationCursorName = ''
+        unCurrentElementUID  = ''
+        
+        unaRequest = theContextualObject.REQUEST
+        if unaRequest:
+            unRelationCursorName = unaRequest.get( 'theRelationCursorName', '')
+            unCurrentElementUID = unaRequest.get( 'theCurrentElementUID', '')
+                
+        if not unRelationCursorName:
+            unRelationCursorName = cNoRelationCursorName
+        if not unCurrentElementUID:
+            unCurrentElementUID = cNoCurrentElementUID
+            
+                    
+                    
+                    
+            
+        # ###################################################################
+        """CRITICAL SECTION to access and modify cache control structure, for Cache entries associated with specific elements.
+        
+        """
+        unExistingOrPromiseCacheEntry = None
+        unCachedTemplate              = None
+        unPromiseMade                 = None                      
+        
+        anActionToDo                  = None
+        somePossibleActions           = [ 'UseFoundEntry', 'MakePromise', 'JustFallbackToRenderNow', ] # Just to document the options handled by logic below
+        
+        someFilesToDelete = [ ]
+        
+        someExistingCacheEntriesInWrongState = [ ]
+        
+        
+        try:
+            
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            
+            # ###########################################################
+            """Retrieve within thread safe section, to be used later, the configuration paameters specifying: whether to render a cache hit information collapsible section at the top or bottom of the view, or none at all, whether the disk caching is enabled, and the disk cache files base path.
+            
+            """
+            aDisplayCacheHitInformation = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_DisplayCacheHitInformation)
+            aCacheDiskEnabled           = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_CacheDiskEnabled)
+            aCacheDiskPath              = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_CacheDiskPath)
+            unExpireDiskAfterSeconds    = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_ExpireDiskAfterSeconds)
+            
+
+            # ###########################################################
+            """All Cache Entries that have expired and are forced to expire shall be flushed, whether memory used is over the limit, or not.
+            
+            """  
+            self._pFlushCacheEntriesForcedtoExpire(theModelDDvlPloneTool, theContextualObject, theFilesToDelete=someFilesToDelete)       
+      
+                    
                         
-                            
-                 
+             
+            # ###########################################################
+            """Traverse cache control structures to access the cache entry corresponding to the parameters. Elements found missing shall be created, to hook up the new cache entry.
+            
+            """
+            someCachedTemplatesForProject = self.fGetOrInitCachedTemplatesForProject( theModelDDvlPloneTool, theContextualObject, aCacheName, aProjectName)                              
+    
+            someCachedTemplatesForLanguage = someCachedTemplatesForProject.get( aNegotiatedLanguage, None)
+            if someCachedTemplatesForLanguage == None:
+                someCachedTemplatesForLanguage = { }
+                someCachedTemplatesForProject[ aNegotiatedLanguage] = someCachedTemplatesForLanguage
+    
+            someCachedTemplatesForElement = someCachedTemplatesForLanguage.get( unElementUID, None)
+            if someCachedTemplatesForElement == None:
+                someCachedTemplatesForElement = { }
+                someCachedTemplatesForLanguage[ unElementUID] = someCachedTemplatesForElement
+                    
+            someCachedTemplatesForView = someCachedTemplatesForElement.get( aViewName, None)
+            if someCachedTemplatesForView == None:
+                someCachedTemplatesForView = { }
+                someCachedTemplatesForElement[ aViewName] = someCachedTemplatesForView
+    
+            someCachedTemplateForRelationCursor = someCachedTemplatesForView.get( unRelationCursorName, None)
+            if someCachedTemplateForRelationCursor  == None:
+                someCachedTemplateForRelationCursor = { }
+                someCachedTemplatesForView[ unRelationCursorName] = someCachedTemplateForRelationCursor
+                
+            someCachedTemplateForRelatedElement = someCachedTemplateForRelationCursor.get( unCurrentElementUID, None)
+            if someCachedTemplateForRelatedElement == None:
+                someCachedTemplateForRelatedElement = { }
+                someCachedTemplateForRelationCursor[ unCurrentElementUID] = someCachedTemplateForRelatedElement
+    
+                
+                
+                
+            # ###########################################################
+            """Obtain the Cache entry, if exists.
+            
+            """
+            anExistingCacheEntry = someCachedTemplateForRelatedElement.get( aRoleKindToIndex, None)
+            
+            anExistingCacheEntryInWrongState = None
+            
+            
+            # ###########################################################
+            """Analyze the Cache entry, if retrieved, and decide how to proceed: using it, promissing to create a new one, or just fallback to render the template now and return it.
+            
+            """
+            
+            if not anExistingCacheEntry:
                 # ###########################################################
-                """Traverse cache control structures to access the cache entry corresponding to the parameters. Elements found missing shall be created, to hook up the new cache entry.
+                """If not found, it shall be created, and be hooked up into the cache control structure.
                 
                 """
-                someCachedTemplatesForProject = self.fGetOrInitCachedTemplatesForProject( theModelDDvlPloneTool, theContextualObject, aCacheName, aProjectName)                              
-        
-                someCachedTemplatesForLanguage = someCachedTemplatesForProject.get( aNegotiatedLanguage, None)
-                if someCachedTemplatesForLanguage == None:
-                    someCachedTemplatesForLanguage = { }
-                    someCachedTemplatesForProject[ aNegotiatedLanguage] = someCachedTemplatesForLanguage
-        
-                someCachedTemplatesForElement = someCachedTemplatesForLanguage.get( unElementUID, None)
-                if someCachedTemplatesForElement == None:
-                    someCachedTemplatesForElement = { }
-                    someCachedTemplatesForLanguage[ unElementUID] = someCachedTemplatesForElement
-                        
-                someCachedTemplatesForView = someCachedTemplatesForElement.get( aViewName, None)
-                if someCachedTemplatesForView == None:
-                    someCachedTemplatesForView = { }
-                    someCachedTemplatesForElement[ aViewName] = someCachedTemplatesForView
-        
-                someCachedTemplateForRelationCursor = someCachedTemplatesForView.get( unRelationCursorName, None)
-                if someCachedTemplateForRelationCursor  == None:
-                    someCachedTemplateForRelationCursor = { }
-                    someCachedTemplatesForView[ unRelationCursorName] = someCachedTemplateForRelationCursor
-                    
-                someCachedTemplateForRelatedElement = someCachedTemplateForRelationCursor.get( unCurrentElementUID, None)
-                if someCachedTemplateForRelatedElement == None:
-                    someCachedTemplateForRelatedElement = { }
-                    someCachedTemplateForRelationCursor[ unCurrentElementUID] = someCachedTemplateForRelatedElement
-        
-                    
-                    
-                    
+                anActionToDo = 'MakePromise'
+                
+            elif not anExistingCacheEntry.vValid:
                 # ###########################################################
-                """Obtain the Cache entry, if exists.
+                """If found invalid, it shall be created, and shall replace the existing one in the cache control structure.
                 
                 """
-                anExistingCacheEntry = someCachedTemplateForRelatedElement.get( aRoleKindToIndex, None)
+                aCacheEntryInWrongStateInfo = self._fNewVoidCachedEntryInWrongStateInfo()
+                aCacheEntryInWrongStateInfo.update( {
+                    'cached_entry':        anExistingCacheEntry,
+                    'cached_entry_holder': someCachedTemplateForRelatedElement,
+                    'cached_entry_key':    aRoleKindToIndex,            
+                })                    
+                someExistingCacheEntriesInWrongState.append( aCacheEntryInWrongStateInfo)
                 
+                anActionToDo = 'MakePromise'
                 
-                
-                
+            elif not anExistingCacheEntry.vPromise:
                 # ###########################################################
-                """Analyze the Cache entry, if retrieved, and decide how to proceed: using it, promissing to create a new one, or just fallback to render the template now and return it.
+                """A null promise is a sign something went wrong with its resolution. A new entry shall be created, and shall replace the existing one in the cache control structure.
                 
                 """
+                aCacheEntryInWrongStateInfo = self._fNewVoidCachedEntryInWrongStateInfo()
+                aCacheEntryInWrongStateInfo.update( {
+                    'cached_entry':        anExistingCacheEntry,
+                    'cached_entry_holder': someCachedTemplateForRelatedElement,
+                    'cached_entry_key':    aRoleKindToIndex,            
+                })                    
+                someExistingCacheEntriesInWrongState.append( aCacheEntryInWrongStateInfo)
+
+                anActionToDo = 'MakePromise'
                 
-                if not anExistingCacheEntry:
-                    # ###########################################################
-                    """If not found, it shall be created, and be hooked up into the cache control structure.
-                    
-                    """
-                    anActionToDo = 'MakePromise'
-                    
-                elif not anExistingCacheEntry.vValid:
-                    # ###########################################################
-                    """If found invalid, it shall be created, and shall replace the existing one in the cache control structure.
-                    
-                    """
-                    anActionToDo = 'MakePromise'
-                    
-                elif not anExistingCacheEntry.vPromise:
-                    # ###########################################################
-                    """A null promise is a sign something went wrong with its resolution. A new entry shall be created, and shall replace the existing one in the cache control structure.
-                    
-                    """
-                    anActionToDo = 'MakePromise'
-                    
-                elif not ( anExistingCacheEntry.vPromise == cCacheEntry_PromiseFulfilled_Sentinel):
-                    # ###########################################################
-                    """If a promisse made, but promissed not fulfilled, somebody else is trying to complete the rendering. Just fallback to render it now.
-                    
-                    """
-                    anActionToDo = 'JustFallbackToRenderNow'
+            elif not ( anExistingCacheEntry.vPromise == cCacheEntry_PromiseFulfilled_Sentinel):
+                # ###########################################################
+                """If a promisse made, but promissed not fulfilled, somebody else is trying to complete the rendering. Just fallback to render it now.
                 
+                """
+                anActionToDo = 'JustFallbackToRenderNow'
+            
+            else:
+                # ###########################################################
+                """This is a proper entry, if its cached rendered template result HTML is something.
+                
+                """
+            
+                unCachedTemplate = anExistingCacheEntry.vHTML
+                
+                if not unCachedTemplate: 
+                    # ###########################################################
+                    """A totally empty rendered template HTML means it is no longer useful (it shall always contain at least a smallish string or HTML element). A new entry shall be created, and shall replace the existing one in the cache control structure.
+                    
+                    """
+                    aCacheEntryInWrongStateInfo = self._fNewVoidCachedEntryInWrongStateInfo()
+                    aCacheEntryInWrongStateInfo.update( {
+                        'cached_entry':        anExistingCacheEntry,
+                        'cached_entry_holder': someCachedTemplateForRelatedElement,
+                        'cached_entry_key':    aRoleKindToIndex,            
+                    })                    
+                    someExistingCacheEntriesInWrongState.append( aCacheEntryInWrongStateInfo)
+                    
+                    anActionToDo = 'MakePromise'
+                    
                 else:
                     # ###########################################################
-                    """This is a proper entry, if its cached rendered template result HTML is something.
+                    """Found cached template: Cache Hit. Update expiration time for the cache entry. Update cache hit statistics, and return the cached HTML
                     
                     """
-                
-                    unCachedTemplate = anExistingCacheEntry.vHTML
-                    
-                    if not unCachedTemplate: 
-                        # ###########################################################
-                        """A totally empty rendered template HTML means it is no longer useful (it shall always contain at least a smallish string or HTML element). A new entry shall be created, and shall replace the existing one in the cache control structure.
-                        
-                        """
-                        anActionToDo = 'MakePromise'
-                        
-                    else:
-                        # ###########################################################
-                        """Found cached template: Cache Hit. Update expiration time for the cache entry. Update cache hit statistics, and return the cached HTML
-                        
-                        """
-                        unMillisecondsNow = fMillisecondsNow()
+                    unMillisecondsNow = fMillisecondsNow()
 
-                        anExistingCacheEntry.vHits += 1
-                        anExistingCacheEntry.vLastHit = unMillisecondsNow 
-                        anExistingCacheEntry.vLastUser = unMemberId                         
+                    anExistingCacheEntry.vHits += 1
+                    anExistingCacheEntry.vLastHit = unMillisecondsNow 
+                    anExistingCacheEntry.vLastUser = unMemberId                         
 
-                         
-                        unExistingCacheEntryChars = 0
-                        if anExistingCacheEntry.vHTML:
-                            unExistingCacheEntryChars = len( anExistingCacheEntry.vHTML)
-        
-                        unStatisticsUpdate = {
-                            cCacheStatistics_TotalCacheHits:    1,
-                            cCacheStatistics_TotalCharsSaved:   unExistingCacheEntryChars,
-                            cCacheStatistics_TotalTimeSaved:    max( anExistingCacheEntry.vMilliseconds, 0),
-                        }
-                        self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
-                        
-                    
-                        
-                        # ###########################################################
-                        """Renew the age of the cache entry in the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
-                        See section above with comment starting with : MEMORY consumed maintenance: Release memory if exceed max ...
-                        
-                        """
-                        
-                        unListNewSentinel = self.fGetCacheStoreListSentinel_New( theModelDDvlPloneTool, theContextualObject, aCacheName)
-                        if unListNewSentinel:
-                            anExistingCacheEntry.pUnLink()   # if for some bad reason there is no list new sentinel, do not remove from the list, or it will never be flushed at any age.
-                            unListNewSentinel.pLink( anExistingCacheEntry) 
-                        
-                        
-                        
-                        
-                        # ###########################################################
-                        """Returning the cache entry found, and an indication that no promise was made (so no rendering has to be produced to fullfill it), and there is no need to just fallback and render it now
-                        
-                        """
-                        unExistingOrPromiseCacheEntry = anExistingCacheEntry
-                        anActionToDo                  = 'UseFoundEntry'
+                     
+                    unExistingCacheEntryChars = 0
+                    if anExistingCacheEntry.vHTML:
+                        unExistingCacheEntryChars = len( anExistingCacheEntry.vHTML)
     
-                        
-                        
-                        
-                if not ( anActionToDo == 'UseFoundEntry'):
-                    # ###########################################################
-                    """Not Found usable cached template: Cache Fault. Update cache fault statistics.
-                    
-                    """
                     unStatisticsUpdate = {
-                        cCacheStatistics_TotalCacheFaults:    1,
+                        cCacheStatistics_TotalCacheHits:    1,
+                        cCacheStatistics_TotalCharsSaved:   unExistingCacheEntryChars,
+                        cCacheStatistics_TotalTimeSaved:    max( anExistingCacheEntry.vMilliseconds, 0),
                     }
                     self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
                     
-                    
-                    
-                if anActionToDo == 'MakePromise':
-                    # ###########################################################
-                    """Create a new cache entry as a promise to be fullfilled after the CRITICAL SECTION, and hook it up in the cache control structure.
-                    
-                    """
-
-                    
-               
                 
-                    # ###########################################################
-                    """Allocate a new unique id for the cache entry, 
-                    
-                    """
-                        
-                    unCacheEntryUniqueId = self.fGetCacheStoreNewUniqueId( theModelDDvlPloneTool, theContextualObject,) 
-                    unMillisecondsNow = fMillisecondsNow()
-                    unExpireAfterSeconds      = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_ExpireAfterSeconds)
-                    unForceExpire             = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_ForceExpire)
-   
-                    unPromiseMade = unMillisecondsNow
-                    
-                    aNewCacheEntry = MDDRenderedTemplateCacheEntry_ForElement(
-                        theCacheName         =aCacheName,
-                        theCacheKind         =aCacheKind,
-                        theProjectName       =aProjectName,
-                        theUniqueId          =unCacheEntryUniqueId,
-                        theValid             =True,
-                        thePromise           =unPromiseMade,
-                        theUser              =unMemberId,
-                        theDateMillis        =unMillisecondsNow,
-                        theProject           =aProjectName,
-                        theView              =aViewName,
-                        theLanguage          =aNegotiatedLanguage,
-                        theHTML              =None,
-                        theMilliseconds      =0,
-                        theExpireAfterSeconds =unExpireAfterSeconds,
-                        theForceExpire       =unForceExpire,
-                        theMetaType          =unElementMetaType,
-                        thePortalType        =unElementPortalType,
-                        theArchetypeName     =unElementArchetypeName,
-                        theElementId         =unElementId,
-                        theUID               =unElementUID,
-                        theTitle             =unElementTitle,
-                        theURL               =unElementURL,
-                        theRootPath          =unRootElementPath,
-                        theRootUID           =unRootElementUID,
-                        thePath              =unElementPath,
-                        theRoleKind          =aRoleKindToIndex,
-                        theRelation          =unRelationCursorName,
-                        theCurrentUID        =unCurrentElementUID,
-                    )
-                    
-                    unExistingOrPromiseCacheEntry = aNewCacheEntry
-                                        
-                    
                     
                     # ###########################################################
-                    """Add unique id of cache entry to the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
+                    """Renew the age of the cache entry in the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
                     See section above with comment starting with : MEMORY consumed maintenance: Release memory if exceed max ...
                     
                     """
+                    
                     unListNewSentinel = self.fGetCacheStoreListSentinel_New( theModelDDvlPloneTool, theContextualObject, aCacheName)
                     if unListNewSentinel:
-                        unListNewSentinel.pLink( aNewCacheEntry) 
-        
+                        anExistingCacheEntry.pUnLink()   # if for some bad reason there is no list new sentinel, do not remove from the list, or it will never be flushed at any age.
+                        unListNewSentinel.pLink( anExistingCacheEntry) 
+                    
+                    
                     
                     
                     # ###########################################################
-                    """Hook up the new cache entry promise in the cache control structure. The promised cache entry shall be fullfilled after the CRITICAL SECTION, by reading the page HTML from disk cache, or rendering the page.
+                    """Returning the cache entry found, and an indication that no promise was made (so no rendering has to be produced to fullfill it), and there is no need to just fallback and render it now
                     
                     """
-                    someCachedTemplateForRelatedElement[ aRoleKindToIndex] = aNewCacheEntry
+                    unExistingOrPromiseCacheEntry = anExistingCacheEntry
+                    anActionToDo                  = 'UseFoundEntry'
 
                     
-                    
-                    # ###########################################################
-                    """Add the entry to the index by Cache Entry Unique Id.
-                    
-                    """
-                    self._pAddCacheEntryToUniqueIdIndex( theModelDDvlPloneTool, theContextualObject, aNewCacheEntry)
-                    
-
-                    
-                    # ###########################################################
-                    """Add the entry to the index by UID.
-                    
-                    """
-                    self._pAddCacheEntryToUIDIndex( theModelDDvlPloneTool, theContextualObject, aNewCacheEntry)
-                    
-                    
-
-                    
-                    # ###########################################################
-                    """Update cache statistics.
-                    
-                    """                    
-                    unStatisticsUpdate = {
-                        cCacheStatistics_TotalCacheEntries:    1,
-                    }
-                    self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
+                  
                     
                     
                     
-                        
-            finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                
-                
-            if someFilesToDelete:
-                self._pRemoveDiskCacheFiles(  theModelDDvlPloneTool, theContextualObject, someFilesToDelete)
-                
-                
-                
-                
+                    
             # ###########################################################
-            """Act according to the analysis made of the Cache entry, and decide how to proceed: using it if retrieved, promissing to create a new one, or just fallback to render the template now and return it.
+            """Remove cache entries that are in wrong state, more likely because of an error while trying to fulfill the promise to be rendered.
             
             """
-            
-            
+            if someExistingCacheEntriesInWrongState:
+                self._pRemoveCachedEntriesInWrongState( someExistingCacheEntriesInWrongState)
+               
+                    
+                   
+                    
+                    
+                    
+            if not ( anActionToDo == 'UseFoundEntry'):
+                # ###########################################################
+                """Not Found usable cached template: Cache Fault. Update cache fault statistics.
+                
+                """
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalCacheFaults:    1,
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
+                
+                
+                
+            if anActionToDo == 'MakePromise':
+                # ###########################################################
+                """Create a new cache entry as a promise to be fullfilled after the CRITICAL SECTION, and hook it up in the cache control structure.
+                
+                """
 
-            someTranslations = { }
-            someDomainsStringsAndDefaults = [
-                [ 'ModelDDvlPlone', [    
-                    [ 'ModelDDvlPlone_Cached',                           'Cached-',], 
-                    [ 'ModelDDvlPlone_JustRendered',                     'Just Rendered-',],
-                ]],                                                      
-            ]        
-            theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
+                
+           
             
-            if anActionToDo == 'UseFoundEntry':
                 # ###########################################################
-                """Found entry was good: sucessful cache hit.
+                """Allocate a new unique id for the cache entry, 
                 
                 """
-                if unCachedTemplate:
-                    # ###########################################################
-                    """The unCachedTemplate variable should hold HTML. 
                     
-                    """
-                    unRenderedTemplateToReturn = unCachedTemplate.replace(    
-                        u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
-                        u'<span>%(ModelDDvlPlone_Cached)s' % someTranslations,
-                    )   
+                unCacheEntryUniqueId = self.fGetCacheStoreNewUniqueId( theModelDDvlPloneTool, theContextualObject,) 
+                unMillisecondsNow = fMillisecondsNow()
+                unExpireAfterSeconds      = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_ExpireAfterSeconds)
+                unForceExpire             = theModelDDvlPloneTool.fGetCacheConfigParameterValue(  theContextualObject, aCacheName, cCacheConfigPpty_ForceExpire)
+
+                unPromiseMade = unMillisecondsNow
+                
+                aNewCacheEntry = MDDRenderedTemplateCacheEntry_ForElement(
+                    theCacheName         =aCacheName,
+                    theCacheKind         =aCacheKind,
+                    theProjectName       =aProjectName,
+                    theUniqueId          =unCacheEntryUniqueId,
+                    theValid             =True,
+                    thePromise           =unPromiseMade,
+                    theUser              =unMemberId,
+                    theDateMillis        =unMillisecondsNow,
+                    theProject           =aProjectName,
+                    theView              =aViewName,
+                    theLanguage          =aNegotiatedLanguage,
+                    theHTML              =None,
+                    theMilliseconds      =0,
+                    theExpireAfterSeconds =unExpireAfterSeconds,
+                    theForceExpire       =unForceExpire,
+                    theMetaType          =unElementMetaType,
+                    thePortalType        =unElementPortalType,
+                    theArchetypeName     =unElementArchetypeName,
+                    theElementId         =unElementId,
+                    theUID               =unElementUID,
+                    theTitle             =unElementTitle,
+                    theURL               =unElementURL,
+                    theRootPath          =unRootElementPath,
+                    theRootUID           =unRootElementUID,
+                    thePath              =unElementPath,
+                    theRoleKind          =aRoleKindToIndex,
+                    theRelation          =unRelationCursorName,
+                    theCurrentUID        =unCurrentElementUID,
+                )
+                
+                unExistingOrPromiseCacheEntry = aNewCacheEntry
+                                    
+                
+                
+                # ###########################################################
+                """Hook up the new cache entry promise in the cache control structure. The promised cache entry shall be fullfilled after the CRITICAL SECTION, by reading the page HTML from disk cache, or rendering the page.
+                
+                """
+                someCachedTemplateForRelatedElement[ aRoleKindToIndex] = aNewCacheEntry
+
+                
+                aRenderResult.update( {
+                    'cache_name':     aCacheName,
+                    'promise_made':   unExistingOrPromiseCacheEntry,
+                    'promise_holder': someCachedTemplatesForLanguage,
+                    'promise_key':    aViewName,
+                })
+            
+                
+                 
+                # ###########################################################
+                """Add unique id of cache entry to the list ordered by their last usage time, that later allows to remove from cache the entries that have been used less recently, and recover its memory.
+                See section above with comment starting with : MEMORY consumed maintenance: Release memory if exceed max ...
+                
+                """
+                unListNewSentinel = self.fGetCacheStoreListSentinel_New( theModelDDvlPloneTool, theContextualObject, aCacheName)
+                if unListNewSentinel:
+                    unListNewSentinel.pLink( aNewCacheEntry) 
+    
+                
+               
+                
+                # ###########################################################
+                """Add the entry to the index by Cache Entry Unique Id.
+                
+                """
+                self._pAddCacheEntryToUniqueIdIndex( theModelDDvlPloneTool, theContextualObject, aNewCacheEntry)
+                
+
+                
+                # ###########################################################
+                """Add the entry to the index by UID.
+                
+                """
+                self._pAddCacheEntryToUIDIndex( theModelDDvlPloneTool, theContextualObject, aNewCacheEntry)
+                
+                
+
+                
+                # ###########################################################
+                """Update cache statistics.
+                
+                """                    
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalCacheEntries:    1,
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
+                
+                
+                
+                    
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            
+            
+        if someFilesToDelete:
+            self._pRemoveDiskCacheFiles(  theModelDDvlPloneTool, theContextualObject, someFilesToDelete)
+            
+            
+            
+            
+        # ###########################################################
+        """Act according to the analysis made of the Cache entry, and decide how to proceed: using it if retrieved, promissing to create a new one, or just fallback to render the template now and return it.
         
-                    aEndMillis = fMillisecondsNow()
-                    aMilliseconds = aEndMillis - aBeginMillis
-                    unDurationString = '%d ms' % aMilliseconds
-                    
-                    unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
-                        u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
-                        u'%s</span>' % unDurationString
-                    )
-                    unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                       cMagicReplacementString_CacheCode, 
-                       '%d' % aEndMillis
-                    )
-                    #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                       #u'theFlushCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                       #u'theFlushCacheCode=%s' % aEndMillis
-                    #)
-                    #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                       #u'theNoCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                       #u'theNoCacheCode=%s' % aEndMillis
-                    #)
-                    
-                    return [ True, unRenderedTemplateToReturnWithDuration, ]
-                
-                
-            if ( anActionToDo == 'UseFoundEntry') or ( anActionToDo == 'JustFallbackToRenderNow') or ( ( anActionToDo == 'MakePromise') and ( not unPromiseMade)) or not ( anActionToDo == 'MakePromise') or (unExistingOrPromiseCacheEntry == None):
+        """
+        
+        
+
+        someTranslations = { }
+        someDomainsStringsAndDefaults = [
+            [ 'ModelDDvlPlone', [    
+                [ 'ModelDDvlPlone_Cached',                           'Cached-',], 
+                [ 'ModelDDvlPlone_JustRendered',                     'Just Rendered-',],
+            ]],                                                      
+        ]        
+        theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
+        
+        if anActionToDo == 'UseFoundEntry':
+            # ###########################################################
+            """Found entry was good: sucessful cache hit.
+            
+            """
+            if unCachedTemplate:
                 # ###########################################################
-                """Entry was found, but something was wrong, or it has been decided that the action is to just render now, or a promise has been made but there is no promise code, or a the action is not the remaining possiblity of MakePromise , or no promise entry has been created. Fallback to render now.
+                """The unCachedTemplate variable should hold HTML. 
                 
                 """
-                unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-                
-                if aDisplayCacheHitInformation:
-                    if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
-                        unRenderedTemplateToReturn = unRenderedTemplate + ( u'\n<br/><br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font>' % someTranslations)
-                    elif aDisplayCacheHitInformation == cDisplayCacheHitInformation_Top:          
-                        unRenderedTemplateToReturn = ( u'<br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font><br/>\n' % someTranslations) + unRenderedTemplate
-                    else:
-                        unRenderedTemplateToReturn = unRenderedTemplate[:]
-                        
+                unRenderedTemplateToReturn = unCachedTemplate.replace(    
+                    u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
+                    u'<span>%(ModelDDvlPlone_Cached)s' % someTranslations,
+                )   
+    
                 aEndMillis = fMillisecondsNow()
-                unDurationString = '%d ms' % ( aEndMillis - aBeginMillis)
+                aMilliseconds = aEndMillis - aBeginMillis
+                unDurationString = '%d ms' % aMilliseconds
                 
                 unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
                     u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
@@ -6754,60 +7352,93 @@ class ModelDDvlPloneTool_Cache:
                    cMagicReplacementString_CacheCode, 
                    '%d' % aEndMillis
                 )
-                #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                   #u'theFlushCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                   #u'theFlushCacheCode=%s' % aEndMillis
-                #)
-                #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-                   #u'theNoCacheCode=%s' % cMagicReplacementString_CacheCode, 
-                   #u'theNoCacheCode=%s' % aEndMillis
-                #)
-                
-                return [ True, unRenderedTemplateToReturnWithDuration, ]
-                
-                
-                
-            someVariables = {
-                'aCacheName':                    aCacheName,
-                'aCacheKind':                    aCacheKind,
-                'aBeginMillis':                  aBeginMillis,
-                'anActionToDo':                  anActionToDo,
-                'unExistingOrPromiseCacheEntry': unExistingOrPromiseCacheEntry,
-                'unPromiseMade':                 unPromiseMade,
-                'unCacheEntryUniqueId':          unCacheEntryUniqueId,
-                'unRelationCursorName':          unRelationCursorName,
-                'unCurrentElementUID':           unCurrentElementUID,
-                'aProjectName':                  aProjectName,
-                'aNegotiatedLanguage':           aNegotiatedLanguage,
-                'unCacheId':                     unCacheEntryUniqueId,
-                'unElementURL':                  unElementURL,
-                'unElementUID':                  unElementUID,
-                'unRootElementPath':             unRootElementPath,
-                'unRootElementUID':              unRootElementUID,
-                'unElementPath':                 unElementPath,
-                'aViewName':                     aViewName,
-                'aRoleKindToIndex':              aRoleKindToIndex,
-                'unMemberId':                    unMemberId,
-                'unCachedTemplate':              unCachedTemplate,
-                'someTranslations':              someTranslations,
-                'aDisplayCacheHitInformation':   aDisplayCacheHitInformation,
-                'aCacheDiskEnabled':             aCacheDiskEnabled,
-                'aCacheDiskPath':                aCacheDiskPath,
-                'unExpireDiskAfterSeconds':      unExpireDiskAfterSeconds,
-                'unElementId':                   unElementId,
-                'unElementMetaType':             unElementMetaType,
-                'unElementPortalType':           unElementPortalType,
-                'unElementArchetypeName':        unElementArchetypeName,
-            }
-        
-        except:
-            raise
 
-              
-        return [ False, someVariables,]
-                
-       
-    
+                aRenderResult.update( {
+                    'status':            cRenderStatus_Completed, 
+                    'rendered_html':     unRenderedTemplateToReturnWithDuration,
+                })                                    
+                return aRenderResult
+            
+            
+        if ( anActionToDo == 'UseFoundEntry') or ( anActionToDo == 'JustFallbackToRenderNow') or ( ( anActionToDo == 'MakePromise') and ( not unPromiseMade)) or not ( anActionToDo == 'MakePromise') or (unExistingOrPromiseCacheEntry == None):
+            # ###########################################################
+            """Entry was found, but something was wrong, or it has been decided that the action is to just render now, or a promise has been made but there is no promise code, or a the action is not the remaining possiblity of MakePromise , or no promise entry has been created. Fallback to render now.
+            
+            """
+            unRenderedTemplate = self._fInvokeCallable_Or_RenderTemplate( 
+                theModelDDvlPloneTool=theModelDDvlPloneTool, 
+                theContextualObject  =theContextualObject, 
+                theTemplateName      =theTemplateName, 
+                theAdditionalParams =theAdditionalParams,
+            )
+            
+            if aDisplayCacheHitInformation:
+                if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
+                    unRenderedTemplateToReturn = unRenderedTemplate + ( u'\n<br/><br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font>' % someTranslations)
+                elif aDisplayCacheHitInformation == cDisplayCacheHitInformation_Top:          
+                    unRenderedTemplateToReturn = ( u'<br/><font size="1"><strong>%(ModelDDvlPlone_JustRendered)s</strong></font><br/>\n' % someTranslations) + unRenderedTemplate
+                else:
+                    unRenderedTemplateToReturn = unRenderedTemplate[:]
+                    
+            aEndMillis = fMillisecondsNow()
+            unDurationString = '%d ms' % ( aEndMillis - aBeginMillis)
+            
+            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+                u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
+                u'%s</span>' % unDurationString
+            )
+            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+               cMagicReplacementString_CacheCode, 
+               '%d' % aEndMillis
+            )
+            
+            aRenderResult.update( {
+                'status':            cRenderStatus_Completed, 
+                'rendered_html':     unRenderedTemplateToReturnWithDuration,
+            })                                    
+            return aRenderResult
+            
+            
+            
+        theVariables.update( {
+            'aCacheName':                    aCacheName,
+            'aCacheKind':                    aCacheKind,
+            'aBeginMillis':                  aBeginMillis,
+            'anActionToDo':                  anActionToDo,
+            'unExistingOrPromiseCacheEntry': unExistingOrPromiseCacheEntry,
+            'unPromiseMade':                 unPromiseMade,
+            'unCacheEntryUniqueId':          unCacheEntryUniqueId,
+            'unRelationCursorName':          unRelationCursorName,
+            'unCurrentElementUID':           unCurrentElementUID,
+            'aProjectName':                  aProjectName,
+            'aNegotiatedLanguage':           aNegotiatedLanguage,
+            'unCacheId':                     unCacheEntryUniqueId,
+            'unElementURL':                  unElementURL,
+            'unElementUID':                  unElementUID,
+            'unRootElementPath':             unRootElementPath,
+            'unRootElementUID':              unRootElementUID,
+            'unElementPath':                 unElementPath,
+            'aViewName':                     aViewName,
+            'aRoleKindToIndex':              aRoleKindToIndex,
+            'unMemberId':                    unMemberId,
+            'unCachedTemplate':              unCachedTemplate,
+            'someTranslations':              someTranslations,
+            'aDisplayCacheHitInformation':   aDisplayCacheHitInformation,
+            'aCacheDiskEnabled':             aCacheDiskEnabled,
+            'aCacheDiskPath':                aCacheDiskPath,
+            'unExpireDiskAfterSeconds':      unExpireDiskAfterSeconds,
+            'unElementId':                   unElementId,
+            'unElementMetaType':             unElementMetaType,
+            'unElementPortalType':           unElementPortalType,
+            'unElementArchetypeName':        unElementArchetypeName,
+        })
+        
+        aRenderResult.update( {
+            'status':            cRenderStatus_Continue, 
+        })                                    
+        return aRenderResult
+        
+
     
     
     
@@ -6818,21 +7449,44 @@ class ModelDDvlPloneTool_Cache:
  
     
     security.declarePrivate( '_fRenderTemplateOrCachedForElement_Phase_TryDisk')
-    def _fRenderTemplateOrCachedForElement_Phase_TryDisk(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None, theVariables={}):
+    def _fRenderTemplateOrCachedForElement_Phase_TryDisk(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None, 
+        theVariables={}):
         """No usable cache entry has been found. Try to find the cached HTML on disc, for the project, the root UID, for the currently negotiated language, modulus of element UID, element uid, view, relation , current related UID, and role/user id.
         
         """
         
+        aRenderResult = self._fNewVoidRenderResult_Phase_TryDisk()
+        
         if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
             if not theModelDDvlPloneTool:
-                return '<h2>No parameter theModelDDvlPloneTool</h2>'
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+                aRenderResult.update( {
+                    'status':           cRenderStatus_ShowError, 
+                    'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
     
         
         if not theVariables:
             if not theModelDDvlPloneTool:
-                return '<h2>No parameters theVariables and theModelDDvlPloneTool</h2>'
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName), ]
+                aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
+                
         
         aCacheName                    = theVariables[ 'aCacheName']
         aCacheKind                    = theVariables[ 'aCacheKind']
@@ -6862,320 +7516,333 @@ class ModelDDvlPloneTool_Cache:
         unExpireDiskAfterSeconds      = theVariables[ 'unExpireDiskAfterSeconds']
                  
         if not aCacheDiskEnabled:
-            return [ False, None]
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
         
 
         
-            
-            
+        if not aCacheDiskPath:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
 
+        # ###########################################################
+        """Assemble the name of the disk file holding the cached HTML for the entry.
+            
+        """            
+        aProjectPath           = os.path.join( aCacheDiskPath, aProjectName)
+        aRootUIDPath           = os.path.join( aProjectPath, unRootElementUID)
+        anElementUIDModulus    = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
+        aElementUIDModulusPath = os.path.join( aRootUIDPath, anElementUIDModulus)
+        aElementUIDPath        = os.path.join( aElementUIDModulusPath, unElementUID)
+        aLanguagePath          = os.path.join( aElementUIDPath, aNegotiatedLanguage)
+        aFileName              = '%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, aRoleKindToIndex, cCacheDiskFilePostfix)
+        aFilePath              = os.path.join( aLanguagePath, aFileName)
         
+        theVariables[ 'aFilePath']         = aFilePath
+        theVariables[ 'aDirectory']        = aElementUIDPath
+        
+        
+        
+        # ###########################################################
+        """Try to access the directory containing the element independent files with cached HTML.
+            
+        """            
+        aCacheDiskPathExist = False
         try:
-            if not aCacheDiskPath:
-                return [ False, None,]
-
-            # ###########################################################
-            """Assemble the name of the disk file holding the cached HTML for the entry.
-                
-            """            
-            aProjectPath           = os.path.join( aCacheDiskPath, aProjectName)
-            aRootUIDPath           = os.path.join( aProjectPath, unRootElementUID)
-            anElementUIDModulus    = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
-            aElementUIDModulusPath = os.path.join( aRootUIDPath, anElementUIDModulus)
-            aElementUIDPath        = os.path.join( aElementUIDModulusPath, unElementUID)
-            aLanguagePath          = os.path.join( aElementUIDPath, aNegotiatedLanguage)
-            aFileName              = '%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, aRoleKindToIndex, cCacheDiskFilePostfix)
-            aFilePath              = os.path.join( aLanguagePath, aFileName)
-            
-            theVariables[ 'aFilePath']         = aFilePath
-            theVariables[ 'aDirectory']        = aElementUIDPath
-            
-            
-            
-            # ###########################################################
-            """Try to access the directory containing the element independent files with cached HTML.
-                
-            """            
-            aCacheDiskPathExist = False
-            try:
-                aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
-            except:
-                None
-            if not aCacheDiskPathExist:
-                return [ False, None]
-            
-            
-            # ###########################################################
-            """Try to access directories for project, root UID, language, the modulus 100 of the checksum of element UID , element UID, view,  relation, relation current UID, and role/userId.
-                
-            """
-            
-            
-            aProjectPathExist = False
-            try:
-                aProjectPathExist = os.path.exists( aProjectPath)
-            except:
-                None
-            if not aProjectPathExist:
-                return [ False, None]
-                
-            
-            aRootUIDPathExist = False
-            try:
-                aRootUIDPathExist = os.path.exists( aRootUIDPath)
-            except:
-                None
-            if not aRootUIDPathExist:
-                return [ False, None]
-
-            
-            aElementUIDModulusPathExist = False
-            try:
-                aElementUIDModulusPathExist = os.path.exists( aElementUIDModulusPath)
-            except:
-                None
-            if not aElementUIDModulusPathExist:
-                return [ False, None]
-            
-            
-            
-            aElementUIDPathExist = False
-            try:
-                aElementUIDPathExist = os.path.exists( aElementUIDPath)
-            except:
-                None
-            if not aElementUIDPathExist:
-                return [ False, None]
-            
-
-            aLanguagePathExist = False
-            try:
-                aLanguagePathExist = os.path.exists( aLanguagePath)
-            except:
-                None
-            if not aLanguagePathExist:
-                return [ False, None]
-                        
-            
-            # ###########################################################
-            """Try to retrieve the page from disk cache file.
-                
-            """
-            aFilePathExist = False
-            try:
-                aFilePathExist = os.path.exists( aFilePath)
-            except:
-                None
-            if not aFilePathExist:
-                return [ False, None]
-
-            anHTML = ''
-            try:
-                aViewFile = None
-                try:
-                    aViewFile = open( aFilePath, cCacheDisk_ForElements_FileOpenReadMode_View, cCacheDisk_ForElements_FileOpenReadBuffering_View)
-                    anHTML = aViewFile.read()
-                finally:
-                    if aViewFile:
-                        aViewFile.close()
-                    
-            except IOError:
-                return [ False, None]
-      
-            if ( not anHTML) or ( len( anHTML) < cMinCached_HTMLFileLen):
-                return [ False, None]
-                
-            
-           
-            
-            unosMillisAfterRead = fMillisecondsNow()
-            unosMilliseconds    = unosMillisAfterRead - aBeginMillis
-
-            
-            
-            # ###########################################################
-            """Read the HTML timestamp, and determine if the file has expired.
-                
-            """
-            if unExpireDiskAfterSeconds:
-                
-                aFirstLinesChunk = anHTML[:cHTMLFirstLinesChunkLen]
-                unIndex = aFirstLinesChunk.find( cHTMLRenderingTimeComment_Keyword)
-                if unIndex < 0:
-                    return [ False, None]
-                
-                unMillisecondsHTMLString = aFirstLinesChunk[ unIndex + len( cHTMLRenderingTimeComment_Keyword):]
-                if not unMillisecondsHTMLString:
-                    return [ False, None]
-                
-                unLastIndex = unMillisecondsHTMLString.index( ' ')
-                if unLastIndex < 0:
-                    unLastIndex = unMillisecondsHTMLString.index( '-')
-                    
-                if unLastIndex >=0:
-                    unMillisecondsHTMLString = unMillisecondsHTMLString[:unLastIndex]
-                if not unMillisecondsHTMLString:
-                    return [ False, None]
-                    
-                    
-                unMillisecondsHTML = 0
-                try:
-                    unMillisecondsHTML = int( unMillisecondsHTMLString)
-                except:
-                    None
-                if not unMillisecondsHTML:
-                    return [ False, None]
-                
-                unTimePassed = int( ( unosMillisAfterRead - unMillisecondsHTML) / 1000)
-                
-                if unTimePassed >= unExpireDiskAfterSeconds:
-                    # ###########################################################
-                    """HTML has expired. Flush the file.
-                        
-                    """
-                    self._pRemoveDiskCacheFiles( theModelDDvlPloneTool, theContextualObject, [ aFilePath,])
-                    return [ False, None]
-                    
-                
-            
-            
-            
-            
-            
-            
- 
-            
-            # ###########################################################
-            """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
-            
-            """
-            try:
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                
-                  
-                # ###########################################################
-                """Check if somebody messed with the promised cache entry, so it is not being updated here.
-                
-                """
-                if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
-
-                    unMillisecondsNow = fMillisecondsNow()
-                            
-                    unExistingOrPromiseCacheEntry.vHTML            = anHTML
-                    unExistingOrPromiseCacheEntry.vFilePath        = aFilePath
-                    unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
-                    unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
-                    unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
-                    unExistingOrPromiseCacheEntry.vDirectory       = aElementUIDPath
-
-                    
-                    unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
-                    
-                    unHTMLLen = len( unExistingOrPromiseCacheEntry.vHTML)
-                    
-                    unStatisticsUpdate = {
-                        cCacheStatistics_TotalCacheDiskHits:    1,
-                        cCacheStatistics_TotalCharsCached:      unHTMLLen,
-                        cCacheStatistics_TotalCharsSaved:       unHTMLLen,
-                    }
-                    self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
-                    
-                    
-                # ###########################################################
-                """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
-                
-                """
-                self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, aCacheName)
-                   
-                
-                 
-                
-            finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                            
-            theVariables[ 'unTemplateToCache'] = anHTML[:]
-    
-            # ###########################################################
-            """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
-            
-            """
-            someDomainsStringsAndDefaults = [
-                [ 'ModelDDvlPlone', [    
-                    [ 'ModelDDvlPlone_DiskCached',                     'Disk Cached-',], 
-                ]],                                                      
-            ]        
-            theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
-            
-            unRenderedTemplateToReturn = anHTML.replace(    
-                u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
-                u'<span>%s' % someTranslations[ 'ModelDDvlPlone_DiskCached'],
-            )   
-            
-            unDurationString = '%d ms' % unosMilliseconds
-            
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
-                u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
-                u'%s</span>' % unDurationString
-            )
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               cMagicReplacementString_CacheCode, 
-               '%d' % unosMillisAfterRead
-            )
-            #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               #u'theFlushCacheCode=%s' % cMagicReplacementString_CacheCode, 
-               #u'theFlushCacheCode=%s' % unosMillisAfterRead
-            #)
-            #unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               #u'theNoCacheCode=%s' % cMagicReplacementString_CacheCode, 
-               #u'theNoCacheCode=%s' % unosMillisAfterRead
-            #)
-            
-            theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
-                        
-                
-            return [ True, unRenderedTemplateToReturnWithDuration,]
-            
-            
-        
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
         except:
-            raise
-            #unaExceptionInfo = sys.exc_info()
-            #unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
-            
-            #unInformeExcepcion = 'Exception during access to a page from cache of rendered templates' 
-            #unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            #unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            #unInformeExcepcion += unaExceptionFormattedTraceback   
-            
-            #if cLogExceptions:
-                #logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
-            #unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-            
-            #unRenderedTemplateToReturn = u'%s\n<br/><br/><font size="1"><strong>%s</strong></font>' % ( unRenderedTemplate, theModelDDvlPloneTool.fTranslateI18N( theContextualObject, 'ModelDDvlPlone', 'ModelDDvlPlone_ExceptionRetrievingPageFromCachedRenderedTemplate', 'Exception rendering page-'), unExceptionReport)
+            None
+        if not aCacheDiskPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
         
-            #aEndMillis = int( time() * 1000)
-            #unRenderedTemplateToReturn = '%s\n<br/>%d ms<br/>' % ( unRenderedTemplateToReturn, aEndMillis - aBeginMillis,)
-
-            #return unRenderedTemplateToReturn
+        
+        # ###########################################################
+        """Try to access directories for project, root UID, language, the modulus 100 of the checksum of element UID , element UID, view,  relation, relation current UID, and role/userId.
+            
+        """
+        
+        
+        aProjectPathExist = False
+        try:
+            aProjectPathExist = os.path.exists( aProjectPath)
+        except:
+            None
+        if not aProjectPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+                    
+        
+        aRootUIDPathExist = False
+        try:
+            aRootUIDPathExist = os.path.exists( aRootUIDPath)
+        except:
+            None
+        if not aRootUIDPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+        
+        
+        aElementUIDModulusPathExist = False
+        try:
+            aElementUIDModulusPathExist = os.path.exists( aElementUIDModulusPath)
+        except:
+            None
+        if not aElementUIDModulusPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
                 
+        
+        
+        aElementUIDPathExist = False
+        try:
+            aElementUIDPathExist = os.path.exists( aElementUIDPath)
+        except:
+            None
+        if not aElementUIDPathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+                
+
+        aLanguagePathExist = False
+        try:
+            aLanguagePathExist = os.path.exists( aLanguagePath)
+        except:
+            None
+        if not aLanguagePathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+                            
+        
+        # ###########################################################
+        """Try to retrieve the page from disk cache file.
+            
+        """
+        aFilePathExist = False
+        try:
+            aFilePathExist = os.path.exists( aFilePath)
+        except:
+            None
+        if not aFilePathExist:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+        
+        
+        anHTML = ''
+        try:
+            aViewFile = None
+            try:
+                aViewFile = open( aFilePath, cCacheDisk_ForElements_FileOpenReadMode_View, cCacheDisk_ForElements_FileOpenReadBuffering_View)
+                anHTML = aViewFile.read()
+            finally:
+                if aViewFile:
+                    aViewFile.close()
+                
+        except IOError:
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+          
+        if ( not anHTML) or ( len( anHTML) < cMinCached_HTMLFileLen):
+            aRenderResult.update( {
+                'status':           cRenderStatus_Continue, 
+            })                                    
+            return aRenderResult
+                    
+        
        
+        
+        unosMillisAfterRead = fMillisecondsNow()
+        unosMilliseconds    = unosMillisAfterRead - aBeginMillis
+
+        
+        
+        # ###########################################################
+        """Read the HTML timestamp, and determine if the file has expired.
+            
+        """
+        if unExpireDiskAfterSeconds:
+            
+            aFirstLinesChunk = anHTML[:cHTMLFirstLinesChunkLen]
+            unIndex = aFirstLinesChunk.find( cHTMLRenderingTimeComment_Keyword)
+            if unIndex < 0:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+            
+            unMillisecondsHTMLString = aFirstLinesChunk[ unIndex + len( cHTMLRenderingTimeComment_Keyword):]
+            if not unMillisecondsHTMLString:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+            
+            unLastIndex = unMillisecondsHTMLString.index( ' ')
+            if unLastIndex < 0:
+                unLastIndex = unMillisecondsHTMLString.index( '-')
+                
+            if unLastIndex >=0:
+                unMillisecondsHTMLString = unMillisecondsHTMLString[:unLastIndex]
+            if not unMillisecondsHTMLString:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+                
+                
+            unMillisecondsHTML = 0
+            try:
+                unMillisecondsHTML = int( unMillisecondsHTMLString)
+            except:
+                None
+            if not unMillisecondsHTML:
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+            
+            unTimePassed = int( ( unosMillisAfterRead - unMillisecondsHTML) / 1000)
+            
+            if unTimePassed >= unExpireDiskAfterSeconds:
+                # ###########################################################
+                """HTML has expired. Flush the file.
+                    
+                """
+                self._pRemoveDiskCacheFiles( theModelDDvlPloneTool, theContextualObject, [ aFilePath,])
+                aRenderResult.update( {
+                    'status':           cRenderStatus_Continue, 
+                })                                    
+                return aRenderResult
+                
+            
+        
+        
+        
+        
+        
+        
+
+        
+        # ###########################################################
+        """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
+        
+        """
+        try:
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
             
+              
+            # ###########################################################
+            """Check if somebody messed with the promised cache entry, so it is not being updated here.
+            
+            """
+            if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
+
+                unMillisecondsNow = fMillisecondsNow()
+                        
+                unExistingOrPromiseCacheEntry.vHTML            = anHTML
+                unExistingOrPromiseCacheEntry.vFilePath        = aFilePath
+                unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
+                unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
+                unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
+                unExistingOrPromiseCacheEntry.vDirectory       = aElementUIDPath
+
+                
+                unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
+                
+                unHTMLLen = len( unExistingOrPromiseCacheEntry.vHTML)
+                
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalCacheDiskHits:    1,
+                    cCacheStatistics_TotalCharsCached:      unHTMLLen,
+                    cCacheStatistics_TotalCharsSaved:       unHTMLLen,
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
+                
+                
+            # ###########################################################
+            """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
+            
+            """
+            self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, aCacheName)
+               
+            
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+                        
+        theVariables[ 'unTemplateToCache'] = anHTML[:]
+
+        # ###########################################################
+        """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
+        
+        """
+        someDomainsStringsAndDefaults = [
+            [ 'ModelDDvlPlone', [    
+                [ 'ModelDDvlPlone_DiskCached',                     'Disk Cached-',], 
+            ]],                                                      
+        ]        
+        theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
+        
+        unRenderedTemplateToReturn = anHTML.replace(    
+            u'<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
+            u'<span>%s' % someTranslations[ 'ModelDDvlPlone_DiskCached'],
+        )   
+        
+        unDurationString = '%d ms' % unosMilliseconds
+        
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+            u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
+            u'%s</span>' % unDurationString
+        )
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+           cMagicReplacementString_CacheCode, 
+           '%d' % unosMillisAfterRead
+        )
+
+        
+        theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
+                    
+        aRenderResult.update( {
+            'status':            cRenderStatus_Completed, 
+            'rendered_html':     unRenderedTemplateToReturnWithDuration,
+        })                                    
+        return aRenderResult
+        
+        
+        
             
             
             
@@ -7190,19 +7857,44 @@ class ModelDDvlPloneTool_Cache:
 
        
     security.declarePrivate( '_fRenderTemplateOrCachedForElement_Phase_Render')
-    def _fRenderTemplateOrCachedForElement_Phase_Render(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None, theVariables={}):
+    def _fRenderTemplateOrCachedForElement_Phase_Render(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None, 
+        theVariables={}):
         """No usable cache entry has been found. Render the template, for the project, for the element (by it's UID), for the specified view, and for the currently negotiared language.
         
         """
+             
+        aRenderResult = self._fNewVoidRenderResult_Phase_Render()
+        
         if not self.fIsCachingActive( theModelDDvlPloneTool, theContextualObject):
             if not theModelDDvlPloneTool:
-                return [ True, '<h2>No parameter theModelDDvlPloneTool</h2>',]
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+                aRenderResult.update( {
+                    'status':           cRenderStatus_ShowError, 
+                    'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ForceRender, 
+            })                                    
+            return aRenderResult
+    
         
         if not theVariables:
             if not theModelDDvlPloneTool:
-                return [ True, '<h2>No parameters theVariables and theModelDDvlPloneTool</h2>',]
-            return [ True, theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName),]
+                aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+                })                                    
+                return aRenderResult
+            aRenderResult.update( {
+                'status':           cRenderStatus_ShowError, 
+                'error':            cRenderError_MissingParameters,
+            })                                    
+            return aRenderResult
+        
         
         aCacheName                    = theVariables[ 'aCacheName']
         aCacheKind                    = theVariables[ 'aCacheKind']
@@ -7238,415 +7930,449 @@ class ModelDDvlPloneTool_Cache:
 
 
                 
-        try:
-            someTranslations = { }
-            someDomainsStringsAndDefaults = [
-                [ 'ModelDDvlPlone', [    
-                    [ 'ModelDDvlPlone_JustCached',                       'Just Cached-',],
-                    [ 'ModelDDvlPlone_Time_label',                       'Date-',], 
-                    [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
-                    [ 'ModelDDvlPlone_User_label',                       'User-',], 
-                    [ 'ModelDDvlPlone_Date_label',                       'Date-',], 
-                    [ 'ModelDDvlPlone_Project_label',                    'Project-',], 
-                    [ 'ModelDDvlPlone_Language_label',                   'Language-',], 
-                    [ 'ModelDDvlPlone_View_label',                       'View-',], 
-                    [ 'ModelDDvlPlone_RoleKind_label',                   'Role kind-',], 
-                    [ 'ModelDDvlPlone_FilePath_label',                   'File-',], 
-                    [ 'ModelDDvlPlone_Path_label',                       'Path-',], 
-                    [ 'ModelDDvlPlone_MetaType_label',                   'MetaType-',], 
-                    [ 'ModelDDvlPlone_PortalType_label',                 'PortalType-',], 
-                    [ 'ModelDDvlPlone_ArchetypeName_label',              'ArchetypeName-',], 
-                    [ 'ModelDDvlPlone_ElementId_label',                  'ElementId-',], 
-                    [ 'ModelDDvlPlone_UID_label',                        'UID-',], 
-                    [ 'ModelDDvlPlone_URL_label',                        'URL-',], 
-                    [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
-                    [ 'title_label',                                     'Title-',], 
-                    [ 'ModelDDvlPlone_Relation_label',                   'Relation-'],
-                    [ 'ModelDDvlPlone_ShowNoFromCacheLink_label',        'Show generated-',], 
-                    [ 'ModelDDvlPlone_FlushFromCacheLink_label',         'Flush from cache-',], 
-                    [ 'ModelDDvlPlone_FlushFromDiskCacheLink_label',     'Flush from diskcache-',], 
-                    [ 'ModelDDvlPlone_RelatedElement_label',             'Related Element-',],
-                ]],                                                      
-            ]        
-            theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
-                    
-
-        
-            
-            # ###########################################################
-            """Render a caching information collapsible section to append to the rendered template HTML.
-                
-            """
-            unRenderedCacheInfo = u''
-            if aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]:
-                
-                # ###########################################################
-                """Prepare internationalized strings, and info values.
-                    
-                """
-                unPagina = ''
-                if aViewName in [ 'Textual', 'Textual_NoHeaderNoFooter',]:
-                    unPagina = '/'
-                elif aViewName in [ 'Tabular', 'Tabular_NoHeaderNoFooter',]:
-                    unPagina = '/Tabular/'
-                elif aViewName.endswith( '_NoHeaderNoFooter'):
-                    unPagina = '/%s/' % aViewName[: 0 - len( '_NoHeaderNoFooter')]
-                else:
-                    unPagina = '/%s/' % aViewName
-
-                aCacheEntryValuesDict = someTranslations.copy()
-                aCacheEntryValuesDict.update( {
-                    'cMagicReplacementString_CacheCode':               cMagicReplacementString_CacheCode,
-                    'cMagicReplacementString_TimeToRetrieve':          cMagicReplacementString_TimeToRetrieve,
-                    'cMagicReplacementString_Milliseconds':            cMagicReplacementString_Milliseconds,
-                    'cMagicReplacementString_Len':                     cMagicReplacementString_Len,
-                    'cMagicReplacementString_Date':                    cMagicReplacementString_Date,
-                    'cMagicReplacementString_CollapsibleSectionTitle': cMagicReplacementString_CollapsibleSectionTitle,
-                    'cMagicReplacementString_UniqueId':                cMagicReplacementString_UniqueId,                    
-                    'aProjectName':                  aProjectName,
-                    'aNegotiatedLanguage':           aNegotiatedLanguage,
-                    'unTitle':                       theModelDDvlPloneTool.fAsUnicode( theContextualObject, theContextualObject.Title()),
-                    'unCacheId':                     unCacheEntryUniqueId,
-                    'unElementURL':                  unElementURL,
-                    'unElementUID':                  unElementUID,
-                    'unElementPath':                 unElementPath,
-                    'aViewName':                     aViewName,
-                    'aRoleKindToIndex':              aRoleKindToIndex,
-                    'unMemberId':                    unMemberId,
-                    'unPagina':                      unPagina,
-                    'aFilePath':                     aFilePath,
-                    'unMetaType':                    unElementMetaType,
-                    'unPortalType':                  unElementPortalType,
-                    'unArchetypeName':               unElementArchetypeName,
-                    'unElementId':                   unElementId,
-                })                   
-                    
-                
-                
-                
-                
-                unRenderedCacheInfo = u"""
-                    <!-- ######### Start collapsible  section ######### 
-                        # ##################################################################################################
-                        With placeholder for the title of the section (to be later set as Just Rendered, Just Cached, Cached 
-                    --> 
-                    <dl id="cid_MDDCachedElementView" class="collapsible inline collapsedInlineCollapsible" >
-                        <dt class="collapsibleHeader">
-                            <span>%(cMagicReplacementString_CollapsibleSectionTitle)s %(cMagicReplacementString_TimeToRetrieve)s</span>                        
-                        </dt>
-                        <dd class="collapsibleContent">
-                            <br/>
-                            <form style="display: inline" action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="theNoCache"   value="on" />
-                                <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="submit" value="%(ModelDDvlPlone_ShowNoFromCacheLink_label)s" 
-                                    name="theCacheControl" 
-                                    id="cid_MDDShowNoFromCache_Button" 
-                                    style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
-                            </form>
-                            &emsp;
-                            <form style="display: inline"  action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="theNoCache"   value="on" />
-                                <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="submit" value="%(ModelDDvlPlone_FlushFromCacheLink_label)s" 
-                                    name="theCacheControl" 
-                                    id="cid_MDDFlushCache_Button" 
-                                    style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
-                            </form>
-                            &emsp;
-                            <form  style="display: inline"  action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="theNoCache"   value="on" />
-                                <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
-                                <input type="hidden" name="theFlushDiskCache" value="1" />
-                                <input type="submit" value="%(ModelDDvlPlone_FlushFromDiskCacheLink_label)s" 
-                                    name="theCacheControl" 
-                                    id="cid_MDDFlushDiskCacheCache_Button" 
-                                    style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
-                            </form>
-                            <br/>
-                            <table class="listing" ">
-                                <thead>
-                                    <tr>
-                                        <th class="nosort"/>
-                                        <th class="nosort"/>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="odd">
-                                        <td align="left"><strong>Id</strong></td>
-                                        <td align="left">%(cMagicReplacementString_UniqueId)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_FilePath_label)s</strong></td>
-                                        <td align="left">%(aFilePath)s</td>
-                                    </tr>
-                                    <tr class="even">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Time_label)s</strong></td>
-                                        <td align="left">%(cMagicReplacementString_Milliseconds)s ms</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Len_label)s</strong></td>
-                                        <td align="left">%(cMagicReplacementString_Len)s chars</td>
-                                    </tr>
-                                    <tr class="even">
-                                        <td align="left"><strong>%(ModelDDvlPlone_User_label)s</strong></td>
-                                        <td align="left">%(unMemberId)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Date_label)s</strong></td>
-                                        <td align="left">%(cMagicReplacementString_Date)s</td>
-                                    </tr>
-                                    <tr class="even">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Project_label)s</strong></td>
-                                        <td align="left">%(aProjectName)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Language_label)s</strong></td>
-                                        <td align="left">%(aNegotiatedLanguage)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(title_label)s</strong></td>
-                                        <td align="left">%(unTitle)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_MetaType_label)s</strong></td>
-                                        <td align="left">%(unMetaType)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_PortalType_label)s</strong></td>
-                                        <td align="left">%(unPortalType)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_ArchetypeName_label)s</strong></td>
-                                        <td align="left">%(unArchetypeName)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_ElementId_label)s</strong></td>
-                                        <td align="left">%(unElementId)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_Path_label)s</strong></td>
-                                        <td align="left">%(unElementPath)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_URL_label)s</strong></td>
-                                        <td align="left">%(unElementURL)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_UID_label)s</strong></td>
-                                        <td align="left">%(unElementUID)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_View_label)s</strong></td>
-                                        <td align="left">%(aViewName)s</td>
-                                    </tr>
-                                    <tr class="odd">
-                                        <td align="left"><strong>%(ModelDDvlPlone_RoleKind_label)s</strong></td>
-                                        <td align="left">%(aRoleKindToIndex)s</td>
-                                    </tr>
-                """ % aCacheEntryValuesDict
-                    
-                           
-                if unRelationCursorName and not ( unRelationCursorName == cNoRelationCursorName):
-                    unRenderedCacheInfo = u"""
-                                    %s
-                                    <tr class="even">
-                                        <td align="left"><strong>%s</strong></td>
-                                        <td align="left">%s</td>
-                                    </tr>
-                    """ % ( 
-                        unRenderedCacheInfo,
-                        someTranslations[ 'ModelDDvlPlone_Relation_label'], 
-                        unRelationCursorName,
-                    )
-                    
-                if unCurrentElementUID and not ( unCurrentElementUID == cNoCurrentElementUID):
-                    unRenderedCacheInfo = u"""
-                                    %s
-                                    <tr class="%s">
-                                        <td align="left"><strong>%s</strong></td>
-                                        <td align="left">%s</td>
-                                    </tr>
-                    """ % ( 
-                        unRenderedCacheInfo,
-                        (( unRelationCursorName and not ( unRelationCursorName == cNoRelationCursorName)) and 'odd') or 'even',
-                        someTranslations[  'ModelDDvlPlone_RelatedElement_label'],
-                        unCurrentElementUID,
-                    )
-                    
-                unRenderedCacheInfo = u"""
-                                    %s
-                                </tbody>
-                            </table>
-                            <br/>   
-                        </dd>
-                    </dl>
-                    <!-- ######### End collapsible  section ######### --> 
-                """  % unRenderedCacheInfo
-                
-                
-                
-            
-            
-            # ###########################################################
-            """Render template, because it was not found (valid) in the cache. This may take some significant time. Status of cache may have changed since.
-            
-            """
-            
-            
-            unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-            
-            aEndMillis       = fMillisecondsNow()
-            unosMilliseconds = aEndMillis - aBeginMillis
-                    
-            unRenderedTemplateWithCacheInfo = unRenderedTemplate
-            
-      
-
-             
-            # ###########################################################
-            """If so configured: Append a caching information collapsible section to the rendered template HTML.
-            
-            """
-            if not( aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]):
-                unRenderedTemplateWithCacheInfo = unRenderedTemplate[:]
-            
-            else:
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_UniqueId,     str( unCacheEntryUniqueId))
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Milliseconds, fStrGrp( unosMilliseconds))
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Len,          fStrGrp( len( unRenderedTemplate)))
-                unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Date,         fMillisecondsToDateTime( aEndMillis).rfc822())
-                   
-                if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
-                    unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedTemplate, unRenderedCacheInfo,)
-                else:
-                    unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedCacheInfo, unRenderedTemplate,)
-                
-            
-                    
-                    
-                    
-             # ###########################################################
-            """Add a comment with the rendering time at the top of the rendered HTML, to be used when reading from disk to determine if the HTML on disk has expired or can be reused.
-            
-            """
-            unRenderingMillisecondsHTMLComment = """<!-- RenderMilliseconds=%s -->""" % aEndMillis
-            unRenderedTemplateWithCacheInfo = '%s\n%s' % ( unRenderingMillisecondsHTMLComment, unRenderedTemplateWithCacheInfo,)
-            
-            
-                  
-            
-            # ###########################################################
-            """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
-            
-            """
-            someFilesToDelete = [ ]
-            try:
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                                        
-                  
-                
-                # ###########################################################
-                """Check if somebody messed with the promised cache entry, so it is not being updated here.
-                
-                """
-                if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
-                    
-                    unMillisecondsNow   = fMillisecondsNow()
-
-                    unExistingOrPromiseCacheEntry.vHTML            = unRenderedTemplateWithCacheInfo
-                    unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
-                    unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
-                    unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
-                        
-                    unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
-                                        
-                    unStatisticsUpdate = {
-                        cCacheStatistics_TotalRenderings:  1,
-                        cCacheStatistics_TotalCharsCached: len( unExistingOrPromiseCacheEntry.vHTML),
-                    }
-                    self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
-                    
-                    # ###########################################################
-                    """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
-                    
-                    """
-                    self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, aCacheName, )
-
-                
-                
-                
-            finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
+        someTranslations = { }
+        someDomainsStringsAndDefaults = [
+            [ 'ModelDDvlPlone', [    
+                [ 'ModelDDvlPlone_JustCached',                       'Just Cached-',],
+                [ 'ModelDDvlPlone_Time_label',                       'Date-',], 
+                [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
+                [ 'ModelDDvlPlone_User_label',                       'User-',], 
+                [ 'ModelDDvlPlone_Date_label',                       'Date-',], 
+                [ 'ModelDDvlPlone_Project_label',                    'Project-',], 
+                [ 'ModelDDvlPlone_Language_label',                   'Language-',], 
+                [ 'ModelDDvlPlone_View_label',                       'View-',], 
+                [ 'ModelDDvlPlone_RoleKind_label',                   'Role kind-',], 
+                [ 'ModelDDvlPlone_FilePath_label',                   'File-',], 
+                [ 'ModelDDvlPlone_Path_label',                       'Path-',], 
+                [ 'ModelDDvlPlone_MetaType_label',                   'MetaType-',], 
+                [ 'ModelDDvlPlone_PortalType_label',                 'PortalType-',], 
+                [ 'ModelDDvlPlone_ArchetypeName_label',              'ArchetypeName-',], 
+                [ 'ModelDDvlPlone_ElementId_label',                  'ElementId-',], 
+                [ 'ModelDDvlPlone_UID_label',                        'UID-',], 
+                [ 'ModelDDvlPlone_URL_label',                        'URL-',], 
+                [ 'ModelDDvlPlone_Len_label',                        'Len-',], 
+                [ 'title_label',                                     'Title-',], 
+                [ 'ModelDDvlPlone_Relation_label',                   'Relation-'],
+                [ 'ModelDDvlPlone_ShowNoFromCacheLink_label',        'Show generated-',], 
+                [ 'ModelDDvlPlone_FlushFromCacheLink_label',         'Flush from cache-',], 
+                [ 'ModelDDvlPlone_FlushFromDiskCacheLink_label',     'Flush from diskcache-',], 
+                [ 'ModelDDvlPlone_RelatedElement_label',             'Related Element-',],
+            ]],                                                      
+        ]        
+        theModelDDvlPloneTool.fTranslateI18NManyIntoDict( theContextualObject, someDomainsStringsAndDefaults, someTranslations)
                 
 
-
-                
-            theVariables[ 'unTemplateToCache'] = unRenderedTemplateWithCacheInfo[:]
-                
     
+        
+        # ###########################################################
+        """Render a caching information collapsible section to append to the rendered template HTML.
+            
+        """
+        unRenderedCacheInfo = u''
+        if aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]:
+            
             # ###########################################################
-            """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
+            """Prepare internationalized strings, and info values.
+                
+            """
+            unPagina = ''
+            if aViewName in [ 'Textual', 'Textual_NoHeaderNoFooter',]:
+                unPagina = '/'
+            elif aViewName in [ 'Tabular', 'Tabular_NoHeaderNoFooter',]:
+                unPagina = '/Tabular/'
+            elif aViewName.endswith( '_NoHeaderNoFooter'):
+                unPagina = '/%s/' % aViewName[: 0 - len( '_NoHeaderNoFooter')]
+            else:
+                unPagina = '/%s/' % aViewName
+
+            
+        
+        
+        # ###########################################################
+        """Render template or invoke callable with HTML result, because it was not found (valid) in the cache. This may take some significant time. Status of cache may have changed since.
+        
+        """
+        unRenderedTemplate = self._fInvokeCallable_Or_RenderTemplate( 
+            theModelDDvlPloneTool=theModelDDvlPloneTool, 
+            theContextualObject  =theContextualObject, 
+            theTemplateName      =theTemplateName, 
+            theAdditionalParams =theAdditionalParams,
+        )
+        
+        
+        aEndMillis       = fMillisecondsNow()
+        unosMilliseconds = aEndMillis - aBeginMillis
+                
+        unRenderedTemplateWithCacheInfo = unRenderedTemplate
+        
+  
+
+         
+        # ###########################################################
+        """If so configured: Append a caching information collapsible section to the rendered template HTML.
+        
+        """
+        if not( aDisplayCacheHitInformation in [ cDisplayCacheHitInformation_Top, cDisplayCacheHitInformation_Bottom,]):
+            unRenderedTemplateWithCacheInfo = unRenderedTemplate[:]
+        
+        else:
+            
+
+            aCacheEntryValuesDict = someTranslations.copy()
+            aCacheEntryValuesDict.update( {
+                'cMagicReplacementString_CacheCode':               cMagicReplacementString_CacheCode,
+                'cMagicReplacementString_TimeToRetrieve':          cMagicReplacementString_TimeToRetrieve,
+                'cMagicReplacementString_Milliseconds':            cMagicReplacementString_Milliseconds,
+                'cMagicReplacementString_Len':                     cMagicReplacementString_Len,
+                'cMagicReplacementString_Date':                    cMagicReplacementString_Date,
+                'cMagicReplacementString_CollapsibleSectionTitle': cMagicReplacementString_CollapsibleSectionTitle,
+                'cMagicReplacementString_UniqueId':                cMagicReplacementString_UniqueId,                    
+                'aProjectName':                  aProjectName,
+                'aNegotiatedLanguage':           aNegotiatedLanguage,
+                'unTitle':                       theModelDDvlPloneTool.fAsUnicode( theContextualObject, theContextualObject.Title()),
+                'unCacheId':                     unCacheEntryUniqueId,
+                'unElementURL':                  unElementURL,
+                'unElementUID':                  unElementUID,
+                'unElementPath':                 unElementPath,
+                'aViewName':                     aViewName,
+                'aRoleKindToIndex':              aRoleKindToIndex,
+                'unMemberId':                    unMemberId,
+                'unPagina':                      unPagina,
+                'aFilePath':                     aFilePath,
+                'unMetaType':                    unElementMetaType,
+                'unPortalType':                  unElementPortalType,
+                'unArchetypeName':               unElementArchetypeName,
+                'unElementId':                   unElementId,
+            })                   
+                
+                        
+            
+            unRenderedCacheInfo = u"""
+                <!-- ######### Start collapsible  section ######### 
+                    # ##################################################################################################
+                    With placeholder for the title of the section (to be later set as Just Rendered, Just Cached, Cached 
+                --> 
+                <dl id="cid_MDDCachedElementView" class="collapsible inline collapsedInlineCollapsible" >
+                    <dt class="collapsibleHeader">
+                        <span>%(cMagicReplacementString_CollapsibleSectionTitle)s %(cMagicReplacementString_TimeToRetrieve)s</span>                        
+                    </dt>
+                    <dd class="collapsibleContent">
+                        <br/>
+                        <form style="display: inline" action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theNoCache"   value="on" />
+                            <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="submit" value="%(ModelDDvlPlone_ShowNoFromCacheLink_label)s" 
+                                name="theCacheControl" 
+                                id="cid_MDDShowNoFromCache_Button" 
+                                style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
+                        </form>
+                        &emsp;
+                        <form style="display: inline"  action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theNoCache"   value="on" />
+                            <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="submit" value="%(ModelDDvlPlone_FlushFromCacheLink_label)s" 
+                                name="theCacheControl" 
+                                id="cid_MDDFlushCache_Button" 
+                                style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
+                        </form>
+                        &emsp;
+                        <form  style="display: inline"  action="%(unElementURL)s%(unPagina)s" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="theNoCache"   value="on" />
+                            <input type="hidden" name="theNoCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="hidden" name="theFlushCacheCode" value="%(cMagicReplacementString_CacheCode)s" />
+                            <input type="hidden" name="theFlushDiskCache" value="1" />
+                            <input type="submit" value="%(ModelDDvlPlone_FlushFromDiskCacheLink_label)s" 
+                                name="theCacheControl" 
+                                id="cid_MDDFlushDiskCacheCache_Button" 
+                                style="color: Red; font-size: 8pt; font-style: italic; font-weight: 300" />
+                        </form>
+                        <br/>
+                        <table class="listing" ">
+                            <thead>
+                                <tr>
+                                    <th class="nosort"/>
+                                    <th class="nosort"/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="odd">
+                                    <td align="left"><strong>Id</strong></td>
+                                    <td align="left">%(cMagicReplacementString_UniqueId)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_FilePath_label)s</strong></td>
+                                    <td align="left">%(aFilePath)s</td>
+                                </tr>
+                                <tr class="even">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Time_label)s</strong></td>
+                                    <td align="left">%(cMagicReplacementString_Milliseconds)s ms</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Len_label)s</strong></td>
+                                    <td align="left">%(cMagicReplacementString_Len)s chars</td>
+                                </tr>
+                                <tr class="even">
+                                    <td align="left"><strong>%(ModelDDvlPlone_User_label)s</strong></td>
+                                    <td align="left">%(unMemberId)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Date_label)s</strong></td>
+                                    <td align="left">%(cMagicReplacementString_Date)s</td>
+                                </tr>
+                                <tr class="even">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Project_label)s</strong></td>
+                                    <td align="left">%(aProjectName)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Language_label)s</strong></td>
+                                    <td align="left">%(aNegotiatedLanguage)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(title_label)s</strong></td>
+                                    <td align="left">%(unTitle)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_MetaType_label)s</strong></td>
+                                    <td align="left">%(unMetaType)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_PortalType_label)s</strong></td>
+                                    <td align="left">%(unPortalType)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_ArchetypeName_label)s</strong></td>
+                                    <td align="left">%(unArchetypeName)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_ElementId_label)s</strong></td>
+                                    <td align="left">%(unElementId)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_Path_label)s</strong></td>
+                                    <td align="left">%(unElementPath)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_URL_label)s</strong></td>
+                                    <td align="left">%(unElementURL)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_UID_label)s</strong></td>
+                                    <td align="left">%(unElementUID)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_View_label)s</strong></td>
+                                    <td align="left">%(aViewName)s</td>
+                                </tr>
+                                <tr class="odd">
+                                    <td align="left"><strong>%(ModelDDvlPlone_RoleKind_label)s</strong></td>
+                                    <td align="left">%(aRoleKindToIndex)s</td>
+                                </tr>
+            """ % aCacheEntryValuesDict
+                
+                       
+            if unRelationCursorName and not ( unRelationCursorName == cNoRelationCursorName):
+                unRenderedCacheInfo = u"""
+                                %s
+                                <tr class="even">
+                                    <td align="left"><strong>%s</strong></td>
+                                    <td align="left">%s</td>
+                                </tr>
+                """ % ( 
+                    unRenderedCacheInfo,
+                    someTranslations[ 'ModelDDvlPlone_Relation_label'], 
+                    unRelationCursorName,
+                )
+                
+            if unCurrentElementUID and not ( unCurrentElementUID == cNoCurrentElementUID):
+                unRenderedCacheInfo = u"""
+                                %s
+                                <tr class="%s">
+                                    <td align="left"><strong>%s</strong></td>
+                                    <td align="left">%s</td>
+                                </tr>
+                """ % ( 
+                    unRenderedCacheInfo,
+                    (( unRelationCursorName and not ( unRelationCursorName == cNoRelationCursorName)) and 'odd') or 'even',
+                    someTranslations[  'ModelDDvlPlone_RelatedElement_label'],
+                    unCurrentElementUID,
+                )
+                
+            unRenderedCacheInfo = u"""
+                                %s
+                            </tbody>
+                        </table>
+                        <br/>   
+                    </dd>
+                </dl>
+                <!-- ######### End collapsible  section ######### --> 
+            """  % unRenderedCacheInfo
+            
+            
+                        
+            
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_UniqueId,     str( unCacheEntryUniqueId))
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Milliseconds, fStrGrp( unosMilliseconds))
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Len,          fStrGrp( len( unRenderedTemplate)))
+            unRenderedCacheInfo = unRenderedCacheInfo.replace( cMagicReplacementString_Date,         fMillisecondsToDateTime( aEndMillis).rfc822())
+               
+            if aDisplayCacheHitInformation == cDisplayCacheHitInformation_Bottom:          
+                unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedTemplate, unRenderedCacheInfo,)
+            else:
+                unRenderedTemplateWithCacheInfo = u"%s\n<br/>\n%s" % ( unRenderedCacheInfo, unRenderedTemplate,)
+            
+        
+                
+                
+                
+         # ###########################################################
+        """Add a comment with the rendering time at the top of the rendered HTML, to be used when reading from disk to determine if the HTML on disk has expired or can be reused.
+        
+        """
+        unRenderingMillisecondsHTMLComment = """<!-- RenderMilliseconds=%s -->""" % aEndMillis
+        unRenderedTemplateWithCacheInfo = '%s\n%s' % ( unRenderingMillisecondsHTMLComment, unRenderedTemplateWithCacheInfo,)
+        
+        
+              
+        
+        # ###########################################################
+        """CRITICAL SECTION to register in the promised cache entry the HTML result of rendering the template. 
+        
+        """
+        someFilesToDelete = [ ]
+        try:
+            # #################
+            """MUTEX LOCK. 
             
             """
-            unRenderedTemplateToReturn = unRenderedTemplateWithCacheInfo.replace(    
-                '<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
-                '<span>%s' % someTranslations[ 'ModelDDvlPlone_JustCached'],
-            )   
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             
-            unDurationString = '%d ms' % unosMilliseconds
+                                    
+              
             
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
-                u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
-                u'%s</span>' % unDurationString
-            )
+            # ###########################################################
+            """Check if somebody messed with the promised cache entry, so it is not being updated here.
+            
+            """
+            if ( unPromiseMade == unExistingOrPromiseCacheEntry.vPromise):
+                
+                unMillisecondsNow   = fMillisecondsNow()
 
-            unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
-               cMagicReplacementString_CacheCode, 
-               '%d' % aEndMillis
-            )
-            
-            theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
-            
-            return [ True, unRenderedTemplateToReturnWithDuration,]
-        
-        except:
-            raise
+                unExistingOrPromiseCacheEntry.vHTML            = unRenderedTemplateWithCacheInfo
+                unExistingOrPromiseCacheEntry.vDateMillis      = unMillisecondsNow
+                unExistingOrPromiseCacheEntry.vMilliseconds    = unosMilliseconds
+                unExistingOrPromiseCacheEntry.vLastHit         = unMillisecondsNow
+                    
+                unExistingOrPromiseCacheEntry.vPromise         = cCacheEntry_PromiseFulfilled_Sentinel
+                                    
+                unStatisticsUpdate = {
+                    cCacheStatistics_TotalRenderings:  1,
+                    cCacheStatistics_TotalCharsCached: len( unExistingOrPromiseCacheEntry.vHTML),
+                }
+                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
+                
+                # ###########################################################
+                """MEMORY consumed maintenance: Release cached templates expired, and if memory used exceeds the maximum configured for cache, by flushing older cached entries until the amount of memory used is within the configured maximum parameter.
+                
+                """
+                self._pFlushCacheEntriesToReduceMemoryUsed( theModelDDvlPloneTool, theContextualObject, aCacheName, )
 
             
-        
-        
-        
-        
-        
-        
-        
-        
+            
+            
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            
 
 
             
+        theVariables[ 'unTemplateToCache'] = unRenderedTemplateWithCacheInfo[:]
+            
+
+        # ###########################################################
+        """If the page was rendered with cache configuration parameter vDisplayCacheHitInformation set to non null value, Indicate to the user that this page has just been rendered, without causing side effects to the chached template rendering result.
+        
+        """
+        unRenderedTemplateToReturn = unRenderedTemplateWithCacheInfo.replace(    
+            '<span>%s' % cMagicReplacementString_CollapsibleSectionTitle,
+            '<span>%s' % someTranslations[ 'ModelDDvlPlone_JustCached'],
+        )   
+        
+        unDurationString = '%d ms' % unosMilliseconds
+        
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturn.replace( 
+            u'%s</span>' % cMagicReplacementString_TimeToRetrieve, 
+            u'%s</span>' % unDurationString
+        )
+
+        unRenderedTemplateToReturnWithDuration = unRenderedTemplateToReturnWithDuration.replace( 
+           cMagicReplacementString_CacheCode, 
+           '%d' % aEndMillis
+        )
+        
+        theVariables[ 'unTemplateToReturn'] = unRenderedTemplateToReturnWithDuration
+        
+        aRenderResult.update( {
+            'status':            cRenderStatus_Completed, 
+            'rendered_html':     unRenderedTemplateToReturnWithDuration,
+        })                                    
+        return aRenderResult
+        
+        
+        
+        
+        
+        
+   
+    security.declarePrivate( '_fInvokeCallable_Or_RenderTemplate')
+    def _fInvokeCallable_Or_RenderTemplate(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None):
+        """Invoke callable or Render template or returning the HTML result.
+        
+        """
+        
+        aCallable      = None
+        aCallableParms = {}
+        aCallableCtxt  = None
+        if theAdditionalParams:
+            aCallable = theAdditionalParams.get( 'callable', None)
+            if aCallable:
+                aCallableCtxt  = theAdditionalParams.get( 'callable_ctxt', {})
+                aCallableParms = theAdditionalParams.get( 'callable_parms', {})
+                
+                
+        unRenderedTemplate = u''
+        if aCallable:
+            unRenderedTemplate = aCallable( aCallableCtxt, aCallableParms)
+        else:
+            unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
+
+        return unRenderedTemplate
+    
+    
             
 
  
     
     security.declarePrivate( '_fRenderTemplateOrCachedForElement_Phase_StoreDisk')
-    def _fRenderTemplateOrCachedForElement_Phase_StoreDisk(self, theModelDDvlPloneTool, theContextualObject, theTemplateName, theAdditionalParams=None, theVariables={}):
+    def _fRenderTemplateOrCachedForElement_Phase_StoreDisk(self, 
+        theModelDDvlPloneTool, 
+        theContextualObject, 
+        theTemplateName, 
+        theAdditionalParams=None, 
+        theVariables={}):
         """Store the rendered HTML on disc, for the project, the root UID, for the currently negotiated language, modulus of element UID, element uid, view, relation , current related UID, and role/user id.
         
         """
@@ -7696,237 +8422,226 @@ class ModelDDvlPloneTool_Cache:
             return False
         
         
-        
-        
+  
+        # ###########################################################
+        """Try to access the directory containing the element independent files with cached HTML.
+            
+        """
+        if not aCacheDiskPath:
+            return False
+
+        aCacheDiskPathExist = False
         try:
-            # ###########################################################
-            """Try to access the directory containing the element independent files with cached HTML.
-                
-            """
-            if not aCacheDiskPath:
-                return False
- 
-            aCacheDiskPathExist = False
+            aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
+        except:
+            None
+        if not aCacheDiskPathExist:
+            try:
+                os.makedirs(aCacheDiskPath)
+            except:
+                None
             try:
                 aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
             except:
                 None
             if not aCacheDiskPathExist:
-                try:
-                    os.makedirs(aCacheDiskPath)
-                except:
-                    None
-                try:
-                    aCacheDiskPathExist = os.path.exists( aCacheDiskPath)
-                except:
-                    None
-                if not aCacheDiskPathExist:
-                    return [ False, None]
+                return False
+        
+        
+        # ###########################################################
+        """Access directories, or create as needed, for project, root UID, language, the modulus 100 of the checksum of element UID , element UID, view,  relation, relation current UID, and role/userId.
             
-            
-            # ###########################################################
-            """Access directories, or create as needed, for project, root UID, language, the modulus 100 of the checksum of element UID , element UID, view,  relation, relation current UID, and role/userId.
-                
-            """
-            aProjectPath = os.path.join( aCacheDiskPath, aProjectName)
-            aProjectPathExist = False
+        """
+        aProjectPath = os.path.join( aCacheDiskPath, aProjectName)
+        aProjectPathExist = False
+        try:
+            aProjectPathExist = os.path.exists( aProjectPath)
+        except:
+            None
+        if not aProjectPathExist:
+            try:
+                os.mkdir( aProjectPath, cCacheDisk_ForElements_FolderCreateMode_Project)
+            except:
+                None
             try:
                 aProjectPathExist = os.path.exists( aProjectPath)
             except:
                 None
             if not aProjectPathExist:
-                try:
-                    os.mkdir( aProjectPath, cCacheDisk_ForElements_FolderCreateMode_Project)
-                except:
-                    None
-                try:
-                    aProjectPathExist = os.path.exists( aProjectPath)
-                except:
-                    None
-                if not aProjectPathExist:
-                    return False
+                return False
+        
             
-                
-                
-            aRootUIDPath = os.path.join( aProjectPath, unRootElementUID)
-            aRootUIDPathExist = False
+            
+        aRootUIDPath = os.path.join( aProjectPath, unRootElementUID)
+        aRootUIDPathExist = False
+        try:
+            aRootUIDPathExist = os.path.exists( aRootUIDPath)
+        except:
+            None
+        if not aRootUIDPathExist:
+            try:
+                os.mkdir( aRootUIDPath, cCacheDisk_ForElements_FolderCreateMode_RootUID)
+            except:
+                None
             try:
                 aRootUIDPathExist = os.path.exists( aRootUIDPath)
             except:
                 None
             if not aRootUIDPathExist:
-                try:
-                    os.mkdir( aRootUIDPath, cCacheDisk_ForElements_FolderCreateMode_RootUID)
-                except:
-                    None
-                try:
-                    aRootUIDPathExist = os.path.exists( aRootUIDPath)
-                except:
-                    None
-                if not aRootUIDPathExist:
-                    return False
-                            
-                
-                
-                
-            anElementUIDModulus = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
-                
-            aElementUIDModulusPath = os.path.join( aRootUIDPath, anElementUIDModulus)
-            aElementUIDModulusPathExist = False
+                return False
+                        
+            
+            
+            
+        anElementUIDModulus = self.fModulusUID( unElementUID, cCacheDisk_UIDModulus)
+            
+        aElementUIDModulusPath = os.path.join( aRootUIDPath, anElementUIDModulus)
+        aElementUIDModulusPathExist = False
+        try:
+            aElementUIDModulusPathExist = os.path.exists( aElementUIDModulusPath)
+        except:
+            None
+        if not aElementUIDModulusPathExist:
+            try:
+                os.mkdir( aElementUIDModulusPath, cCacheDisk_ForElements_FolderCreateMode_ElementUIDModulus)
+            except:
+                None
             try:
                 aElementUIDModulusPathExist = os.path.exists( aElementUIDModulusPath)
             except:
                 None
             if not aElementUIDModulusPathExist:
-                try:
-                    os.mkdir( aElementUIDModulusPath, cCacheDisk_ForElements_FolderCreateMode_ElementUIDModulus)
-                except:
-                    None
-                try:
-                    aElementUIDModulusPathExist = os.path.exists( aElementUIDModulusPath)
-                except:
-                    None
-                if not aElementUIDModulusPathExist:
-                    return False
+                return False
+        
+
             
-   
-                
-                
-            aElementUIDPath = os.path.join( aElementUIDModulusPath, unElementUID)
-            aElementUIDPathExist = False
+            
+        aElementUIDPath = os.path.join( aElementUIDModulusPath, unElementUID)
+        aElementUIDPathExist = False
+        try:
+            aElementUIDPathExist = os.path.exists( aElementUIDPath)
+        except:
+            None
+        if not aElementUIDPathExist:
+            try:
+                os.mkdir( aElementUIDPath, cCacheDisk_ForElements_FolderCreateMode_ElementUID)
+            except:
+                None
             try:
                 aElementUIDPathExist = os.path.exists( aElementUIDPath)
             except:
                 None
             if not aElementUIDPathExist:
-                try:
-                    os.mkdir( aElementUIDPath, cCacheDisk_ForElements_FolderCreateMode_ElementUID)
-                except:
-                    None
-                try:
-                    aElementUIDPathExist = os.path.exists( aElementUIDPath)
-                except:
-                    None
-                if not aElementUIDPathExist:
-                    return False
-            
-   
-               
+                return False
+        
 
-            aLanguagePath = os.path.join( aElementUIDPath, aNegotiatedLanguage)
-            aLanguagePathExist = False
+           
+
+        aLanguagePath = os.path.join( aElementUIDPath, aNegotiatedLanguage)
+        aLanguagePathExist = False
+        try:
+            aLanguagePathExist = os.path.exists( aLanguagePath)
+        except:
+            None
+        if not aLanguagePathExist:
+            try:
+                os.mkdir( aLanguagePath, cCacheDisk_ForElements_FolderCreateMode_Language)
+            except:
+                None
             try:
                 aLanguagePathExist = os.path.exists( aLanguagePath)
             except:
                 None
             if not aLanguagePathExist:
-                try:
-                    os.mkdir( aLanguagePath, cCacheDisk_ForElements_FolderCreateMode_Language)
-                except:
-                    None
-                try:
-                    aLanguagePathExist = os.path.exists( aLanguagePath)
-                except:
-                    None
-                if not aLanguagePathExist:
-                    return False
-                            
-                 
+                return False
+                        
              
-            # ###########################################################
-            """Write the page on disk cache file.
-                
-            """
-            aViewFileName = '%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, aRoleKindToIndex, cCacheDiskFilePostfix)
-            aViewPath = os.path.join( aLanguagePath, aViewFileName)
- 
-            aWritten = False
-            try:
-                aViewFile  = None
-                try:
-                    aViewFile = open( aViewPath, cCacheDisk_ForElements_FileOpenWriteMode_View, cCacheDisk_ForElements_FileOpenWriteBuffering_View)
-                    aViewFile.write( unTemplateToCache)
-                finally:
-                    if aViewFile:
-                        aViewFile.close()
-                aWritten = True
-            except IOError:
-                return False
-      
-            if not aWritten:
-                return False
+         
+        # ###########################################################
+        """Write the page on disk cache file.
             
-            
+        """
+        aViewFileName = '%s-%s-%s-%s%s' % ( aViewName, unRelationCursorName, unCurrentElementUID, aRoleKindToIndex, cCacheDiskFilePostfix)
+        aViewPath = os.path.join( aLanguagePath, aViewFileName)
 
-
-            # ###########################################################
-            """Update statistics of written file and chars.
-                
-            """
+        aWritten = False
+        try:
+            aViewFile  = None
             try:
-                # #################
-                """MUTEX LOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                
-                unExistingOrPromiseCacheEntry.vFilePath        = aViewPath
-                unExistingOrPromiseCacheEntry.vDirectory       = aElementUIDPath
-                
-                    
-                unStatisticsUpdate = {
-                    cCacheStatistics_TotalFilesWritten:   1,
-                    cCacheStatistics_TotalCharsWritten:   len( unTemplateToCache),
-                }
-                self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
- 
-            
+                aViewFile = open( aViewPath, cCacheDisk_ForElements_FileOpenWriteMode_View, cCacheDisk_ForElements_FileOpenWriteBuffering_View)
+                aViewFile.write( unTemplateToCache)
             finally:
-                # #################
-                """MUTEX UNLOCK. 
-                
-                """
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
-                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            
-            
-            
-            return True
+                if aViewFile:
+                    aViewFile.close()
+            aWritten = True
+        except IOError:
+            return False
+  
+        if not aWritten:
+            return False
         
-        except:
-            raise
-            #unaExceptionInfo = sys.exc_info()
-            #unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
-            
-            #unInformeExcepcion = 'Exception during access to a page from cache of rendered templates' 
-            #unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-            #unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-            #unInformeExcepcion += unaExceptionFormattedTraceback   
-            
-            #if cLogExceptions:
-                #logging.getLogger( 'ModelDDvlPlone').error( unInformeExcepcion)
-            
-            #unRenderedTemplate = theModelDDvlPloneTool.fRenderTemplate( theContextualObject, theTemplateName)
-            
-            #unRenderedTemplateToReturn = u'%s\n<br/><br/><font size="1"><strong>%s</strong></font>' % ( unRenderedTemplate, theModelDDvlPloneTool.fTranslateI18N( theContextualObject, 'ModelDDvlPlone', 'ModelDDvlPlone_ExceptionRetrievingPageFromCachedRenderedTemplate', 'Exception rendering page-'), unExceptionReport)
         
-            #aEndMillis = int( time() * 1000)
-            #unRenderedTemplateToReturn = '%s\n<br/>%d ms<br/>' % ( unRenderedTemplateToReturn, aEndMillis - aBeginMillis,)
 
-            #return unRenderedTemplateToReturn
+
+        # ###########################################################
+        """Update statistics of written file and chars.
+            
+        """
+        try:
+            # #################
+            """MUTEX LOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pAcquireCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
+            unExistingOrPromiseCacheEntry.vFilePath        = aViewPath
+            unExistingOrPromiseCacheEntry.vDirectory       = aElementUIDPath
+            
                 
+            unStatisticsUpdate = {
+                cCacheStatistics_TotalFilesWritten:   1,
+                cCacheStatistics_TotalCharsWritten:   len( unTemplateToCache),
+            }
+            self.pUpdateCacheStatistics( theModelDDvlPloneTool, theContextualObject, aCacheName, unStatisticsUpdate)
+
+        
+        finally:
+            # #################
+            """MUTEX UNLOCK. 
+            
+            """
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            self.pReleaseCacheLock( theModelDDvlPloneTool, theContextualObject,)
+            # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        
+        
+        
+        return True
+    
+
+        
+        
+        
+        
+        
+        
        
+    security.declarePrivate( 'fRenderHandlers_ForElement')
+    def fRenderHandlers_ForElement(self, theModelDDvlPloneTool, theContextualObject,):
+        """methods to handle the rendering phases for cache entries associated with specific element.
+        """
+        someHandlers = {
+            'memory':  self._fRenderTemplateOrCachedForElement_Phase_TryMemory,
+            'disc':    self._fRenderTemplateOrCachedForElement_Phase_TryDisk,
+            'render':  self._fRenderTemplateOrCachedForElement_Phase_Render,
+            'store':   self._fRenderTemplateOrCachedForElement_Phase_StoreDisk,
+        }
+        return someHandlers
+    
+        
                     
-        
-        
-        
-        
-        
-        
-        
         
         
         

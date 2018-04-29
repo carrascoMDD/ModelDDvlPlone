@@ -35,6 +35,60 @@
 
     <div metal:define-macro="tTabularWithActions" >
                 
+		<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" /> 
+		
+		<tal:block tal:define="pMDDClearClipboard request/theClearClipboard | string:"
+			tal:condition="pMDDClearClipboard">
+			<tal:block tal:define="
+				pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+				unosArgs python: { 
+					'theTimeProfilingResults'     :None,
+					'theContextualElement'        :here, 
+					'theAdditionalParams'         :None, };    
+				void python: here.ModelDDvlPlone_tool.pClearClipboard( **unosArgs);
+				pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" /> 
+		</tal:block>		
+		
+		
+		<tal:block tal:define="pPaginaRefrescar string:Tabular">
+        
+			<metal:block metal:use-macro="here/MDDInspectClipboard_inner/macros/tClipboardCollapsibleSection" /> 
+		</tal:block>
+		
+		<tal:block 
+			tal:define="
+				pFlushCacheCode request/theFlushCacheCode | string:;pNoCacheCode request/theNoCacheCode | string:;
+				pFlushDiskCache          request/theFlushDiskCache | string:;
+				pNoCache                 request/theNoCache | string:;pNoCacheAllowed  python: pNoCache and pNoCacheCode and here.ModelDDvlPlone_tool.fNoCacheIdAllowsRender( here, pNoCacheCode, 'Tabular_NoHeaderNoFooter',)" >
+				
+			<tal:block tal:condition="pFlushCacheCode">
+				<tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.fFlushCachedTemplateForElement( here, pFlushCacheCode,  'Tabular_NoHeaderNoFooter', pFlushDiskCache)" />
+			</tal:block>
+							
+			<tal:block tal:condition="pNoCacheAllowed" >
+				<div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate(here, 'Tabular_NoHeaderNoFooter' )" />
+			</tal:block>
+				
+			<tal:block tal:condition="not: pNoCacheAllowed" tal:define="pPaginaRefrescar string:Tabular">
+					
+				<div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplateOrCachedForElement(here, 'Tabular_NoHeaderNoFooter' )" />
+			</tal:block>
+		</tal:block>
+
+		<div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
+       
+	</div>
+	
+	
+	
+	
+	
+	
+	
+
+
+    <div metal:define-macro="tTabularWithActions_ORIG" >
+                
 	
         <tal:block tal:define="global pUseMethodsNotTAL python: True" />
 		
@@ -180,12 +234,7 @@
 	
 	
 	
-	
-	
-	
-
-
-    <div metal:define-macro="tTabular_Actions" >
+    <div metal:define-macro="tTabular_Actions_UNUSED" >
 
 		<tal:block tal:define="
 			pPasteRequested      pPasteRequested     | nothing; 
@@ -227,6 +276,7 @@
 				<tal:block tal:define="
 					pForm request/form;
 					pGroupAction         python: pForm.get( 'theGroupAction', '');
+					pReferenceFieldName  python: pForm.get( 'theReferenceFieldName', '');
 					pGroupUIDs           python: pForm.get( 'theUIDs', []);
 					pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
 					pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
@@ -235,6 +285,7 @@
 						'theContainerObject'      :here, 
 						'theGroupAction'          :pGroupAction,
 						'theGroupUIDs'            :pGroupUIDs,
+						'theReferenceFieldName'   :pReferenceFieldName,
 						'theAdditionalParams'     :None, }; 
 					pGroupActionReport python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" >
 					<tal:block tal:condition="python: pGroupAction == 'Copy'" >

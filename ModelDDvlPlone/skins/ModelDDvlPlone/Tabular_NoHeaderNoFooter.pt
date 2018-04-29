@@ -28,4 +28,52 @@
 #
 </tal:block>
 
+<tal:block tal:replace="nothing">
 <metal:block metal:use-macro="here/Tabular_inner/macros/tTabularInner" />
+</tal:block>
+
+<tal:block 
+	tal:define="
+		pPasteRequested             pPasteRequested | python: False;
+		global pPerformanceAnalysis         pPerformanceAnalysis | python: {};
+		pViewParms python: {
+			'theModelDDvlPloneTool': here.ModelDDvlPlone_tool,
+			'thePerformanceAnalysis':pPerformanceAnalysis,
+			'theBrowsedElement':     here, 
+			'theTraversalName':      here.REQUEST.get('theTraversalName',      None,),
+			'theReferenceFieldName': here.REQUEST.get('theReferenceFieldName', None,),
+			'theRelationCursorName': here.REQUEST.get('theRelationCursorName', None,),
+			'theCurrentElementUID':  here.REQUEST.get('theCurrentElementUID',  None,),
+			'theRequest':            here.REQUEST, 
+			'thePasteRequested':     here.REQUEST.get('', False,),
+			'theGroupAction':        here.REQUEST.get('', False,),
+			'theUIDs':               here.REQUEST.get('', False,),
+			'theMovedElementID':     here.REQUEST.get('theMovedElementID',    None,),
+			'theMovedObjectUID':     here.REQUEST.get('theMovedObjectUID',    None,),
+			'theMovedReferenceUID':  here.REQUEST.get('theMovedReferenceUID', None,),
+			'theMoveDirection':      here.REQUEST.get('theMoveDirection',     None,),
+			'theTranslationsCache':  None,
+			'thePermissionsCache':   None, 
+			'theRolesCache':         None,
+			'theParentExecutionRecord':None,
+			'thePasteRequested':     pPasteRequested,
+			'theClearClipboard':     here.REQUEST.get('theClearClipboard',     None,),
+			'theGroupAction':        here.REQUEST.get('theGroupAction',        None,),
+			'theGroupUIDs':          here.REQUEST.get('theUIDs',        None,),
+			'theAdditionalParms':    { },
+			'xxxtheCustomMethodBindings': { 
+				'xxxMDDRender_Clipboard':                'gvSIGbpd_creditos_i18n_view',
+				'xxxMDDRender_Tabular_Cabecera_Cursor':  'eval 123456789',
+				'xxxMDDExtension_Before':                'MDDTryExtension',         
+				'xxxMDDExtension_Render_Tabular_After':     'eval theModelDDvlPloneTool.fTestAddedMethod2()',
+				'MDDExtension_After': [       
+					'exec theRdCtxt.pOS( str( 9999999999999))',
+					'MDDTryExtension', 
+					'eval 1 + 2 +3 + 5 + 7+ 11', 
+					'gvSIGbpd_creditos_i18n_view',
+					'eval theModelDDvlPloneTool.fTestAddedMethod()',
+					'MDDTryExternalMethodExtension',
+				],
+			},                                               
+		};" 
+	tal:replace="structure python: here.MDDView_Tabular( theViewParms=pViewParms)" />

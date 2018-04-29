@@ -60,6 +60,7 @@
                     pForm request/form;
                     pGroupAction         python: pForm.get( 'theGroupAction', '');
                     pGroupUIDs           python: pForm.get( 'theUIDs', []);
+					pReferenceFieldName  python: pForm.get( 'theReferenceFieldName', '');
                     pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                     pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                     unosArgs python: {
@@ -67,6 +68,7 @@
                     'theContainerObject'      :here, 
                     'theGroupAction'          :pGroupAction,
                     'theGroupUIDs'            :pGroupUIDs,
+					'theReferenceFieldName'   :pReferenceFieldName,
                     'theAdditionalParams'     :None, }; 
                     pGroupActionReport python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" >
                     <tal:block tal:condition="python: pGroupAction == 'Copy'" >
