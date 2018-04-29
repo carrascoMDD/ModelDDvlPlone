@@ -40,31 +40,11 @@ from AccessControl          import ClassSecurityInfo
 from Products.CMFCore       import permissions
 from Products.CMFCore.utils import getToolByName
 
+from PloneElement_TraversalConfig            import cPloneTypes
+from PloneElement_TraversalConfig            import cPloneSubItemsParameters
 
-cPloneSubItemsParameters = [
-    {   'traversal_name':           'adjuntos', 
-        'label_msgid':              'ModelDDvlPlone_documentos_adjuntos_label', 
-        'description_msgid':        'ModelDDvlPlone_documentos_adjuntos_description', 
-        'plone_read_permission':     None, # already checked in container for permissions.ListFolderContents,
-        'plone_write_permission':    None, # already checked in container for permissions.AddPortalContent,
-        'allowed_types':        [ 
-# could check additional write permissions than the standard  the AT content types add permissions like ATContentTypes: Add Image , ATContentTypes: Add Document , etc            
-            { 'meta_type': 'ATImage',       'archetype_name': 'Image',      'i18n_msgid': 'Image',      'content_icon': 'image_icon.gif',   'plone_read_permission':     None, 'plone_write_permission':     None,}, 
-            { 'meta_type': 'ATFile',        'archetype_name': 'File',       'i18n_msgid': 'File',       'content_icon': 'file_icon.gif',    'plone_read_permission':     None, 'plone_write_permission':     None,}, 
-            { 'meta_type': 'ATDocument',    'archetype_name': 'Document',   'i18n_msgid': 'Page',       'content_icon': 'document_icon.gif','plone_read_permission':     None, 'plone_write_permission':     None,}, 
-            { 'meta_type': 'ATNewsItem',    'archetype_name': 'News Item',  'i18n_msgid': 'News Item',  'content_icon': 'newsitem_icon.gif','plone_read_permission':     None, 'plone_write_permission':     None,}, 
-        ]
-    },
-    {   'traversal_name':           'enlaces',  
-        'label_msgid':              'ModelDDvlPlone_hiper_enlaces_label', 
-        'description_msgid':        'ModelDDvlPlone_hiper_enlaces_description' , 
-        'plone_read_permission':     permissions.View,
-        'plone_write_permission':    permissions.AddPortalContent,
-        'allowed_types':        [ 
-            { 'meta_type': 'ATLink',        'archetype_name': 'Link' ,      'i18n_msgid': 'Link',        'content_icon': 'link_icon.gif',   'plone_read_permission':     None, 'plone_write_permission':     None,}, 
-        ]
-    }
-]
+
+
 
 
 class ModelDDvlPloneTool_Retrieval_PloneContent:
@@ -72,15 +52,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
     """
     security = ClassSecurityInfo()
 
- 
-    
 
-    security.declarePrivate('fDefaultPloneSubItemsParameters')
-    def fDefaultPloneSubItemsParameters(self):
-        return cPloneSubItemsParameters
+
     
-    
-        
     security.declarePrivate('fNewVoidElementResult_PloneContent')
     def fNewVoidElementResult_PloneContent(self):
         unResult = { 
@@ -148,9 +122,122 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
         }
         return unResult   
    
-    
 
-  
+    
+    
+    security.declarePrivate('fPlonePortalTypeForMetaType')
+    def fPlonePortalTypeForMetaType(self, theMetaType):
+        if not theMetaType:
+            return ''
+        
+        aPlonePortalTypeSpec = cPloneTypes.get( theMetaType, {})
+        if not aPlonePortalTypeSpec:
+            return theMetaType
+        
+        unPortalType = aPlonePortalTypeSpec.get( 'portal_type', '')
+        
+        return unPortalType
+        
+   
+    
+    
+        
+    
+    
+    security.declarePrivate('fDefaultPloneSubItemsParameters')
+    def fDefaultPloneSubItemsParameters(self):
+        return cPloneSubItemsParameters
+    
+    
+    security.declarePrivate('fDefaultPloneSubItemsTypes')
+    def fDefaultPloneSubItemsTypes(self, theContextualElement):
+    
+        somePloneTypes = [ ]
+            
+        somePloneSubItemsParameters =self.fDefaultPloneSubItemsParameters()
+        if not somePloneSubItemsParameters:
+            return somePloneTypes      
+        
+        for aPloneSubItemsParameter in somePloneSubItemsParameters:
+            someAllowedTypes = aPloneSubItemsParameter[ 'allowed_types']
+            if someAllowedTypes:
+                for unAllowedType in someAllowedTypes:
+                    unMetaType = unAllowedType.get( 'meta_type', '')
+                    if unMetaType and not ( unMetaType in somePloneTypes):
+                        somePloneTypes.append( unMetaType)
+
+        return somePloneTypes
+    
+    
+                
+    
+    security.declarePrivate('fRetrievePloneObjects')
+    def fRetrievePloneObjects(self, 
+        theTimeProfilingResults     =None, 
+        theElement                  =None, 
+        theTypeNames                =None,
+        theCanReturnValues          =None, 
+        theCheckedPermissionsCache  =None, 
+        theFeatureFilters           =None, 
+        theInstanceFilters          =None,
+        theAdditionalParams         =None):
+        """Return elements of standard Plone archetypes (ATLink, ATDocument, ATImage, ATNewsItem).
+        
+        """
+
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fRetrievePloneObjects', theTimeProfilingResults)
+                      
+        try:
+            
+            somePloneElements = [ ]
+            
+            
+            if ( theElement == None) :
+                return somePloneElements
+            
+            if not theCanReturnValues:
+                return somePloneElements
+            
+            somePloneTypes = self.fDefaultPloneSubItemsTypes( theElement)
+            if not somePloneTypes:
+                return somePloneElements   
+            
+            someContentTypes = []
+            
+            if theFeatureFilters and theFeatureFilters.get( 'types', []):
+                unLimitToTypes = theFeatureFilters[ 'types']   
+                for unType in unLimitToTypes:
+                    if ( unType in somePloneTypes) and not ( unType in someContentTypes):
+                        someContentTypes.append( unType)
+            else:
+                someContentTypes = somePloneTypes
+            
+            if not someContentTypes:
+                return somePloneElements          
+ 
+                        
+            if theInstanceFilters and theInstanceFilters.get( 'UIDs', []):
+                someLimitToUIDs = theInstanceFilters[ 'UIDs']   
+                for anElementUID in someLimitToUIDs:
+                    anElementByUID = self.fElementoPorUID( anElementUID, theContainerElement)
+                    if anElementByUID:
+                        anElementById = self.fElementoContenidoPorId( theContainerElement, anElementByUID.getId()) 
+                        if anElementById and ( ( not someContentTypes) or ( anElementById.meta_type in someContentTypes)) and not ( anElementById in somePloneElements):
+                            somePloneElements.append( anElementById)   
+            else:                        
+                someElements = theElement.objectValues( someContentTypes)
+                if someElements:
+                    somePloneElements.extend( someElements)
+                
+            return somePloneElements
+
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fRetrievePloneObjects', theTimeProfilingResults)
+    
+ 
+                  
   
     
     security.declarePrivate('fRetrievePloneContent')
@@ -165,6 +252,9 @@ class ModelDDvlPloneTool_Retrieval_PloneContent:
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        """Retrieve a result structure for an element of a standard Plone archetype (ATLink, ATDocument, ATImage, ATNewsItem).
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrievePloneContent', theTimeProfilingResults)

@@ -38,8 +38,6 @@ from Products.CMFCore import permissions
 from Products.CMFCore.utils import getToolByName
 
 
-from ModelDDvlPloneTool_Visitor                            import ModelDDvlPloneTool_Visitor
-
 
 class ModelDDvlPloneTool_Retrieval_Impact:
     """
@@ -53,6 +51,9 @@ class ModelDDvlPloneTool_Retrieval_Impact:
         theTimeProfilingResults =None,
         theElement              =None,
         theAdditionalParams     =None):
+        """Retrieve a report of the impact of deleting an element, including all elements that will be related (contained elements) and elements that will be affected (related elements).
+        
+        """
  
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fDeleteImpactReport', theTimeProfilingResults)
@@ -416,7 +417,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
  
 
 
-    security.declarePrivate( 'fBuildDeleteImpactReport_RelatedPass')
+    security.declarePrivate( 'pBuildDeleteImpactReport_RelatedPass')
     def pBuildDeleteImpactReport_RelatedPass(self , 
         theTimeProfilingResults =None,
         theRootResult           =None, 
@@ -427,7 +428,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
         theAdditionalParams     =None):
     
         if not ( theTimeProfilingResults == None):
-            self.pProfilingStart( 'fBuildDeleteImpactReport_RelatedPass', theTimeProfilingResults)
+            self.pProfilingStart( 'pBuildDeleteImpactReport_RelatedPass', theTimeProfilingResults)
 
         try:
 
@@ -448,7 +449,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
 
         finally:
             if not ( theTimeProfilingResults == None):
-                self.pProfilingEnd( 'fBuildDeleteImpactReport_RelatedPass', theTimeProfilingResults)
+                self.pProfilingEnd( 'pBuildDeleteImpactReport_RelatedPass', theTimeProfilingResults)
 
         return self
         

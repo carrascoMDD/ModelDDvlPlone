@@ -69,6 +69,11 @@ cModelDDvlPloneToolName = 'ModelDDvlPlone_tool'
 
 
 
+
+
+"""Tool permissions to be set upon instantiation of the tool,  not restricting the access of anonymous users.
+
+"""         
 cModelDDvlPloneToolPermissions = [                                                                                                                                     
     { 'permission': permissions.AddPortalContent,     'acquire': False,  'roles': [              'Authenticated',  ], },  
     { 'permission': permissions.DeleteObjects,        'acquire': False,  'roles': [              'Authenticated',  ], },  
@@ -77,7 +82,13 @@ cModelDDvlPloneToolPermissions = [
 ]
 
 
+
+
+
 class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, ActionProviderBase):
+    """Facade object exposing services layer to the presentation layer, and delegating into a number of specialized, collaborating role realizations.
+    
+    """
     
     "The ModelDDvlPloneTool"
 
@@ -128,7 +139,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
     security.declarePublic('manage_afterAdd')
     def manage_afterAdd(self,item,container):
-        """Lazy Initialization.
+        """Lazy Initialization of the tool.
         
         """        
         self.pSetPermissions()
@@ -147,7 +158,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     security.declarePrivate( 'pSetPermissions')
     def pSetPermissions(self):
- 
+        """Set tool permissions upon instantiation of the tool, according to a specification ( usually not restricting the access of anonymous users).
+        
+        """         
         for unaPermissionSpec in cModelDDvlPloneToolPermissions:
             unaPermission = unaPermissionSpec[ 'permission']
             unAcquire     = unaPermissionSpec[ 'acquire'] 
@@ -205,6 +218,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        """Retrieval of an element result, for a given element.
+        
+        """
         
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
                 
@@ -249,6 +265,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        """Retrieval of element results, for an element given its UID (unique identifier in the scope of the Plone site).
+        
+        """
                 
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
                 
@@ -291,6 +310,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        """Retrieve a result structure for an element, initialized with the most important information and attributes.
+        
+        """
         
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
 
@@ -329,6 +351,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        """Retrieve a result structure for an element of a standard Plone archetype (ATLink, ATDocument, ATImage, ATNewsItem).
+        
+        """
 
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
 
@@ -365,8 +390,13 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theCheckedPermissionsCache  =None, 
         theWritePermissions         =None, 
         theAdditionalParams         =None):
+        """Retrieve result structures for all elements of a Type in a Plone site.
         
-        return ModelDDvlPloneTool_Retrieval().fRetrieveElementsOfType( 
+        """
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        
+        unTraversalResult = aModelDDvlPloneTool_Retrieval.fRetrieveElementsOfType( 
             theTimeProfilingResults     =theTimeProfilingResults,
             theElement                  =theElement,
             theTypeNames                =theTypeNames,
@@ -377,8 +407,22 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theAdditionalParams         =theAdditionalParams
         )
         
+        if not unTraversalResult:
+            return unTraversalResult
         
+        unosElementsResults = unTraversalResult.get( 'elements', [])
+        if not unosElementsResults:
+            return unTraversalResult
+         
+        for unElementResult in unosElementsResults:
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
+            
+        return unTraversalResult
     
+        
+        
+
+   
     
 
     
@@ -401,6 +445,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTimeProfilingResults =None,
         theElement              =None,
         theAdditionalParams     =None):
+        """Retrieve a report of the impact of deleting an element, including all elements that will be related (contained elements) and elements that will be affected (related elements).
+        
+        """
         
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
         unDeleteImpactReport =  aModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
@@ -412,17 +459,38 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         if not unDeleteImpactReport:
             return unDeleteImpactReport
         
-        unElementResult =  unDeleteImpactReport.get( 'here', {})
-        if not unElementResult:
-            return unDeleteImpactReport
-        
-        aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
-        
+        self.pBuildResultDictsForImpactReport( aModelDDvlPloneTool_Retrieval, unDeleteImpactReport)
+                 
         return unDeleteImpactReport
         
         
+    
+    
+    def pBuildResultDictsForImpactReport( self, theModelDDvlPloneTool_Retrieval, theImpactReport):
+        if not theImpactReport:
+            return self
         
+        unElementResult =  theImpactReport.get( 'here', {})
+        if unElementResult:        
+            theModelDDvlPloneTool_Retrieval.pBuildResultDicts( unElementResult)
         
+        unosPloneImpactResults = theImpactReport.get( 'plone', [])
+        for unPloneImpactResult in unosPloneImpactResults:
+            unPloneResult = unPloneImpactResult.get( 'here', {}) 
+            if unPloneResult:
+                theModelDDvlPloneTool_Retrieval.pBuildResultDicts( unPloneResult)
+ 
+        unosRelatedResults = theImpactReport.get( 'related', [])
+        for unRelatedResult in unosRelatedResults:
+            theModelDDvlPloneTool_Retrieval.pBuildResultDicts( unRelatedResult)
+                
+        unosIncludedImpactReports = theImpactReport.get( 'included', [])
+        for unIncludedImpactReport in unosIncludedImpactReports:
+            self.pBuildResultDictsForImpactReport( theModelDDvlPloneTool_Retrieval, unIncludedImpactReport)
+
+        return self
+    
+    
         
 #####################################################
 # Rest (ReStructuredText) reporting methods
@@ -437,6 +505,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         stx_level               =None, 
         setlevel                =0,
         theAdditionalParams     =None):
+        """Retrieve an HTML presentation of an element's content as a Textual view.
+        
+        """
         
         return ModelDDvlPloneTool_Bodies().fCookedBodyForElement( 
             theTimeProfilingResults =theTimeProfilingResults,
@@ -455,6 +526,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTimeProfilingResults =None,
         theElement              =None,
         theAdditionalParams     =None):
+        """Retrieve a REST presentation of an element's content as a Textual view.
+        
+        """
         
         return ModelDDvlPloneTool_Bodies().fEditableBodyForElement( 
             theTimeProfilingResults =theTimeProfilingResults,
@@ -485,6 +559,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theDescription          ='',
         theAdditionalParams     =None,
         theAllowFactoryMethods  =False,):           
+        """Create a new contained element of a type.
+        
+        """
         
         return ModelDDvlPloneTool_Mutators().fCrearElementoDeTipo( 
             theTimeProfilingResults =theTimeProfilingResults,
@@ -498,7 +575,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             
         
    
-    
+    # ACV OJO 20090917 Seems unused
     security.declareProtected( permissions.AddPortalContent,  'fCrearElementoDeTipoEspecial')
     def fCrearElementoDeTipoEspecial(self, 
         theTimeProfilingResults =None,
@@ -507,10 +584,13 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTitle                ='', 
         theDescription          ='',
         theAdditionalParams     =None):           
+        """Create a new contained element of an special type type.
+        
+        """
         
         return ModelDDvlPloneTool_Mutators().fCrearElementoDeTipo( 
             theTimeProfilingResults =theTimeProfilingResults,
-            theContainerElement      =theContainerElement, 
+            theContainerElement     =theContainerElement, 
             theTypeName             =theTypeName, 
             theTitle                =theTitle, 
             theDescription          =theDescription,
@@ -526,6 +606,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theElement              =None, 
         theNewValuesDict        =None,
         theAdditionalParams     =None):        
+        """Apply changes to an element's attributes values.
+        
+        """
         
         return ModelDDvlPloneTool_Mutators().fChangeValues(  
             theTimeProfilingResults =theTimeProfilingResults,
@@ -546,6 +629,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theMovedObjectId        =None, 
         theMoveDirection        =None, 
         theAdditionalParams     =None):        
+        """Change the order index of an element in the collection of elements aggregated in its container.
+        
+        """
         
         return ModelDDvlPloneTool_Mutators().pMoveSubObject( 
             theTimeProfilingResults =theTimeProfilingResults,
@@ -568,6 +654,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theMovedReferenceUID    =None, 
         theMoveDirection        =None,
         theAdditionalParams     =None):        
+        """Change the order index of an element in the collection of related elements.
+        
+        """
         
         return ModelDDvlPloneTool_Mutators().pMoveReferencedObject(
             theTimeProfilingResults =theTimeProfilingResults,
@@ -588,6 +677,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theReferenceFieldName   =None, 
         theTargetUID            =None,
         theAdditionalParams     =None):        
+        """Link an element as related to another element.
+        
+        """
         
         return ModelDDvlPloneTool_Mutators().fLinkToUIDReferenceFieldNamed( 
             theTimeProfilingResults =theTimeProfilingResults,            
@@ -608,6 +700,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theReferenceFieldName   =None, 
         theTargetUID            =None,
         theAdditionalParams     =None):        
+        """Unink an element from another related element.
+        
+        """
 
         return ModelDDvlPloneTool_Mutators().fUnlinkFromUIDReferenceFieldNamed( 
             theTimeProfilingResults =theTimeProfilingResults,            
@@ -629,6 +724,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theUIDToDelete          =None, 
         theRequestSeconds       =None, 
         theAdditionalParams     =None):        
+        """Delete an element and all its contents.
+        
+        """
 
         return ModelDDvlPloneTool_Mutators().fEliminarElemento( 
             theTimeProfilingResults =theTimeProfilingResults,
@@ -658,6 +756,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theUIDToDelete          =None, 
         theRequestSeconds       =None, 
         theAdditionalParams     =None):        
+        """Delete an element of an standard Plone archetype (ATLink, ATDocument, ATImage, ATNewsItem).
+        
+        """
 
         return ModelDDvlPloneTool_Mutators().fEliminarElementoPlone( 
             theTimeProfilingResults =theTimeProfilingResults, 
@@ -679,6 +780,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theMovedObjectUID       =None, 
         theMoveDirection        ='', 
         theAdditionalParams     =None):        
+        """Change the order index of an element of an standard Plone archetype (ATLink, ATDocument, ATImage, ATNewsItem) in the collection of elements aggregated in its container.
+        
+        """
 
         return ModelDDvlPloneTool_Mutators().pMoveSubObjectPlone( 
             theTimeProfilingResults =theTimeProfilingResults,            
@@ -704,6 +808,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
     security.declareProtected( permissions.View,  'pSetDefaultDisplayView')
     def pSetDefaultDisplayView(self, theElement):  
+        """Set to its default the view that will be presented for an element, when no view is specified. Usually one of Textual or Tabular.
+        
+        """
     
         if not ModelDDvlPloneTool_Retrieval().fCheckElementPermission( theElement, [ permissions.ModifyPortalContent ], None):
             return self
@@ -724,6 +831,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
     security.declareProtected( permissions.ModifyPortalContent,  'pSetAsDisplayView')
     def pSetAsDisplayView(self, theElement, theViewName):            
+        """Set the view that will be presented for an element, when no view is specified. Usually one of Textual or Tabular.
+        
+        """
                 
         unaPortalInterfaceTool = getToolByName( theElement, 'portal_interface')   
         if unaPortalInterfaceTool.objectImplements( theElement, 'Products.CMFPlone.interfaces.BrowserDefault.ISelectableBrowserDefault'):
@@ -745,12 +855,19 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     security.declareProtected( permissions.View,  'fTranslateI18N')
     def fTranslateI18N( self, theContextElement, theI18NDomain, theString, theDefault):
+        """Localize a string from a domain into the language negotiated for the current request, or return a default.
+        
+        """
+        
         return ModelDDvlPloneTool_Retrieval().fTranslateI18N( theI18NDomain, theString, theDefault, theContextElement)
 
 
 
     security.declareProtected( permissions.View,  'fAsUnicode')
     def fAsUnicode( self, theContextElement,  theString):
+        """Decode a string from the system encoding into a unicode in-memory representation.
+        
+        """
         return ModelDDvlPloneTool_Retrieval().fAsUnicode(theString, theContextElement)
 
     
@@ -767,24 +884,39 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     
     security.declareProtected( permissions.View,  'fPrettyPrintHTML')
     def fPrettyPrintHTML( self, theList, theDictKeysToExclude=None, theDictKeysOrder=None, theFindAlreadyPrinted=False):
+        """Render as HTML a presentation of a list with rich inner structure, where items appear in consecutive lines, and nested items appear indented under their containers, and alineated with their siblings.
+        
+        """
         return ModelDDvlPloneTool_Retrieval().fPrettyPrintHTML( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
 
 
     security.declareProtected( permissions.View,  'fPrettyPrint')
     def fPrettyPrint( self, theList, theDictKeysToExclude=None, theDictKeysOrder=None, theFindAlreadyPrinted=False):
+        """Render a text presentation of a list with rich inner structure, where items appear in consecutive lines, and nested items appear indented under their containers, and alineated with their siblings.
+        
+        """
         return ModelDDvlPloneTool_Retrieval().fPrettyPrint( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
 
 
     security.declareProtected( permissions.View,  'fPrettyPrintProfilingResultHTML')
     def fPrettyPrintProfilingResultHTML( self, theProfilingResult):
+        """Render as HTML a presentation of an execution profiling result structure, where items appear in consecutive lines, and nested items appear indented under their containers, and alineated with their siblings.
+        
+        """
         return ModelDDvlPloneTool_Retrieval().fPrettyPrintProfilingResultHTML( theProfilingResult)
 
     security.declareProtected( permissions.View,  'fPrettyPrintProfilingResultHTML')
     def fPrettyPrintProfilingResult( self, theProfilingResult):
+        """Render a text presentation of an execution profiling result structure, where items appear in consecutive lines, and nested items appear indented under their containers, and alineated with their siblings.
+        
+        """
         return ModelDDvlPloneTool_Retrieval().fPrettyPrintProfilingResult( theProfilingResult)
 
     security.declareProtected( permissions.View,  'fPreferredResultDictKeysOrder')
     def fPreferredResultDictKeysOrder( self):
+        """The prefered keys order to render dictionary values as a text presentation.
+        
+        """
         return ModelDDvlPloneTool_Retrieval().fPreferredResultDictKeysOrder()
 
     
@@ -796,6 +928,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
     security.declarePublic('fRenderTemplate')
     def fRenderTemplate(self, theContextualObject, theTemplateName):
+        """Execute a template in the current context and return the rendered HTML.
+        
+        """
         if not theTemplateName:
             return ''
                         
@@ -837,6 +972,9 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theObject                   =None, 
         theOutputEncoding           =None,
         theAdditionalParams         =None):
+        """Export an element as a zipped archive with XML file, and including binary content with the attached files and images."
+        
+        """
         
         someAllExportTypeConfigs =  ModelDDvlPloneTool_Retrieval().getAllTypeExportConfigs( theObject)        
                 
@@ -856,18 +994,29 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
     security.declareProtected( permissions.View, 'fImport')
     def fImport(self, 
         theTimeProfilingResults     =None,
-        theObject                   =None, 
+        theContainerObject          =None, 
         theUploadedFile             =None,
         theAdditionalParams         =None):
+        """Import into an element a zipped archive with XML file, and any included binary content the attached files and images."
         
-        someAllImportTypeConfigs =  ModelDDvlPloneTool_Retrieval().getAllTypeExportConfigs( theObject)        
+        """
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+
+        someMDDImportTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeImportConfigs(   theContainerObject)        
+        somePloneImportTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeImportConfigs( theContainerObject)        
+        someMappingConfigs         =  aModelDDvlPloneTool_Retrieval.getMappingConfigs(         theContainerObject)        
                 
         return ModelDDvlPloneTool_Import().fImport( 
-            theTimeProfilingResults     =theTimeProfilingResults,
-            theObject                   =theObject, 
-            theUploadedFile             =theUploadedFile,
-            theAllImportTypeConfigs     =someAllImportTypeConfigs, 
-            theAdditionalParams         =theAdditionalParams
+            theTimeProfilingResults        =theTimeProfilingResults,
+            theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators =ModelDDvlPloneTool_Mutators(),
+            theContainerObject             =theContainerObject, 
+            theUploadedFile                =theUploadedFile,
+            theMDDImportTypeConfigs        =someMDDImportTypeConfigs, 
+            thePloneImportTypeConfigs      =somePloneImportTypeConfigs, 
+            theMappingConfigs              =someMappingConfigs,
+            theAdditionalParams            =theAdditionalParams
         )
 
       
@@ -881,12 +1030,15 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theContainerObject          =None, 
         theObjectsToPaste           =None,
         theAdditionalParams         =None):
+        """Paste into an element the elements previously copied (references held in the clipboard internet browser cookie), and all its contents, reproducing between the copied elements the relations between the original elements.        
+        
+        """
         
         aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
         
-        someMDDCopyTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs( theContainerObject)        
+        someMDDCopyTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs(   theContainerObject)        
         somePloneCopyTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theContainerObject)        
-        someMappingConfigs       =  aModelDDvlPloneTool_Retrieval.getMappingConfigs( theContainerObject)        
+        someMappingConfigs       =  aModelDDvlPloneTool_Retrieval.getMappingConfigs(       theContainerObject)        
                 
         return ModelDDvlPloneTool_Refactor().fPaste( 
             theTimeProfilingResults        = theTimeProfilingResults,

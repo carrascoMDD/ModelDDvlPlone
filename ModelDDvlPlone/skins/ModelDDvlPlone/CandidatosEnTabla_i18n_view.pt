@@ -78,8 +78,8 @@
                                                             here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
                                                             ERES[ 'type_translations'][ 'translated_archetype_name'],
                                                             ERES[ 'values_by_name'][ unColumnName][ 'uvalue'], 
-                                                            test( unColumnName == 'title', '', ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')), 
-                                                            test( unColumnName == 'description', '', ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')),
+                                                            ( not ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
+                                                            ( not ( unColumnName == 'description') and  ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
                                                             ERES[ 'type_translations'][ 'translated_type_description'])"
                                                         tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
                                                         class="state-visible" > 

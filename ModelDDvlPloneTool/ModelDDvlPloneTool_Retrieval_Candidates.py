@@ -422,6 +422,9 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
         theCheckedPermissionsCache  =None, 
         theWritePermissions         =None, 
         theAdditionalParams         =None):
+        """Retrieve result structures for all elements of a Type in a Plone site.
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveElementsOfType', theTimeProfilingResults)
@@ -497,7 +500,7 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
             if not unosCandidatos:
                 return unCandidatesResult
             
-            unaListaAOrdenar = [ ( "%s--%s" % ( unCandidato.portal_type , unCandidato.Title().lower()) , unCandidato) for unCandidato in unosCandidatos]
+            unaListaAOrdenar = [ ( "%s--%s" % ( unCandidato.portal_type , '/'.join( unCandidato.getPhysicalPath())) , unCandidato) for unCandidato in unosCandidatos]
             unaListaAOrdenar.sort()
             unosCandidatosOrdenados = [ unCandidato for (laClave, unCandidato) in unaListaAOrdenar]
         

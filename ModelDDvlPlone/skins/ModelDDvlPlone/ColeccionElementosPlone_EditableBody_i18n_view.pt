@@ -92,8 +92,8 @@
 
 <tal:block 
                         tal:define="
-                            unWidth python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, 800, unElemento[ 'values_by_name'][ 'width'][ 'value']);
-                            unHeight python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, int( unElemento[ 'values_by_name'][ 'height'][ 'value'] * 800 / unElemento[ 'values_by_name'][ 'width'][ 'value']), unElemento[ 'values_by_name'][ 'height'][ 'value'])"                        
+                            unWidth python:  (( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800) and 800) or ( unElemento[ 'values_by_name'][ 'width'][ 'value']);
+                            unHeight python: (( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800) and  int( unElemento[ 'values_by_name'][ 'height'][ 'value'] * 800 / unElemento[ 'values_by_name'][ 'width'][ 'value'])) or  unElemento[ 'values_by_name'][ 'height'][ 'value']"                        
                         tal:content="structure python: '\n.. image:: %s\n    :width: %d\n    :height: %d\n' % ( unElemento[ 'values_by_name'][ 'content_url'][ 'value'], unWidth, unHeight )"/></tal:block>
 
 <tal:block 
@@ -108,8 +108,8 @@
 
 <tal:block 
                         tal:define="
-                            unWidth python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, 800, unElemento[ 'values_by_name'][ 'width'][ 'value']);
-                            unHeight python: test( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800, int( unElemento[ 'values_by_name'][ 'height'][ 'value'] * 800 / unElemento[ 'values_by_name'][ 'width'][ 'value']), unElemento[ 'values_by_name'][ 'height'][ 'value'])"                        
+                            unWidth python:  ( ( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800) and 800) or  unElemento[ 'values_by_name'][ 'width'][ 'value'];
+                            unHeight python: ( ( unElemento[ 'values_by_name'][ 'width'][ 'value'] > 800) and int( unElemento[ 'values_by_name'][ 'height'][ 'value'] * 800 / unElemento[ 'values_by_name'][ 'width'][ 'value'])) or unElemento[ 'values_by_name'][ 'height'][ 'value']"                        
                         tal:content="structure python: '\n.. image:: %s\n    :width: %d\n    :height: %d\n' % ( unElemento[ 'values_by_name'][ 'image_url'][ 'value'], unWidth, unHeight )"/></tal:block>
 
 </tal:block></tal:block></tal:block></tal:block></tal:block>  

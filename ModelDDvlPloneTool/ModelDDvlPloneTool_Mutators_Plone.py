@@ -68,6 +68,9 @@ class ModelDDvlPloneTool_Mutators_Plone:
         theUIDToDelete          =None, 
         theRequestSeconds       =None, 
         theAdditionalParams     =None):        
+        """Delete an element of an standard Plone archetype (ATLink, ATDocument, ATImage, ATNewsItem).
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fEliminarElementoPlone', theTimeProfilingResults)
@@ -131,7 +134,7 @@ class ModelDDvlPloneTool_Mutators_Plone:
                 return anActionReport     
 
             unSecondsNow = unResultadoContenedor[ 'seconds_now']
-            if not ( (unSecondsNow > theRequestSeconds) and ( ( unSecondsNow - theRequestSeconds) < 30)):
+            if not ( (unSecondsNow >= theRequestSeconds) and ( ( unSecondsNow - theRequestSeconds) < self.fSecondsToReviewAndDelete( theContainerElement))):
                 anActionReport = { 'effect': 'error', 'failure': 'time_out', 'parent_traversal_name': unTraversalName, }
                 return anActionReport                     
     
@@ -165,6 +168,9 @@ class ModelDDvlPloneTool_Mutators_Plone:
         theMovedObjectUID       =None, 
         theMoveDirection        ='', 
         theAdditionalParams     =None):        
+        """Change the order index of an element of an standard Plone archetype (ATLink, ATDocument, ATImage, ATNewsItem) in the collection of elements aggregated in its container.
+        
+        """
 
 
         if not ( theTimeProfilingResults == None):

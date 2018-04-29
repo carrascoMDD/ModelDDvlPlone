@@ -54,14 +54,17 @@
 			<tal:block tal:condition="not: pUploadedFile" >
 				<form name="MDDImportUploadFile" method="post" enctype="multipart/form-data">
 				
-                                       
-						
-    			    <h3  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_page_title">Import content-</h3>
+					<br>
+					<br>
+    			    <h2>
+						<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_page_title">Import content-</tal:block></strong></font>
+					</h2>
     			    <br/>
     			    <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_selectFile">Select a .zip archive with an XML file and optionally binary content files-</p>
+    			    <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_mayTakeLongToExecute">The import process may take a long time to execute. Your browser or intermediate proxies may time-out.-</p>
                     <br/>			    
 						
-     			    <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_fichero_label">File to import-</strong></p>
+     			    <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_fichero_label">Archive (.zip) to import-</strong></p>
 					
 					<input name="theUploadedFile" type="file" />
 					
@@ -80,7 +83,7 @@
 					pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
 					unosArgs python: {
 						'theTimeProfilingResults' :pProfilingResults,
-						'theObject'               :here, 
+						'theContainerObject'       :here, 
 						'theUploadedFile'         :pUploadedFile,
 						'theAdditionalParams'     :None, }; 
 					pExportReport python: here.ModelDDvlPlone_tool.fImport( **unosArgs)" >
@@ -112,8 +115,8 @@
                                         here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
                                         ERES[ 'type_translations'][ 'translated_archetype_name'],
                                         ERES[ 'values_by_name'][ unColumnName][ 'uvalue'], 
-                                        test( unColumnName == 'title', '', ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')), 
-                                        test( unColumnName == 'description', '', ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')),
+                                        not ( ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
+                                        not ( ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
                                         ERES[ 'type_translations'][ 'translated_type_description'])"
                                     tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
                                     class="state-visible" > 
@@ -178,8 +181,8 @@
                                     here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
                                     ERES[ 'type_translations'][ 'translated_archetype_name'],
                                     ERES[ 'values_by_name'][ unColumnName][ 'uvalue'], 
-                                    test( unColumnName == 'title', '', ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')), 
-                                    test( unColumnName == 'description', '', ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')),
+                                    not ( ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) and '', 
+                                    not ( ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) and '',
                                     ERES[ 'type_translations'][ 'translated_type_description'])"
                                 tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
                                 class="state-visible" > 

@@ -836,3 +836,26 @@ msgid "ModelDDvlPlone_path_label"
 msgstr  "Path"
 
 
+#. Default: "Importar contenido"
+#: MDDImport.pt
+msgid "ModelDDvlPlone_Import_action_page_title"
+msgstr  "Import content"
+
+
+#. Default: "Seleccione un archivo .zip con un fichero XML y opcionalmente contenido binario"
+#: MDDImport.pt
+msgid "ModelDDvlPlone_Import_action_selectFile"
+msgstr  "Select a .zip archive with an XML file and optionally binary content files"
+
+
+#. Default: "Archivo (.zip) a importar"
+#: MDDImport.pt
+msgid "ModelDDvlPlone_Import_action_fichero_label"
+msgstr  "Archive (.zip) to import"
+
+
+#. Default: "El proceso de importacion puede ser largo. Su navegador o proxis intermedios pueden agotar su tiempo de espera."
+#: MDDImport.pt
+msgid "ModelDDvlPlone_Import_action_mayTakeLongToExecute"
+msgstr  "The import process may take a long time to execute. Your browser or intermediate proxies may time-out."
+

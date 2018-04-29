@@ -37,10 +37,7 @@ __docformat__ = 'plaintext'
 from AccessControl      import ClassSecurityInfo
 from Acquisition        import aq_inner, aq_parent
 
-
-
-# ACV 20090529 removed
-# from ModelDDvlPloneTool_Visitor                            import ModelDDvlPloneTool_Visitor
+from PloneElement_TraversalConfig import cExportConfig_PloneElements
 
    
 
@@ -50,113 +47,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
     security = ClassSecurityInfo()
 
 
-   
- 
-   
-    security.declarePublic('fExportConfig_PloneElements')
-    def fExportConfig_PloneElements( self):
-        return [
-    {   'portal_types': [ 'ATDocument', ],
-        'attrs':        [
-            {   'name': 'title',
-                'type': 'String',
-            },
-            {   'name': 'description',
-                'type': 'Text',
-            },
-            {   'name': 'content_type',
-                'type': 'String',
-                'attribute': 'content_type',
-            },
-            {   'name': 'text',
-                'type': 'Text',
-            },
-        ],
-    },
-    {   'portal_types': [ 'ATFile', ],
-        'attrs':        [
-            {   'name': 'title',
-                'type': 'String',
-            },
-            {   'name': 'description',
-                'type': 'Text',
-            },
-            {
-                'name': 'file',
-                'type': 'File',
-            },
-            
-        ],
-    },
-    {   'portal_types': [ 'ATImage', ],
-        'attrs':        [
-            {   'name': 'title',
-                'type': 'String',
-            },
-            {   'name': 'description',
-                'type': 'Text',
-            },
-            {   'name': 'image_content_type',
-                'type': 'String',
-                'attribute': 'content_type',
-            },
-            {   'name': 'image',
-                'type': 'Image',
-            },
-        ],
-    },
-    {   'portal_types': [ 'ATLink', ],
-        'attrs':        [
-            {   'name': 'title',
-                'type': 'String',
-            },
-            {   'name': 'description',
-                'type': 'Text',
-            },
-            {
-                'name': 'url',
-                'type': 'String',
-                'accessor': 'getRemoteUrl',
-            },
-             
-        ],
-    },
-    {   'portal_types': [ 'ATNewsItem', ],
-        'attrs':        [
-            {   'name': 'title',
-                'type': 'String',
-            },
-            {   'name': 'description',
-                'type': 'Text',
-            },
-            {   'name': 'content_type',
-                'type': 'String',
-                'attribute': 'content_type',
-            },
-            {   'name': 'text',
-                'type': 'Text',
-            },
-            {   'name': 'imageCaption',
-                'type': 'String',
-            },
-            {   'name': 'image_content_type',
-                'type': 'String',
-                'accessor': 'getImage',
-                'attribute': 'content_type',
-            },
-            {   'name': 'image',
-                'type': 'Image',
-            },
-        ],
-    },
-]    
- 
 
-    
-# ##################################################################
-# 
-#
-        
 
     
     security.declarePublic( 'getAllTypeConfigs')
@@ -400,7 +291,49 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
     
 
     
+    security.declarePublic( 'getMDDTypeImportConfigs')
+    def getMDDTypeImportConfigs(self, theContextElement):
+        """Access the traversal configuration to import objects aware of ModelDDvlPloneTool.
+        
+        """
+        if ( theContextElement == None):
+            return []
+                           
+        allTypeConfigs = self.getImportConfig( theContextElement)
+        if not allTypeConfigs:
+            return []
+         
+        someScannedTypeConfigs = self.preScanTypeConfigsStandAlone( allTypeConfigs)   
+       
+        return someScannedTypeConfigs
+        
 
+    
+    
+
+    
+    security.declarePublic( 'getPloneTypeImportConfigs')
+    def getPloneTypeImportConfigs(self, theContextElement):
+        """Access the traversal configuration to copy Plone objects.
+        
+        """
+        if ( theContextElement == None):
+            return []
+                           
+        somePloneElementsImportConfigs = self.preScanTypeConfigsStandAlone( cExportConfig_PloneElements)
+        
+       
+        return somePloneElementsImportConfigs
+            
+           
+           
+
+    security.declarePrivate('getImportConfig')
+    def getImportConfig(self, theContextElement):
+        return self.getExportConfig( theContextElement)
+    
+    
+   
     
     security.declarePublic( 'getAllTypeExportConfigs')
     def getAllTypeExportConfigs(self, theContextElement):
@@ -418,8 +351,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
                  
         someScannedMetaTypes = set( someScannedTypeConfigs.keys())
 
-        anExportConfigPloneElements = self.fExportConfig_PloneElements()
-        somePloneElementsExportConfigs = self.preScanExportTypeConfigs( anExportConfigPloneElements)
+        somePloneElementsExportConfigs = self.preScanExportTypeConfigs( cExportConfig_PloneElements)
         
         somePloneElementsMetaTypes = set( somePloneElementsExportConfigs.keys())
 
@@ -431,44 +363,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
         return someScannedTypeConfigs
         
 
-           
-    
-    security.declarePublic( 'getMDDTypeCopyConfigs')
-    def getMDDTypeCopyConfigs(self, theContextElement):
-        """Access the traversal configuration to copy objects aware of ModelDDvlPloneTool.
-        
-        """
-        if ( theContextElement == None):
-            return []
-                           
-        allTypeConfigs = self.getCopyConfig( theContextElement)
-        if not allTypeConfigs:
-            return []
-         
-        someScannedTypeConfigs = self.preScanTypeConfigsStandAlone( allTypeConfigs)   
-       
-        return someScannedTypeConfigs
-        
-
-    
-    
-
-    
-    security.declarePublic( 'getPloneTypeCopyConfigs')
-    def getPloneTypeCopyConfigs(self, theContextElement):
-        """Access the traversal configuration to copy Plone objects.
-        
-        """
-        if ( theContextElement == None):
-            return []
-                           
-        anExportConfigPloneElements = self.fExportConfig_PloneElements()
-        somePloneElementsExportConfigs = self.preScanTypeConfigsStandAlone( anExportConfigPloneElements)
-        
-       
-        return somePloneElementsExportConfigs
-            
-       
+ 
     
     
     security.declarePrivate('getExportConfig')
@@ -590,6 +485,40 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
     
     
     
+    security.declarePublic( 'getMDDTypeCopyConfigs')
+    def getMDDTypeCopyConfigs(self, theContextElement):
+        """Access the traversal configuration to copy objects aware of ModelDDvlPloneTool.
+        
+        """
+        if ( theContextElement == None):
+            return []
+                           
+        allTypeConfigs = self.getCopyConfig( theContextElement)
+        if not allTypeConfigs:
+            return []
+         
+        someScannedTypeConfigs = self.preScanTypeConfigsStandAlone( allTypeConfigs)   
+       
+        return someScannedTypeConfigs
+        
+
+    
+    
+
+    
+    security.declarePublic( 'getPloneTypeCopyConfigs')
+    def getPloneTypeCopyConfigs(self, theContextElement):
+        """Access the traversal configuration to copy Plone objects.
+        
+        """
+        if ( theContextElement == None):
+            return []
+                           
+        somePloneElementsExportConfigs = self.preScanTypeConfigsStandAlone( cExportConfig_PloneElements)
+        
+        return somePloneElementsExportConfigs
+            
+           
 
     
     

@@ -48,7 +48,10 @@ from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling                   
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Permissions        import ModelDDvlPloneTool_Retrieval_Permissions
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Utils              import ModelDDvlPloneTool_Retrieval_Utils
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Candidates         import ModelDDvlPloneTool_Retrieval_Candidates
-from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Derivation         import ModelDDvlPloneTool_Retrieval_Derivation
+# ACV 20090910 Unused. 
+# Code in the ModelDDvlPloneTool_Retrieval_Derivation was copied from an Element_Operations, and not refactored. 
+# Does not work. Deprecated
+# from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Derivation         import ModelDDvlPloneTool_Retrieval_Derivation
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_I18N               import ModelDDvlPloneTool_Retrieval_I18N
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_TraversalConfigs   import ModelDDvlPloneTool_Retrieval_TraversalConfigs
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Impact             import ModelDDvlPloneTool_Retrieval_Impact
@@ -58,7 +61,7 @@ from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_PloneContent      
 cKnownWritePermissionTargets = [ 'object', 'add', 'add_collection', 'delete', 'attrs', 'aggregations', 'relations', 'plone', 'delete_plone', ]
 cKnownFeatureFilterKeys      = [ 'types', 'attrs', 'aggregations', 'relations', 'relations_without_element_details', 'candidates_for_relations', 'do_not_recurse_collections']
 cKnownInstanceFilterKeys     = [ 'UIDs', ]
-cKnownRetrievalExtents       = [ 'traversals', 'tree',  'owner', 'cursor', 'relation_cursors', 'dynamic_vocabularies',]
+cKnownRetrievalExtents       = [ 'traversals', 'tree',  'owner', 'cursor', 'relation_cursors', 'dynamic_vocabularies', ] # ACV 20090920 Removed 'plone_objects',
 cKnownAdditionalParams       = [ 'Do_Not_Translate', 'Retrieve_Minimal_Related_Results', ]
 
 
@@ -68,7 +71,7 @@ class ModelDDvlPloneTool_Retrieval(
     ModelDDvlPloneTool_Retrieval_Permissions, 
     ModelDDvlPloneTool_Retrieval_Utils, 
     ModelDDvlPloneTool_Retrieval_Candidates, 
-    ModelDDvlPloneTool_Retrieval_Derivation,
+#    ModelDDvlPloneTool_Retrieval_Derivation,
     ModelDDvlPloneTool_Retrieval_I18N, 
     ModelDDvlPloneTool_Retrieval_TraversalConfigs,
     ModelDDvlPloneTool_Retrieval_Impact,
@@ -78,164 +81,11 @@ class ModelDDvlPloneTool_Retrieval(
     security = ClassSecurityInfo()
 
     
-    security.declarePrivate('pBuildResultDicts')
-    def pBuildResultDicts(self, theResult, theWhichDicts=None):
-        if not theResult:
-            return self
-        
-        if ( theWhichDicts == None) or ( 'owner_element' in theWhichDicts):
-            anOwnerResult = theResult.get( 'owner_element', None)
-            if anOwnerResult:
-                self.pBuildResultDicts_ElementValues( anOwnerResult)            
-            
-        if ( theWhichDicts == None) or ( 'container_element' in theWhichDicts):
-            aContainerResult = theResult.get( 'container_element', None)
-            if aContainerResult:
-                self.pBuildResultDicts_ElementValues( aContainerResult)
-                
-        if ( theWhichDicts == None) or ( 'cursor' in theWhichDicts):
-            aCursorResult = theResult.get( 'cursor', None)
-            if aCursorResult:
-                aFirstElementResult = aCursorResult.get( 'first_element', None)
-                if aFirstElementResult:
-                    self.pBuildResultDicts_ElementValues( aFirstElementResult)
-                    
-                aLastElementResult = aCursorResult.get( 'last_element', None)
-                if aLastElementResult:
-                    self.pBuildResultDicts_ElementValues( aLastElementResult)
-    
-                aPreviousElementResult = aCursorResult.get( 'previous_element', None)
-                if aPreviousElementResult:
-                    self.pBuildResultDicts_ElementValues( aPreviousElementResult)
-    
-                aNextElementResult = aCursorResult.get( 'next_element', None)
-                if aNextElementResult:
-                    self.pBuildResultDicts_ElementValues( aNextElementResult)
-                    
-        if ( theWhichDicts == None) or ( 'values' in theWhichDicts):
-            self.pBuildResultDicts_ElementValues(     theResult)
-            
-        if ( theWhichDicts == None) or ( 'traversals' in theWhichDicts):
-            self.pBuildResultDicts_ElementTraversals( theResult)    
-            
-        return self
-    
-        
-        
-    
-    security.declarePrivate('pBuildResultDicts_Element')
-    def pBuildResultDicts_Element(self, theResult):
-        if not theResult:
-            return self
-        
-        self.pBuildResultDicts_ElementValues(     theResult)
-        self.pBuildResultDicts_ElementTraversals( theResult)
-
-        return self
-    
-    
-    
-    
-    
-    security.declarePrivate('pBuildResultDicts_ElementValues')
-    def pBuildResultDicts_ElementValues(self, theResult):
-        if not theResult:
-            return self
-
-        someValuesResults    = theResult.get( 'values',     None)
-                 
-        if someValuesResults:
-            someValuesByName = theResult.get( 'values_by_name', None)
-            if someValuesByName == None:
-                someValuesByName = { }
-                theResult[ 'values_by_name'] = someValuesByName
-
-            for aValueResult in someValuesResults:
-                anAttributeName = aValueResult.get( 'attribute_name', '')
-                if anAttributeName:
-                    someValuesByName[ anAttributeName] = aValueResult
-                    
-                    someSubValuesResults = aValueResult.get( 'sub_values', None)
-                    if someSubValuesResults:
-                        someSubValuesByName = aValueResult.get( 'sub_values_by_name', None)
-                        if someSubValuesByName == None:
-                            someSubValuesByName = { }
-                            aValueResult[ 'sub_values_by_name'] = someSubValuesByName
-                    
-                        for aSubValueResult in someSubValuesResults:
-                            aSubValueName = aSubValueResult.get( 'attribute_name', '')
-                            if aSubValueName:
-                                someSubValuesByName[ aSubValueName ] = aSubValueResult
-            
-        return self
-    
-    
-    
-    
-    security.declarePrivate('pBuildResultDicts_ElementTraversals')
-    def pBuildResultDicts_ElementTraversals(self, theResult):
-        if not theResult:
-            return self
-
-        someTraversalResults = theResult.get( 'traversals', None)
-                 
-        if someTraversalResults:
-            someTraversalsByName = theResult.get( 'traversals_by_name', None)
-            if someTraversalsByName == None:
-                someTraversalsByName = { }
-                theResult[ 'traversals_by_name'] = someTraversalsByName
-            
-            for aTraversalResult in someTraversalResults:
-                aTraversalName = aTraversalResult.get( 'traversal_name', '')
-                if aTraversalName:
-                    someTraversalsByName[ aTraversalName] = aTraversalResult
-    
-                someElementsResults = aTraversalResult.get( 'elements', [])
-                if someElementsResults:
-                    
-                    someElementsById = aTraversalResult.get( 'elements_by_id', [])  
-                    if someElementsById == None:
-                        someElementsById = { }
-                        aTraversalResult[ 'elements_by_id'] = someElementsById
-    
-                    someElementsByUID = aTraversalResult.get( 'elements_by_UID', [])  
-                    if someElementsByUID == None:
-                        someElementsByUID = { }
-                        aTraversalResult[ 'elements_by_UID'] = someElementsByUID
-                        
-                    for anElementResult in someElementsResults:
-                        anElementId = anElementResult.get( 'id', '')
-                        if anElementId:
-                            someElementsById[ anElementId] = anElementResult
-                        
-                        anElementUID = anElementResult.get( 'UID', '')
-                        if anElementUID:
-                            someElementsByUID[ anElementUID] = anElementResult
-                
-                        self.pBuildResultDicts_Element( anElementResult)
-                        
-                aTraversalConfig = aTraversalResult.get( 'traversal_config', {})
-                if aTraversalConfig:
-                    aRelationName = aTraversalConfig.get( 'relation_name', '')
-                    if aRelationName:
-                        
-                        aCandidatesTraversalResult = aTraversalResult.get( 'candidates', [])
-                        if aCandidatesTraversalResult:
-                            
-                            someCandidateElementsResults = aCandidatesTraversalResult.get( 'elements', [])
-                            if someCandidateElementsResults:
-                                
-                                for aCandidateElementResult in someCandidateElementsResults:                                        
-                                    self.pBuildResultDicts_Element( aCandidateElementResult)
-                                
-        
-        return self
-    
-        
-    
-    
     security.declarePrivate('fNewVoidElementResult')
     def fNewVoidElementResult(self):
+        """Inter-layer contract: Element retrieval Result structure.
+        
+        """
         unResult = { 
             # ACV 200906110258 added portal_url to have all icons and images to reference same url to allow effective caching
             'portal_url':               '',
@@ -246,7 +96,9 @@ class ModelDDvlPloneTool_Retrieval(
             'UID':                      '',    
             'url':                      '',                 
             'title':                    '',                   
-            'path':                     '',       
+            'path':                     '',    
+            'root_path':                '',
+            'owner_path':               '',
             'is_collection':            False,          
             'is_root':                  False, 
             'content_icon':             '',
@@ -258,7 +110,7 @@ class ModelDDvlPloneTool_Retrieval(
             'values_by_name':           { },                                  
             'values':                   [ ],                                  
             'traversal_names':          [ ],                                  
-            'traversals_by_name':   { },                                  
+            'traversals_by_name':       { },                                  
             'traversals':               [ ],                                  
             'cursor':                   None,                                 
             'owner_element':            None,                               
@@ -272,6 +124,9 @@ class ModelDDvlPloneTool_Retrieval(
             'factory_methods':          None,
             'factory_enablers':         None,
             'allow_paste':              True,
+            'allow_import':             True,
+# ACV 20090921 Removed
+#           'plone_objects':            [ ],
         }
         return unResult   
     
@@ -282,6 +137,9 @@ class ModelDDvlPloneTool_Retrieval(
     
     security.declarePrivate('fNewVoidValueResult')
     def fNewVoidValueResult(self):
+        """Inter-layer contract: Attribute retrieval Result structure.
+        
+        """
         unResult = { 
             'attribute_name':           '', 
             'type':                     '', 
@@ -307,6 +165,9 @@ class ModelDDvlPloneTool_Retrieval(
     
     security.declarePrivate('fNewVoidTraversalResult')
     def fNewVoidTraversalResult(self):
+        """Inter-layer contract: Traversal retrieval Result structure.
+        
+        """
         unResult = { 
             'traversal_kind' :          '', 
             'traversal_name' :          '', 
@@ -341,6 +202,9 @@ class ModelDDvlPloneTool_Retrieval(
     
     security.declarePrivate('fNewVoidCursorResult')
     def fNewVoidCursorResult(self):
+        """Inter-layer contract: Cursor retrieval Result structure, with entries for first, last, previous, next results of sibling elements.
+        
+        """
         unResult = {
             'object':               None,
             'meta_type':            '',
@@ -360,11 +224,15 @@ class ModelDDvlPloneTool_Retrieval(
 
     security.declarePrivate('fNewVoidFactoryResult')
     def fNewVoidFactoryResult(self):
+        """Inter-layer contract: Factory specification Result structure for aggregation traversal results.
+        
+        """
         unResult = { 
             'meta_type':            '', 
             'type_translations':    [], 
             'content_icon':         '',
             'archetype_name':       '',
+            'portal_type':          '',
             'factory_view':         '',
         }                
         return unResult
@@ -394,6 +262,9 @@ class ModelDDvlPloneTool_Retrieval(
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        """Retrieval of element results, for an element given its UID (unique identifier in the scope of the Plone site).
+        
+        """
         
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveTypeConfigByUID', theTimeProfilingResults)
@@ -445,6 +316,9 @@ class ModelDDvlPloneTool_Retrieval(
         theTranslationsCaches       =None,
         theCheckedPermissionsCache  =None,
         theAdditionalParams         =None):
+        """Retrieval of an element result, for a given element.
+        
+        """
 
 
         if not ( theTimeProfilingResults == None):
@@ -622,6 +496,9 @@ class ModelDDvlPloneTool_Retrieval(
         theFeatureFilters           =None, 
         theInstanceFilters          =None,
         theAdditionalParams         =None):
+        """Retrieval of an element result, for a given element, and recursively its contained elements.
+        
+        """
         
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveTypeConfig_recursive', theTimeProfilingResults)
@@ -717,6 +594,28 @@ class ModelDDvlPloneTool_Retrieval(
                             theAdditionalParams         =theAdditionalParams
                         )
                     
+                        
+            #if theRetrievalExtents and ( 'plone_objects' in theRetrievalExtents):
+
+                #unosResultPloneObjects = unResult.get( 'plone_objects', None)
+                #if unosResultPloneObjects == None:
+                    #unosResultPloneObjects = [ ]
+                    #unResult[ 'plone_objects'] = unosResultPloneObjects
+                
+                #somePloneObjects = self.fRetrievePloneObjects( 
+                    #theTimeProfilingResults     =theTimeProfilingResults, 
+                    #theElement                  =theElement, 
+                    #theTypeNames                =None,
+                    #theCanReturnValues          =unCanReturnValues, 
+                    #theCheckedPermissionsCache  =theCheckedPermissionsCache, 
+                    #theFeatureFilters           =theFeatureFilters, 
+                    #theInstanceFilters          =theInstanceFilters,
+                    #theAdditionalParams         =theAdditionalParams
+                #)
+                
+                #if somePloneObjects:
+                    #unosResultPloneObjects.extend( somePloneObjects)
+                    
             return unResult
 
         finally:
@@ -753,6 +652,9 @@ class ModelDDvlPloneTool_Retrieval(
         theFeatureFilters           =None,
         theInstanceFilters          =None,
         theAdditionalParams         =None):
+        """Retrieval of the attribute results for an element.
+        
+        """
         
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'pRetrieveAttributeConfigs', theTimeProfilingResults)
@@ -909,6 +811,9 @@ class ModelDDvlPloneTool_Retrieval(
         theFeatureFilters           =None, 
         theInstanceFilters          =None,
         theAdditionalParams         =None):
+        """Retrieval of the traversal results for an element.
+        
+        """
         
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'pRetrieveTraversalConfigs', theTimeProfilingResults)
@@ -952,7 +857,7 @@ class ModelDDvlPloneTool_Retrieval(
                     if unaTraversalConfig.has_key( 'exclude_from_views'):
                         unasExcludeFromViews = unaTraversalConfig[ 'exclude_from_views']
                         if unasExcludeFromViews and (theViewName in unasExcludeFromViews):
-                            continue;
+                            continue
     
                 if unaTraversalConfig.has_key( 'aggregation_name'):
                     unaAggregationName = unaTraversalConfig.get( 'aggregation_name', '')
@@ -1053,6 +958,9 @@ class ModelDDvlPloneTool_Retrieval(
         theFeatureFilters           =None, 
         theInstanceFilters          =None,
         theAdditionalParams         =None):
+        """Retrieval of the traversal results for an aggregation in an element.
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveTraversalConfig_Aggregation', theTimeProfilingResults)
@@ -1349,6 +1257,9 @@ class ModelDDvlPloneTool_Retrieval(
         theFeatureFilters           =None, 
         theInstanceFilters          =None,
         theAdditionalParams         =None):
+        """Retrieval of the traversal results for a relation from an element.
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveTraversalConfig_Relation', theTimeProfilingResults)
@@ -1675,6 +1586,9 @@ class ModelDDvlPloneTool_Retrieval(
         theFeatureFilters               =None,
         theInstanceFilters              =None,
         theAdditionalParams             =None): 
+        """Retrieval of the attribute results and translations in an element.
+        
+        """
             
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveValoresYTraduccionesAtributos', theTimeProfilingResults)
@@ -1721,87 +1635,146 @@ class ModelDDvlPloneTool_Retrieval(
                     theAdditionalParams   = theAdditionalParams,
                 )                                         
                 
-                unElementSchema = theElement.schema
-                if unElementSchema.has_key( unAttributeName):
-                    unElementField  = unElementSchema[ unAttributeName]
-                    if unElementField:
-                        unRawValue = None
-                        if unCanReturnValues: 
-                            try:
-                                unRawValue = unElementField.getRaw( theElement)
-                            except  Exception, unaException:
-                                aLogger = logging.getLogger( 'ModelDDvlPloneTool_Retrieval::fRetrieveValoresYTraduccionesAtributos')
-                                aLogger.info( 'Error accessing element attribute: meta_type=%s title=%s attribute=%s\nException:%s\n' % ( theElement.meta_type, theElement.Title(), unAttributeName , str( unaException) )) 
-                            
-                                        
-                        unElementFieldType      = unElementField.type
+                unElementFieldType = None
+                
+                unAttrAccessorName = unAttributeConfig.get( 'accessor', '')     
+                if unAttrAccessorName:
+                    unAccessor = None
+                    try:
+                        unAccessor = theElement[ unAttrAccessorName]    
+                    except:
+                        None
+                    if unAccessor:
+                        unElementFieldType = unAttributeConfig.get( 'type', '').lower()
+                        try:
+                            unRawValue = unAccessor()
+                        except:
+                            unaExceptionInfo = sys.exc_info()
+                            unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                            unInformeExcepcion = 'Exception during fRetrieveValoresYTraduccionesAtributos during accessor invocation\n' 
+                            unInformeExcepcion += 'meta_type=%s title=%s attribute=%s\n' % ( theElement.meta_type, theElement.Title(), unAttrAccessorName ,)
+                            unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                            unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                            unInformeExcepcion += unaExceptionFormattedTraceback   
+                            aLogger = logging.getLogger( 'ModelDDvlPlone')
+                            aLogger.info( 'Exception:%s\n' % unInformeExcepcion) 
+                
+                unAttributeNameToGet = unAttributeConfig.get( 'attribute', '')     
+                if unAttributeNameToGet:
+                    unElementFieldType = unAttributeConfig.get( 'type', '').lower()
+                    if unAttrAccessorName and unRawValue:
+                        unAttributeOwner = unRawValue
+                    else:
+                        unAttributeOwner = theElement
                         
-                        if unElementFieldType == 'computed':
-                            unValueResult[ 'write_permission'] = False
-                            unValueResult[ 'computed'] = True
-                            unElementFieldType = unAttributeConfig.get( 'type', '') 
-
-                        unWidget = unElementField.widget
-                        if unWidget and (unWidget.getType() == 'Products.Archetypes.Widget.SelectionWidget') and unElementField.__dict__.has_key('vocabulary'):
-                            unElementFieldType = 'selection'
+                    try:
+                        unRawValue = unAttributeOwner.__getattribute__( unAttributeNameToGet)
+                        if unRawValue.__class__.__name__ == "ComputedAttribute":
+                            unComputedAttribute = unRawValue
+                            unRawValue = unComputedAttribute.__get__( theElement)
+                    except:
+                        unaExceptionInfo = sys.exc_info()
+                        unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                        unInformeExcepcion = 'Exception during fRetrieveValoresYTraduccionesAtributos during access to element getattribute\n' 
+                        unInformeExcepcion += 'meta_type=%s title=%s attribute=%s\n' % ( theElement.meta_type, theElement.Title(), unAttributeNameToGet ,)
+                        unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                        unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                        unInformeExcepcion += unaExceptionFormattedTraceback   
+                        aLogger = logging.getLogger( 'ModelDDvlPlone')
+                        aLogger.info( 'Exception:%s\n' % unInformeExcepcion) 
+                
+                elif not unAttrAccessorName:
+                    unElementSchema = theElement.schema
+                    if unElementSchema.has_key( unAttributeName):
+                        unElementField  = unElementSchema[ unAttributeName]
+                        if unElementField:
+                            unElementFieldType      = unElementField.type
                             
-                        unValueResult[ 'type']  = unElementFieldType
-
-                        unValueResult[ 'raw_value']         = unRawValue
-                        unValueResult[ 'value']             = unRawValue
-                        unValueResult[ 'uvalue']            = unRawValue
-                        unValueResult[ 'translated_value']  = unRawValue
-                        
-                        if unElementFieldType == 'selection':
-                                                                                    
-                            aDummy = self.fVocabularyOptionsAndValueTranslationFromCache_into(  
-                                theElement             =theElement, 
-                                theCanReturnValues     =unCanReturnValues, 
-                                theValue               =unRawValue, 
-                                theAttributeName       =unAttributeName, 
-                                theRetrievalExtents    =theRetrievalExtents,
-                                theTranslationsCaches  =theTranslationsCaches, 
-                                theResultDict          =unValueResult,
-                                theAdditionalParams    =theAdditionalParams,
-                            )
-                                   
-                        elif unElementFieldType in[  'string', 'text']:
+                            unRawValue = None
+                            if unCanReturnValues: 
+                                try:
+                                    unRawValue = unElementField.getRaw( theElement)
+                                except  Exception, unaException:
+                                    unaExceptionInfo = sys.exc_info()
+                                    unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                                    unInformeExcepcion = 'Exception during fRetrieveValoresYTraduccionesAtributos elementattribute\n' 
+                                    unInformeExcepcion += 'meta_type=%s title=%s attribute=%s\n' % ( theElement.meta_type, theElement.Title(), unAttributeName ,)
+                                    unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                                    unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                                    unInformeExcepcion += unaExceptionFormattedTraceback   
+                                    aLogger = logging.getLogger( 'ModelDDvlPlone')
+                                    aLogger.info( 'Exception:%s\n' % unInformeExcepcion) 
+                                
                             
-                            unValueResult[ 'uvalue']            = self.fAsUnicode( unRawValue, theElement)
-                            unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
-                            
-                        elif unElementFieldType == 'boolean':
-                            
-                            aDummy = self.fBooleanOptionsAndValueTranslationFromCache_into(     
-                                   theElement, 
-                                   unCanReturnValues, 
-                                   unRawValue,
-                                   unAttributeName, 
-                                   theTranslationsCaches, 
-                                   unValueResult,
-                                   theAdditionalParams)
-                            
-                        elif unElementFieldType == 'integer':
-                            unValueResult[ 'uvalue']            = self.fAsUnicode( str( unRawValue), theElement)
-                            unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
-                            
-                        elif unElementFieldType == 'float':
-                            unValueResult[ 'uvalue']            = self.fAsUnicode( str( unRawValue), theElement)
-                            unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
+                            if unElementFieldType == 'computed':
+                                unValueResult[ 'write_permission'] = False
+                                unValueResult[ 'computed'] = True
+                                unElementFieldType = unAttributeConfig.get( 'type', '') 
     
-                        elif unElementFieldType == 'fixedpoint':
-                            unValueResult[ 'uvalue']            = self.fAsUnicode( str( unRawValue), theElement)
-                            unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
-    
-                        elif unElementFieldType == 'datetime':
-                            self.pDateSubValuesOptionsAndTranslations_into( 
-                               theElement, 
-                               unCanReturnValues, 
-                               unRawValue,
-                               unAttributeName, 
-                               theTranslationsCaches, 
-                               unValueResult)
-            
+                            unWidget = unElementField.widget
+                            if unWidget and (unWidget.getType() == 'Products.Archetypes.Widget.SelectionWidget') and unElementField.__dict__.has_key('vocabulary'):
+                                unElementFieldType = 'selection'
+                 
+                if not unElementFieldType:
+                    continue
+                
+                unValueResult[ 'type']  = unElementFieldType
+
+                unValueResult[ 'raw_value']         = unRawValue
+                unValueResult[ 'value']             = unRawValue
+                unValueResult[ 'uvalue']            = unRawValue
+                unValueResult[ 'translated_value']  = unRawValue
+                
+                if unElementFieldType == 'selection':
+                                                                            
+                    aDummy = self.fVocabularyOptionsAndValueTranslationFromCache_into(  
+                        theElement             =theElement, 
+                        theCanReturnValues     =unCanReturnValues, 
+                        theValue               =unRawValue, 
+                        theAttributeName       =unAttributeName, 
+                        theRetrievalExtents    =theRetrievalExtents,
+                        theTranslationsCaches  =theTranslationsCaches, 
+                        theResultDict          =unValueResult,
+                        theAdditionalParams    =theAdditionalParams,
+                    )
+                           
+                elif unElementFieldType in[  'string', 'text']:
+                    
+                    unValueResult[ 'uvalue']            = self.fAsUnicode( unRawValue, theElement)
+                    unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
+                    
+                elif unElementFieldType == 'boolean':
+                    
+                    aDummy = self.fBooleanOptionsAndValueTranslationFromCache_into(     
+                           theElement, 
+                           unCanReturnValues, 
+                           unRawValue,
+                           unAttributeName, 
+                           theTranslationsCaches, 
+                           unValueResult,
+                           theAdditionalParams)
+                    
+                elif unElementFieldType == 'integer':
+                    unValueResult[ 'uvalue']            = self.fAsUnicode( str( unRawValue), theElement)
+                    unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
+                    
+                elif unElementFieldType == 'float':
+                    unValueResult[ 'uvalue']            = self.fAsUnicode( str( unRawValue), theElement)
+                    unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
+
+                elif unElementFieldType == 'fixedpoint':
+                    unValueResult[ 'uvalue']            = self.fAsUnicode( str( unRawValue), theElement)
+                    unValueResult[ 'translated_value']  = unValueResult[ 'uvalue']
+
+                elif unElementFieldType == 'datetime':
+                    self.pDateSubValuesOptionsAndTranslations_into( 
+                       theElement, 
+                       unCanReturnValues, 
+                       unRawValue,
+                       unAttributeName, 
+                       theTranslationsCaches, 
+                       unValueResult)
+                
             return someElementValues                            
 
         finally:
@@ -1823,6 +1796,9 @@ class ModelDDvlPloneTool_Retrieval(
         theCheckedPermissionsCache  =None,
         theWritePermissions         =None,
         theAdditionalParams         =None):
+        """Retrieval of the cursor result for an element, including the first, last, previous and next sibling elements on the element's container.
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveAggregationCursorInfoAndTranslations', theTimeProfilingResults)
@@ -1926,6 +1902,9 @@ class ModelDDvlPloneTool_Retrieval(
 
     security.declarePrivate('fNewResultForElement')
     def fNewResultForElement(self, theElement, theResult=None):
+        """Create a result structure for an element, initializing it with the most relevant information, including identity, naming, path and owner attributes.
+        
+        """
         
         unResult = theResult
         if unResult == None:
@@ -1978,13 +1957,27 @@ class ModelDDvlPloneTool_Retrieval(
         # TO REVIEW
         unPath = ''    
         try:
-            unPath         = theElement.fPhysicalPathString()
+            unPath         = theElement.fPhysicalPathString( theElement)
         except:
-            unPath         = '/' + ('/'.join( theElement.getPhysicalPath()[2:]))
+            unPath         = '/'.join( theElement.getPhysicalPath())
         if unPath:
             unResult[ 'path'] = unPath 
             
             
+            
+        unRootPath = ''    
+        try:
+            unRootPath         = theElement.fPathDelRaiz()
+        except:
+            None
+        if not unRootPath:
+            try:
+                unRootPath     = theElement.getRaiz().fPhysicalPathString()
+            except:
+                None
+        if unRootPath:
+            unResult[ 'root_path'] = unRootPath 
+             
             
         # ACV 200906110258 added portal_url to have all icons and images to reference same url to allow effective caching
         unPortalURLTool = getToolByName( theElement, 'portal_url')
@@ -2004,7 +1997,7 @@ class ModelDDvlPloneTool_Retrieval(
         except:
             None
         if unPortalType:
-            unResult[ 'portal_type'] = unPortalType
+            unResult[ 'portal_type'] = unPortalType 
 
         unArchetypeName = ''    
         try:
@@ -2037,6 +2030,31 @@ class ModelDDvlPloneTool_Retrieval(
             None
         if unEsRaiz:
             unResult[ 'is_root'] = unEsRaiz
+            
+            
+        unOwner = None
+        try:
+            unOwner = theElement.getContenedor()
+        except:
+            None
+        if unOwner:
+            unOwnerEsColeccion = False
+            try:
+                unOwnerEsColeccion =  unOwner.getEsColeccion()
+            except:
+                None
+            if unOwnerEsColeccion:    
+                unOwner = unOwner.getContenedor()
+            
+            unOwnerPath = ''    
+            try:
+                unOwnerPath         = unOwner.fPhysicalPathString()
+            except:
+                unOwnerPath = '/'.join( unOwner.getPhysicalPath())
+            if unOwnerPath:
+                unResult[ 'owner_path'] = unOwnerPath 
+        
+                
 
         unNombreProyecto = ''
         try:
@@ -2070,6 +2088,14 @@ class ModelDDvlPloneTool_Retrieval(
         if unAllowPaste:
             unResult[ 'allow_paste'] = True
 
+        unAllowImport = True
+        try:
+            unAllowImport = theElement.fAllowImport()
+        except:
+            None            
+        if unAllowImport:
+            unResult[ 'allow_import'] = True
+
         return unResult   
 
 
@@ -2090,6 +2116,9 @@ class ModelDDvlPloneTool_Retrieval(
         theParentTraversalResult    =None,
         theWritePermissions         =None,
         theAdditionalParams         =None):
+        """Retrieve a result structure for an element, initialized with the most important information and attributes.
+        
+        """
         
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fRetrieveElementoBasicInfoAndTranslations', theTimeProfilingResults)
@@ -2174,6 +2203,9 @@ class ModelDDvlPloneTool_Retrieval(
     
     security.declarePrivate( 'fRetrieveElementoTypeInfo')
     def fRetrieveElementoTypeInfo(self, theElement, theTranslationsCaches, theResult=None):
+        """Retrieve translations for an element's type.
+        
+        """
         
         unResult = theResult
         if not unResult:
@@ -2209,33 +2241,41 @@ class ModelDDvlPloneTool_Retrieval(
         theTranslationsCaches  = None, 
         theResult              = None,
         theAdditionalParams    = None):
+        """Retrieve the factory specifications applicable to create elements inside a given element, including their translations.
         
-        
+        """
+         
         if not theResult:
             return self
                 
         someFactoryNamesAndTranslations = [ ]                                            
-        for unPortalTypeName in theTypeNames:
+        for unMetaType in theTypeNames:
             
             unPortalTypeTranslations = self.fMetaTypeNameTranslationsFromCache_into( 
-                theMetaTypeName        =unPortalTypeName, 
+                theMetaTypeName        =unMetaType, 
                 theTranslationsCaches  =theTranslationsCaches, 
                 theResultDict          =None, 
                 theContextualElement   =theContextElement,
                 theAdditionalParams    =theAdditionalParams,
             )
             unContentIcon    = ''
-            unArchetypeName  = ''
+            unArchetypeName  = unMetaType
+            unPortalType     = unMetaType
             if unPortalTypeTranslations:
                 unArchetypeName = unPortalTypeTranslations.get( 'archetype_name', '')
                 unContentIcon = unPortalTypeTranslations.get( 'content_icon', '')
+                
+            unPlonePortalType = self.fPlonePortalTypeForMetaType( unMetaType)
+            if unPlonePortalType:
+                unPortalType = unPlonePortalType
                
             unFactoryResult = self.fNewVoidFactoryResult()
             unFactoryResult.update( { 
-                'meta_type':            unPortalTypeName, 
+                'meta_type':            unMetaType, 
                 'type_translations':    unPortalTypeTranslations, 
                 'content_icon':         unContentIcon ,
                 'archetype_name':       unArchetypeName,
+                'portal_type':          unPortalType,
             } )                
             
             someFactoryNamesAndTranslations.append( unFactoryResult)
@@ -2301,6 +2341,175 @@ class ModelDDvlPloneTool_Retrieval(
 
     
     
+# #############################################################
+# Initialize keyed indexes in result dictionaries, whose initialization was postponed during retrieval.
+# 
+
+    security.declarePrivate('pBuildResultDicts')
+    def pBuildResultDicts(self, theResult, theWhichDicts=None):
+        """Initialize result dictionaries indexing feature results by name and id.
+        
+        """
+        if not theResult:
+            return self
+        
+        if ( theWhichDicts == None) or ( 'owner_element' in theWhichDicts):
+            anOwnerResult = theResult.get( 'owner_element', None)
+            if anOwnerResult:
+                self.pBuildResultDicts_ElementValues( anOwnerResult)            
+            
+        if ( theWhichDicts == None) or ( 'container_element' in theWhichDicts):
+            aContainerResult = theResult.get( 'container_element', None)
+            if aContainerResult:
+                self.pBuildResultDicts_ElementValues( aContainerResult)
+                
+        if ( theWhichDicts == None) or ( 'cursor' in theWhichDicts):
+            aCursorResult = theResult.get( 'cursor', None)
+            if aCursorResult:
+                aFirstElementResult = aCursorResult.get( 'first_element', None)
+                if aFirstElementResult:
+                    self.pBuildResultDicts_ElementValues( aFirstElementResult)
+                    
+                aLastElementResult = aCursorResult.get( 'last_element', None)
+                if aLastElementResult:
+                    self.pBuildResultDicts_ElementValues( aLastElementResult)
+    
+                aPreviousElementResult = aCursorResult.get( 'previous_element', None)
+                if aPreviousElementResult:
+                    self.pBuildResultDicts_ElementValues( aPreviousElementResult)
+    
+                aNextElementResult = aCursorResult.get( 'next_element', None)
+                if aNextElementResult:
+                    self.pBuildResultDicts_ElementValues( aNextElementResult)
+                    
+        if ( theWhichDicts == None) or ( 'values' in theWhichDicts):
+            self.pBuildResultDicts_ElementValues(     theResult)
+            
+        if ( theWhichDicts == None) or ( 'traversals' in theWhichDicts):
+            self.pBuildResultDicts_ElementTraversals( theResult)    
+            
+        return self
+    
+        
+        
+    
+    security.declarePrivate('pBuildResultDicts_Element')
+    def pBuildResultDicts_Element(self, theResult):
+        if not theResult:
+            return self
+        
+        self.pBuildResultDicts_ElementValues(     theResult)
+        self.pBuildResultDicts_ElementTraversals( theResult)
+
+        return self
+    
+    
+    
+    
+    
+    security.declarePrivate('pBuildResultDicts_ElementValues')
+    def pBuildResultDicts_ElementValues(self, theResult):
+        """Initialize result dictionaries indexing attribute results by name.
+        
+        """
+        if not theResult:
+            return self
+
+        someValuesResults    = theResult.get( 'values',     None)
+                 
+        if someValuesResults:
+            someValuesByName = theResult.get( 'values_by_name', None)
+            if someValuesByName == None:
+                someValuesByName = { }
+                theResult[ 'values_by_name'] = someValuesByName
+
+            for aValueResult in someValuesResults:
+                anAttributeName = aValueResult.get( 'attribute_name', '')
+                if anAttributeName:
+                    someValuesByName[ anAttributeName] = aValueResult
+                    
+                    someSubValuesResults = aValueResult.get( 'sub_values', None)
+                    if someSubValuesResults:
+                        someSubValuesByName = aValueResult.get( 'sub_values_by_name', None)
+                        if someSubValuesByName == None:
+                            someSubValuesByName = { }
+                            aValueResult[ 'sub_values_by_name'] = someSubValuesByName
+                    
+                        for aSubValueResult in someSubValuesResults:
+                            aSubValueName = aSubValueResult.get( 'attribute_name', '')
+                            if aSubValueName:
+                                someSubValuesByName[ aSubValueName ] = aSubValueResult
+            
+        return self
+    
+    
+    
+    
+    security.declarePrivate('pBuildResultDicts_ElementTraversals')
+    def pBuildResultDicts_ElementTraversals(self, theResult):
+        """Initialize result dictionaries indexing traversal results by name, and recursively the results of traversed elements.
+        
+        """
+        if not theResult:
+            return self
+
+        someTraversalResults = theResult.get( 'traversals', None)
+                 
+        if someTraversalResults:
+            someTraversalsByName = theResult.get( 'traversals_by_name', None)
+            if someTraversalsByName == None:
+                someTraversalsByName = { }
+                theResult[ 'traversals_by_name'] = someTraversalsByName
+            
+            for aTraversalResult in someTraversalResults:
+                aTraversalName = aTraversalResult.get( 'traversal_name', '')
+                if aTraversalName:
+                    someTraversalsByName[ aTraversalName] = aTraversalResult
+    
+                someElementsResults = aTraversalResult.get( 'elements', [])
+                if someElementsResults:
+                    
+                    someElementsById = aTraversalResult.get( 'elements_by_id', [])  
+                    if someElementsById == None:
+                        someElementsById = { }
+                        aTraversalResult[ 'elements_by_id'] = someElementsById
+    
+                    someElementsByUID = aTraversalResult.get( 'elements_by_UID', [])  
+                    if someElementsByUID == None:
+                        someElementsByUID = { }
+                        aTraversalResult[ 'elements_by_UID'] = someElementsByUID
+                        
+                    for anElementResult in someElementsResults:
+                        anElementId = anElementResult.get( 'id', '')
+                        if anElementId:
+                            someElementsById[ anElementId] = anElementResult
+                        
+                        anElementUID = anElementResult.get( 'UID', '')
+                        if anElementUID:
+                            someElementsByUID[ anElementUID] = anElementResult
+                
+                        self.pBuildResultDicts_Element( anElementResult)
+                        
+                aTraversalConfig = aTraversalResult.get( 'traversal_config', {})
+                if aTraversalConfig:
+                    aRelationName = aTraversalConfig.get( 'relation_name', '')
+                    if aRelationName:
+                        
+                        aCandidatesTraversalResult = aTraversalResult.get( 'candidates', [])
+                        if aCandidatesTraversalResult:
+                            
+                            someCandidateElementsResults = aCandidatesTraversalResult.get( 'elements', [])
+                            if someCandidateElementsResults:
+                                
+                                for aCandidateElementResult in someCandidateElementsResults:                                        
+                                    self.pBuildResultDicts_Element( aCandidateElementResult)
+                                
+        
+        return self
+    
+        
+    
+        
     
     
 # #############################################################

@@ -31,7 +31,7 @@ Antonio Carrasco Valero <carrasco@ModelDD.org>"""
 __docformat__ = 'plaintext'
 
 
-
+import sys
 import logging
 import traceback
 
@@ -108,7 +108,7 @@ class ModelDDvlPloneTool_Export:
         theAllExportTypeConfigs     =None, 
         theOutputEncoding           =None,
         theAdditionalParams         =None):
-        """Export theObject and its contents into a zip archive, including attached files and images.
+        """Export an element as a zipped archive with XML file, and including binary content with the attached files and images."
         
         """
 
@@ -219,6 +219,7 @@ class ModelDDvlPloneTool_Export:
         
         unExportResult = self.fExport_Recursive( 
             theTimeProfilingResults     =theTimeProfilingResults,
+            theRootObject               =theObject,
             theObject                   =theObject, 
             theAllExportTypeConfigs     =theAllExportTypeConfigs, 
             theExportContext            =unExportContext,
@@ -252,7 +253,7 @@ class ModelDDvlPloneTool_Export:
 
         unZipFile.close()  
         
-        unZIPFileName = '%s.%s' % ( theObject.getId(), cZIPFilePostfix, )
+        unZIPFileName = '%s%s' % ( theObject.getId(), cZIPFilePostfix, )
         
         theObject.REQUEST.RESPONSE.setHeader('Content-Type','application/zip')
         theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unZIPFileName)
@@ -302,39 +303,100 @@ class ModelDDvlPloneTool_Export:
         someImagesToExport = theExportContext.get( 'images_to_export', [])
         for anImageToExport in someImagesToExport:
             anImageFullFileName = anImageToExport[ 0]
-            anImageAsFile       = anImageToExport[ 1]
-            
+            anImageId           = anImageToExport[ 1]
+            anImageAsFile       = anImageToExport[ 2]
+            anImageContentType  = anImageToExport[ 3]
+           
             if anImageFullFileName and anImageAsFile:
-                unZipFile.writestr( anImageFullFileName, anImageAsFile.getvalue())
+                try:
+                    unZipFile.writestr( anImageFullFileName, anImageAsFile.getvalue())
+                except:
+                    None
                 
         someFilesToExport = theExportContext.get( 'files_to_export', [])
         for anFileToExport in someFilesToExport:
             anFileFullFileName = anFileToExport[ 0]
-            anFileAsFile       = anFileToExport[ 1]
-            
+            anFileId           = anFileToExport[ 1]
+            anFileAsFile       = anFileToExport[ 2]
+            anFileContentType  = anFileToExport[ 3]
+           
             if anFileFullFileName and anFileAsFile:
                 aWholeData = ''
-                aFileDataObject = anFileAsFile.data
-                while aFileDataObject:
-                    aFileData = aFileDataObject.data
-                    if aFileData:
-                        aWholeData = aWholeData + aFileData
-                        aFileDataObject = aFileDataObject.next
-                    else:
-                        aFileDataObject = None
                 
-                unZipFile.writestr( anFileFullFileName, aWholeData)
+                aFileDataObject = anFileAsFile.data
+                if aFileDataObject.__class__.__name__ == 'str':
+                    aWholeData = aFileDataObject
+                else:
+                    while aFileDataObject:
+                        aFileData = aFileDataObject.data
+                        if aFileData:
+                            aWholeData = aWholeData + aFileData
+                            aFileDataObject = aFileDataObject.next
+                        else:
+                            aFileDataObject = None
+                
+                try:
+                    unZipFile.writestr( anFileFullFileName, aWholeData)
+                except:
+                    None
         
         return True
     
     
     
+    security.declarePrivate( 'fPathRelativeToRoot')
+    def fPathRelativeToRoot( self, theElement, theRootElement, theAdditionalPathStep=''):
+        
+        if not theElement or not theRootElement:
+            return []
+    
+            
+        unElementPath     = theElement.getPhysicalPath()
+        unRootPath        = theRootElement.getPhysicalPath()
+        
+        unRootPathLength = len( unRootPath)
+        
+        if len( unElementPath) <= unRootPathLength:
+            return []
+        
+        for unPathIndex in range( unRootPathLength):
+            
+            unElementStep = unElementPath[ unPathIndex]
+            unRootStep    = unRootPath[    unPathIndex]
+            
+            if not ( unElementStep == unRootStep):
+                return []
+            
+        unRelativePath = unElementPath[ unRootPathLength:]    
+        unRelativePath = list( unRelativePath)
+        
+        if theAdditionalPathStep:
+            unRelativePath.extend( [ theAdditionalPathStep,])
+            
+        return unRelativePath
     
    
+    
+    
+    security.declarePrivate( 'fPathStringRelativeToRoot')
+    def fPathStringRelativeToRoot( self, theElement, theRootElement, theAdditionalPathStep=''):
+        
+        unPath = self.fPathRelativeToRoot( theElement, theRootElement, theAdditionalPathStep)
+        if not unPath:
+            return '/'        
+        
+        unPathString  = '/' + '/'.join( unPath)
+        
+        return unPathString 
 
+    
+    
+    
+    
     security.declarePrivate( 'fExport_Recursive')
     def fExport_Recursive( self,
         theTimeProfilingResults     =None,
+        theRootObject               =None,
         theObject                   =None, 
         theAllExportTypeConfigs     =None, 
         theExportContext            =None,
@@ -384,7 +446,7 @@ class ModelDDvlPloneTool_Export:
         
         
         # ##############################################################################
-        """Get metatype name encoded for output from cache .
+        """Get metatype name  from cache encoded for output.
         
         """
         unElementMetaTypeEncoded = theEncodedNamesCache.get( unElementMetaType, None)
@@ -405,8 +467,9 @@ class ModelDDvlPloneTool_Export:
         unNewElement = unXMLDocument.createElement( unElementMetaTypeEncoded)
         
         unNewElement.setAttribute( cXMLAttributeName_PloneTitle,    theObject.Title())
+        unNewElement.setAttribute( cXMLAttributeName_PloneId,       theObject.getId())
         unNewElement.setAttribute( cXMLAttributeName_PloneUID,      theObject.UID())
-        unNewElement.setAttribute( cXMLAttributeName_PlonePath,     '/'.join( theObject.getPhysicalPath()))
+        unNewElement.setAttribute( cXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( theObject, theRootObject))
         
         
         
@@ -438,7 +501,7 @@ class ModelDDvlPloneTool_Export:
                     'status':       cExportStatus_Error_Internal_ObjectHasNoSchema,
                 })
                 return False
-            
+           
             
             # ##############################################################################
             """Iterate and export each configured attribute.
@@ -446,215 +509,287 @@ class ModelDDvlPloneTool_Export:
             """
             unosAttrConfigs = unTypeConfig.get( 'attrs', [])
             for unAttrConfig in unosAttrConfigs:
+                
                 unAttrName = unAttrConfig.get( 'name', '')
-                if unAttrName:
+                if not unAttrName:
+                    continue
                     
-                    aTextContentType = ''
+                unRawValue = None
+                
+                unAttrType = None
+                
+                
+                aContentTypeAttributeToSet  = ''
+                unIdAttributeToSet          = ''
+                unTitleAttributeToSet       = ''
+                
+                unAttrNameEncoded = theEncodedNamesCache.get( unAttrName, None)
+                if not unAttrNameEncoded:
+                    theExportErrors.append( { 
+                        'status':       cExportStatus_Error_Internal_EncodedNameMissing_AttrName,
+                        'meta_type':    unElementMetaType,
+                    })
+                    continue
+                
+                unAttrType         = unAttrConfig.get( 'type',      '').lower()
+                unAttrAccessorName = unAttrConfig.get( 'accessor',  '')     
+                unAttributeName    = unAttrConfig.get( 'attribute', '')     
+                
+                if unAttrAccessorName or unAttributeName:
                     
-                    unAttrNameEncoded = theEncodedNamesCache.get( unAttrName, None)
-                    if not unAttrNameEncoded:
-                        theExportErrors.append( { 
-                            'status':       cExportStatus_Error_Internal_EncodedNameMissing_AttrName,
-                            'meta_type':    unElementMetaType,
-                        })
-                    else:     
-                        unAttrAccessorName = unAttrConfig.get( 'accessor', '')     
+                    if unAttrAccessorName:
+                        unAccessor = None
+                        try:
+                            unAccessor = theObject[ unAttrAccessorName]    
+                        except:
+                            None
+                        if not unAccessor:
+                            theExportErrors.append( { 
+                                'status':       cExportStatus_Error_Internal_AttributeAccessorNotFound,
+                                'meta_type':    unElementMetaType,
+                                'attr':         unAttrName,
+                                'accessor':     unAccessor,
+                                'path':         '/'.join( theObject.getPhysicalPath()),
+                            })
+                            continue
+                        
+                        try:
+                            unRawValue = unAccessor()
+                            
+                        except:
+                            unaExceptionInfo = sys.exc_info()
+                            unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                            unInformeExcepcion = 'Exception during fExport_Recursive during invocation of element explicit accessor for attribute\n' 
+                            unInformeExcepcion += 'meta_type=%s path=%s attribute=%s accessor=%s\n' % ( unElementMetaType, '/'.join( theObject.getPhysicalPath()), unAttrName, unAttrAccessorName,)
+                            unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                            unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                            unInformeExcepcion += unaExceptionFormattedTraceback   
+                            
+                            theExportErrors.append( { 
+                                'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
+                                'meta_type':    unElementMetaType,
+                                'attr':         unAttrName,
+                                'path':         '/'.join( theObject.getPhysicalPath()),
+                                'exception':    unInformeExcepcion,
+                            })
+                            aLogger = logging.getLogger( 'ModelDDvlPloneTool_Export')
+                            aLogger.info( unInformeExcepcion) 
+                            
+                            continue
+                                
+                        
+                    if unAttributeName:
+                        
+                        unAttributeOwner = theObject
                         if unAttrAccessorName:
-                            unAccessor = None
-                            try:
-                                unAccessor = theObject[ unAttrAccessorName]    
-                            except:
-                                None
-                            if not unAccessor:
-                                theExportErrors.append( { 
-                                    'status':       cExportStatus_Error_Internal_AttributeAccessorNotFound,
-                                    'meta_type':    unElementMetaType,
-                                    'attr':         unAttrName,
-                                    'accessor':     unAccessor,
-                                    'path':         '/'.join( theObject.getPhysicalPath()),
-                                })
-                            else:
-                                unObjectAttributeFieldType = unAttrConfig.get( 'type', '').lower()
-                                try:
-                                    unRawValue = unAccessor()
-                                except:
-                                    unaExceptionInfo = sys.exc_info()
-                                    unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
-                                    unInformeExcepcion = 'Exception during fExport_Recursive during invocation of element explicit accessor for attribute\n' 
-                                    unInformeExcepcion += 'meta_type=%s path=%s attribute=%s accessor=%s\n' % ( unElementMetaType, '/'.join( theObject.getPhysicalPath()), unAttrName, unAccessor,)
-                                    unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-                                    unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-                                    unInformeExcepcion += unaExceptionFormattedTraceback   
-                                    
-                                    theExportErrors.append( { 
-                                        'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
-                                        'meta_type':    unElementMetaType,
-                                        'attr':         unAttrName,
-                                        'path':         '/'.join( theObject.getPhysicalPath()),
-                                        'exception':    unInformeExcepcion,
-                                    })
-                                    aLogger = logging.getLogger( 'ModelDDvlPloneTool_Export::fExport_Recursive')
-                                    aLogger.info( unInformeExcepcion) 
-                                
-                        unAttributeName = unAttrConfig.get( 'attribute', '')     
-                        if unAttributeName:
-                            unObjectAttributeFieldType = unAttrConfig.get( 'type', '').lower()
-                            if unAttrAccessorName and unRawValue:
-                                unAttributeOwner = unRawValue
-                            else:
-                                unAttributeOwner = theObject
-                                
-                            try:
-                                unRawValue = unAttributeOwner.__getattribute__( unAttributeName)
-                                if unRawValue.__class__.__name__ == "ComputedAttribute":
-                                    unComputedAttribute = unRawValue
-                                    unRawValue = unComputedAttribute.__get__( theObject)
-                            except:
-                                unaExceptionInfo = sys.exc_info()
-                                unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
-                                unInformeExcepcion = 'Exception during fExport_Recursive during access to element getattribute\n' 
-                                unInformeExcepcion += 'meta_type=%s path=%s attribute=%s attributeName=%s\n' % ( unElementMetaType, '/'.join( theObject.getPhysicalPath()), unAttrName, unAttributeName)
-                                unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-                                unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-                                unInformeExcepcion += unaExceptionFormattedTraceback   
-                                
-                                theExportErrors.append( { 
-                                    'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
-                                    'meta_type':    unElementMetaType,
-                                    'attr':         unAttrName,
-                                    'path':         '/'.join( theObject.getPhysicalPath()),
-                                    'exception':    unInformeExcepcion,
-                                })
-                                aLogger = logging.getLogger( 'ModelDDvlPloneTool_Export::fExport_Recursive')
-                                aLogger.info( unInformeExcepcion) 
-                                
-                        elif not unAttrAccessorName:
-                            if not unObjectSchema.has_key( unAttrName):
-                                continue
+                            unAttributeOwner = unRawValue
                             
-                            unObjectAttributeField          = unObjectSchema[ unAttrName]
-    
-                            unRawValue = None
-                            try:
-                                unRawValue = unObjectAttributeField.getRaw( theObject)
-                            except:
-                                unaExceptionInfo = sys.exc_info()
-                                unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
-                                unInformeExcepcion = 'Exception during fExport_Recursive accessing element attribute\n' 
-                                unInformeExcepcion += 'meta_type=%s path=%s attribute=%s\n' % ( unElementMetaType, '/'.join( theObject.getPhysicalPath()), unAttrName,)
-                                unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
-                                unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
-                                unInformeExcepcion += unaExceptionFormattedTraceback   
-                                
-                                theExportErrors.append( { 
-                                    'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
-                                    'meta_type':    unElementMetaType,
-                                    'attr':         unAttrName,
-                                    'path':         '/'.join( theObject.getPhysicalPath()),
-                                    'exception':    unInformeExcepcion,
-                                })
-                                aLogger = logging.getLogger( 'ModelDDvlPloneTool_Export::fExport_Recursive')
-                                aLogger.info( unInformeExcepcion) 
+                        if ( unAttributeOwner == None):
+                            continue 
+                        
+                        try:
+                            unRawValue = unAttributeOwner.__getattribute__( unAttributeName)
+                            if unRawValue.__class__.__name__ == "ComputedAttribute":
+                                unComputedAttribute = unRawValue
+                                unRawValue = unComputedAttribute.__get__( unAttributeOwner)
+                        except:
+                            unaExceptionInfo = sys.exc_info()
+                            unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                            unInformeExcepcion = 'Exception during fExport_Recursive during access to element getattribute\n' 
+                            unInformeExcepcion += 'meta_type=%s path=%s attribute=%s attributeName=%s\n' % ( unElementMetaType, '/'.join( theObject.getPhysicalPath()), unAttrName, unAttributeName)
+                            unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                            unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                            unInformeExcepcion += unaExceptionFormattedTraceback   
+                            
+                            theExportErrors.append( { 
+                                'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
+                                'meta_type':    unElementMetaType,
+                                'attr':         unAttrName,
+                                'path':         '/'.join( theObject.getPhysicalPath()),
+                                'exception':    unInformeExcepcion,
+                            })
+                            aLogger = logging.getLogger( 'ModelDDvlPloneTool')
+                            aLogger.info( unInformeExcepcion) 
+                            
+                            continue
+                        
+                else:
+                    if not unObjectSchema.has_key( unAttrName):
+                        continue
                     
-                            unObjectAttributeFieldType      = unObjectAttributeField.type.lower()
-                            if unObjectAttributeFieldType == 'computed':
-                                unObjectAttributeFieldType = unAttrConfig.get( 'type', '').lower() 
-                                
-                            unWidget = unObjectAttributeField.widget
-                            if unWidget and (unWidget.getType() == 'Products.Archetypes.Widget.SelectionWidget') and unObjectAttributeField.__dict__.has_key('vocabulary'):
-                                unObjectAttributeFieldType = 'selection'
-                            
-                        unValueStringEncoded = ''
-                        unCreateCDATA = False
+                    unObjectAttributeField          = unObjectSchema[ unAttrName]
+
+                    unRawValue = None
+                    try:
+                        unRawValue = unObjectAttributeField.getRaw( theObject)
+                    except:
+                        unaExceptionInfo = sys.exc_info()
+                        unaExceptionFormattedTraceback = ''.join(traceback.format_exception( *unaExceptionInfo))
+                        unInformeExcepcion = 'Exception during fExport_Recursive accessing element attribute\n' 
+                        unInformeExcepcion += 'meta_type=%s path=%s attribute=%s\n' % ( unElementMetaType, '/'.join( theObject.getPhysicalPath()), unAttrName,)
+                        unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
+                        unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
+                        unInformeExcepcion += unaExceptionFormattedTraceback   
                         
-                        if unObjectAttributeFieldType in [ 'string', 'text', 'selection',]:  
-                            if unObjectAttributeFieldType in [ 'text',]:  
-                                if unAttrName == "description":
-                                    unCreateCDATA = False
-                                else:
-                                    unCreateCDATA = True                                    
-                                
-                                    if unObjectAttributeField:
-                                        aTextContentType = unObjectAttributeField.getContentType( theObject)
-                                 
-                            unValueStringEncoded = ''
-                            if unRawValue:
-                                unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRawValue, theTranslationService, theOutputEncoding)
-                                if ( not unEncodingOk)  or not unValueStringEncoded:
-                                    theEncodingErrors.append( { 
-                                        'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
-                                        'meta_type':    unElementMetaType,
-                                        'attr':         unAttrName,
-                                        'value':        repr( unRawValue),
-                                    })
-                                
-                        elif unObjectAttributeFieldType in [ 'boolean', 'integer', 'float','fixedpoint',]:  
-                            unValueString = str( unRawValue)
-                            unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unValueString, theTranslationService, theOutputEncoding)
-                            if not unEncodingOk:
-                                unValueStringEncoded = ''
-                                
-                        elif unObjectAttributeFieldType == 'image':
-                            unaImage = unRawValue
-                            #unaImage = theObject.getImage()
-                            if unaImage:                                
-                                unaImageAsFile = unaImage.getImageAsFile()
-                                unFilename = unaImage.filename
-                            else:
-                                unaImageAsFile = StringIO()
-                                unFilename = theObject.getFilename()
-                            if not unFilename:
-                                unFilename = theObject.getId()
-                            unImageFullFileName = '/'.join( theObject.getPhysicalPath() + ( unFilename, ))
-                                
-                            unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unImageFullFileName, theTranslationService, theOutputEncoding)
-                            if ( not unEncodingOk)  or not unValueStringEncoded:
-                                theEncodingErrors.append( { 
-                                    'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
-                                    'meta_type':    unElementMetaType,
-                                    'attr':         unAttrName,
-                                    'value':        repr( unImageFullFileName),
-                                })
-                                unValueStringEncoded = ''
-                            
-                            theExportContext[ 'images_to_export'].append( [ unImageFullFileName, unaImageAsFile,])
-                            
-                            
-                        elif unObjectAttributeFieldType == 'file':
-                            unFileAsFile = unRawValue
-                            unFileFullFileName = '/'.join( theObject.getPhysicalPath() + ( theObject.getFilename(), ))
-
-                            unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unFileFullFileName, theTranslationService, theOutputEncoding)
-                            if ( not unEncodingOk)  or not unValueStringEncoded:
-                                theEncodingErrors.append( { 
-                                    'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
-                                    'meta_type':    unElementMetaType,
-                                    'attr':         unAttrName,
-                                    'value':        repr( unFileFullFileName),
-                                })
-                                unValueStringEncoded = ''
-                            
-                            theExportContext[ 'files_to_export'].append( [ unFileFullFileName, unFileAsFile,])
-                            
-                            
-
-                    unNewAttributeElement    = unXMLDocument.createElement( unAttrNameEncoded)
-                    unNewElement.appendChild( unNewAttributeElement)
-
-                    if unValueStringEncoded:
+                        theExportErrors.append( { 
+                            'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
+                            'meta_type':    unElementMetaType,
+                            'attr':         unAttrName,
+                            'path':         '/'.join( theObject.getPhysicalPath()),
+                            'path':         '/'.join( theObject.getPhysicalPath()),
+                            'exception':    unInformeExcepcion,
+                        })
+                        aLogger = logging.getLogger( 'ModelDDvlPloneTool')
+                        aLogger.info( unInformeExcepcion) 
                         
-                        if aTextContentType:
-                            unNewAttributeElement.setAttribute( cXMLAttributeName_ContentType, aTextContentType)                        
-
-                        unNewAttributeElementData = None
-                        if unCreateCDATA:
-                            unValueStringEncoded = unValueStringEncoded.replace( ']]>', '')
-                            unNewAttributeElementData   = unXMLDocument.createCDATASection( unValueStringEncoded)
+                        continue                       
+                    
+                    
+                    unAttrType      = unObjectAttributeField.type.lower()
+                    if unAttrType == 'computed':
+                        unAttrType = unAttrConfig.get( 'type', '').lower() 
+                        
+                    unWidget = unObjectAttributeField.widget
+                    if unWidget and (unWidget.getType() == 'Products.Archetypes.Widget.SelectionWidget') and unObjectAttributeField.__dict__.has_key('vocabulary'):
+                        unAttrType = 'selection'
+                    
+                unValueStringEncoded = ''
+                unCreateCDATA = False
+                
+                if unAttrType in [ 'string', 'text', 'selection',]:  
+                    if unAttrType in [ 'text',]:  
+                        if unAttrName == "description":
+                            unCreateCDATA = False
                         else:
-                            unValueStringEncoded = unValueStringEncoded.replace( '<![CDATA[', '')                                                        
-                            unNewAttributeElementData   = unXMLDocument.createTextNode( unValueStringEncoded)
+                            unCreateCDATA = True                                    
+                        
+                            if unObjectAttributeField:
+                                aContentTypeAttributeToSet = unObjectAttributeField.getContentType( theObject)
+                         
+                    unValueStringEncoded = ''
+                    if unRawValue:
+                        unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRawValue, theTranslationService, theOutputEncoding)
+                        if ( not unEncodingOk)  or not unValueStringEncoded:
+                            theEncodingErrors.append( { 
+                                'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
+                                'meta_type':    unElementMetaType,
+                                'attr':         unAttrName,
+                                'value':        repr( unRawValue),
+                            })
+                        
+                elif unAttrType in [ 'boolean', 'integer', 'float','fixedpoint',]:  
+                    unValueString = str( unRawValue)
+                    unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unValueString, theTranslationService, theOutputEncoding)
+                    if not unEncodingOk:
+                        unValueStringEncoded = ''
+                        
+                        
+                elif unAttrType in [ 'datetime', 'date', ]:  
+                    unValueString = str( unRawValue)
+                    unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unValueString, theTranslationService, theOutputEncoding)
+                    if not unEncodingOk:
+                        unValueStringEncoded = ''
+                        
+                elif unAttrType == 'image':
+                    if unRawValue:
+                        
+                        unaImage = unRawValue
+
+                        unaImageAsFile = unaImage.getImageAsFile()
+                        
+                        unIdAttributeToSet       = unaImage.getId()
+                        unTitleAttributeToSet    = unaImage.Title()
+                        
+                        unFilename = unaImage.filename
+                        if not unFilename:
+                            unFilename = unaImage.getFilename()
+                        if not unFilename:
+                            unFilename = ''
+                        else:
+                            if unFilename.__class__.__name__ == 'unicode':
+                                unFilename = unFilename.encode()
+                                                        
+                        unImageFullFileName = self.fPathStringRelativeToRoot( theObject, theRootObject,  unFilename,)
+                        if unImageFullFileName[ 0] == '/':
+                            unImageFullFileName = unImageFullFileName[1:]
                             
-                        unNewAttributeElement.appendChild( unNewAttributeElementData)
+                        if unObjectAttributeField:
+                            aContentTypeAttributeToSet = unObjectAttributeField.getContentType( theObject)
+                            
+                        unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unImageFullFileName, theTranslationService, theOutputEncoding)
+                        if ( not unEncodingOk)  or not unValueStringEncoded:
+                            theEncodingErrors.append( { 
+                                'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
+                                'meta_type':    unElementMetaType,
+                                'attr':         unAttrName,
+                                'value':        repr( unImageFullFileName),
+                            })
+                            unValueStringEncoded = ''
+                        
+                        theExportContext[ 'images_to_export'].append( [ unImageFullFileName, unFilename, unaImageAsFile, aContentTypeAttributeToSet, ])
+                    
+                    
+                elif unAttrType == 'file':
+                    if unRawValue:
+                        
+                        unFile      = unRawValue
+                        
+                        unFileAsFile = unFile
+                        
+                        unIdAttributeToSet       = unFileAsFile.getId()
+                        unTitleAttributeToSet    = unFileAsFile.Title()
+                        
+                        unFilename  = unFileAsFile.getFilename() 
+                        if not unFilename:
+                            unFilename = ''
+                        else:
+                            if unFilename.__class__.__name__ == 'unicode':
+                                unFilename = unFilename.encode()
+                        
+                        unFileFullFileName = self.fPathStringRelativeToRoot( theObject, theRootObject, unFilename)
+                        if unFileFullFileName[ 0] == '/':
+                            unFileFullFileName = unFileFullFileName[1:]
+
+                        if unObjectAttributeField:
+                            aContentTypeAttributeToSet = unObjectAttributeField.getContentType( theObject)
+                            
+                        unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unFileFullFileName, theTranslationService, theOutputEncoding)
+                        if ( not unEncodingOk)  or not unValueStringEncoded:
+                            theEncodingErrors.append( { 
+                                'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
+                                'meta_type':    unElementMetaType,
+                                'attr':         unAttrName,
+                                'value':        repr( unFileFullFileName),
+                            })
+                            unValueStringEncoded = ''
+                        
+                        theExportContext[ 'files_to_export'].append( [ unFileFullFileName, unFilename, unFileAsFile, aContentTypeAttributeToSet,])
+                    
+                    
+
+                unNewAttributeElement    = unXMLDocument.createElement( unAttrNameEncoded)
+                unNewElement.appendChild( unNewAttributeElement)
+
+                if unValueStringEncoded:
+                    
+                    if unIdAttributeToSet:
+                        unNewAttributeElement.setAttribute( cXMLAttributeName_PloneId,     unIdAttributeToSet)                        
+
+                    if aContentTypeAttributeToSet:
+                        unNewAttributeElement.setAttribute( cXMLAttributeName_ContentType, aContentTypeAttributeToSet)                        
+                    
+                    if unTitleAttributeToSet:
+                        unNewAttributeElement.setAttribute( cXMLAttributeName_PloneTitle,  unTitleAttributeToSet)                        
+
+                    unNewAttributeElementData = None
+                    if unCreateCDATA:
+                        unValueStringEncoded = unValueStringEncoded.replace( ']]>', '')
+                        unNewAttributeElementData   = unXMLDocument.createCDATASection( unValueStringEncoded)
+                    else:
+                        unValueStringEncoded = unValueStringEncoded.replace( '<![CDATA[', '')                                                        
+                        unNewAttributeElementData   = unXMLDocument.createTextNode( unValueStringEncoded)
+                        
+                    unNewAttributeElement.appendChild( unNewAttributeElementData)
         
                         
                         
@@ -703,7 +838,7 @@ class ModelDDvlPloneTool_Export:
                             
                             """
                             someIdsAndSubItems = [ [ aSubItem.getId(), aSubItem, ] for aSubItem in someSubItems]
-                            someSortedIdsAndSubItems = sorted( someIdsAndSubItems, lambda unSI, otroSI: cmp( unSI[ 0], otroSI[ 0]))
+                            someSortedIdsAndSubItems = someIdsAndSubItems # ACV 20090917 Do not alter order on export, removed: sorted( someIdsAndSubItems, lambda unSI, otroSI: cmp( unSI[ 0], otroSI[ 0]))
                         
                             # ##############################################################################
                             """Recursively export retrieved sorted subitems, creating a DOM element for the aggregation, and adding the new element to the stack.
@@ -720,6 +855,7 @@ class ModelDDvlPloneTool_Export:
                                     
                                     unSubItemExportResult = self.fExport_Recursive( 
                                         theTimeProfilingResults     =theTimeProfilingResults,
+                                        theRootObject               =theRootObject, 
                                         theObject                   =unSubItem, 
                                         theAllExportTypeConfigs     =theAllExportTypeConfigs, 
                                         theExportContext            =theExportContext,
@@ -788,7 +924,7 @@ class ModelDDvlPloneTool_Export:
                                 
                                 """
                                 someIdsAndRelatedItems = [ [ aRelatedItem.getId(), aRelatedItem, ] for aRelatedItem in someRelatedItemsOfRightType]
-                                someSortedIdsAndRelatedItems = sorted( someIdsAndRelatedItems, lambda unRI, otroRI: cmp( unRI[ 0], otroRI[ 0]))
+                                someSortedIdsAndRelatedItems = someIdsAndRelatedItems # ACV 20090917 Do not alter order on export, removed:  sorted( someIdsAndRelatedItems, lambda unRI, otroRI: cmp( unRI[ 0], otroRI[ 0]))
                                 
                                 
                                 
@@ -837,7 +973,7 @@ class ModelDDvlPloneTool_Export:
                                             
                                             unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneTitle,    unRelatedItem.Title())
                                             unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneUID,      unRelatedItem.UID())
-                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_PlonePath,     '/'.join( unRelatedItem.getPhysicalPath()))
+                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( unRelatedItem, theRootObject))
             
                                             unNewRelationElement.appendChild( unNewRelatedElementReference)
                     

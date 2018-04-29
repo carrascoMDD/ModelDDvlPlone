@@ -55,6 +55,19 @@ from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling       import Model
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval       import ModelDDvlPloneTool_Retrieval
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Mutators_Plone  import ModelDDvlPloneTool_Mutators_Plone
 
+from ModelDDvlPloneTool_Permissions_Definitions       import *
+
+
+
+
+
+
+
+cSecondsToReviewAndDeleteDefault = 30
+
+
+
+
 
 
 class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneTool_Mutators_Plone):
@@ -63,6 +76,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     security = ClassSecurityInfo()
 
 
+    def fSecondsToReviewAndDelete( self, theContextualElement):
+        return cSecondsToReviewAndDeleteDefault
+    
 
 
  
@@ -147,9 +163,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                      
             for unValueResult in someValueResults:
                 unAttributeName = unValueResult.get( 'attribute_name', '')
-                unAttributeType = unValueResult.get( 'type', None)
+                unAttributeType = unValueResult.get( 'type', '').lower()
     
                 aReportForField = None
+                aInvokeMutator  = False
+                unMutator       = None
+                unNewValue      = None
+                
                 if unAttributeName and unAttributeType:
                     unEsDateSubValueChange = unAttributeType == 'datetime' and (  theNewValuesDict.has_key( '%s_sub_value_year' % unAttributeName) or theNewValuesDict.has_key( '%s_sub_value_month' % unAttributeName) or theNewValuesDict.has_key( '%s_sub_value_day_of_month' % unAttributeName) )
                     if theNewValuesDict.has_key( unAttributeName) or unEsDateSubValueChange:
@@ -174,15 +194,31 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                     else:
                                         unCurrentRawValue = unValueResult.get( 'raw_value', None)
                             
-                                        if unAttributeType in [ 'string', 'text', ]:
+                                        if unAttributeType == 'string':
+                                            
+                                            unNewValue = unFormValue.replace( '\t',' ')
+                                            unNewValue = unNewValue.replace( '\r',' ')
+                                            unNewValue = unNewValue.replace( '\n',' ')
+                                            unNewValue = unNewValue.strip()
                                                 
-                                            unNewValue = self.fAsEncodedFromUIToDB( unFormValue, aTranslationService)
+                                            unNewValue = self.fAsEncodedFromUIToDB( unNewValue, aTranslationService)
                                             if unNewValue == unCurrentRawValue:
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                             else:
-                                                unMutator( unNewValue) 
-                                                unAnyAttributeChanged = True
-                                                aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unNewValue, 'previous_value': unValueResult,}                                                                                                                        
+                                                aInvokeMutator = True
+                                                
+                                        elif unAttributeType == 'text':
+                                            
+                                            unNewValue = unFormValue.replace( '\r\n','\n')
+                                            unNewValue = unNewValue.replace( '\r','\n')
+                                            unNewValue = unNewValue.strip()
+                                                
+                                            unNewValue = self.fAsEncodedFromUIToDB( unNewValue, aTranslationService)
+                                            if unNewValue == unCurrentRawValue:
+                                                aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
+                                            else:
+                                                aInvokeMutator = True
+    
     
                                         elif unAttributeType == 'integer':
                                             unNewValue = None
@@ -194,9 +230,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                                 if unNewValue == unCurrentRawValue:
                                                     aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                                 else:
-                                                    unMutator( unNewValue) 
-                                                    unAnyAttributeChanged = True
-                                                    aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
+                                                    aInvokeMutator = True
+                                                    #unMutator( unNewValue) 
+                                                    #unAnyAttributeChanged = True
+                                                    #aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
                                                     
                                         elif unAttributeType == 'float':
                                             unNewValue = None
@@ -208,32 +245,36 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                                 if unNewValue == unCurrentRawValue:
                                                     aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                                 else:
-                                                    unMutator( unNewValue) 
-                                                    unAnyAttributeChanged = True
-                                                    aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
+                                                    aInvokeMutator = True
+                                                    #unMutator( unNewValue) 
+                                                    #unAnyAttributeChanged = True
+                                                    #aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
     
                                         elif unAttributeType == 'boolean':
                                             unNewValue = unFormValue == '1'
                                             if unNewValue == unCurrentRawValue:
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                             else:
-                                                unMutator( unNewValue) 
-                                                unAnyAttributeChanged = True
-                                                aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
+                                                aInvokeMutator = True
+                                                #unMutator( unNewValue) 
+                                                #unAnyAttributeChanged = True
+                                                #aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
                                             
                                         elif unAttributeType == 'selection':
+                                            unNewValue = unFormValue
                                             unVocabulary = unValueResult.get( 'vocabulary', [])
                                             if not unVocabulary:
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'no_vocabulary', 'previous_value': unValueResult, 'new_value': unFormValue, }                                                                                                                        
                                             elif not ( unFormValue in unVocabulary):
                                                 aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'value_not_in_vocabulary', 'previous_value': unValueResult, 'new_value': unFormValue,}                                                                                                                       
-                                            else:    
-                                                if unFormValue == unCurrentRawValue:
+                                            else:   
+                                                if unNewValue == unCurrentRawValue:
                                                     aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                                 else:
-                                                    unMutator( unFormValue) 
-                                                    unAnyAttributeChanged = True
-                                                    aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
+                                                    aInvokeMutator = True
+                                                    #unMutator( unFormValue) 
+                                                    #unAnyAttributeChanged = True
+                                                    #aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unFormValue, 'previous_value': unValueResult,}                                                                                                                        
                                         
                                         elif unAttributeType == 'datetime':
                                             unNewYearValue  = None
@@ -279,11 +320,25 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                                                 elif  unCurrentRawValue and ( unCurrentRawValue == unNewDateValue):
                                                     aReportForField = { 'attribute_name': unAttributeName, 'effect': 'no_change', 'previous_value': unValueResult,}                        
                                                 else:
-                                                    unMutator( unNewDateValue) 
-                                                    unAnyAttributeChanged = True
-                                                    aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unNewDateValue, 'previous_value': unValueResult,}                                                                                                                        
+                                                    unNewValue = unNewDateValue
+                                                    aInvokeMutator = True
+                                                    #unMutator( unNewDateValue) 
+                                                    #unAnyAttributeChanged = True
+                                                    #aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unNewDateValue, 'previous_value': unValueResult,}                                                                                                                        
                                                                                     
-                                                    
+                if aInvokeMutator and unMutator and not ( unNewValue == None ):
+                    unChanged = False
+                    try:
+                        unMutator( unNewValue) 
+                        unChanged = True
+                    except:
+                        aReportForField = { 'attribute_name': unAttributeName, 'effect': 'error', 'failure': 'invoking_mutator', 'new_value': unNewValue, 'previous_value': unValueResult,}                                                                                                                        
+
+                    if unChanged:
+                        unAnyAttributeChanged = True
+                        aReportForField = { 'attribute_name': unAttributeName, 'effect': 'changed', 'new_value': unNewValue, 'previous_value': unValueResult,}                                                                                                                        
+                    
+                    
                 if aReportForField:
                     someFieldReports.append( aReportForField)
                             
@@ -324,6 +379,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         theMovedObjectId        =None, 
         theMoveDirection        =None, 
         theAdditionalParams     =None):        
+        """Change the order index of an element in the collection of elements aggregated in its container.
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'pMoveSubObject', theTimeProfilingResults)
@@ -577,6 +635,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         theReferenceFieldName   =None, 
         theTargetUID            =None,
         theAdditionalParams     =None):        
+        """Link an element as related to another element.
+        
+        """
 
 
         if not ( theTimeProfilingResults == None):
@@ -806,6 +867,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         theReferenceFieldName   =None, 
         theTargetUID            =None,
         theAdditionalParams     =None):        
+        """Unink an element from another related element.
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fUnlinkFromUIDReferenceFieldNamed', theTimeProfilingResults)
@@ -1033,6 +1097,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         theAdditionalParams     =None,
         theAllowFactoryMethods  =False,
         theTranslationService   =None,):           
+        """Create a new contained element of a type.
+        
+        """
         
         
         
@@ -1292,6 +1359,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
         theUIDToDelete          =None, 
         theRequestSeconds       =None, 
         theAdditionalParams     =None):        
+        """Delete an element and all its contents.
+        
+        """
 
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fEliminarElemento', theTimeProfilingResults)
@@ -1320,7 +1390,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 return anActionReport  
                 
             unSecondsNow = unElementDeleteReport[ 'seconds_now']
-            if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < 30):
+            if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < self.fSecondsToReviewAndDelete( theElement)):
                 anActionReport = { 'effect': 'error', 'failure': 'time_out', }
                 return anActionReport                 
     
@@ -1343,30 +1413,47 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if not ( theTimeProfilingResults == None):
                 self.pProfilingEnd( 'fEliminarElemento', theTimeProfilingResults)
 
+                
+                
 
+    security.declarePrivate(   'fElementPermissionsAndRolesToSetForElement')
+    def fElementPermissionsAndRolesToSetForElement(self, theElement, ):     
+        if not theElement:
+            return []
 
+        aMetaType = theElement.meta_type
+        
+        somePermissionsAndRoles = cPermissionsAndRolesForTypes.get( aMetaType, None)
+        if not somePermissionsAndRoles:
+            somePermissionsAndRoles = cPermissionsAndRolesForTypes.get( cAnyType, None)
+            if not somePermissionsAndRoles:
+                return []
+                    
+        somePermissionsAndRolesToSet = [ ]
+        for aPermissionsAndRoles in somePermissionsAndRoles:
+            somePermissions = aPermissionsAndRoles[ 0]  
+            for unaPermission in somePermissions:
+                somePermissionsAndRolesToSet.append( [ unaPermission, aPermissionsAndRoles[ 1], aPermissionsAndRoles[ 2]],)
+                    
+        return somePermissionsAndRolesToSet
+        
+    
+    
     
     security.declarePrivate(   'pSetElementPermissions')
-    def pSetElementPermissions(self, theElement):     
+    def pSetElementPermissions(self, theElement, thePermissionsNotToSet=[],):     
         if not theElement:
             return self
 
-        somePermissionsAndRoles = [ 
-            [ [ permissions.View, ],                [ 'Manager', 'Owner', 'Reviewer', ], ],
-            [ [ permissions.ListFolderContents, ],  [ 'Manager', 'Owner', 'Reviewer', ], ],
-            [ [ permissions.ModifyPortalContent, ], [ 'Manager', 'Owner', ], ],
-            [ [ permissions.AddPortalContent, ],    [ 'Manager', 'Owner', ], ],
-            [ [ permissions.AddPortalFolders, ],    [ 'Manager', 'Owner', ], ],
-            [ [ permissions.DeleteObjects, ],       [ 'Manager', 'Owner', ], ],
-            
-        ]
+        somePermissionsAndRoles = self.fElementPermissionsAndRolesToSetForElement( theElement)
         
-        for aPermissionsAndRoles in somePermissionsAndRoles:
-            somePermissions = aPermissionsAndRoles[ 0]
-            for unaPermission in somePermissions:
-                if unaPermission:
-                    unosRoles = aPermissionsAndRoles[ 1]
-                    if unosRoles:
-                        theElement.manage_permission( unaPermission, roles=unosRoles, acquire=1)
+        for aPermissionAndRoles in somePermissionsAndRoles:
+            unaPermission = aPermissionAndRoles[ 0]
+            if unaPermission:
+                unosRoles = aPermissionAndRoles[ 1]
+                if unosRoles:
+                    unAcquire = aPermissionAndRoles[ 2]
+
+                    theElement.manage_permission( unaPermission, roles=unosRoles, acquire=unAcquire)
                     
         return self

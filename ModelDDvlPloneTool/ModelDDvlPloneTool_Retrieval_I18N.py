@@ -88,6 +88,9 @@ class ModelDDvlPloneTool_Retrieval_I18N:
 #
     security.declarePrivate( 'fTranslateI18N')
     def fTranslateI18N( self, theI18NDomain, theString, theDefault, theContextualElement):
+        """Localize a string from a domain into the language negotiated for the current request, or return a default.
+        
+        """
         if not theString:
             return ''
 
@@ -278,6 +281,9 @@ class ModelDDvlPloneTool_Retrieval_I18N:
 
     security.declarePrivate( 'fAsUnicode')
     def fAsUnicode( self, theString, theElement=None):
+        """Decode a string from the system encoding into a unicode in-memory representation.
+        
+        """
         if not theString:
             return u''
 

@@ -42,9 +42,6 @@ from reStructuredText                   import HTML
 
 from Acquisition                        import aq_inner
 
-# ACV OJO will see if we keep using this 
-#from ModelDDvlPlone_Visitor                            import ModelDDvlPlone_Visitor
-
 
 
 from Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
@@ -76,6 +73,9 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
         theTimeProfilingResults =None,
         theElement              =None,
         theAdditionalParams     =None):
+        """Retrieve a REST presentation of an element's content as a Textual view.
+        
+        """
 
         return self.getEditableBody_forLevel(  theElement, theLevel=1, theTimeProfilingResults=theTimeProfilingResults)
         
@@ -143,10 +143,8 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
         if not aTraversalConfig:
             return []
             
-# ACV OJO
-#        aVisitor = ModelDDvlPlone_Visitor()
-#        anEditableBodyString = aVisitor.traverseCompositeFromRoot( theTravCtxt = { 'theLevel': theLevel, }, theItemsConfig=aTraversalConfig, theRootObject=self)
 
+        anEditableBodyString = self.getEditableBody_forLevel( theElement, theLevel, theTimeProfilingResults) 
         aCleanEditableBodyString = anEditableBodyString.replace('<tal>', '').replace('</tal>', '').replace('<div>', '').replace('</div>', '')
          
         return aCleanEditableBodyString
@@ -162,6 +160,9 @@ class ModelDDvlPloneTool_Bodies ( ModelDDvlPloneTool_Profiling):
         stx_level               =None, 
         setlevel                =0,
         theAdditionalParams     =None):
+        """Retrieve an HTML presentation of an element's content as a Textual view.
+        
+        """
         
         if ( theElement == None):
             return '\n<em>No Element</em><br/>\n\n'

@@ -164,7 +164,7 @@
                                                    unElemento[ 'type_translations'][ 'translated_archetype_name'],
                                                    unElemento[ 'values_by_name'][ 'title'][ 'uvalue'], 
                                                    unElemento[ 'type_translations'][ 'translated_type_description'])"                          
-                                               tal:attributes="title unTitle; href unElemento/url; name string:elemento-${unElemento/UID};"
+                                               tal:attributes="title unTitle; name string:elemento-${unElemento/UID}; href python: (( unElemento[ 'meta_type'] in [ 'ATLink', 'ATDocument', 'ATFile', 'ATImage', 'ATNewsItem',]) and '%s/view' % unElemento['url']) or unElemento['url']"
                                                class="state-visible visualIconPadding" title="">
                                                <span tal:content="unElemento/values_by_name/title/uvalue" />
                                            </a>
@@ -175,7 +175,7 @@
                                 <td align="left" valign="baseline">
                                     <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATImage'">
                                         <a  href="#" alt="#" title="#" 
-                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" > 
+                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title" > 
                                             <img src="#" alt="#" title="#" height="64" 
                                                 tal:attributes="src unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" />    
                                         </a>
@@ -183,21 +183,21 @@
                                     
                                     <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATLink'">
                                         <a href="#" alt="#" title="#" 
-                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title"
+                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title"
                                             tal:content="unElemento/values_by_name/content_url/value" />    
                                     </tal:block>
         
                                     <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATDocument'">
                                         <a  tal:condition="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue']"
                                             href="#" alt="#" title="#" 
-                                            tal:attributes="href unElemento/url; alt unElemento/title; title unElemento/title"
+                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title"
                                             tal:content="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue'][:64]" />    
                                     </tal:block>
                                     
                                     <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATNewsItem'">
                                         <a  tal:condition="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue']"
                                             href="#" alt="#" title="#" 
-                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" > 
+                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title" > 
                                             <img src="#" alt="#" title="#" height="64" tal:condition="python: unElemento[ 'values_by_name'][ 'content_url'][ 'value']"
                                                 tal:attributes="src unElemento/values_by_name/image_url/value; alt unElemento/title; title unElemento/title" />    
                                             <span tal:content="python: unElemento[ 'values_by_name'][ 'text'][ 'uvalue'][:64]" />
@@ -206,7 +206,7 @@
         
                                     <tal:block tal:condition="python: unElemento[ 'meta_type'] == 'ATFile'">
                                         <a  href="#" alt="#" title="#" 
-                                            tal:attributes="href unElemento/values_by_name/content_url/value; alt unElemento/title; title unElemento/title" 
+                                            tal:attributes="href string:${unElemento/url}/view; alt unElemento/title; title unElemento/title" 
                                             tal:content="unElemento/values_by_name/content_url/value" />   
                                     </tal:block>
         

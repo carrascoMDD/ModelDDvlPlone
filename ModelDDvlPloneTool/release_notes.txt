@@ -1,0 +1,125 @@
+ModelDDvlPlone RELEASE NOTES
+============================
+
+
+|
+|
+
+
+
+
+version 1.0.0.2
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+
+Plone content not copied in UC 11 Paste and UC 13 Create transformed element
+
+USEX 01 Attached File: add link to navigate to the Plone element for the file
+
+SUC 16 Import onto an element a Zipped archive with XML file and binary contents
+
+SUC 15 Export an element and its contens a Zipped archive with XML file and binary contents
+
+Reflective method invocation should not retrieve the callable method with []
+
+Retrieval of aggregated element just created by its ID should not use [theID] to retrieve the element
+
+Fails  SUC 06extension Delete element of Plone type
+
+Plone content not imported in UC 16 Paste
+
+SUC 19 Rename element (change id and/or title)
+
+
+|
+|
+
+**KNOWN BUGS**
+
+Reflective method invocation should not retrieve the callable method with []
+
+Unhandled Exception when creating of an element by selecting a plone factory action from the object menu 
+
+Change view to Tabular from menu displays Textual view instead
+
+
+|
+|
+
+
+**POSTPONED**
+
+ADMI04 Uninstall Relations Plone Product avoiding plone site relations action error
+
+AUDI 01 Keep a log of changes made to elements
+
+AUDI 02 Review the log of changes made to elements
+
+AUDI 03 Restore element attributes, aggregatios or relations to a previous value
+
+Avoid deriving ids from titles resulting in reserved names like id, description, role, ...
+
+PLAT01 Port to Plone 3.x
+
+SUC 06change Do not report as affected the elements related only thorugh derived relations
+
+SUC 06v2 Delete element - plug-in reponsibility on elements to contribute to the delete impact report 
+
+SUC 07 Z extension01 Link as related element found Filtering and searching list of elements candidates to be related
+
+SUC 11v2 Trigger and react to Plone copy events when Pasting or Transforming elements or Duplicating roots
+
+SUC 12 Duplicate a root element and its contents creating traceability links
+
+SUC 16 zextension01 Report progress while  Importing a Zipped archive
+
+SUC 17 Filter and search list of elements candidates to be related
+
+SUC 18 Report the progress of an import process
+
+SUC 19 Rename element (change id and/or title)
+
+USEX 02 When in the Edit page, the link to navigate to the container shall link to the edit page of the container (not the Tabular view).
+
+USEX 03 When in the linking related elements page, the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+|
+|
+
+------------------------------
+
+|
+|
+
+
+version 1.0.0.1
+---------------
+
+|
+|
+
+
+**RESOLVED**
+
+INSTR 01 Postpone initialization of traversal result dictionaries by element Id, UID, and traversal name
+META 01 Type metaattribute factory_enablers
+PERF 01 AdditionalParameter to inhibit translation of types and features
+UC 11 Paste an identical copy of an element as contents of other
+UC 13 Create a new element from a transformed element of a different type
+
+ModelDDvlPloneTool_Mutators.py::fCrearElementoDeTipo 
+	Changed 'create' to 'created' in  unNewCollectionCreateResult[ 'effect'] == 'created'
+
+
+|
+|
+
+------------------------------
+
+
