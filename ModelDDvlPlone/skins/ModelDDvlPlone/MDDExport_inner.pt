@@ -3,7 +3,7 @@
 #
 # File: MDDExport_inner.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -60,7 +60,7 @@
 								pArchiveFormat			 request/form/theArchiveFormat   | python: '';  
 								pArchiveFormat           python: ( ( pArchiveFormat.lower() == 'none') and 'None') or '.zip';
 								pExecuteExport			 request/form/theExecuteExport | python: '';  
-                                global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                                global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
  
 			<tal:block tal:define="
 				pPermiteAbandonarEliminar   pTrue;
@@ -76,8 +76,8 @@
 				
 					<input originalvalue="on" name="theExecuteExport" value="on" type="hidden">
 				
-					<br>
-					<br>
+					<br/>
+					<br/>
 					<h2>
 						<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Export_action_page_title">Export content-</tal:block></strong></font>
 					</h2>
@@ -256,13 +256,14 @@
             <tal:block tal:condition="pExecuteExport" >
 			
 				<tal:block tal:define="
-					global pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+					global pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
 						   pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
 						   unosArgs python: {
 							   'theTimeProfilingResults' :pProfilingResults,
 							   'theObject'               :here, 
+							   'theAllExportTypeConfigs' :None,
 							   'theOutputEncoding'       :'utf-8',
-							   'theAdditionalParams'     : { 
+							   'theAdditionalParams'     :{ 
 									'theExcludeUsers'   : pExcludeUsers, 
 									'theExcludeCounters': pExcludeCounters, 
 									'theExcludeDates'   : pExcludeDates, 
@@ -274,17 +275,17 @@
 									'theArchiveFormat'  : pArchiveFormat,
 								},
 							}; 
-					       pExportReport python: here.ModelDDvlPlone_tool.fExport( **unosArgs);
-                           pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+					       pExportReport python: here.MDDModelDDvlPlone_tool.fExport( **unosArgs);
+                           pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
 					
                     <tal:block tal:condition="not: pExportReport/success" >
-                        <font color="red" size="3"><strong><p tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_during_Export', 'Error during Export-')" /></strong></font>
+                        <font color="red" size="3"><strong><p tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_during_Export', 'Error during Export-')" /></strong></font>
                         <font color="red" size="2"><strong><p tal:content="python: pExportReport.get( 'status', '')" /></strong></font>
                         <p tal:content="python: 'Condition: %s' % pExportReport.get( 'condition', '')" />
                     </tal:block>
                     <tal:block tal:condition="pExportReport/success" >
 						<tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular/' % here.absolute_url())" />
-                        <font color="red" size="3"><strong><p tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Export_Success', 'Export Success-')" /></strong></font>
+                        <font color="red" size="3"><strong><p tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Export_Success', 'Export Success-')" /></strong></font>
                     </tal:block>
 					
 					

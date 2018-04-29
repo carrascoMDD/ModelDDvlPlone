@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneConfiguration.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -45,7 +45,6 @@ from AccessControl.Permissions                 import access_contents_informatio
 from Products.CMFCore                    import permissions
 from Products.CMFCore.utils              import UniqueObject
 from Products.CMFCore.ActionProviderBase import ActionProviderBase
-
 
 
 
@@ -112,7 +111,7 @@ def fgInitial_SecondsToReviewAndUnlink():
 
 
 
-cModelDDvlPloneConfigurationId = 'ModelDDvlPlone_configuration'
+cModelDDvlPloneConfigurationId = 'MDDModelDDvlPlone_configuration'
 
 
 
@@ -121,11 +120,9 @@ cModelDDvlPloneConfigurationId = 'ModelDDvlPlone_configuration'
 
 """         
 cModelDDvlPloneConfigurationPermissions = [                                                                                                                                     
-    { 'permission': permissions.ManagePortal,         'acquire': True,  'roles': [              'Authenticated', ], },                             
+    { 'permission': permissions.ManagePortal,         'acquire': True,  'roles': [              'Manager', ], },                             
     { 'permission': permissions.ManageProperties,     'acquire': True,  'roles': [              'Authenticated', ], }, 
-     # permission Not available for the configuration tool:  { 'permission': permissions.AddPortalContent,     'acquire': True,  'roles': [              'Authenticated', ], }, 
     { 'permission': permissions.DeleteObjects,        'acquire': True,  'roles': [              'Authenticated', ], }, 
-     # permission Not available for the configuration tool:  { 'permission': permissions.ModifyPortalContent,  'acquire': True,  'roles': [              'Authenticated', ], }, 
     { 'permission': permissions.View,                 'acquire': True,  'roles': [ 'Anonymous', 'Authenticated', ], },  
     { 'permission': perm_AccessContentsInformation,   'acquire': True,  'roles': [ 'Anonymous', 'Authenticated', ], },  
 ]
@@ -327,7 +324,7 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
         if not self.vCacheConfigsHolder:
             return {}
         
-        someCacheConfigsHolder = theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport', 'fEvalString')( self.vCacheConfigsHolder)
+        someCacheConfigsHolder = theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport', 'fEvalString')( self.vCacheConfigsHolder)
         
         unCacheConfigHolder = someCacheConfigsHolder.get( theCacheName, None)
         if unCacheConfigHolder == None:
@@ -349,11 +346,11 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
         if not self.vCacheConfigsHolder:
             return {}
         
-        someCacheConfigsHolder       = theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport', 'fEvalString')(   self.vCacheConfigsHolder)
+        someCacheConfigsHolder       = theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport', 'fEvalString')(   self.vCacheConfigsHolder)
             
         someCacheConfigsHolder[ theCacheName] = theCacheConfigHolder
         
-        someCacheConfigsHolderString = theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport', 'fReprAsString')( someCacheConfigsHolder)
+        someCacheConfigsHolderString = theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport', 'fReprAsString')( someCacheConfigsHolder)
         
         self.vCacheConfigsHolder = someCacheConfigsHolderString
         
@@ -393,7 +390,7 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
         if ( not theCacheName) or ( not thePropertyName):
             return None
 
-        if not ( thePropertyName in theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cCacheConfigPptyNames')):
+        if not ( thePropertyName in theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cCacheConfigPptyNames')):
             return None
 
         unCacheConfigHolder = self._fGetCacheConfigHolder( theModelDDvlPloneTool, theContextualObject, theCacheName)
@@ -416,7 +413,7 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
         if ( not theCacheName) or ( not thePropertyName):
             return False
         
-        if not ( thePropertyName in cCacheConfigPptyNames):
+        if not ( thePropertyName in theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cCacheConfigPptyNames')):
             return None
         
         unCacheConfigHolder = self._fGetCacheConfigHolder( theModelDDvlPloneTool, theContextualObject, theCacheName)
@@ -484,11 +481,11 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
     def fGetAllCachesConfigCopy(self, theModelDDvlPloneTool, theContextualObject, ):
         
         unAllCachesConfigCopy = {
-            theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):               self.vIsCachingActive == True,
-            theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):                 ( self.vPeersToNotify                 or '')[:],
-            theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):  ( self.vIdentificationStringForPeers  or '')[:],
-            theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):  ( self.vAuthenticationStringForPeers  or '')[:],
-            theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers') :( self.vAuthenticationStringFromPeers or '')[:],
+            theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):               self.vIsCachingActive == True,
+            theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):                 ( self.vPeersToNotify                 or '')[:],
+            theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):  ( self.vIdentificationStringForPeers  or '')[:],
+            theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):  ( self.vAuthenticationStringForPeers  or '')[:],
+            theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers') :( self.vAuthenticationStringFromPeers or '')[:],
         }
         return unAllCachesConfigCopy
     
@@ -502,22 +499,22 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
         if not thePropertyName:
             return None
 
-        if not ( thePropertyName in theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPptyNames')):
+        if not ( thePropertyName in theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPptyNames')):
             return None
 
-        if thePropertyName == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):
+        if thePropertyName == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):
             return self.vIsCachingActive == True
             
-        if thePropertyName == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):
+        if thePropertyName == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):
             return self.vPeersToNotify
             
-        if thePropertyName == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):
+        if thePropertyName == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):
             return self.vIdentificationStringForPeers
             
-        if thePropertyName == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):
+        if thePropertyName == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):
             return self.vAuthenticationStringForPeers
             
-        if thePropertyName == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers'):
+        if thePropertyName == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers'):
             return self.vAuthenticationStringFromPeers
          
         return None
@@ -531,30 +528,30 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
         if not thePropertyName:
             return False
         
-        if not ( thePropertyName in cAllCachesConfigPptyNames):
-            return False
+        if not ( thePropertyName in theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPptyNames')):
+            return None
         
-        if thePropertyName ==  theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):
+        if thePropertyName ==  theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):
             if not ( thePropertyValue == self.vIsCachingActive):
                 self.vIsCachingActive = thePropertyValue
                 return True
                 
-        if thePropertyName ==  theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):
+        if thePropertyName ==  theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):
             if not ( thePropertyValue == self.vPeersToNotify):
                 self.vPeersToNotify = thePropertyValue
                 return True
                 
-        if thePropertyName ==  theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):
+        if thePropertyName ==  theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):
             if not ( thePropertyValue == self.vIdentificationStringForPeers):
                 self.vIdentificationStringForPeers = thePropertyValue
                 return True
                 
-        if thePropertyName ==  theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):
+        if thePropertyName ==  theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):
             if not ( thePropertyValue == self.vAuthenticationStringForPeers):
                 self.vAuthenticationStringForPeers = thePropertyValue
                 return True
                 
-        if thePropertyName ==  theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers'):
+        if thePropertyName ==  theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers'):
             if not ( thePropertyValue == self.vAuthenticationStringFromPeers):
                 self.vAuthenticationStringFromPeers = thePropertyValue
                 return True
@@ -582,35 +579,35 @@ class ModelDDvlPloneConfiguration( UniqueObject, PropertyManager, SimpleItem.Sim
         
         for aKey in theConfigChanges.keys():
 
-            if aKey == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):
+            if aKey == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IsCachingActive'):
                 aValue = theConfigChanges.get( aKey, aSentinel)
                 if not ( aValue == aSentinel):
                     if not ( aValue == self.vIsCachingActive):
                         self.vPeersToNotify = aValue
                         aThereIsChange = True
                     
-            if aKey == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):
+            if aKey == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_PeersToNotify'):
                 aValue = theConfigChanges.get( aKey, aSentinel)
                 if not ( aValue == aSentinel):
                     if not ( aValue == self.vPeersToNotify):
                         self.vPeersToNotify = aValue
                         aThereIsChange = True
                     
-            if aKey == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):
+            if aKey == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_IdentificationStringForPeers'):
                 aValue = theConfigChanges.get( aKey, aSentinel)
                 if not ( aValue == aSentinel):
                     if not ( aValue == self.vIdentificationStringForPeers):
                         self.vIdentificationStringForPeers = aValue
                         aThereIsChange = True
                     
-            if aKey == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):
+            if aKey == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringForPeers'):
                 aValue = theConfigChanges.get( aKey, aSentinel)
                 if not ( aValue == aSentinel):
                     if not ( aValue == self.vAuthenticationStringForPeers):
                         self.vAuthenticationStringForPeers = aValue
                         aThereIsChange = True
                     
-            if aKey == theModelDDvlPloneTool._fIMC( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers'):
+            if aKey == theModelDDvlPloneTool.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants', 'cAllCachesConfigPpty_AuthenticationStringFromPeers'):
                 aValue = theConfigChanges.get( aKey, aSentinel)
                 if not ( aValue == aSentinel):
                     if not ( aValue == self.vAuthenticationStringFromPeers):

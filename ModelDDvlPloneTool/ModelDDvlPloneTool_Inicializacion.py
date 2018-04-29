@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File: ModelDDvlPloneTool.py
+# File: ModelDDvlPloneTool_Inicializacion.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -97,18 +97,6 @@ class ModelDDvlPloneTool_Inicializacion:
     """
     """
     security = ClassSecurityInfo()
-
-
-    ##code-section class-header #fill in your manual code here
-    ##/code-section class-header
-
-    # Methods
-# end of class ModelDDvlPloneTool_Inicializacion
-
-##code-section module-footer #fill in your manual code here
-
-
-
 
 
 
@@ -297,7 +285,10 @@ class ModelDDvlPloneTool_Inicializacion:
     
     
      
-    def fVerifyOrInitialize( self, theInitializationSpecification=None, theContextualElement=None, theAllowInitialization=False, ):
+    def fVerifyOrInitialize( self, 
+        theInitializationSpecification =None, 
+        theContextualElement           =None, 
+        theAllowInitialization         =False, ):
         """Verify or Initialize, and report, all specified tool singletons and external methods.
         
         """
@@ -337,27 +328,29 @@ class ModelDDvlPloneTool_Inicializacion:
             """Verify or Initialize, and report, all specified external methods.
             
             """
-            someExternalMethodSpecifications = theInitializationSpecification.get( 'external_methods', [])
             anAllExternalMethodReports = unInforme.get( 'external_methods', None)
             someExternalMethodReports = anAllExternalMethodReports.get( 'methods', None)
             if someExternalMethodReports == None:
                 someExternalMethodReports = [ ]
                 anAllExternalMethodReports[ 'methods'] = someExternalMethodReports
             
-            aAllExternalMethodsSuccess = True            
-            for aExternalMethodSpecification in someExternalMethodSpecifications:
-
-                aExternalMethodReport = self.fVerifyOrInitialize_ExternalMethod( theInitializationSpecification=aExternalMethodSpecification, theContextualElement=theContextualElement, theAllowInitialization=theAllowInitialization, thePortalRoot=unPortalRoot)
-
-                if not aExternalMethodReport:
-                    if theInitializationSpecification.get( 'required', False):
-                        aAllExternalMethodsSuccess = False
-                else:
-                    if not aExternalMethodReport.get( 'success', False):
-                        if aExternalMethodSpecification.get( 'required', False):
+            aAllExternalMethodsSuccess = True      
+            
+            someExternalMethodSpecifications = theInitializationSpecification.get( 'external_methods', [])
+            if someExternalMethodSpecifications:
+                for aExternalMethodSpecification in someExternalMethodSpecifications:
+    
+                    aExternalMethodReport = self.fVerifyOrInitialize_ExternalMethod( theInitializationSpecification=aExternalMethodSpecification, theContextualElement=theContextualElement, theAllowInitialization=theAllowInitialization, thePortalRoot=unPortalRoot)
+    
+                    if not aExternalMethodReport:
+                        if theInitializationSpecification.get( 'required', False):
                             aAllExternalMethodsSuccess = False
-                    
-                    someExternalMethodReports.append( aExternalMethodReport)
+                    else:
+                        if not aExternalMethodReport.get( 'success', False):
+                            if aExternalMethodSpecification.get( 'required', False):
+                                aAllExternalMethodsSuccess = False
+                        
+                        someExternalMethodReports.append( aExternalMethodReport)
                         
             anAllExternalMethodReports[ 'success'] = aAllExternalMethodsSuccess      
             
@@ -368,27 +361,29 @@ class ModelDDvlPloneTool_Inicializacion:
             """Verify or Initialize, and report, all specified tool singletons.
             
             """
-            someToolSingletonSpecifications = theInitializationSpecification.get( 'tool_singletons', [])
             anAllToolSingletonReports = unInforme.get( 'tool_singletons', None)
             someToolSingletonReports = anAllToolSingletonReports.get( 'tools', None)
             if someToolSingletonReports == None:
                 someToolSingletonReports = [ ]
                 anAllToolSingletonReports[ 'tools'] = someToolSingletonReports
  
-            aAllToolSingletonsSuccess = True            
-            for aToolSingletonSpecification in someToolSingletonSpecifications:
-
-                aToolSingletonReport = self.fVerifyOrInitialize_ToolSingleton( theInitializationSpecification=aToolSingletonSpecification, theContextualElement=theContextualElement, theAllowInitialization=theAllowInitialization, thePortalRoot=unPortalRoot)
-
-                if not aToolSingletonReport:
-                    if theInitializationSpecification.get( 'required', False):
-                        aAllToolSingletonsSuccess = False
-                else:
-                    if not aToolSingletonReport.get( 'success', False):
-                        if aToolSingletonSpecification.get( 'required', False):
+            aAllToolSingletonsSuccess = True  
+            
+            someToolSingletonSpecifications = theInitializationSpecification.get( 'tool_singletons', [])
+            if someToolSingletonSpecifications:
+                for aToolSingletonSpecification in someToolSingletonSpecifications:
+    
+                    aToolSingletonReport = self.fVerifyOrInitialize_ToolSingleton( theInitializationSpecification=aToolSingletonSpecification, theContextualElement=theContextualElement, theAllowInitialization=theAllowInitialization, thePortalRoot=unPortalRoot)
+    
+                    if not aToolSingletonReport:
+                        if theInitializationSpecification.get( 'required', False):
                             aAllToolSingletonsSuccess = False
-                    
-                    someToolSingletonReports.append( aToolSingletonReport)
+                    else:
+                        if not aToolSingletonReport.get( 'success', False):
+                            if aToolSingletonSpecification.get( 'required', False):
+                                aAllToolSingletonsSuccess = False
+                        
+                        someToolSingletonReports.append( aToolSingletonReport)
                         
             anAllToolSingletonReports[ 'success'] = aAllToolSingletonsSuccess   
             

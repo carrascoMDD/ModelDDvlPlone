@@ -3,7 +3,7 @@
 #
 # File: MDDInitTool.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -32,60 +32,39 @@
       metal:use-macro="here/main_template/macros/master"
       i18n:domain="plone">
 <body>                     
-
-                             
+                         
 <metal:main fill-slot="main">
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Catalogo de cadenas y sus traduciones a varios idiomas.;
-        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" 
-        i18n:domain="gvSIGi18n">
+        tal:define="text string:Catalogo de cadenas y sus traduciones a varios idiomas."
+        i18n:domain="ModelDDvlPloneTest">
 
+
+        <div metal:use-macro="here/document_actions/macros/document_actions">
+            Document actions (print, sendto etc)
+        </div>
+
+        <h1 tal:content="object_title" class="documentFirstHeading">
+          Title or id
+        </h1>
+
+        <div metal:use-macro="here/document_byline/macros/byline">
+          Get the byline - contains details about author and modification date.
+        </div>
+        
+        
 
         <tal:block tal:define="
-            pPermissionsCache python: {};
-            pRolesCache python: {}" >
+            pVerifyOrInitResult python: here.MDDInitialization(
+                theContextualElement    =here,
+                theAllowInitialization  =True,);
+            pVerifyOrInitName  string:Init ModelDDvlPloneTool instance MDDModelDDvlPlone_tool in <portal_root>/portal_skins/custom" >
             
-            <div metal:use-macro="here/document_actions/macros/document_actions">
-                Document actions (print, sendto etc)
-            </div>
-    
-            <h1 tal:content="object_title" class="documentFirstHeading">
-              Title or id
-            </h1>
-    
-            <div metal:use-macro="here/document_byline/macros/byline">
-              Get the byline - contains details about author and modification date.
-            </div>
+            <metal:block metal:use-macro="here/MDDVerificationReport_i18n_view/macros/tMDDVerificationOrInitializationReport_i18n" />
             
-            
+        </tal:block>
 
-            <tal:block tal:define="
-                pInicializarUseCaseAssessmentResult python: { 'success': True,}" >
-                <tal:block tal:condition="python: pInicializarUseCaseAssessmentResult and pInicializarUseCaseAssessmentResult.get( 'success', False)">  
-                    <br/>
-                    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fLazyInitHTML(
-                        theContextualObject         =here,
-                        theAllowCreation            =True,
-                        theCheckPermissions         =True,
-                        thePermissionsCache         =None, 
-                        theRolesCache               =None,)" />
-                    <br/>
-                </tal:block>
-                <tal:block tal:condition="python: not( pInicializarUseCaseAssessmentResult and pInicializarUseCaseAssessmentResult.get( 'success', False))">    
-                    <br/>
-                    <br/>
-                    <font size="3" >
-                        <strong>
-                            You are not allowed to init the tool external methods- 
-                        </strong>
-                    </font>
-                    <br/>
-                    <br/>
-                </tal:block>
-            </tal:block>
+      
             
-            
-         </tal:block>
      </tal:main-macro>
 </metal:main>
 

@@ -3,7 +3,7 @@
 #
 # File: Textual.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -47,13 +47,13 @@
 			<tal:block tal:condition="pPasteRequested">
 				<tal:block tal:define="
 					pForm request/form;
-					pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+					pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
 					pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
 					unosArgs python: {
 						'theTimeProfilingResults' :pProfilingResults,
 						'theContainerObject'      :here, 
 						'theAdditionalParams'     :None, }; 
-					pRefactorReport python: here.ModelDDvlPlone_tool.fObjectPaste( **unosArgs)" >
+					pRefactorReport python: here.MDDModelDDvlPlone_tool.fObjectPaste( **unosArgs)" >
 					<tal:block tal:define="pRefactorLabel string:Paste">
 						<metal:block metal:use-macro="here/MDDRefactorResultsDump_i18n_view/macros/tMDDRefactorResultsDump_i18n_view" />   
 					</tal:block>
@@ -65,7 +65,7 @@
 					pGroupAction         python: pForm.get( 'theGroupAction', '');
 					pGroupUIDs           python: pForm.get( 'theUIDs', []);
 					pReferenceFieldName  python: pForm.get( 'theReferenceFieldName', '');
-					pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+					pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
 					pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
 					unosArgs python: {
 						'theTimeProfilingResults' :pProfilingResults,
@@ -74,21 +74,21 @@
 						'theGroupUIDs'            :pGroupUIDs,
 						'theReferenceFieldName'   :pReferenceFieldName,
 						'theAdditionalParams'     :None, }; 
-					pGroupActionReport python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" >
+					pGroupActionReport python: here.MDDModelDDvlPlone_tool.fGroupAction( **unosArgs)" >
 					<tal:block tal:condition="python: pGroupAction == 'Copy'" >
 						<tal:block tal:condition="pGroupActionReport" >
-							<div class="portalMessage" tal:content="python: u'%s %d' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumElementsCopied', 'Number of elements copied-',), pGroupActionReport, )" />
+							<div class="portalMessage" tal:content="python: u'%s %d' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumElementsCopied', 'Number of elements copied-',), pGroupActionReport, )" />
 						</tal:block>
 						<tal:block tal:condition="not: pGroupActionReport" >
-							<div class="portalMessage" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_No_items_copied', 'No items copied-',)" />
+							<div class="portalMessage" tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_No_items_copied', 'No items copied-',)" />
 						</tal:block>
 					</tal:block>
 					<tal:block tal:condition="python: pGroupAction == 'Cut'" >
 						<tal:block tal:condition="pGroupActionReport" >
-							<div class="portalMessage" tal:content="python: u'%s %d' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumElementsCut', 'Number of elements cut-',), pGroupActionReport, )" />
+							<div class="portalMessage" tal:content="python: u'%s %d' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumElementsCut', 'Number of elements cut-',), pGroupActionReport, )" />
 						</tal:block>
 						<tal:block tal:condition="not: pGroupActionReport" >
-							<div class="portalMessage" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_No_items_cut', 'No items cut-',)" />
+							<div class="portalMessage" tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_No_items_cut', 'No items cut-',)" />
 						</tal:block>
 					</tal:block>
 				</tal:block>
@@ -113,13 +113,13 @@
 		<tal:block tal:define="pMDDClearClipboard request/theClearClipboard | string:"
 			tal:condition="pMDDClearClipboard">
 			<tal:block tal:define="
-				pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+				pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
 				unosArgs python: { 
 					'theTimeProfilingResults'     :None,
 					'theContextualElement'        :here, 
 					'theAdditionalParams'         :None, };    
-				void python: here.ModelDDvlPlone_tool.pClearClipboard( **unosArgs);
-				pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" /> 
+				void python: here.MDDModelDDvlPlone_tool.pClearClipboard( **unosArgs);
+				pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" /> 
 		</tal:block>
    
    
@@ -128,11 +128,11 @@
 			<tal:block tal:define="
 				pFlushCacheCode            request/theFlushCacheCode | string:;pNoCacheCode request/theNoCacheCode | string:;
 				pFlushDiskCache          request/theFlushDiskCache | string:;
-				pNoCache                 request/theNoCache | string:;pNoCacheAllowed  python: pNoCache and pNoCacheCode and here.ModelDDvlPlone_tool.fNoCacheIdAllowsRender( here, pNoCacheCode, 'Textual_NoHeaderNoFooter',)" >
+				pNoCache                 request/theNoCache | string:;pNoCacheAllowed  python: pNoCache and pNoCacheCode and here.MDDModelDDvlPlone_tool.fNoCacheIdAllowsRender( here, pNoCacheCode, 'Textual_NoHeaderNoFooter',)" >
 				
 				
 				<tal:block tal:condition="pFlushCacheCode">
-					<tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.fFlushCachedTemplateForElement( here, pFlushCacheCode,  'Textual_NoHeaderNoFooter', pFlushDiskCache)" />
+					<tal:block tal:define="dummy python: here.MDDModelDDvlPlone_tool.fFlushCachedTemplateForElement( here, pFlushCacheCode,  'Textual_NoHeaderNoFooter', pFlushDiskCache)" />
 				</tal:block>
 				
 				
@@ -141,7 +141,7 @@
 				
 					<tal:block tal:condition="python: not here.fAllowWrite()" >
 						<div class="portalMessage" >
-							<font size="1"><span tal:content="python: '%s %s' % ( here.Title(), here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ElementLockedAgainstModifications', 'is Locked against modifications'),)" /></font>
+							<font size="1"><span tal:content="python: '%s %s' % ( here.Title(), here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ElementLockedAgainstModifications', 'is Locked against modifications'),)" /></font>
 						</div>
 					</tal:block>
 
@@ -156,14 +156,14 @@
 				
 					<tal:block tal:condition="python: not here.fAllowWrite()" >
 						<div class="portalMessage" >
-							<font size="1"><font size="1"><span tal:content="python: '%s %s' % ( here.Title(), here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ElementLockedAgainstModifications', 'is Locked against modifications'),)" /></font></font>
+							<font size="1"><font size="1"><span tal:content="python: '%s %s' % ( here.Title(), here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ElementLockedAgainstModifications', 'is Locked against modifications'),)" /></font></font>
 						</div>
 					</tal:block>
 
 				
 					<metal:block metal:use-macro="here/MDDInspectClipboard_inner/macros/tClipboardCollapsibleSection" /> 
 
-					<div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplateOrCachedForElement( here, 'Textual_NoHeaderNoFooter' )" />
+					<div tal:replace="structure python: here.MDDModelDDvlPlone_tool.fRenderTemplateOrCachedForElement( here, 'Textual_NoHeaderNoFooter' )" />
 				</tal:block>
 			</tal:block>
 		</tal:block>
@@ -175,17 +175,17 @@
 			tal:define="
 				pFlushCacheCode request/theFlushCacheCode | string:;pNoCacheCode request/theNoCacheCode | string:;
 				pFlushDiskCache          request/theFlushDiskCache | string:;
-				pNoCache                 request/theNoCache | string:;pNoCacheAllowed  python: pNoCache and pNoCacheCode and here.ModelDDvlPlone_tool.fNoCacheIdAllowsRender( here, pNoCacheCode, 'Textual_NoHeaderNoFooter',)" >
+				pNoCache                 request/theNoCache | string:;pNoCacheAllowed  python: pNoCache and pNoCacheCode and here.MDDModelDDvlPlone_tool.fNoCacheIdAllowsRender( here, pNoCacheCode, 'Textual_NoHeaderNoFooter',)" >
 				
 			<tal:block tal:condition="pFlushCacheCode">
-				<tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.fFlushCachedTemplateForElement( here, pFlushCacheCode,  'Textual_NoHeaderNoFooter', pFlushDiskCache)" />
+				<tal:block tal:define="dummy python: here.MDDModelDDvlPlone_tool.fFlushCachedTemplateForElement( here, pFlushCacheCode,  'Textual_NoHeaderNoFooter', pFlushDiskCache)" />
 			</tal:block>
 							
 			<tal:block tal:condition="pNoCacheAllowed"
 				tal:define="
 					global pPerformanceAnalysis         pPerformanceAnalysis | python: {};
 					unosArgs python: {
-						'theModelDDvlPloneTool': here.ModelDDvlPlone_tool,
+						'theModelDDvlPloneTool': here.MDDModelDDvlPlone_tool,
 						'thePerformanceAnalysis':pPerformanceAnalysis,
 						'theBrowsedElement':     here, 
 						'theTraversalName':      here.REQUEST.get('', False,),
@@ -206,12 +206,12 @@
 				tal:replace="structure python: here.MDDView_Textual( **unosArgs)" />
 				
 			<tal:block tal:condition="not: pNoCacheAllowed">
-				<div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplateOrCachedForElement(here, 'Textual_NoHeaderNoFooter' )" />
+				<div tal:replace="structure python: here.MDDModelDDvlPlone_tool.fRenderTemplateOrCachedForElement(here, 'Textual_NoHeaderNoFooter' )" />
 			</tal:block>
 		</tal:block>
 
 
 
-		<div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
+		<div tal:replace="structure python: here.MDDModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
        
 	</div>

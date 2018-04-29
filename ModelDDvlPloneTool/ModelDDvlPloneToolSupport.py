@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneToolSupport.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -70,11 +70,12 @@ cLogEvalStringExceptions = True
 
 cEvalStringGlobalsDict_Default = { 
     '__builtins__':None, 
-    'True': True, 
+    'True':  True, 
     'False': False, 
-    'None': None, 
+    'None':  None, 
     'DateTime': DateTime,
-    'time': time,
+    'time':  time,
+    'set':   set,
 }
     
 
@@ -140,7 +141,6 @@ cEvalStringGlobalsDict_Usual.update( {
     'repr': repr,
     'reversed': reversed,
     'round': round,
-    'set': set,
     'setattr': setattr,
     'slice': slice,
     'sorted': sorted,

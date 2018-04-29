@@ -3,7 +3,7 @@
 #
 # File: Eliminar_inner.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -43,18 +43,18 @@
                                  pPaginaRefrescar string:;
                                  pAllowRefrescar pFalse;
                                  pShowTrees               pFalse;
-                                 global pStartTime  pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()">
+                                 global pStartTime  pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()">
  
  
             <tal:block tal:define="
-                pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalStartTime     python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: {
                     'theTimeProfilingResults' :pProfilingResults,
                     'theElement'              :here,
                     'theAdditionalParams'     :None, };
-                pDeleteImpactReport     python: here.ModelDDvlPlone_tool.fDeleteImpactReport( **unosArgs);
-                pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pDeleteImpactReport     python: here.MDDModelDDvlPlone_tool.fDeleteImpactReport( **unosArgs);
+                pRetrievalEndTime       python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 SRES                    pDeleteImpactReport/here;
                 pColumnNames            pDeleteImpactReport/column_names;
                 pColumnTranslations     pDeleteImpactReport/column_translations;
@@ -69,7 +69,7 @@
                     pMostrarAnteriorPosterior   pFalse">
                     <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
     
-                    <br>
+                    <br/>
                     <h2 tal:condition="not: pEliminacionPermitida"> 
                         <a  href="#" tal:attributes="href python: '%sTabular/' % pDeleteImpactReport[ 'here'][ 'url']" class="state-visible" title="">
                             <font color="Red">                    
@@ -107,7 +107,7 @@
                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_elementosaeliminar_title_msgid">Elements to be deleted</span>
                         </h2>    
                         
-                        <p class="formHelp" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_SortableTable_help', 'You may sort the table contents by clicking on the column headers.-')" />
+                        <p class="formHelp" tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_SortableTable_help', 'You may sort the table contents by clicking on the column headers.-')" />
 
                         <table width="100%%" id="cid_TRAElementosAEliminar_sortable" class="listing" summary="#"  
                             tal:attributes="summary pDeleteImpactReport/here/values_by_name/title/uvalue"  >
@@ -135,7 +135,7 @@
                             <h2>
                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_elementosafectados_title_msgid">Affected related elements</span>
                             </h2>       
-                            <p class="formHelp" tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_SortableTable_help', 'You may sort the table contents by clicking on the column headers.-')" />
+                            <p class="formHelp" tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_SortableTable_help', 'You may sort the table contents by clicking on the column headers.-')" />
                             <table width="100%%" id="cid_TRAElementosAfectados" class="listing" summary="#"  
                                 tal:attributes="summary pDeleteImpactReport/here/values_by_name/title/uvalue"  >
                     
@@ -185,18 +185,18 @@
                             <font size="2">
                                 <strong>
                                     <span tal:content="python: '%s %d %s ' % (
-                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
+                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next:-'),
                                         pDeleteImpactReport.get( 'seconds_to_delete', 0),
-                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
+                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
                                     )" />
                                     <br/>
                                     <span tal:content="python: '%s %s' % (
-                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
+                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
                                         ( pDeleteImpactReport.get( 'latest_date_to_delete', None) and pDeleteImpactReport.get( 'latest_date_to_delete', None).rfc822()) or '',
                                     )" />
                                     <br/>
                                     <span tal:content="python: '%s %s' % (
-                                        here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
+                                        here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
                                         ( pDeleteImpactReport.get( 'date_now', None) and pDeleteImpactReport.get( 'date_now', None).rfc822()) or '',
                                     )" />
                                 </strong>
@@ -224,7 +224,7 @@
     
     <div metal:define-macro="tFilasIncludedElement" >
         <tal:block tal:define="unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even');
-            pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
+            pNavegarALabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
             <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]">                        
                 <tal:block tal:define="ERES      pDeleteImpactReport/here" >
                     <tal:block tal:repeat="unColumnName pColumnNames" >
@@ -297,7 +297,7 @@
     
     <div metal:define-macro="tFilasRelatedElement" >
         <tal:block tal:define="unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even');
-            pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
+            pNavegarALabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
             <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]"
                 tal:repeat="ERES python: pDeleteImpactReport[ 'related']" >                        
                 <tal:block tal:repeat="unColumnName pColumnNames" >

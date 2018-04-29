@@ -3,7 +3,7 @@
 #
 # File: Desenlazar.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -37,8 +37,8 @@
 <metal:main fill-slot="main">
     
     <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008,2009,2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
-        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+        tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+        global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
 
         <div metal:use-macro="here/document_actions/macros/document_actions">
             Document actions (print, sendto etc)
@@ -54,7 +54,7 @@
 
         <metal:block metal:use-macro="here/Desenlazar_inner/macros/tDesenlazarInner" />
 
-        <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
+        <div tal:replace="structure python: here.MDDModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
                            
  
     </tal:main-macro>

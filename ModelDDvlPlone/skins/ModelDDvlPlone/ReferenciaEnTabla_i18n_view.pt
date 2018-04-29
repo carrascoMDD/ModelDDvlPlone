@@ -3,7 +3,7 @@
 #
 # File: ReferenciaEnTabla_i18n_view.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -72,7 +72,7 @@
                 <table width="100%%" id="cid_TRAReferenciaEnTabla" class="listing" summary="#"  
                     tal:attributes="summary SRES/values_by_name/title/uvalue"            
                     tal:define="unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even');
-                        pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
+                        pNavegarALabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')" >
         
                     <thead>
                         <tr>
@@ -95,7 +95,7 @@
                                     <td align="center" valign="baseline" >
                                         <tal:block tal:condition="pPermiteDesenlazarElementos">
                                             <a href="#" title="#"
-                                                tal:define="unTituloAccion python: u'%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_desenlazar_action_label', 'Desenlazar'), ERES[ 'values_by_name'][ 'title'][ 'uvalue'])"
+                                                tal:define="unTituloAccion python: u'%s %s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_desenlazar_action_label', 'Desenlazar'), ERES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                                 tal:attributes="title python: unTituloAccion;
                                                                 href python: '%sEnlazar/?theReferenceFieldName=%s&theUnlinkUID=%s' %  (  SRES[ 'url'], TRAVRES[ 'traversal_name'], ERES[ 'UID'], )" >
                                                 <img alt="#" title="#" id="icon-remove" src="#" 
@@ -105,7 +105,7 @@
                                         </tal:block>
                                         <tal:block tal:condition="pPermiteEditarElementos">
                                             <a href="#" title="#"
-                                                tal:define="unTituloAccion python: u'%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_editar_action_label', 'Editar'), ERES[ 'values_by_name'][ 'title'][ 'uvalue'])"
+                                                tal:define="unTituloAccion python: u'%s %s' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_editar_action_label', 'Editar'), ERES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                                 tal:attributes="title python: unTituloAccion;
                                                                 href  python: u'%sEditar/' % ERES[ 'url']">
                                                 <img alt="#" title="#" id="icon-edit" src="#"
@@ -159,7 +159,7 @@
                             <td align="left" colspan="#"
                                 tal:attributes="colspan python: len( TRAVRES[ 'column_names']) + pPermiteModificarElementos" >
                                 <a href="#" title="#"
-                                    tal:define="unTituloAccion python: '%s %s (%s)' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_cambiar_referencias_action_label', 'Cambiar referencias'), TRAVRES[ 'traversal_translations'][ 'translated_label'], TRAVRES[ 'traversal_translations'][ 'translated_description'])"
+                                    tal:define="unTituloAccion python: '%s %s (%s)' % ( here.MDDModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_cambiar_referencias_action_label', 'Cambiar referencias'), TRAVRES[ 'traversal_translations'][ 'translated_label'], TRAVRES[ 'traversal_translations'][ 'translated_description'])"
                                     tal:attributes="title unTituloAccion; href python: '%s/Enlazar?theReferenceFieldName=%s' % ( SRES[ 'url'], TRAVRES[ 'traversal_name'])" >
                                     <img src="#" title="#" alt="#" id="icon-inverseimplicator"
                                         tal:attributes="title unTituloAccion; alt unTituloAccion; src python: '%s/enlazar.gif' % here.portal_url()" >

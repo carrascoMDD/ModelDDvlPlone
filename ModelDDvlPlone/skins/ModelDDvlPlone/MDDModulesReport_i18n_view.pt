@@ -1,0 +1,326 @@
+<tal:block replace="nothing">
+# File: MDDModulesReport_i18n_view.pt
+#
+
+#
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+#
+</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>                     
+
+                             
+    <div metal:define-macro="tMDDModulesReport_i18n" >
+
+       
+        <tal:block 
+            i18n:domain="ModelDDvlPlone"
+            tal:define="pModulesListReport  pModulesListReport | nothing;" >
+       
+			<p tal:condition="not: pModulesListReport">Modules list not available</p>
+			
+			<tal:block tal:condition="pModulesListReport">
+				<h2 tal:condition="python: not pModulesListReport.get( 'success', False)">ERROR obtaining Modules List</h2>
+				<h2 tal:condition="python: pModulesListReport.get( 'success', False)">SUCCESS obtaining Modules List</h2>
+								
+				
+				
+				<table tal:define="global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even')"
+					class="listing" id="cid_MDDModulesModules_table" summary="Modules to Reload, and Reloaded" >
+					
+					<thead>
+						<tr>
+							<th align="left" colspan="2" class="nosort">
+								<font size="2">
+									<strong>Load Modules Import outcome</strong>
+								</font>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>theModulesAlreadyImported</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pModulesListReport.get( 'theModulesAlreadyImported', '')" />
+							</td>
+						</tr>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>theAllModulesImported</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pModulesListReport.get( 'theAllModulesImported', '')" />
+							</td>
+						</tr>
+					</tbody>
+					
+					
+
+					<thead>
+						<tr>
+							<th align="left" colspan="2" class="nosort">
+								<font size="2">
+									<strong>Load Modules Parameters</strong>
+								</font>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>theLoadConstants_ModuleName</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pModulesListReport.get( 'theLoadConstants_ModuleName', '')" />
+							</td>
+						</tr>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>theLoadConstants_ConstantName</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pModulesListReport.get( 'theLoadConstants_ConstantName', '')" />
+							</td>
+						</tr>
+					</tbody>
+					
+					
+
+					<thead>
+						<tr height="4" bgcolor="silver" ><td colspan="2"/></tr>
+						<tr>
+							<th align="left" colspan="2" class="nosort">
+								<font size="2">
+									<strong>Load Modules Specification</strong>
+								</font>
+							</th>
+						</tr>
+					</thead>
+					<tbody tal:define="
+						pLoadModulesSpecification  python: pModulesListReport.get( 'theLoadModulesSpecification', {}) or {};
+						pMasterModule              python: pLoadModulesSpecification.get( 'master_module', {}) or {}"
+						tal:condition="pLoadModulesSpecification">
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>install_tools_on_portal_root</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pLoadModulesSpecification.get( 'install_tools_on_portal_root', '')" />
+							</td>
+						</tr>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>install_tools_path</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pLoadModulesSpecification.get( 'install_tools_path', '')" />
+							</td>
+						</tr>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>master_module module_name</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pMasterModule.get( 'module_name', '')" />
+							</td>
+						</tr>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>master_module class_name</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pMasterModule.get( 'class_name', '')" />
+							</td>
+						</tr>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>master_module singleton_id</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pMasterModule.get( 'singleton_id', '')" />
+							</td>
+						</tr>
+						<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+							tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+							<td align="left" >
+								<font size="1">
+									<strong>master_module modules_manager_global</strong>
+								</font>
+							</td>
+							<td align="left" >
+								<font size="1" tal:content="python: '%s' % pMasterModule.get( 'modules_manager_global', '')" />
+							</td>
+						</tr>
+					</tbody>
+					
+					
+
+					<thead tal:define="
+						pLoadModulesSpecification  python: pModulesListReport.get( 'theLoadModulesSpecification', {}) or {};
+						pModules                   python: pLoadModulesSpecification.get( 'modules', {})  or {}" 
+						tal:condition="pLoadModulesSpecification">
+						<tr height="4" bgcolor="silver" ><td colspan="2"/></tr>
+						<tr>
+							<th align="left" class="nosort">
+								<font size="2">
+									<strong>Specified Modules</strong>
+								</font>
+							</th>
+							<th align="left" class="nosort">
+								<font size="2">
+									<strong tal:content="python: '%d' % len( pModules)"/>
+								</font>
+							</th>
+						</tr>
+					</thead>
+					<tbody tal:define="
+						pLoadModulesSpecification  python: pModulesListReport.get( 'theLoadModulesSpecification', {}) or {};
+						pModules                   python: pLoadModulesSpecification.get( 'modules', {}) or {}" 
+						tal:condition="pLoadModulesSpecification">
+						<tal:block tal:repeat="pModule pModules">
+							<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" 
+								tal:define="global unIndexClassFila    python: unIndexClassFila + 1" >
+								<td align="left"  >
+									<font size="1">
+										<span tal:content="python: pModule.get( 'module_name', '')" />
+									</font>
+								</td>
+								<td align="left" >
+									<font size="1">
+										<tal:block tal:define="pValue python: pModule.get( 'module_impl', '')" tal:condition="pValue" >
+											<span tal:content="python: 'impl: %s' % str( pValue)" />
+											<br/>
+										</tal:block>
+										<tal:block tal:define="pValue python: pModule.get( 'global_spec', '')" tal:condition="pValue" >
+											<span tal:content="python: 'global: %s' % str( pValue)" />
+											<br/>
+										</tal:block>
+										<tal:block tal:define="pValue python: pModule.get( 'singleton_spec', '')" tal:condition="pValue" >
+											<span tal:content="python: 'singleton: %s' % str( pValue)" />
+											<br/>
+										</tal:block>
+									</font>
+								</td>
+							</tr>
+						</tal:block>
+					</tbody>
+					
+											
+					<thead>
+						<tr height="4" bgcolor="silver" ><td colspan="2"/></tr>
+						<tr>
+							<th align="left" class="nosort">
+								<font size="2">
+									<strong>Loaded modules</strong>
+								</font>
+							</th>
+							<th align="left" class="nosort">
+								<font size="2">
+									<strong tal:content="python: '%d' % len( pModulesListReport.get( 'theImportedModules', []))"/>
+								</font>
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tal:block tal:repeat="pLoadedModuleName python: pModulesListReport.get( 'theImportedModules', [])">
+							<tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]" 
+								tal:define="global unIndexClassFila    python: unIndexClassFila + 1" >
+								<td align="left"  colspan="2">
+									<font size="1">
+										<span tal:content="pLoadedModuleName" />
+									</font>
+								</td>
+							</tr>
+						</tal:block>
+					</tbody>
+
+				</table>
+
+				
+				
+				
+				<tal:block tal:define="pErrorReports python: pModulesListReport.get( 'error_reports', [])"
+					tal:condition="pErrorReports" >
+					<br/>
+					<br/>
+					<h2>
+						Error reports
+					</h2>
+					<br/>
+					<tal:block tal:repeat="pErrorReport pErrorReports" >
+						<textarea readonly style="font-size: 8pt"  cols="80"  rows="#"
+							tal:define="pLines python: pErrorReport.splitlines()" 
+							tal:attributes="rows python: max( 2, min( len( pLines), 10))">
+<tal:block tal:repeat="pLine pLines" tal:content="pLine"/>
+</textarea>							
+						<br/>
+						<br/>
+					</tal:block>
+					<br/>
+					<br/>
+				</tal:block>
+							
+			</tal:block>
+
+                
+        </tal:block>
+        
+    </div>
+    
+    
+        
+
+</body>
+</html>

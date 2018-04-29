@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Export.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -75,6 +75,8 @@ class ModelDDvlPloneTool_Export:
             'filename':                 '',
             'images_exported':          0,
             'files_exported':           0,
+            'xml_string':               '',
+            'file_names_and_content':   [ ],
         }
         return unInforme
     
@@ -91,7 +93,7 @@ class ModelDDvlPloneTool_Export:
             'zip_file':                 None,
             'zip_buffer':               None,
             'xml_document':             None,
-            'xml_root':                 [ ],
+            'xml_root':                 None,
             'xml_stack':                [ ],
             'images_to_export':         [ ],
             'files_to_export':          [ ],
@@ -106,18 +108,69 @@ class ModelDDvlPloneTool_Export:
 
     security.declarePrivate( 'fExport')
     def fExport( self,
+        theModelDDvlPloneTool       =None,
         theTimeProfilingResults     =None,
         theObject                   =None, 
         theAllExportTypeConfigs     =None, 
         theOutputEncoding           =None,
+        theReturnXML                =False,
         theAdditionalParams         =None):
-        """Export an element as a zipped archive with XML file, and including binary content with the attached files and images."
+        """Export  as a zipped archive with XML file, and including binary content with the attached files and images."
         
         """
-
              
         unExportContext = self.fNewVoidExportContext()
         unExportReport  = unExportContext.get( 'report', {})
+        
+        
+
+        if ( theModelDDvlPloneTool == None):
+            unExportReport.update( { 
+                'success':      False,
+                'status':       cMDDExportStatus_Error_MissingParameter_ModelDDvlPloneTool,
+            })
+            return unExportReport
+          
+        
+        if ( theObject == None):
+            unExportReport.update( { 
+                'success':      False,
+                'status':       cMDDExportStatus_Error_MissingParameter_Element,
+            })
+            return unExportReport
+            
+ 
+                   
+        
+        unAllowExport = True
+        try:
+            unAllowExport = theObject.fAllowExport()
+        except:
+            None            
+        if not unAllowExport:
+            unExportReport.update( { 
+                'success':      False,
+                'status':       cMDDExportStatus_Error_Export_NotAllowedInElement,
+            })
+            return unExportReport
+
+        
+
+            
+        someAllExportTypeConfigs = theAllExportTypeConfigs
+        if not theAllExportTypeConfigs:
+            someAllExportTypeConfigs =  theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theObject).getAllTypeExportConfigs( theObject)        
+
+        
+        if not someAllExportTypeConfigs:
+            unExportReport.update( { 
+                'success':      False,
+                'status':       cMDDExportStatus_Error_NoExportTypeConfigsForObject,
+            })
+            return unExportReport
+        
+                        
+        unExportContext[ 'object'] = theObject
         
         
         aExcludeUsers    = False
@@ -141,42 +194,16 @@ class ModelDDvlPloneTool_Export:
             anArchiveFormat  = theAdditionalParams.get( 'theArchiveFormat',   False)
             anArchiveFormat  = (( anArchiveFormat.lower() == 'none') and 'None') or '.zip'
         
-
-        if ( theObject == None):
-            unExportReport.update( { 
-                'success':      False,
-                'status':       cExportStatus_Error_MissingParameter_Element,
-            })
-            return unExportReport
-            
-        unExportContext[ 'object'] = theObject
-        
-        
-        
-        unAllowExport = True
-        try:
-            unAllowExport = theObject.fAllowExport()
-        except:
-            None            
-        if not unAllowExport:
-            unExportReport.update( { 
-                'success':      False,
-                'status':       cExportStatus_Error_Export_NotAllowedInElement,
-            })
-            return unExportReport
+     
 
         
-
-        if not theAllExportTypeConfigs:
-            unExportReport.update( { 
-                'success':      False,
-                'status':       cExportStatus_Error_MissingParameter_ExportTypeConfigs,
-            })
-            return unExportReport
+        unXMLFileName = '%s.%s' % ( theObject.getId(), cMDDXMLFilePostfix,)
+        unExportReport[ 'filename'] = unXMLFileName
+        
         
         unOutputEncoding = theOutputEncoding
         if not unOutputEncoding:
-            unOutputEncoding = cXMLEncodingUTF8
+            unOutputEncoding = cMDDEncodingUTF8
         
         # ##############################################################################
         """Retrieve translation_service tool to handle the output encoding.
@@ -192,7 +219,7 @@ class ModelDDvlPloneTool_Export:
         unZipBuffer = None
         unZipFile   = None
         
-        if ( not aExcludeFiles) or not ( anArchiveFormat.lower() == 'none'):
+        if ( not theReturnXML) and ( not aExcludeFiles) or not ( anArchiveFormat.lower() == 'none'):
             
             unZipBuffer = None
             unZipFile   = None
@@ -209,7 +236,7 @@ class ModelDDvlPloneTool_Export:
             if not unZipFile:
                 unExportReport.update( {
                     'success':              False,
-                    'status':               cExportStatus_Error_Internal_CanNotCreateZipFile,
+                    'status':               cMDDExportStatus_Error_Internal_CanNotCreateZipFile,
                 })
                 return unExportReport
                 
@@ -243,7 +270,7 @@ class ModelDDvlPloneTool_Export:
         if ( not anEncodingResult) or len( someEncodingErrors):
             unExportReport.update( { 
                 'success':      False,
-                'status':       cExportStatus_Error_Internal_EncodingErrors,
+                'status':       cMDDExportStatus_Error_Internal_EncodingErrors,
                 'condition':    someEncodingErrors,
             })
             return unExportReport
@@ -282,7 +309,7 @@ class ModelDDvlPloneTool_Export:
             unExportReport.update( { 
                 'success':      False,
             })
-            return unExportResult
+            return unExportReport
  
         
         if not aExcludeFiles:
@@ -293,6 +320,7 @@ class ModelDDvlPloneTool_Export:
                 theExportContext            =unExportContext,
                 theTranslationService       =aTranslationService,
                 theOutputEncoding           =theOutputEncoding,
+                theReturnXML                =theReturnXML,
                 theEncodedNamesCache        =anEncodedNamesCache,
                 theExportErrors             =unExportErrors,
                 theAdditionalParams         =theAdditionalParams)
@@ -301,33 +329,39 @@ class ModelDDvlPloneTool_Export:
                 unExportReport.update( { 
                     'success':      False,
                 })
-                return unExportResult
+                return unExportReport
 
         
+            
+            
+            
         
         unXMLString = unXMLDocument.toprettyxml( encoding = unOutputEncoding)
         
-        unXMLFileName = '%s.%s' % ( theObject.getId(), cXMLFilePostfix,)
         
         
-        
-        if ( not aExcludeFiles) or not ( anArchiveFormat.lower() == 'none'):
-        
-            unZipFile.writestr( unXMLFileName, unXMLString)
-    
-            unZipFile.close()  
-            
-            unZIPFileName = '%s%s' % ( theObject.getId(), cZIPFilePostfix, )
-        
-            theObject.REQUEST.RESPONSE.setHeader('Content-Type','application/zip')
-            theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unZIPFileName)
-            theObject.REQUEST.RESPONSE.write( unZipBuffer.getvalue()) 
+        if theReturnXML:
+            unExportReport[ 'xml_string'] = unXMLString
         
         else:
+        
+            if ( not aExcludeFiles) or not ( anArchiveFormat.lower() == 'none'):
             
-            theObject.REQUEST.RESPONSE.setHeader('Content-Type','text/xml')
-            theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unXMLFileName)
-            theObject.REQUEST.RESPONSE.write( unXMLString) 
+                unZipFile.writestr( unXMLFileName, unXMLString)
+        
+                unZipFile.close()  
+                
+                unZIPFileName = '%s%s' % ( theObject.getId(), cMDDZIPFilePostfix, )
+            
+                theObject.REQUEST.RESPONSE.setHeader('Content-Type','application/zip')
+                theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unZIPFileName)
+                theObject.REQUEST.RESPONSE.write( unZipBuffer.getvalue()) 
+            
+            else:
+                
+                theObject.REQUEST.RESPONSE.setHeader('Content-Type','text/xml')
+                theObject.REQUEST.RESPONSE.addHeader("Content-Disposition","filename=%s" % unXMLFileName)
+                theObject.REQUEST.RESPONSE.write( unXMLString) 
             
         
             
@@ -348,6 +382,7 @@ class ModelDDvlPloneTool_Export:
         theExportContext            =None,
         theTranslationService       =None,
         theOutputEncoding           =None,
+        theReturnXML                =False,
         theEncodedNamesCache        =None,
         theExportErrors             =None,
         theAdditionalParams         =None):
@@ -358,17 +393,20 @@ class ModelDDvlPloneTool_Export:
         if ( theObject == None) or ( not theExportContext) or ( not theTranslationService) or ( theExportErrors == None):
             theExportErrors.append( { 
                 'success':      False,
-                'status':       cExportStatus_Error_Internal_MissingParameters,
+                'status':       cMDDExportStatus_Error_Internal_MissingParameters,
             })
             return False
-
-        unZipFile = theExportContext.get( 'zip_file', None)
-        if not unZipFile:
-            theExportErrors.append( { 
-                'success':      False,
-                'status':       cExportStatus_Error_Internal_MissingZipFile,
-            })
-            return False        
+        
+        unExportReport  = theExportContext.get( 'report', {})
+        
+        if not theReturnXML:
+            unZipFile = theExportContext.get( 'zip_file', None)
+            if not unZipFile:
+                theExportErrors.append( { 
+                    'success':      False,
+                    'status':       cMDDExportStatus_Error_Internal_MissingZipFile,
+                })
+                return False        
         
         someImagesToExport = theExportContext.get( 'images_to_export', [])
         for anImageToExport in someImagesToExport:
@@ -378,10 +416,15 @@ class ModelDDvlPloneTool_Export:
             anImageContentType  = anImageToExport[ 3]
            
             if anImageFullFileName and anImageAsFile:
-                try:
-                    unZipFile.writestr( anImageFullFileName, anImageAsFile.getvalue())
-                except:
-                    None
+                
+                if theReturnXML:
+                    unExportReport[ 'file_names_and_content'].append( [ anImageFullFileName, anImageAsFile.getvalue(),])
+                    
+                else:
+                    try:
+                        unZipFile.writestr( anImageFullFileName, anImageAsFile.getvalue())
+                    except:
+                        None
                 
         someFilesToExport = theExportContext.get( 'files_to_export', [])
         for anFileToExport in someFilesToExport:
@@ -405,10 +448,14 @@ class ModelDDvlPloneTool_Export:
                         else:
                             aFileDataObject = None
                 
-                try:
-                    unZipFile.writestr( anFileFullFileName, aWholeData)
-                except:
-                    None
+                if theReturnXML:
+                    unExportReport[ 'file_names_and_content'].append( [ anFileFullFileName, aWholeData,])
+                    
+                else:
+                    try:
+                        unZipFile.writestr( anFileFullFileName, aWholeData)
+                    except:
+                        None
         
         return True
     
@@ -483,7 +530,7 @@ class ModelDDvlPloneTool_Export:
         if ( theObject == None) or ( not theAllExportTypeConfigs) or ( not theExportContext) or ( not theTranslationService) or ( theEncodedNamesCache == None) or ( theExportErrors == None):
             theExportErrors.append( { 
                 'success':      False,
-                'status':       cExportStatus_Error_Internal_MissingParameters,
+                'status':       cMDDExportStatus_Error_Internal_MissingParameters,
             })
             return False
         
@@ -524,7 +571,7 @@ class ModelDDvlPloneTool_Export:
         if ( unXMLStack == None):
             theExportErrors.append( { 
                 'success':      False,
-                'status':       cExportStatus_Error_Internal_NoXMLStack,
+                'status':       cMDDExportStatus_Error_Internal_NoXMLStack,
             })
             return False
             
@@ -532,7 +579,7 @@ class ModelDDvlPloneTool_Export:
         if ( unXMLDocument == None):
             theExportErrors.append( { 
                 'success':      False,
-                'status':       cExportStatus_Error_Internal_NoXMLDocument,
+                'status':       cMDDExportStatus_Error_Internal_NoXMLDocument,
             })
             return False
             
@@ -546,7 +593,7 @@ class ModelDDvlPloneTool_Export:
         if not unElementMetaTypeEncoded:
             unExportReport.update( { 
                 'success':      False,
-                'status':       cExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName,
+                'status':       cMDDExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName,
             })
             return False
 
@@ -558,17 +605,17 @@ class ModelDDvlPloneTool_Export:
         """
         unNewElement = unXMLDocument.createElement( unElementMetaTypeEncoded)
         
-        unNewElement.setAttribute( cXMLAttributeName_PloneTitle,    theObject.Title())
+        unNewElement.setAttribute( cMDDXMLAttributeName_PloneTitle,    theObject.Title())
 
         unObjectId = cExportForcedRootId
         if not ( theIsRootObject and aForceRootId):
             unObjectId = theObject.getId()
             
             
-        unNewElement.setAttribute( cXMLAttributeName_PloneId,       unObjectId)
-        unNewElement.setAttribute( cXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( theObject, theRootObject))
+        unNewElement.setAttribute( cMDDXMLAttributeName_PloneId,       unObjectId)
+        unNewElement.setAttribute( cMDDXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( theObject, theRootObject))
         if not aExcludeUIDs:
-            unNewElement.setAttribute( cXMLAttributeName_PloneUID,  theObject.UID())
+            unNewElement.setAttribute( cMDDXMLAttributeName_PloneUID,  theObject.UID())
         
             
             
@@ -579,7 +626,7 @@ class ModelDDvlPloneTool_Export:
             None
             
         if unEsCollection:
-            unNewElement.setAttribute( cXMLAttributeName_IsCollection,   cXMLAttributeValue_IsCollection_True)
+            unNewElement.setAttribute( cMDDXMLAttributeName_IsCollection,   cMDDXMLAttributeValue_IsCollection_True)
             
             
             
@@ -609,7 +656,7 @@ class ModelDDvlPloneTool_Export:
             if not unObjectSchema:
                 unExportReport.update( { 
                     'success':      False,
-                    'status':       cExportStatus_Error_Internal_ObjectHasNoSchema,
+                    'status':       cMDDExportStatus_Error_Internal_ObjectHasNoSchema,
                 })
                 return False
            
@@ -652,7 +699,7 @@ class ModelDDvlPloneTool_Export:
                 unAttrNameEncoded = theEncodedNamesCache.get( unAttrName, '')
                 if not unAttrNameEncoded:
                     theExportErrors.append( { 
-                        'status':       cExportStatus_Error_Internal_EncodedNameMissing_AttrName,
+                        'status':       cMDDExportStatus_Error_Internal_EncodedNameMissing_AttrName,
                         'meta_type':    unElementMetaType,
                     })
                     continue
@@ -698,7 +745,7 @@ class ModelDDvlPloneTool_Export:
                             None
                         if not unAccessor:
                             theExportErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_AttributeAccessorNotFound,
+                                'status':       cMDDExportStatus_Error_Internal_AttributeAccessorNotFound,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
                                 'accessor':     unAccessor,
@@ -719,13 +766,13 @@ class ModelDDvlPloneTool_Export:
                             unInformeExcepcion += unaExceptionFormattedTraceback   
                             
                             theExportErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
+                                'status':       cMDDExportStatus_Error_Internal_AttributeValueAccessException,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
                                 'path':         '/'.join( theObject.getPhysicalPath()),
                                 'exception':    unInformeExcepcion,
                             })
-                            aLogger = logging.getLogger( 'ModelDDvlPloneTool_Export')
+                            aLogger = logging.getLogger( 'ModelDDvlPloneTool')
                             aLogger.info( unInformeExcepcion) 
                             
                             continue
@@ -755,7 +802,7 @@ class ModelDDvlPloneTool_Export:
                             unInformeExcepcion += unaExceptionFormattedTraceback   
                             
                             theExportErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
+                                'status':       cMDDExportStatus_Error_Internal_AttributeValueAccessException,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
                                 'path':         '/'.join( theObject.getPhysicalPath()),
@@ -785,7 +832,7 @@ class ModelDDvlPloneTool_Export:
                         unInformeExcepcion += unaExceptionFormattedTraceback   
                         
                         theExportErrors.append( { 
-                            'status':       cExportStatus_Error_Internal_AttributeValueAccessException,
+                            'status':       cMDDExportStatus_Error_Internal_AttributeValueAccessException,
                             'meta_type':    unElementMetaType,
                             'attr':         unAttrName,
                             'path':         '/'.join( theObject.getPhysicalPath()),
@@ -831,7 +878,7 @@ class ModelDDvlPloneTool_Export:
                             unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRawValue, theTranslationService, theOutputEncoding)
                             if ( not unEncodingOk)  or not unValueStringEncoded:
                                 theEncodingErrors.append( { 
-                                    'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
+                                    'status':       cMDDExportStatus_Error_Internal_EncodingError_AttributeValue_String,
                                     'meta_type':    unElementMetaType,
                                     'attr':         unAttrName,
                                     'value':        fReprAsString( unRawValue),
@@ -930,7 +977,7 @@ class ModelDDvlPloneTool_Export:
                         unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unImageFullFileName, theTranslationService, theOutputEncoding)
                         if ( not unEncodingOk)  or not unValueStringEncoded:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
+                                'status':       cMDDExportStatus_Error_Internal_EncodingError_AttributeValue_String,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
                                 'value':        fReprAsString( unImageFullFileName),
@@ -973,7 +1020,7 @@ class ModelDDvlPloneTool_Export:
                         unValueStringEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unFileFullFileName, theTranslationService, theOutputEncoding)
                         if ( not unEncodingOk)  or not unValueStringEncoded:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
+                                'status':       cMDDExportStatus_Error_Internal_EncodingError_AttributeValue_String,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
                                 'value':        fReprAsString( unFileFullFileName),
@@ -994,13 +1041,13 @@ class ModelDDvlPloneTool_Export:
                     if unValueStringEncoded:
                         
                         if unIdAttributeToSet:
-                            unNewAttributeElement.setAttribute( cXMLAttributeName_PloneId,     unIdAttributeToSet)                        
+                            unNewAttributeElement.setAttribute( cMDDXMLAttributeName_PloneId,     unIdAttributeToSet)                        
     
                         if aContentTypeAttributeToSet:
-                            unNewAttributeElement.setAttribute( cXMLAttributeName_ContentType, aContentTypeAttributeToSet)                        
+                            unNewAttributeElement.setAttribute( cMDDXMLAttributeName_ContentType, aContentTypeAttributeToSet)                        
                         
                         if unTitleAttributeToSet:
-                            unNewAttributeElement.setAttribute( cXMLAttributeName_PloneTitle,  unTitleAttributeToSet)                        
+                            unNewAttributeElement.setAttribute( cMDDXMLAttributeName_PloneTitle,  unTitleAttributeToSet)                        
     
                         unNewAttributeElementData = None
                         if unCreateCDATA:
@@ -1072,7 +1119,7 @@ class ModelDDvlPloneTool_Export:
                             
                             """
                             unNewAggregationElement  = unXMLDocument.createElement( unAggregationName)
-                            unNewAggregationElement.setAttribute( cXMLAttributeName_IsAggregation,   cXMLAttributeValue_IsAggregation_True)
+                            unNewAggregationElement.setAttribute( cMDDXMLAttributeName_IsAggregation,   cMDDXMLAttributeValue_IsAggregation_True)
                             unNewElement.appendChild( unNewAggregationElement)
                         
                          
@@ -1180,7 +1227,7 @@ class ModelDDvlPloneTool_Export:
                                 
                                 """
                                 unNewRelationElement  = unXMLDocument.createElement( unRelationName)
-                                unNewRelationElement.setAttribute( cXMLAttributeName_IsRelation,   cXMLAttributeValue_IsRelation_True)
+                                unNewRelationElement.setAttribute( cMDDXMLAttributeName_IsRelation,   cMDDXMLAttributeValue_IsRelation_True)
                                 unNewElement.appendChild( unNewRelationElement)
                                             
                                                 
@@ -1219,13 +1266,13 @@ class ModelDDvlPloneTool_Export:
                                         # ACV 20091105 To differentiate between content elements and reference elements
                                         # Was:
                                         # unRelatedMetaTypeReference = unRelatedMetaType
-                                        unRelatedMetaTypeReference = unRelatedMetaType + cXMLRelatedMetaTypePostfix
+                                        unRelatedMetaTypeReference = unRelatedMetaType + cMDDXMLRelatedMetaTypePostfix
                                         unRelatedMetaTypeEncoded = theEncodedNamesCache.get( unRelatedMetaTypeReference, '')
                                         if not unRelatedMetaTypeEncoded:
                                             unRelatedMetaTypeEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRelatedMetaTypeReference, theTranslationService, theOutputEncoding)
                                             if ( not unEncodingOk)  or not unRelatedMetaTypeEncoded:
                                                 theEncodingErrors.append( { 
-                                                    'status':       cExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName,
+                                                    'status':       cMDDExportStatus_Error_Internal_EncodedNameMissing_ElementMetaTypeName,
                                                     'meta_type':     unRelatedMetaType   
                                                 })                                            
                                                 unRelatedMetaTypeEncoded = ''
@@ -1244,13 +1291,13 @@ class ModelDDvlPloneTool_Export:
                                             
                                             # ACV 20091105 To differentiate between content elements and reference elements
                                             # Added
-                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_IsReference,   cXMLAttributeValue_IsReference_True)
+                                            unNewRelatedElementReference.setAttribute( cMDDXMLAttributeName_IsReference,   cMDDXMLAttributeValue_IsReference_True)
     
-                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneTitle,    unRelatedItem.Title())
-                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneId,       unRelatedItem.getId())
-                                            unNewRelatedElementReference.setAttribute( cXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( unRelatedItem, theRootObject))
+                                            unNewRelatedElementReference.setAttribute( cMDDXMLAttributeName_PloneTitle,    unRelatedItem.Title())
+                                            unNewRelatedElementReference.setAttribute( cMDDXMLAttributeName_PloneId,       unRelatedItem.getId())
+                                            unNewRelatedElementReference.setAttribute( cMDDXMLAttributeName_PlonePath,     self.fPathStringRelativeToRoot( unRelatedItem, theRootObject))
                                             if not aExcludeUIDs:
-                                                unNewRelatedElementReference.setAttribute( cXMLAttributeName_PloneUID,      unRelatedItem.UID())
+                                                unNewRelatedElementReference.setAttribute( cMDDXMLAttributeName_PloneUID,      unRelatedItem.UID())
                                             
                                             unNewRelationElement.appendChild( unNewRelatedElementReference)
                         
@@ -1305,12 +1352,12 @@ class ModelDDvlPloneTool_Export:
                 unElementMetaTypeEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unElementMetaType, theTranslationService, theOutputEncoding)
                 if not unEncodingOk:
                     theEncodingErrors.append( { 
-                        'status':       cExportStatus_Error_Internal_EncodingError_ElementMetaTypeName,
+                        'status':       cMDDExportStatus_Error_Internal_EncodingError_ElementMetaTypeName,
                         'meta_type':    unElementMetaType,
                     })
                 elif not unElementMetaTypeEncoded:
                     theEncodingErrors.append( { 
-                        'status':       cExportStatus_Error_Internal_EmptyEncodingResult_ElementMetaTypeName,
+                        'status':       cMDDExportStatus_Error_Internal_EmptyEncodingResult_ElementMetaTypeName,
                         'meta_type':    unElementMetaType,
                     })
                 else:
@@ -1330,13 +1377,13 @@ class ModelDDvlPloneTool_Export:
                         unAttrNameEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unAttrName, theTranslationService, theOutputEncoding)
                         if not unEncodingOk:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EncodingError_AttrName,
+                                'status':       cMDDExportStatus_Error_Internal_EncodingError_AttrName,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
                             })
                         elif not unAttrNameEncoded:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EmptyEncodingResult_AttrName,
+                                'status':       cMDDExportStatus_Error_Internal_EmptyEncodingResult_AttrName,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
                             })
@@ -1353,13 +1400,13 @@ class ModelDDvlPloneTool_Export:
                         unAggregationNameEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unAggregationName, theTranslationService, theOutputEncoding)
                         if not unEncodingOk:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EncodingError_AggregationName,
+                                'status':       cMDDExportStatus_Error_Internal_EncodingError_AggregationName,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAggregationName,
                             })
                         elif not unAttrNameEncoded:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EmptyEncodingResult_AggregationName,
+                                'status':       cMDDExportStatus_Error_Internal_EmptyEncodingResult_AggregationName,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAggregationName,
                             })
@@ -1372,13 +1419,13 @@ class ModelDDvlPloneTool_Export:
                         unRelationNameEncoded, unEncodingOk = self.fFromSystemEncodingToUnicodeToOutputEncoding( unRelationName, theTranslationService, theOutputEncoding)
                         if not unEncodingOk:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EncodingError_RelationName,
+                                'status':       cMDDExportStatus_Error_Internal_EncodingError_RelationName,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unRelationName,
                             })
                         elif not unAttrNameEncoded:
                             theEncodingErrors.append( { 
-                                'status':       cExportStatus_Error_Internal_EmptyEncodingResult_RelationName,
+                                'status':       cMDDExportStatus_Error_Internal_EmptyEncodingResult_RelationName,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unRelationName,
                             })

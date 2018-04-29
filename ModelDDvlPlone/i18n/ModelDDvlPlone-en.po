@@ -2304,6 +2304,118 @@ msgid "ModelDDvlPlone_ConfirmUnlink_action_label"
 msgstr "Please confirm unlinking of element related as"
 
 
+#. Default: "Exito"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Success_msgid"
+msgstr "Success"
 
+#. Default: "Fracaso"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Failure_msgid"
+msgstr "Failure"
+
+
+#. Default: "No Tool Singletons"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_NoToolSingletons_msgid"
+msgstr "No Tool Singletons"
+
+
+
+
+#. Default: "Sin Herramientas (singletons)"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_NoToolSingletons_msgid"
+msgstr "No Tool Singletons"
+
+
+
+#. Default: "Herramientas (singletons)"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolSingletonsNumber_msgid"
+msgstr "Tool Singletons"
+
+
+#. Default: "Sin Metodos Externos"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_NoExternalMethods_msgid"
+msgstr "No External Methods"
+
+
+
+#. Default: "Metodos Externos"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExternalMethodsNumber_msgid"
+msgstr "External Methods"
+
+
+
+
+
+
+
+#. Default: "Requerido"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_Required_msgid"
+msgstr "Required"
+
+
+
+#. Default: "Estado"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Status_msgid"
+msgstr "Status"
+
+
+#. Default: "Grabado"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Committed_msgid"
+msgstr "Committed"
+
+
+#. Default: "Modulo"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Module_msgid"
+msgstr "Module"
+
+
+#. Default: "Funcion"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Function_msgid"
+msgstr "Function"
+
+
+#. Default: "Id"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Id_msgid"
+msgstr "Id"
+
+
+#. Default: "Titulo"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ExtMethod_Title_msgid"
+msgstr "Title"
+
+
+#. Default: "Ruta de Instalacion"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_InstallPath_msgid"
+msgstr "Install Path"
+
+
+#. Default: "Id"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolSingleton_Id_msgid"
+msgstr "Id"
+
+#. Default: "Modulo"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolModule_msgid"
+msgstr "Module"
+
+#. Default: "Clase"
+#: MDDVerificationReport_i18n_view.pt 
+msgid "ModelDDvlPlone_Verification_ToolClass_msgid"
+msgstr "Class"
 
 

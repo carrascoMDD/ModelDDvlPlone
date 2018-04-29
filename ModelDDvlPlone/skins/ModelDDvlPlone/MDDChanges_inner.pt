@@ -3,7 +3,7 @@
 #
 # File: MDDChanges_inner.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -46,11 +46,11 @@
             pPagina                  string:Tabular;
             pPaginaAnteriorPosterior string:Tabular;
             pShowTrees               pFalse;
-            global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+            global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
             
 
             <tal:block tal:define="
-                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: { 
                     'theTimeProfilingResults'     :pProfilingResults,
@@ -68,10 +68,10 @@
                     'theCheckedPermissionsCache'  :None,
                     'theAdditionalParams'         :{ 'ChangesAfter': pChangeCounter,}, 
                 };    
-                SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-                pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                SRES  python: here.MDDModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
                 
-                pTRS python: here.ModelDDvlPlone_tool.fTranslationsBundle_ForChanges( here);                
+                pTRS python: here.MDDModelDDvlPlone_tool.fTranslationsBundle_ForChanges( here);                
 
                 pPermiteEditar  pFalse; 
                 pPermiteEliminar pFalse; 
@@ -108,16 +108,16 @@
 						<table cellspacing="16" cellpadding="0" frame="void" >
 							<tr>
 								<td valign="baseline"  align="left">
-									<h2 tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ChangesHistory_page_title', 'Changes History-')" />
+									<h2 tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ChangesHistory_page_title', 'Changes History-')" />
 								</td>
 								<td valign="baseline"  align="left">
-									<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_LastChange', 'Last Change-')" />
+									<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_LastChange', 'Last Change-')" />
 									&ensp;
 									<span tal:content="python: '%d' % SRES.get( 'change_counter', 0)" />
 								</td>
 								<td valign="baseline" align="left">     
 									<a class="state-visible" id="cid_Refresh_link" href="#" tal:attributes="href python: '%s/MDDChanges/%s' % ( here.absolute_url(), pRefreshURLPostfix,)"
-										tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+										tal:define="aRefreshLabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
 										<img src="#" alt="#" title="#" 
 											tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
 											id="icon-refrescar" />
@@ -126,7 +126,7 @@
 								</td>									
 								<td valign="baseline"  >     
 									<a class="state-visible" id="cid_AllChanges_link" href="#" tal:attributes="href python: '%s/MDDChanges/' % here.absolute_url()"
-										tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_AllChanges_link', 'All Changes-',)" >
+										tal:define="aRefreshLabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_AllChanges_link', 'All Changes-',)" >
 										<strong tal:content="python: aRefreshLabel" />
 									</a>
 								</td>									
@@ -158,7 +158,7 @@
                                     <td align="left"
                                         tal:content="python: pChangeEntry.get( 'ctr', 0)" />
                                     <td align="left" tal:content="python: pTRS.get( 'ModelDDvlPlone_ChangeKind_%s' % pChangeEntry.get( 'kind', ''), pChangeEntry.get( 'kind', ''))" />
-                                    <td align="left" tal:content="python: here.ModelDDvlPlone_tool.fMillisecondsToDateTime( pChangeEntry.get( 'ms', ''))" />
+                                    <td align="left" tal:content="python: here.MDDModelDDvlPlone_tool.fMillisecondsToDateTime( pChangeEntry.get( 'ms', ''))" />
                                     <td align="left" tal:content="python: pChangeEntry.get( 'user', '')" />
                                     <td tal:content="pChangeSummary"/>
                                 </tr>
@@ -173,17 +173,17 @@
 						<table cellspacing="16" cellpadding="0" frame="void" >
 							<tr>
 								<td valign="baseline">
-									<h2 tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ChangesHistory_Empty_page_title', 'Changes History is Empty-')" />
+									<h2 tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ChangesHistory_Empty_page_title', 'Changes History is Empty-')" />
 								</td>
 								<td valign="baseline"  align="left">
 									
-									<span tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_LastChange', 'Last Change-')" />
+									<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Audit_LastChange', 'Last Change-')" />
 									&ensp;
 									<span tal:content="python: '%d' % SRES.get( 'change_counter', 0)" />
 								</td>
 								<td valign="baseline">     
 									<a class="state-visible" id="cid_Refresh_link" href="#" tal:attributes="href python: '%s/MDDChanges/%s' % ( here.absolute_url(), pRefreshURLPostfix,)"
-										tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+										tal:define="aRefreshLabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
 										<img src="#" alt="#" title="#" 
 											tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
 											id="icon-refrescar" />
@@ -192,7 +192,7 @@
 								</td>									
 								<td valign="baseline" >     
 									<a class="state-visible" id="cid_AllChanges_link" href="#" tal:attributes="href python: '%s/MDDChanges/' % here.absolute_url()"
-										tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_AllChanges_link', 'All Changes-',)" >
+										tal:define="aRefreshLabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_AllChanges_link', 'All Changes-',)" >
 										<strong tal:content="python: aRefreshLabel" />
 									</a>
 								</td>									

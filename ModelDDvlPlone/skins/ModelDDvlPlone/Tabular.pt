@@ -3,7 +3,7 @@
 #
 # File: Tabular.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -36,8 +36,8 @@
 
     <metal:main fill-slot="main">
         <tal:main-macro metal:define-macro="main"
-            tal:define="text string:Copyright 2008,2009,2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
-            global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+            tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+            global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
             
             <div metal:use-macro="here/document_actions/macros/document_actions">
                 Document actions (print, sendto etc)
@@ -51,14 +51,14 @@
               Get the byline - contains details about author and modification date.
             </div>
     
-            <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.pSetDefaultDisplayView( here)" />
+            <tal:block tal:define="dummy python: here.MDDModelDDvlPlone_tool.pSetDefaultDisplayView( here)" />
             
             <tal:block tal:define="
                 global pPerformanceAnalysis         pPerformanceAnalysis | python: {};
                 pPasteRequested                     pPasteRequested      | nothing; 
 
                 pInteractionParms python: {
-                    'theModelDDvlPloneTool': here.ModelDDvlPlone_tool,
+                    'theModelDDvlPloneTool': here.MDDModelDDvlPlone_tool,
                     'thePerformanceAnalysis':pPerformanceAnalysis,
                     'theBrowsedElement':     here, 
                     'theRequest':            here.REQUEST, 
@@ -66,7 +66,7 @@
                     'theAdditionalParms':    { },
                 };
                 pViewParms python: {
-                    'theModelDDvlPloneTool': here.ModelDDvlPlone_tool,
+                    'theModelDDvlPloneTool': here.MDDModelDDvlPlone_tool,
                     'thePerformanceAnalysis':pPerformanceAnalysis,
                     'theBrowsedElement':     here, 
                     'theTraversalName':      here.REQUEST.get('theTraversalName',      None,),
@@ -115,7 +115,7 @@
                     pPasteRequested             pPasteRequested | python: False;
                     global pPerformanceAnalysis         pPerformanceAnalysis | python: {};
                     pViewParms python: {
-                        'theModelDDvlPloneTool': here.ModelDDvlPlone_tool,
+                        'theModelDDvlPloneTool': here.MDDModelDDvlPlone_tool,
                         'thePerformanceAnalysis':pPerformanceAnalysis,
                         'theBrowsedElement':     here, 
                         'theTraversalName':      here.REQUEST.get('theTraversalName',      None,),

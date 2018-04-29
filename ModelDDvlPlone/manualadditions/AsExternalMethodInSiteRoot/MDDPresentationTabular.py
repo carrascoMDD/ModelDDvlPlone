@@ -2,7 +2,7 @@
 #
 # File: MDDPresentationTabular.py
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -1950,7 +1950,7 @@ def _MDDRender_Tabular_RefactorResultsDump( theRdCtxt, theRefactorReport):
         if aException and someExceptionLines:
             theRdCtxt.pOS( """
                 <p><strong>%(ModelDDvlPlone_exception)s</strong></p>
-                <textarea style="font-size: 9pt;" cols="80" rows="%(aNumExceptionLines)d" name="MDDExceptionDump" id="cid_MDDExceptionDump" >
+                <textarea readonly style="font-size: 9pt;" cols="80" rows="%(aNumExceptionLines)d" name="MDDExceptionDump" id="cid_MDDExceptionDump" >
             """ % {
                     'aNumExceptionLines':                          aNumExceptionLines,
                     'ModelDDvlPlone_exception':   theRdCtxt.fUITr( 'ModelDDvlPlone_exception'),
@@ -2287,8 +2287,17 @@ def _MDDRender_Tabular_SectionsMenu( theRdCtxt):
 
                         someFactories = aTRAVRES[ 'factories']
 
+                        someIconsInMenuEntry = set()
+                        
                         for unaFactoriaElemento in someFactories:
-                            theRdCtxt.pOS( u"""
+                            
+                            aFactoryIcon = unaFactoriaElemento[ 'content_icon']
+                            
+                            if not ( aFactoryIcon in someIconsInMenuEntry):
+                                
+                                someIconsInMenuEntry.add( aFactoryIcon)
+                                
+                                theRdCtxt.pOS( u"""
                                            <img src="%(portal_url)s/%(FACTORY-icon)s" 
                                            title=%(FACTORY-translated_archetype_name)s"/>
                                            """ % {
@@ -2304,9 +2313,14 @@ def _MDDRender_Tabular_SectionsMenu( theRdCtxt):
                         if not ( aTraversalName in [ 'referidos', 'referentes', 'referidosCualificados',]):
 
                             someRelatedTypesAndIcons = aTRAVRES[ 'related_types_and_icons']
-
+                            someIconsInMenuEntry = set()
+                            
                             for unTipoElemento, unIconElemento in someRelatedTypesAndIcons:
-                                if unIconElemento:
+                                
+                                if unIconElemento and not ( unIconElemento in someIconsInMenuEntry):
+                                    
+                                    someIconsInMenuEntry.add( unIconElemento)
+                                    
                                     theRdCtxt.pOS( u"""
                                                    <img src="%(portal_url)s/%(RELATED-icon)s" 
                                                    title=%(RELATED-type)s"/>
@@ -2320,9 +2334,17 @@ def _MDDRender_Tabular_SectionsMenu( theRdCtxt):
                     elif aTraversalKind == 'aggregation-plone':
 
                         someFactories = aTRAVRES[ 'factories']
+                        someIconsInMenuEntry = set()
 
                         for unaFactoriaElemento in someFactories:
-                            theRdCtxt.pOS( u"""
+                            
+                            aFactoryIcon = unaFactoriaElemento[ 'content_icon']
+                            
+                            if not ( aFactoryIcon in someIconsInMenuEntry):
+                                
+                                someIconsInMenuEntry.add( aFactoryIcon)
+                                
+                                theRdCtxt.pOS( u"""
                                            <img src="%(portal_url)s/%(FACTORY-icon)s" 
                                            title=%(FACTORY-translated_archetype_name)s"/>
                                            """ % {
@@ -2386,6 +2408,7 @@ def _MDDRender_Tabular_Cabecera( theRdCtxt):
         unUnwindTrick = False
 
 
+
         if not cExtensionsForbidden:
             anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Cabecera_TypeAndDescription_Before')( theRdCtxt)
             if not aGo:
@@ -2398,6 +2421,18 @@ def _MDDRender_Tabular_Cabecera( theRdCtxt):
             if not aGo:
                 break  
 
+
+        if not cExtensionsForbidden:
+            anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Cabecera_ExtraLinks_Before')( theRdCtxt)
+            if not aGo:
+                break
+        anOk, aGo = _fMCtx( False, theRdCtxt, 'MDDRender_Tabular_Cabecera_ExtraLinks')(        theRdCtxt)
+        if not aGo:
+            break
+        if not cExtensionsForbidden:
+            anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Cabecera_ExtraLinks_After')(  theRdCtxt)
+            if not aGo:
+                break  
 
         if not cExtensionsForbidden:
             anOk, aGo = _fMCtx( True, theRdCtxt, 'MDDExtension_Render_Tabular_Cabecera_OwnerAndContainer_Before')( theRdCtxt)
@@ -2463,6 +2498,71 @@ def _MDDRender_Tabular_Cabecera( theRdCtxt):
 
     return [ True, aGo,]
 
+
+
+
+
+
+
+def _MDDRender_Tabular_Cabecera_ExtraLinks( theRdCtxt):
+    aSRES = theRdCtxt.fGP( 'SRES', {})
+    if not aSRES:
+        return [ False, True,] 
+    
+    anElement = aSRES.get( 'object', None)
+    if anElement == None:
+        return [ False, True,] 
+        
+    
+    unosExtraLinks = anElement.fExtraLinks()
+    if not unosExtraLinks:
+        return [ True, True, ]
+    
+    theRdCtxt.pOS( u"""
+        <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" >
+            <tbody>
+                <tr>
+    """)
+    unNumExtraLinks = len( unosExtraLinks)
+    for anExtraLinkIndex in range( unNumExtraLinks):
+        anExtraLink = unosExtraLinks[ anExtraLinkIndex]
+        theRdCtxt.pOS( u"""
+                    <td valign="center">
+                       <a id="cid_MDDExtraLink_%(ExtraLink_Index)d"  class="state-visible" title="%(unTituloEnlace)s " 
+                       href="%(ExtraLink_HREF)s"  >
+        """ % {
+                'ExtraLink_Index':             anExtraLinkIndex,
+                'ExtraLink_HREF':              anExtraLink.get( 'href', ''),
+                'unTituloEnlace':              fCGIE( anExtraLink.get( 'label', '')),
+            })
+        
+        anIcon = anExtraLink.get( 'icon', '')
+        if anIcon:
+            theRdCtxt.pOS( u"""
+                       <img src="%(ExtraLink_ICON)s" title="%(unTituloEnlace)s" alt="%(unTituloEnlace)s" id="icon-extralink-%(ExtraLink_Index)d" />
+            """ % {
+                    'ExtraLink_Index':             anExtraLinkIndex,
+                    'unTituloEnlace':              fCGIE( anExtraLink.get( 'label', '')),
+                    'ExtraLink_ICON':              anExtraLink.get( 'icon', ''),
+                })
+
+        theRdCtxt.pOS( u"""
+                       %(unTituloEnlace)s
+                       </a>
+                    </td>
+                    <td>&emsp;</td>
+        """ % {
+                'unTituloEnlace':              fCGIE( anExtraLink.get( 'label', '')),
+            })
+
+    theRdCtxt.pOS( u"""
+                </tr>
+            </tbody>
+        </table>
+        <br/>
+    """)
+        
+    return [ True, True, ]
 
 
 
@@ -7773,6 +7873,7 @@ cBindeableMethods_Components = [
     _MDDRender_Tabular_Javascript,
     _MDDRender_Tabular_Relation,
     _MDDRender_Tabular_Cabecera,
+    _MDDRender_Tabular_Cabecera_ExtraLinks,
     _MDDRender_Tabular_Cabecera_TypeAndDescription,
     _MDDRender_Tabular_Cabecera_OwnerAndContainer,
     _MDDRender_Tabular_Cabecera_Refresh,
@@ -7846,7 +7947,9 @@ cBindeableMethods_Extension_Names = [
     'MDDExtension_Render_Tabular_Cabecera_OwnerAndContainer_Before',
     'MDDExtension_Render_Tabular_Cabecera_OwnerAndContainer_After',
     'MDDExtension_Render_Tabular_Cabecera_Cursor_Before',
-    'MDDExtension_Render_Tabular_Cabecera_Cursor_After',   
+    'MDDExtension_Render_Tabular_Cabecera_Cursor_After', 
+    'MDDExtension_Render_Tabular_Cabecera_ExtraLinks_Before',
+    'MDDExtension_Render_Tabular_Cabecera_ExtraLinks_After',
     'MDDExtension_Render_Tabular_SectionsMenu_Before',
     'MDDExtension_Render_Tabular_SectionsMenu_After',
     'MDDExtension_Render_Tabular_SiblingsMenu_Before',

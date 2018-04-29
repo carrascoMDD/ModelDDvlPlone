@@ -3,7 +3,7 @@
 #
 # File: MDDCacheDiagnostics_inner.pt
 #
-# Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -40,28 +40,28 @@
 			pFalse                       python: False;
 			pCacheNames      	         request/form/theCacheName | string:;  
 			
-			global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
+			global pStartTime  pStartTime |  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();" >
 			
 			<p>
 				<a class="state-visible" id="cid_backToElement" href="#" tal:attributes="href python: '%s/' % here.absolute_url()">
 					<font size="3">
 						<strong tal:content="python: u'%s %s' % (
-							here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
-							here.ModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
+							here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
+							here.MDDModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
 					</font>
 				</a>
 				
 				&emsp;&emsp;
  				<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus/' % here.absolute_url()" >
 					<font size="2">
-						<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+						<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
 					</font>
 				</a>        
 			</p>
 			
 			<p>    
 				<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheDiagnostics/' % here.absolute_url()"
-					tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+					tal:define="aRefreshLabel python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
 					<img src="#" alt="#" title="#" 
 						tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
 						id="icon-refrescar" />
@@ -71,9 +71,9 @@
 			
 			<tal:block tal:define="
 
-				pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-				pCachesDiagnostics python: here.ModelDDvlPlone_tool.fCachesDiagnostics( here, theCacheNames=pCacheNames);
-				pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+				pRetrievalStartTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
+				pCachesDiagnostics python: here.MDDModelDDvlPlone_tool.fCachesDiagnostics( here, theCacheNames=pCacheNames);
+				pRetrievalEndTime  python: here.MDDModelDDvlPlone_tool.fMillisecondsNow();
 				pPagina string:;
 				pPaginaRefrescar string:MDDCacheDiagnostics" 
 				tal:condition="python: pCachesDiagnostics" >
@@ -129,7 +129,7 @@
 					[ 'ModelDDvlPlone_entries_WithoutPrevious',         'Entries without Previous-',],
 				]]];
 				pTranslations python: {};
-				pvoid python: here.ModelDDvlPlone_tool.fTranslateI18NManyIntoDict( here, pDomainsStringsAndDefaults, pTranslations)" >
+				pvoid python: here.MDDModelDDvlPlone_tool.fTranslateI18NManyIntoDict( here, pDomainsStringsAndDefaults, pTranslations)" >
 
 					<metal:block metal:use-macro="here/MDDCacheDiagnostics_inner/macros/tAllCachesDiagnostics" />   
 					
@@ -155,7 +155,7 @@
     <div metal:define-macro="tAllCachesDiagnostics" >
 		<tal:block tal:condition="pCachesDiagnostics" >
 			
-			<br>
+			<br/>
 			<h2 id="cid_MDDAllCaches_section">
 				<strong tal:content="python: pTranslations[ 'ModelDDvlPlone_DiagnosticsForAllCaches_title']" />
 			</h2>
@@ -327,7 +327,7 @@
 	
     <div metal:define-macro="tCacheDiagnostic" >
 		<tal:block tal:condition="pCacheDiagnostic" >
-			<br>
+			<br/>
 			<h2  id="#" tal:attributes="id python: 'cid_MDDCache_%s_section' % pCacheName">
 				<strong tal:content="python: '%s %s ' % (
 					pTranslations[ 'ModelDDvlPlone_DiagnosticForCache_title'],
@@ -348,13 +348,13 @@
 							&emsp;&emsp;
 							<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus/#cid_MDDCache_%s_section' % ( here.absolute_url(), pCacheName,)" >
 								<font size="2">
-									<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+									<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
 								</font>
 							</a>      
 							&emsp;&emsp;
 							<a class="state-visible" id="cid_InspectCache_Link" href="#" tal:attributes="href python: '%s/MDDInspectCache/?theCacheName=%s' % ( here.absolute_url(), pCacheName,)">
 								<font size="2">
-									<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectCache_action_label', 'Inspect Cache-',)" />
+									<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectCache_action_label', 'Inspect Cache-',)" />
 								</font>
 							</a>
 						</th>
