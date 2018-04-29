@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: Editar_inner.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -29,95 +33,80 @@
 
     <div metal:define-macro="tEditarInner" >
     
-        <tal:block tal:define=" global pTrue            python: True;
-                                global pFalse           python: False;
-                                global pPagina          string:Tabular;
-                                global pPaginaAnteriorPosterior string:Editar;
-                                global pShowTrees       pFalse;
-                                global pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" />
+        <tal:block tal:define="pTrue              python: True;
+                               pFalse             python: False;
+                               pPagina            string:Tabular;
+                               pPaginaAnteriorPosterior string:Editar;
+                                pPaginaRefrescar string:Editar;
+                                pAllowRefrescar pTrue;
+                                pShowTrees         pFalse;
+                               pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
 
-        <tal:block tal:define="
-            pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-            pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
-            unosArgs python: { 
-                'theTimeProfilingResults'     :pProfilingResults,
-                'theElement'                  :here, 
-                'theParent'                   :None,
-                'theParentTraversalName'      :'',
-                'theTypeConfig'               :None, 
-                'theAllTypeConfigs'           :None, 
-                'theViewName'                 :'Tabular', 
-                'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', 'dynamic_vocabularies',],
-                'theWritePermissions'         :[ 'object', 'attrs', ],
-                'theFeatureFilters'           :{ 'aggregations': [], 'relations': [], }, 
-                'theInstanceFilters'          :None,
-                'theTranslationsCaches'       :None,
-                'theCheckedPermissionsCache'  :None,
-                'theAdditionalParams'         :None, };    
-            SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
-            pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
-            pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
-            pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
-            pPermiteAbandonarEditar     pTrue;
-            pShowOrHideTrees            pFalse; 
-            pMostrarAnteriorPosterior   pTrue" >
-
-            <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
-
-            <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
-           
-            <p tal:condition="python: pChangeReports and pChangeReports[ 'field_reports'] and len( [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports'] if unChangeReport.get( 'effect', '') == 'changed']) > 0" >
-                <font color="Red">
-                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sehancambiadolosdatos">Se han cambiado los datos</span> 
-                    &nbsp;   
-                    <tal:block tal:define="global unEsFirst python: True" tal:repeat="unChangeReport python: pChangeReports[ 'field_reports']" >
-                        <tal:block tal:condition="python: unChangeReport and unChangeReport.has_key( 'effect') and ( unChangeReport.get( 'effect', '') == 'changed')" >
-                            <tal:block tal:condition="not: unEsFirst" >,</tal:block>
-                            <span tal:content="unChangeReport/previous_value/attribute_translations/translated_label" />                                                                                                                
-                            <tal:block tal:define="global unEsFirst python: False" />                           
-                        </tal:block>
-                    </tal:block>
-                </font>                
-            </p>
-            <p tal:condition="python: pChangeReports and pChangeReports[ 'field_reports'] and len( [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports'] if unChangeReport.get( 'effect', '') == 'error']) > 0" >
-                <font color="Red">
-                    <strong>
-                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_errorcambiandolosdatos">Error cambiando los datos-</span> 
+            <tal:block tal:define="
+                pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                unosArgs python: { 
+                    'theTimeProfilingResults'     :pProfilingResults,
+                    'theElement'                  :here, 
+                    'theParent'                   :None,
+                    'theParentTraversalName'      :'',
+                    'theTypeConfig'               :None, 
+                    'theAllTypeConfigs'           :None, 
+                    'theViewName'                 :'Tabular', 
+                    'theRetrievalExtents'         :[ 'traversals', 'owner', 'cursor', 'dynamic_vocabularies',],
+                    'theWritePermissions'         :[ 'object', 'attrs', ],
+                    'theFeatureFilters'           :{ 'aggregations': [], 'relations': [], }, 
+                    'theInstanceFilters'          :None,
+                    'theTranslationsCaches'       :None,
+                    'theCheckedPermissionsCache'  :None,
+                    'theAdditionalParams'         :None, };    
+                SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfig( **unosArgs);
+                pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                pPermiteEditar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
+                pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
+                pPermiteAbandonarEditar     pTrue;
+                pShowOrHideTrees            pFalse; 
+                pMostrarAnteriorPosterior   pTrue;
+                pForceExcludeId    pForceExcludeId | not: here/portal_properties/site_properties/visible_ids;
+                pCanRequestEditId  python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  ( not request.get( 'edit_id', ''));
+                pEditId            python: ( not pForceExcludeId) and  ( SRES.get( 'allow_edit_id', False)) and  request.get( 'edit_id', '');" >
+    
+                <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+    
+                <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+               
+                <p tal:condition="python: pChangeReports and pChangeReports[ 'field_reports'] and len( [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports'] if unChangeReport.get( 'effect', '') == 'changed']) > 0" >
+                    <font color="Red">
+                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sehancambiadolosdatos">Se han cambiado los datos</span> 
                         &nbsp;   
-                        <tal:block tal:define="global unEsFirst python: True" tal:repeat="unChangeReport python: pChangeReports[ 'field_reports']" >
-                            <tal:block tal:condition="python: unChangeReport and unChangeReport.has_key( 'effect') and ( unChangeReport.get( 'effect', '') == 'error')" >
-                                <tal:block tal:condition="not: unEsFirst" >,</tal:block>
+                        <tal:block tal:repeat="unChangeReport python: pChangeReports[ 'field_reports']" >
+                            <tal:block tal:condition="python: unChangeReport and unChangeReport.has_key( 'effect') and ( unChangeReport.get( 'effect', '') == 'changed')" >
+                                    <tal:block tal:condition="repeat/unChangeReport/start" >,</tal:block>
                                 <span tal:content="unChangeReport/previous_value/attribute_translations/translated_label" />                                                                                                                
-                                <tal:block tal:define="global unEsFirst python: False" />                           
                             </tal:block>
                         </tal:block>
-                    </strong>            
-                </font>                
-            </p>
-           
-            <br>
-            <h2 tal:condition="python: not( SRES[ 'read_permission'] and SRES[ 'write_permission'])"> 
-                <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
-                    <font color="Red">                    
-                        <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaeditar_error_message"/>
-                        &nbsp;
-                        <span tal:content="SRES/values_by_name/title/uvalue " />
-                        &nbsp;(                    
-                        <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), SRES[ 'content_icon'])"  
-                             alt="" title="MetaType icon" id="icon-here" />
-                        &nbsp;
-                        <span tal:content="SRES/type_translations/translated_archetype_name" />
-                        )                        
-                    </font>
-                </a>                
-            </h2>           
-
-            <tal:block tal:condition="python: SRES[ 'read_permission'] and SRES[ 'write_permission']"> 
-        
-                <h2 tal:condition="not: SRES/non_text_field_names"> 
+                    </font>                
+                </p>
+                <p tal:condition="python: pChangeReports and pChangeReports[ 'field_reports'] and len( [ unChangeReport for unChangeReport in pChangeReports[ 'field_reports'] if unChangeReport.get( 'effect', '') == 'error']) > 0" >
+                    <font color="Red">
+                        <strong>
+                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_errorcambiandolosdatos">Error cambiando los datos-</span> 
+                            &nbsp;   
+                            <tal:block tal:repeat="unChangeReport python: pChangeReports[ 'field_reports']" >
+                                <tal:block tal:condition="python: unChangeReport and unChangeReport.has_key( 'effect') and ( unChangeReport.get( 'effect', '') == 'error')" >
+                                    <tal:block tal:condition="not: repeat/unChangeReport/start" >,</tal:block>
+                                    <span tal:content="unChangeReport/previous_value/attribute_translations/translated_label" />                                                                                                                
+                                </tal:block>
+                            </tal:block>
+                        </strong>            
+                    </font>                
+                </p>
+               
+                <br>
+                <h2 tal:condition="python: not( SRES[ 'read_permission'] and SRES[ 'write_permission'])"> 
                     <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
-                        <font color="Blue">                    
-                            <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_nadaqueeditar_error_message"/>
+                        <font color="Red">                    
+                            <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_sinpermisoparaeditar_error_message"/>
                             &nbsp;
                             <span tal:content="SRES/values_by_name/title/uvalue " />
                             &nbsp;(                    
@@ -129,241 +118,313 @@
                         </font>
                     </a>                
                 </h2>           
-                
-                
-                <tal:block tal:condition="SRES/non_text_field_names"> 
-                    <form name="edit_form" method="post" enctype="multipart/form-data" class="enableUnloadProtection" 
-                        action="#" tal:attributes="action python: '%s/Editar' % SRES[ 'url']">
-                        <input originalvalue="#" name="UID" value="#" type="hidden"
-                            tal:attributes="originalvalue SRES/UID;value SRES/UID" >
-        
-                        <script>
-                            // this function turns a checkbox into a radio button... sort of
-                            function toggle_boolean(visibleCheckbox, hiddenBoolean) {
-                                vis = document.getElementById(visibleCheckbox);
-                                hidden = document.getElementById(hiddenBoolean);
-                                if (vis.checked) {
-                                    hidden.value = 1;
-                                } else {
-                                    hidden.value = 0;
-                                }
-                                return true;
-                            }
-                        </script>
-
-                        <table cellspacing="0" cellpadding="0" frame="void" >
-                            <tr>
-                                <td>
-                                    <h1>
-                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>
-                                        &nbsp;&nbsp; 
-                                    </h1>                                          
-                                </td>
-                                <td>                                    
-                                    <p class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_help" />        
-                                </td>
-                            </tr>
-                        </table>
-                        <input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />
-                        
-                    
-        
-        
-        
-                        <table tal:define="global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even')"
-                            width="100%%" id="cid_TablaEdicionValores" class="listing" summary="Caracteristicas">                                                         
-                            <thead>
-                                <tr>
-                                    <th class="nosort" align="left" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_caracteristicas_tabletitle">ModelDDvlPlone_caracteristicas_tabletitle</th>
-                                    <th class="nosort" align="left" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_valores_tabletitle">ModelDDvlPlone_valores_tabletitle</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tal:block tal:repeat="unAttributeName SRES/non_text_field_names" >
-                                    <tal:block 
-                                        tal:define="unAttributeResult python: SRES[ 'values_by_name'].get( unAttributeName, None)"
-                                        tal:condition="python: unAttributeResult and not unAttributeResult.get( 'attribute_config', {}).get('exclude_from_values_form', False) and not( unAttributeResult[ 'attribute_config'].has_key( 'custom_presentation_view') and unAttributeResult[ 'attribute_config'][ 'custom_presentation_view'])"> 
-        
-                                        <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
-                                            <tal:block tal:define="global unIndexClassFila    python: unIndexClassFila + 1"/>
-                                            <td align="left">
-                                                <strong tal:content="unAttributeResult/attribute_translations/translated_label" />
-                                                <span class="formHelp" tal:content="unAttributeResult/attribute_translations/translated_description" />   
-                                                <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( unAttributeName, None)"
-                                                    tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
-                                                    <font color="red">
-                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
-                                                    </font>
-                                                </tal:block>
-                                            </td>
-                                            <td tal:condition="python: unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) ">
-                                            
-                                                <tal:block tal:condition="unAttributeResult/computed">
-                                                    <tal tal:content="unAttributeResult/uvalue" />
-                                                </tal:block>
-
-                                                <tal:block tal:condition="not: unAttributeResult/computed">
-                                                    <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'string'">
-                                                    
-                                                        <div class="field ArchetypesStringWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
-                                                            <input style="font-size: 10pt;"  name="#" id="#" value="#" size="80" maxlength="256" type="text"
-                                                                tal:attributes="name unAttributeName; id unAttributeName; value unAttributeResult/uvalue"  />
-                                                        </div>
-                                                    </tal:block>   
-                                                      
-                                                    <tal:block tal:condition="python: unAttributeResult[ 'type'] in [ 'integer', 'float', 'fixedpoint', ]">
-                                                    
-                                                        <div class="field ArchetypesIntegerWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
-                                                            <input style="font-size: 10pt;"  name="#" id="#" value="#" size="14" maxlength="14" type="text"
-                                                                tal:attributes="name unAttributeName; id unAttributeName; value unAttributeResult/value"  />
-                                                        </div>
-                                                    </tal:block>     
-                                                                                                                                                                         
-                                                    <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'boolean'">
-                                                        <div class="field ArchetypesBooleanWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
-                                                         <tal:block tal:condition="python: unAttributeResult[ 'raw_value'] == True">                                                                      
-                                                             <input class="noborder" checked="checked" name="#" id="#" value="on"  onclick="#" type="checkbox"
-                                                                 tal:attributes="name python: '%s_visible' % unAttributeName;id python: unAttributeName;onclick python: 'toggle_boolean(%c%s%c, %c%s_hidden%c)%c  return true' % ( 39, unAttributeName, 39, 39, unAttributeName, 39, 59)" />
-                                                             <input originalvalue="1" name="#" value="1" id="#" type="hidden"
-                                                                 tal:attributes="name python: unAttributeName;id python: '%s_hidden' % unAttributeName" />
-                                                         </tal:block>
-                                                         <tal:block tal:condition="python: not (unAttributeResult[ 'raw_value'] == True)">                                                                      
-                                                             <input class="noborder" name="#" id="#" value="on"  onclick="#" type="checkbox"
-                                                                 tal:attributes="name python: '%s_visible' % unAttributeName;id python: unAttributeName;onclick python: 'toggle_boolean(%c%s%c, %c%s_hidden%c)%c  return true' % ( 39, unAttributeName, 39, 39, unAttributeName, 39, 59)" />
-                                                             <input originalvalue="0" name="#" value="0" id="#" type="hidden"
-                                                                 tal:attributes="name python:  unAttributeName;id python: '%s_hidden' % unAttributeName" />
-                                                         </tal:block>            
-                                                        </div>
-                                                    </tal:block>
-                                                    <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'selection'">
-                                                        <div class="field ArchetypesSelectionWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
-                                                            <select name="#" id="#" tal:attributes="name python: unAttributeName; id python: unAttributeName"  >
-                                                                <tal:block tal:repeat="unVocabularyTranslation python: unAttributeResult[ 'vocabulary_translations']">
-                                                                    <tal:block tal:condition="python: unVocabularyTranslation[ 'option'] == unAttributeResult[ 'raw_value']">
-                                                                        <option selected="selected" value="#" tal:attributes="value python: unVocabularyTranslation[ 'option']" tal:content="unVocabularyTranslation/translation" />
-                                                                    </tal:block>
-                                                                    <tal:block tal:condition="python: not( unVocabularyTranslation[ 'option'] == unAttributeResult[ 'raw_value'])">
-                                                                        <option value="#" tal:attributes="value python: unVocabularyTranslation[ 'option']" tal:content="unVocabularyTranslation/translation" />
-                                                                    </tal:block>
-                                                                </tal:block>
-                                                            </select>
-                                                        </div>
     
-                                                    </tal:block>     
-                                                    <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'datetime'">
-                                                        <tal:block tal:define="unYearResult unAttributeResult/sub_values_by_name/year;
-                                                            unMonthResult       unAttributeResult/sub_values_by_name/month;
-                                                            unDayOfMonthResult  unAttributeResult/sub_values_by_name/day_of_month;
-                                                            unDayOfWeekResult   unAttributeResult/sub_values_by_name/day_of_week"
-                                                            tal:condition="python: unYearResult and unMonthResult and unDayOfMonthResult" >
-                                                            <span class="field ArchetypesStringWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s_sub_value_year' % unAttributeName">
-                                                                <input style="font-size: 10pt;"  name="#" id="#" value="#" size="4" maxlength="4" type="text"
-                                                                    tal:attributes="name python: '%s_sub_value_year' % unAttributeName; id python: '%s_sub_value_year' % unAttributeName; value unAttributeResult/sub_values_by_name/year/raw_value"  />
-                                                            </span>                                                    
-                                                            &nbsp;
-                                                            /
-                                                            &nbsp;
-                                                            <span class="field ArchetypesSelectionWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s_sub_value_month' % unAttributeName">
-                                                                <select name="#" id="#" tal:attributes="name python: '%s_sub_value_month' % unAttributeName; id python: '%s_sub_value_month' % unAttributeName"  >
-                                                                    <tal:block tal:repeat="unVocabularyTranslation python: unAttributeResult[ 'sub_values_by_name'][ 'month'][ 'vocabulary_translations']">
-                                                                        <tal:block tal:condition="python: unVocabularyTranslation[ 'option'] ==  unAttributeResult[ 'sub_values_by_name'][ 'month'][ 'raw_value']">
+                <tal:block tal:condition="python: SRES[ 'read_permission'] and SRES[ 'write_permission']"> 
+            
+                    <h2 tal:condition="python: not ( SRES[ 'non_text_field_names'] or SRES[ 'text_field_names']) and pExcludeId"> 
+                        <a  href="#" tal:attributes="href python: '%s/Tabular' % SRES[ 'url']" class="state-visible" title="">
+                            <font color="Blue">                    
+                                <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_nadaqueeditar_error_message"/>
+                                &nbsp;
+                                <span tal:content="SRES/values_by_name/title/uvalue " />
+                                &nbsp;(                    
+                                <img src="#" tal:attributes="src python: '%s/%s' % (here.portal_url(), SRES[ 'content_icon'])"  
+                                     alt="" title="MetaType icon" id="icon-here" />
+                                &nbsp;
+                                <span tal:content="SRES/type_translations/translated_archetype_name" />
+                                )                        
+                            </font>
+                        </a>                
+                    </h2>           
+                    
+                    
+                    <tal:block tal:condition="python: ( SRES[ 'non_text_field_names'] or SRES[ 'text_field_names']) or ( not pForceExcludeId)"> 
+                        <form name="edit_form" method="post" enctype="multipart/form-data" class="enableUnloadProtection" 
+                            action="#" tal:attributes="action python: '%s/Editar' % SRES[ 'url']">
+                            
+                            <input originalvalue="#" name="UID" value="#" type="hidden"
+                                tal:attributes="originalvalue SRES/UID;value SRES/UID" >
+            
+                            <input originalvalue="#" name="edit_id" originalvalue="#" value="#" type="hidden"
+                                tal:attributes="originalvalue python: ( pEditId and '1') or '0'; value python: ( pEditId and '1') or '0'" >
+            
+                            <script type="text/javascript">
+                                <!--
+                                // this function turns a checkbox into a radio button... sort of
+                                function toggle_boolean(visibleCheckbox, hiddenBoolean) {
+                                    vis = document.getElementById(visibleCheckbox);
+                                    hidden = document.getElementById(hiddenBoolean);
+                                    if (vis.checked) {
+                                        hidden.value = 1;
+                                    } else {
+                                        hidden.value = 0;
+                                    }
+                                    return true;
+                                }
+                                //  -->
+                            </script>
+    
+                            <table cellspacing="0" cellpadding="0" frame="void" >
+                                <tr>
+                                    <td>
+                                        <h1>
+                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_label">Editar</span>
+                                            &nbsp;&nbsp; 
+                                        </h1>                                          
+                                    </td>
+                                    <td>                                    
+                                        <p class="formHelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_editar_action_help" />        
+                                    </td>
+                                </tr>
+                            </table>
+                            <input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />
+                            
+                        
+            
+            
+            
+                            <table tal:define="global unIndexClassFila python: 0; unasClasesFilas  python: ('odd','even')"
+                                width="100%%" id="cid_TablaEdicionValores" class="listing" summary="Caracteristicas">                                                         
+                                <thead>
+                                    <tr>
+                                        <th class="nosort" align="left" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_caracteristicas_tabletitle">ModelDDvlPlone_caracteristicas_tabletitle</th>
+                                        <th class="nosort" align="left" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_valores_tabletitle">ModelDDvlPlone_valores_tabletitle</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                
+                                    <tal:block tal:condition="not: pForceExcludeId">           
+                                
+                                        <tal:block tal:condition="not: pEditId">           
+                                            <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+                                                tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+                                                <td align="left">
+                                                    <strong id="#" tal:attributes="id string:valor-id"
+                                                        i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_id_label">Identity-</strong>
+                                                    <span class="formHelp"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_id_help">Unique indentifier of the element in its container. Is included in the element's URL address.-</span>                   
+                                                </td>
+                                                <td align="left" >
+                                                    <input tal:condition="pCanRequestEditId"
+                                                        style="font-size: 8pt; font-style: italic; color: red; font-weight: 600" 
+                                                        name="form_submit3" type="submit"  value="Edit Identifier"  i18n:domain="ModelDDvlPlone" i18n:attributes="value ModelDDvlPlone_EditIdButton_labelId" 
+                                                        onclick="document.getElementById( 'editar_id').value='1';document.forms[ 'edit_form'].submit()"/>
+                                                    <tal:block tal:content="SRES/id" />
+                                                </td>
+                                            </tr>                                  
+                                        </tal:block>  
+                                        
+                                        <tal:block tal:condition="pEditId">           
+                                            <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]"
+                                                tal:define="global unIndexClassFila    python: unIndexClassFila + 1">
+                                                <td align="left">
+                                                    <strong id="#" tal:attributes="id string:valor-id"
+                                                        i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_id_label">Identity-</strong>
+                                                    <span class="formHelp"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_id_help">Unique indentifier of the element in its container. Is included in the element's URL address.-</span>                   
+                                                    <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( 'id', None)"
+                                                        tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
+                                                        <font color="red">
+                                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
+                                                        </font>
+                                                    </tal:block>
+                                                </td>
+                                                <td align="left" >
+                                                    <div class="field ArchetypesStringWidget" id="archetypes-fieldname-id" >
+                                                        <input style="font-size: 10pt;"  name="attribute_id" id="attribute_id" value="#" size="80" maxlength="256" type="text"
+                                                            tal:attributes="value SRES/id"  />
+                                                    </div>
+                                                 </td>
+                                            </tr>                                  
+                                        </tal:block>    
+                                    </tal:block>    
+                            
+                                
+                                    <tal:block tal:repeat="unAttributeName SRES/non_text_field_names" >
+                                        <tal:block 
+                                            tal:define="unAttributeResult python: SRES[ 'values_by_name'].get( unAttributeName, None)"
+                                            tal:condition="python: unAttributeResult and not unAttributeResult.get( 'attribute_config', {}).get('exclude_from_values_form', False) and not( unAttributeResult[ 'attribute_config'].has_key( 'custom_presentation_view') and unAttributeResult[ 'attribute_config'][ 'custom_presentation_view'])"> 
+            
+                                            <tr class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
+                                                <tal:block tal:define="global unIndexClassFila    python: unIndexClassFila + 1"/>
+                                                <td align="left">
+                                                    <strong tal:content="unAttributeResult/attribute_translations/translated_label" />
+                                                    <span class="formHelp" tal:content="unAttributeResult/attribute_translations/translated_description" />   
+                                                    <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( unAttributeName, None)"
+                                                        tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
+                                                        <font color="red">
+                                                            <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
+                                                        </font>
+                                                    </tal:block>
+                                                </td>
+                                                <td tal:condition="python: unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) ">
+                                                
+                                                    <tal:block tal:condition="unAttributeResult/computed">
+                                                        <tal tal:content="unAttributeResult/uvalue" />
+                                                    </tal:block>
+    
+                                                    <tal:block tal:condition="not: unAttributeResult/computed">
+                                                        <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'string'">
+                                                        
+                                                            <div class="field ArchetypesStringWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
+                                                                <input style="font-size: 10pt;"  name="#" id="#" value="#" size="80" maxlength="1024" type="text"
+                                                                    tal:attributes="name unAttributeName; id unAttributeName; value unAttributeResult/uvalue"  />
+                                                            </div>
+                                                        </tal:block>   
+                                                          
+                                                        <tal:block tal:condition="python: unAttributeResult[ 'type'] in [ 'integer', 'float', 'fixedpoint', ]">
+                                                        
+                                                            <div class="field ArchetypesIntegerWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
+                                                                <input style="font-size: 10pt;"  name="#" id="#" value="#" size="14" maxlength="14" type="text"
+                                                                    tal:attributes="name unAttributeName; id unAttributeName; value unAttributeResult/value"  />
+                                                            </div>
+                                                        </tal:block>     
+                                                                                                                                                                             
+                                                        <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'boolean'">
+                                                            <div class="field ArchetypesBooleanWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
+                                                             <tal:block tal:condition="python: unAttributeResult[ 'raw_value'] == True">                                                                      
+                                                                 <input class="noborder" checked="checked" name="#" id="#" value="on"  onclick="#" type="checkbox"
+                                                                     tal:attributes="name python: '%s_visible' % unAttributeName;id python: unAttributeName;onclick python: 'toggle_boolean(%c%s%c, %c%s_hidden%c)%c  return true' % ( 39, unAttributeName, 39, 39, unAttributeName, 39, 59)" />
+                                                                 <input originalvalue="1" name="#" value="1" id="#" type="hidden"
+                                                                     tal:attributes="name python: unAttributeName;id python: '%s_hidden' % unAttributeName" />
+                                                             </tal:block>
+                                                             <tal:block tal:condition="python: not (unAttributeResult[ 'raw_value'] == True)">                                                                      
+                                                                 <input class="noborder" name="#" id="#" value="on"  onclick="#" type="checkbox"
+                                                                     tal:attributes="name python: '%s_visible' % unAttributeName;id python: unAttributeName;onclick python: 'toggle_boolean(%c%s%c, %c%s_hidden%c)%c  return true' % ( 39, unAttributeName, 39, 39, unAttributeName, 39, 59)" />
+                                                                 <input originalvalue="0" name="#" value="0" id="#" type="hidden"
+                                                                     tal:attributes="name python:  unAttributeName;id python: '%s_hidden' % unAttributeName" />
+                                                             </tal:block>            
+                                                            </div>
+                                                        </tal:block>
+                                                        <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'selection'">
+                                                            <div class="field ArchetypesSelectionWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
+                                                                <select name="#" id="#" tal:attributes="name python: unAttributeName; id python: unAttributeName"  >
+                                                                    <tal:block tal:repeat="unVocabularyTranslation python: unAttributeResult[ 'vocabulary_translations']">
+                                                                        <tal:block tal:condition="python: unVocabularyTranslation[ 'option'] == unAttributeResult[ 'raw_value']">
                                                                             <option selected="selected" value="#" tal:attributes="value python: unVocabularyTranslation[ 'option']" tal:content="unVocabularyTranslation/translation" />
                                                                         </tal:block>
-                                                                        <tal:block tal:condition="python: not( unVocabularyTranslation[ 'option'] == unAttributeResult[ 'sub_values_by_name'][ 'month'][ 'raw_value'])">
+                                                                        <tal:block tal:condition="python: not( unVocabularyTranslation[ 'option'] == unAttributeResult[ 'raw_value'])">
                                                                             <option value="#" tal:attributes="value python: unVocabularyTranslation[ 'option']" tal:content="unVocabularyTranslation/translation" />
                                                                         </tal:block>
                                                                     </tal:block>
                                                                 </select>
-                                                            </span>
-                                                            &nbsp;
-                                                            /
-                                                            &nbsp;
-                                                            <span class="field ArchetypesStringWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s_sub_value_day_of_month' % unAttributeName">
-                                                                <input style="font-size: 10pt;"  name="#" id="#" value="#" size="2" maxlength="2" type="text"
-                                                                    tal:attributes="name python: '%s_sub_value_day_of_month' % unAttributeName; id python: '%s_sub_value_day_of_month' % unAttributeName; value unAttributeResult/sub_values_by_name/day_of_month/raw_value"  />
-                                                            </span>                                                                                                        
+                                                            </div>
+        
+                                                        </tal:block>     
+                                                        <tal:block tal:condition="python: unAttributeResult[ 'type'] == 'datetime'">
+                                                            <tal:block tal:define="unYearResult unAttributeResult/sub_values_by_name/year;
+                                                                unMonthResult       unAttributeResult/sub_values_by_name/month;
+                                                                unDayOfMonthResult  unAttributeResult/sub_values_by_name/day_of_month;
+                                                                unDayOfWeekResult   unAttributeResult/sub_values_by_name/day_of_week"
+                                                                tal:condition="python: unYearResult and unMonthResult and unDayOfMonthResult" >
+                                                                <span class="field ArchetypesStringWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s_sub_value_year' % unAttributeName">
+                                                                    <input style="font-size: 10pt;"  name="#" id="#" value="#" size="4" maxlength="4" type="text"
+                                                                        tal:attributes="name python: '%s_sub_value_year' % unAttributeName; id python: '%s_sub_value_year' % unAttributeName; value unAttributeResult/sub_values_by_name/year/raw_value"  />
+                                                                </span>                                                    
+                                                                &nbsp;
+                                                                /
+                                                                &nbsp;
+                                                                <span class="field ArchetypesSelectionWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s_sub_value_month' % unAttributeName">
+                                                                    <select name="#" id="#" tal:attributes="name python: '%s_sub_value_month' % unAttributeName; id python: '%s_sub_value_month' % unAttributeName"  >
+                                                                        <tal:block tal:repeat="unVocabularyTranslation python: unAttributeResult[ 'sub_values_by_name'][ 'month'][ 'vocabulary_translations']">
+                                                                            <tal:block tal:condition="python: unVocabularyTranslation[ 'option'] ==  unAttributeResult[ 'sub_values_by_name'][ 'month'][ 'raw_value']">
+                                                                                <option selected="selected" value="#" tal:attributes="value python: unVocabularyTranslation[ 'option']" tal:content="unVocabularyTranslation/translation" />
+                                                                            </tal:block>
+                                                                            <tal:block tal:condition="python: not( unVocabularyTranslation[ 'option'] == unAttributeResult[ 'sub_values_by_name'][ 'month'][ 'raw_value'])">
+                                                                                <option value="#" tal:attributes="value python: unVocabularyTranslation[ 'option']" tal:content="unVocabularyTranslation/translation" />
+                                                                            </tal:block>
+                                                                        </tal:block>
+                                                                    </select>
+                                                                </span>
+                                                                &nbsp;
+                                                                /
+                                                                &nbsp;
+                                                                <span class="field ArchetypesStringWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s_sub_value_day_of_month' % unAttributeName">
+                                                                    <input style="font-size: 10pt;"  name="#" id="#" value="#" size="2" maxlength="2" type="text"
+                                                                        tal:attributes="name python: '%s_sub_value_day_of_month' % unAttributeName; id python: '%s_sub_value_day_of_month' % unAttributeName; value unAttributeResult/sub_values_by_name/day_of_month/raw_value"  />
+                                                                </span>                                                                                                        
+                                                            </tal:block>                                                     
+        
                                                         </tal:block>                                                     
-    
                                                     </tal:block>                                                     
-                                                </tal:block>                                                     
-                                            </td>
-                                            <td tal:condition="python: not( unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) )">
-                                                <tal:block  tal:condition="python: unAttributeResult[ 'read_permission']" >
-                    
-                                                    <tal:block tal:condition="python: unAttributeResult[ 'type'] in [ 'selection', 'boolean']">
-                                                        <tal:block tal:content="unAttributeResult/translated_value" />
-                                                    </tal:block>
-                                                    <tal:block tal:condition="python: not( unAttributeResult[ 'type'] in [ 'selection', 'boolean']) and unAttributeResult[ 'uvalue'] and not (unAttributeResult[ 'uvalue'] == 'None')">
-                                                       <tal tal:content="unAttributeResult/uvalue" />
-                                                    </tal:block>
-                                                </tal:block>
-                                            </td>
-                                        </tr>       
-                                    </tal:block>      
-                                </tal:block> 
-                            </tbody>     
-                        </table>   
-                        <br/> 
-                        <br/> 
-                            
-        
-                        <tal:block tal:repeat="unAttributeName SRES/text_field_names" >
-                            <tal:block 
-                                tal:define="unAttributeResult python: SRES[ 'values_by_name'].get( unAttributeName, None)"
-                                tal:condition="python: unAttributeResult  and not unAttributeResult.get( 'attribute_config', {}).get('exclude_from_values_form', False) and not( unAttributeResult[ 'attribute_config'].has_key( 'custom_presentation_view') and unAttributeResult[ 'attribute_config'][ 'custom_presentation_view'])"> 
-                                <tal:block tal:condition="python: unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) ">
-
-                                    <div class="field ArchetypesTextAreaWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
-                                        <table width="100%%" id="cid_TablaEdicionTexto" class="listing" summary="" tal:attributes="summary unAttributeResult/attribute_translations/translated_label">
-                                            <thead>
-                                                <tr>
-                                                    <th class="nosort" align="left">
-                                                        <strong tal:content="unAttributeResult/attribute_translations/translated_label" />
-                                                        <span class="formHelp"   i18n:translate="" tal:content="unAttributeResult/attribute_translations/translated_description" />        
-                                                        <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( unAttributeName, None)"
-                                                            tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
-                                                            <font color="red">
-                                                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
-                                                            </font>
+                                                </td>
+                                                <td tal:condition="python: not( unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) )">
+                                                    <tal:block  tal:condition="python: unAttributeResult[ 'read_permission']" >
+                        
+                                                        <tal:block tal:condition="python: unAttributeResult[ 'type'] in [ 'selection', 'boolean']">
+                                                            <tal:block tal:content="unAttributeResult/translated_value" />
                                                         </tal:block>
-                                                        
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr class="odd">
-                                                    <td align="left">
-                                                        <textarea style="font-size: 10pt;" cols="64"  rows="#" name="#" id="#" 
-                                                            tal:attributes="name unAttributeName; id unAttributeName; rows python: min( max( len(unAttributeResult.get( 'uvalue', '').splitlines()), 2), 48)" 
-                                                            tal:content="unAttributeResult/uvalue" />
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-             
-                                    </div>    
-                                </tal:block>  
-                                <tal:block tal:condition="python: not( unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) )">
-                                    <tal:block tal:condition="python: not unAttributeName == 'description'" >
-                                        <tal:block tal:define="ATTRRES python: SRES[ 'values_by_name'][ unAttributeName]" >
-                                            <metal:block metal:use-macro="here/TextoEnTabla_i18n_view/macros/tTextoEnTabla_i18n" />
-                                        </tal:block>
-                                    </tal:block>
-                                </tal:block>                                  
-                            </tal:block>      
-                        </tal:block>  
-                                            
-                        <input class="context" name="form_submit2" type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />
-                    </form>        
-                <br/>
-                </tal:block>
-        
-            </tal:block>
+                                                        <tal:block tal:condition="python: not( unAttributeResult[ 'type'] in [ 'selection', 'boolean']) and unAttributeResult[ 'uvalue'] and not (unAttributeResult[ 'uvalue'] == 'None')">
+                                                           <tal tal:content="unAttributeResult/uvalue" />
+                                                        </tal:block>
+                                                    </tal:block>
+                                                </td>
+                                            </tr>       
+                                        </tal:block>      
+                                    </tal:block> 
+                                </tbody>     
+                            </table>   
+                            <br/> 
+                            <br/> 
+                                
             
-        </tal:block>
-
-        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+                            <tal:block tal:repeat="unAttributeName SRES/text_field_names" >
+                                <tal:block 
+                                    tal:define="unAttributeResult python: SRES[ 'values_by_name'].get( unAttributeName, None)"
+                                    tal:condition="python: unAttributeResult  and not unAttributeResult.get( 'attribute_config', {}).get('exclude_from_values_form', False) and not( unAttributeResult[ 'attribute_config'].has_key( 'custom_presentation_view') and unAttributeResult[ 'attribute_config'][ 'custom_presentation_view'])"> 
+                                    <tal:block tal:condition="python: unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) ">
+    
+                                        <div class="field ArchetypesTextAreaWidget" id="" tal:attributes="id python: 'archetypes-fieldname-%s' % unAttributeName">
+                                            <table width="100%%" id="cid_TablaEdicionTexto" class="listing" summary="" tal:attributes="summary unAttributeResult/attribute_translations/translated_label">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="nosort" align="left">
+                                                            <strong tal:content="unAttributeResult/attribute_translations/translated_label" />
+                                                            <span class="formHelp"   i18n:translate="" tal:content="unAttributeResult/attribute_translations/translated_description" />        
+                                                            <tal:block tal:define="unChangeReport python: pChangeReports['field_reports_by_name'].get( unAttributeName, None)"
+                                                                tal:condition="python: unChangeReport and unChangeReport.get( 'effect', '') == 'changed'">
+                                                                <font color="red">
+                                                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_datocambiado_msg">Cambiado</span> 
+                                                                </font>
+                                                            </tal:block>
+                                                            
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="odd">
+                                                        <td align="left">
+                                                            <textarea style="font-size: 10pt;" cols="64"  rows="#" name="#" id="#" 
+                                                                tal:attributes="name unAttributeName; id unAttributeName; rows python: min( max( len(unAttributeResult.get( 'uvalue', '').splitlines()), 2), 48)" 
+                                                                tal:content="unAttributeResult/uvalue" />
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                 
+                                        </div>    
+                                    </tal:block>  
+                                    <tal:block tal:condition="python: not( unAttributeResult[ 'read_permission'] and  unAttributeResult['write_permission'] and not ( unAttributeResult[ 'attribute_config'].has_key( 'no_ui_changes') and unAttributeResult[ 'attribute_config'][ 'no_ui_changes'] == True) )">
+                                        <tal:block tal:condition="python: not unAttributeName == 'description'" >
+                                            <tal:block tal:define="ATTRRES python: SRES[ 'values_by_name'][ unAttributeName]" >
+                                                <metal:block metal:use-macro="here/TextoEnTabla_i18n_view/macros/tTextoEnTabla_i18n" />
+                                            </tal:block>
+                                        </tal:block>
+                                    </tal:block>                                  
+                                </tal:block>      
+                            </tal:block>  
+                                                
+                            <input class="context" name="form_submit2" type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />
+                        </form>        
+                    <br/>
+                    </tal:block>
+            
+                </tal:block>
+                
+            </tal:block>
+    
+            <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />  
         
+        </tal:block>
+            
     </div>
     
 </body>

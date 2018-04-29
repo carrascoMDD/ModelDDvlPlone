@@ -67,15 +67,21 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
         if not thePermissionsToCheck:
             return True
         
-        unaObjectKey = theObject.UID()
+        unaObjectKey = None
+        try:
+            unaObjectKey = theObject.UID()
+        except:
+            None
         
         unCachedPermissions = None
-        if theCheckedPermissionsCache:
-            if theCheckedPermissionsCache.has_key( unaObjectKey):
-                unCachedPermissions = theCheckedPermissionsCache.get( unaObjectKey, None)
-            if unCachedPermissions == None:
-                unCachedPermissions = {  }
-                theCheckedPermissionsCache[ unaObjectKey] = unCachedPermissions
+        
+        if not ( unaObjectKey == None):
+            if theCheckedPermissionsCache:
+                if theCheckedPermissionsCache.has_key( unaObjectKey):
+                    unCachedPermissions = theCheckedPermissionsCache.get( unaObjectKey, None)
+                if unCachedPermissions == None:
+                    unCachedPermissions = {  }
+                    theCheckedPermissionsCache[ unaObjectKey] = unCachedPermissions
         
         aPortalMembershipTool = None
                      

@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: Enlazar.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)

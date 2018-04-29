@@ -17,6 +17,19 @@ msgstr ""
 "Domain: ModelDDvlPlone\n"
 "X-Is-Fallback-For: es-ar es-bo es-co es-cr es-cl es-do es-ec es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-es es-uy es-ve\n"
 
+
+#. Default: "Identidad"
+#: ReferenciaEnTabla_view.pt
+#: ReferenciasEnTabla_view.pt
+msgid "ModelDDvlPlone_id_label"
+msgstr  "Identidad"
+
+#. Default: "Identificador unico del elemento en su contenedor. Forma parte de la direccion URL del elemento."
+#: ReferenciaEnTabla_view.pt
+#: ReferenciasEnTabla_view.pt
+msgid "ModelDDvlPlone_id_help"
+msgstr  "Identificador unico del elemento en su contenedor. Forma parte de la direccion URL del elemento."
+
 #. Default: "Titulo"
 #: ElementoGeneral_I18N.py
 msgid "ModelDDvlPlone_titulo_label"
@@ -372,7 +385,7 @@ msgstr  "Eliminar"
 #. Default: "Va a eliminar este elemento. Por favor, asegurese que realmente desea eliminarlo."
 #: EliminarPlone_inner.pt
 msgid "ModelDDvlPlone_eliminar_action_help"
-msgstr  "Va a eliminar este elemento. Por favor, asegurese que realmente desea eliminarlo. Puede examinar las listas mostrando todos los elementos que van a ser eliminados, y los relacionados que van a ser afectados." 
+msgstr  "Va a eliminar los elementos siguiente. Por favor, asegurese que realmente desea eliminarlos. Puede examinar las listas mostrando todos los elementos que van a ser eliminados, y los relacionados que van a ser afectados." 
 
 
 
@@ -385,13 +398,13 @@ msgstr  "Eliminar elemento Plone"
 #. Default: "Va a eliminar un elemento Plone contenido en este elemento. Por favor, asegurese que realmente desea eliminarlo."
 #: Eliminar_inner.pt
 msgid "ModelDDvlPlone_eliminarplone_action_help"
-msgstr  "Va a eliminar un elemento Plone contenido en este elemento. Por favor, asegurese que realmente desea eliminarlo." 
+msgstr  "Va a eliminar los elementos Plone siguientes. Por favor, asegurese que realmente desea eliminarlos." 
 
 
 #. Default: "Confirme la eliminacion del elemento pulsando en el enlace el final de la pagina."
 #: Eliminar_inner.pt
 msgid "ModelDDvlPlone_instruccionesconfirmacioneliminar_help"
-msgstr  "Confirme la eliminacion del elemento pulsando en el enlace el final de la pagina." 
+msgstr  "Confirme la eliminacion de los elementos pulsando en el enlace el final de la pagina." 
 
 #. Default: "Debe confirmar antes de 30 segundos. Si necesita mas tiempo para revisar el impacto, vuelva a solicitar la eliminacion del elemento."
 #: Eliminar_inner.pt
@@ -404,10 +417,10 @@ msgstr  "Debe confirmar antes de 30 segundos. Si necesita mas tiempo para revisa
 msgid "ModelDDvlPlone_elementosaeliminar_title_msgid"
 msgstr  "Elementos que van a ser eliminados" 
 
-#. Default: "Elemento que van a ser eliminados"
+#. Default: "Elementos que van a ser eliminados"
 #: EliminarPlone_inner.pt
 msgid "ModelDDvlPlone_elementoaeliminar_title_msgid"
-msgstr  "Elemento que van a ser eliminados" 
+msgstr  "Elementos que van a ser eliminados" 
 
 
 
@@ -687,6 +700,14 @@ msgstr  "No tiene permiso para eliminar"
 
 
 
+#. Default: "No tiene permiso para eliminar elementos contenidos en"
+#: MDDEliminarVarios_inner.pt
+msgid "ModelDDvlPlone_sinpermisoparaeliminar_contenidoDe_error_message"
+msgstr  "No tiene permiso para eliminar elementos contenidos en"
+
+
+
+
 
 #. Default: "No hay campos disponibles para edicion."
 #: CambiarValores_i18n_view.pt
@@ -882,3 +903,55 @@ msgstr  "Archivo (.zip) a importar"
 #: MDDImport.pt
 msgid "ModelDDvlPlone_Import_action_mayTakeLongToExecute"
 msgstr  "El proceso de importacion puede ser largo. Su navegador o proxis intermedios pueden agotar su tiempo de espera."
+
+#. Default: "Editar Identidad"
+#: Editar_inner.pt
+msgid "ModelDDvlPlone_EditIdButton_labelId"
+msgstr  "Editar Identidad"
+
+
+#. Default: "Refrescar"
+#: CabeceraEnTabla_i18n_view.pt
+msgid "ModelDDvlPlone_refrescar_action_label"
+msgstr  "Refrescar"
+
+
+
+
+#. Default: "Confirmar eliminacion de elementos contenidos en "
+#: MDDEliminarVarios_inner.pt
+msgid "ModelDDvlPlone_confirmareliminacion_contenidoDe_action_label"
+msgstr  "Confirmar eliminacion de la siguiente seleccion de elementos contenidos en " 
+
+
+
+#. Default: "Seleccionar"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_Select_label"
+msgstr  "Seleccionar" 
+
+
+
+
+#. Default: "Contenedor"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Container_Parent"
+msgstr  "Contenedor"
+
+
+#. Default: "Portapapeles"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Container_Clipboard"
+msgstr  "Portapapeles"
+
+
+#. Default: "Portal"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NewVersion_Container_Site"
+msgstr  "Portal"
+
+
+#. Default: "No Permitido"
+#: MDDNewVersion_inner.pt
+msgid "ModelDDvlPlone_NotAllowed"
+msgstr  "No Permitido"

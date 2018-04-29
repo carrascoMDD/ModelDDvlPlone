@@ -60,6 +60,7 @@ from ModelDDvlPloneTool_Retrieval   import ModelDDvlPloneTool_Retrieval
 from ModelDDvlPloneTool_Bodies      import ModelDDvlPloneTool_Bodies                
 from ModelDDvlPloneTool_Mutators    import ModelDDvlPloneTool_Mutators   
 from ModelDDvlPloneTool_Refactor    import ModelDDvlPloneTool_Refactor
+from ModelDDvlPloneTool_Version     import ModelDDvlPloneTool_Version
 
 
 
@@ -465,7 +466,43 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         
         
     
+
+
+    security.declareProtected( permissions.View, 'fDeleteImpactReport')
+    def fDeleteManyImpactReports(self, 
+        theTimeProfilingResults =None,
+        theContainerElement     =None,
+        theGroupUIDs            =[],
+        theAdditionalParams     =None):
+        """Retrieve a report of the impact of deleting an element, including all elements that will be related (contained elements) and elements that will be affected (related elements).
+        
+        """
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        
+        unDeleteManyImpactReports =  aModelDDvlPloneTool_Retrieval.fDeleteManyImpactReports( 
+            theTimeProfilingResults =theTimeProfilingResults,
+            theContainerElement     =theContainerElement,
+            theGroupUIDs            =theGroupUIDs,
+            theAdditionalParams     =theAdditionalParams 
+        )
+        
+        if not unDeleteManyImpactReports:
+            return unDeleteManyImpactReports
+        
+        unContainerElementResult = unDeleteManyImpactReports.get( 'container_result', None)
+        if unContainerElementResult:
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unContainerElementResult)
+            
+        someImpactReports = unDeleteManyImpactReports[ 'impact_reports']
+        for anImpactReport in someImpactReports:
+            self.pBuildResultDictsForImpactReport( aModelDDvlPloneTool_Retrieval, anImpactReport)
+                 
+        return unDeleteManyImpactReports
+        
     
+    
+            
     def pBuildResultDictsForImpactReport( self, theModelDDvlPloneTool_Retrieval, theImpactReport):
         if not theImpactReport:
             return self
@@ -737,10 +774,33 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theAdditionalParams     =theAdditionalParams
         )
     
+              
+
+    
+    security.declareProtected( permissions.DeleteObjects,  'fEliminarVariosElementos')
+    def fEliminarVariosElementos(self, 
+        theTimeProfilingResults =None,                          
+        theContainerElement     =None, 
+        theIdsToDelete          =None, 
+        theUIDsToDelete         =None, 
+        theRequestSeconds       =None, 
+        theAdditionalParams     =None):        
+        """Delete an element and all its contents.
+        
+        """
+
+        return ModelDDvlPloneTool_Mutators().fEliminarVariosElementos( 
+            theTimeProfilingResults =theTimeProfilingResults,
+            theContainerElement     =theContainerElement,            
+            theIdsToDelete          =theIdsToDelete, 
+            theUIDsToDelete         =theUIDsToDelete, 
+            theRequestSeconds       =theRequestSeconds, 
+            theAdditionalParams     =theAdditionalParams
+        )
+    
                 
     
-    
-    
+        
     
     
 #####################################################
@@ -1021,7 +1081,136 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
 
       
     
+ 
+   
+    security.declareProtected( permissions.View, 'fRetrieveAllVersions')
+    def fRetrieveAllVersions(self, 
+        theTimeProfilingResults     =None,
+        theVersionedElement          =None, 
+        theAdditionalParams         =None):
+        """Retrieve all versions of a model root, classified as the direct previous and next versions, and all others recursively previous and next versions."
+        
+        """
+   
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+        aModelDDvlPloneTool_Version   = ModelDDvlPloneTool_Version()
+        
+                
+        unAllVersionsReport =  aModelDDvlPloneTool_Version.fRetrieveAllVersions( 
+            theTimeProfilingResults        =theTimeProfilingResults,
+            theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
+            theVersionedElement            =theVersionedElement, 
+            theAdditionalParams            =theAdditionalParams
+        )
+
+
+        if not unAllVersionsReport:
+            return {}
+        
+        unVersionedElementResult = unAllVersionsReport.get( 'versioned_element_result', None)
+        if unVersionedElementResult:
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unVersionedElementResult)
+        
+        return unAllVersionsReport
+
     
+   
+    
+    security.declareProtected( permissions.View, 'fNewVersion')
+    def fNewVersion(self, 
+        theTimeProfilingResults     =None,
+        theOriginalObject           =None, 
+        theNewVersionContainerKind  =None,
+        theNewVersionName           =None,
+        theNewVersionComment        =None,
+        theNewTitle                 =None,
+        theNewId                    =None,
+        theAdditionalParams         =None):
+        """Create a new version of the original object which shall be a root, with the new version name as given as parameter, as a whole object network copy of the source root object and its contents."
+        
+        """
+                
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+
+        someMDDNewVersionTypeConfigs   =  aModelDDvlPloneTool_Retrieval.getMDDTypeCopyConfigs(   theOriginalObject)        
+        somePloneNewVersionTypeConfigs =  aModelDDvlPloneTool_Retrieval.getPloneTypeCopyConfigs( theOriginalObject)        
+                
+        return ModelDDvlPloneTool_Version().fNewVersion( 
+            theTimeProfilingResults        =theTimeProfilingResults,
+            theModelDDvlPloneTool_Retrieval=aModelDDvlPloneTool_Retrieval,
+            theModelDDvlPloneTool_Mutators =ModelDDvlPloneTool_Mutators(),
+            theOriginalObject              =theOriginalObject, 
+            theNewVersionContainerKind     =theNewVersionContainerKind,
+            theNewVersionName              =theNewVersionName,
+            theNewVersionComment           =theNewVersionComment,
+            theNewTitle                    =theNewTitle,
+            theNewId                       =theNewId,
+            theMDDNewVersionTypeConfigs    =someMDDNewVersionTypeConfigs, 
+            thePloneNewVersionTypeConfigs  =somePloneNewVersionTypeConfigs, 
+            theAdditionalParams            =theAdditionalParams
+        )
+
+    
+
+    
+       
+    security.declareProtected( permissions.AddPortalContent, 'fGroupAction')
+    def fGroupAction(self, 
+        theTimeProfilingResults     =None,
+        theContainerObject          =None, 
+        theGroupAction              =None,
+        theGroupUIDs                =None,
+        theAdditionalParams         =None):
+        """Process a request for an action affecting multiple elements, given their UIDs. Actions may be Delete objects, or Prepare to Cut (move) or Prepare to Copy objects. 
+        Cut and Copy are prepared by setting a cookie in the HTTP request response including references ( monikers) for the selected elements.        
+        
+        """
+        
+        aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+
+        if theGroupAction == 'Cut':
+            return ModelDDvlPloneTool_Refactor().fGroupAction_CutOrCopy( 
+                theTimeProfilingResults        = theTimeProfilingResults,
+                theModelDDvlPloneTool          = self,
+                theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
+                theContainerObject             = theContainerObject, 
+                theGroupUIDs                   = theGroupUIDs,
+                theIsCut                       = True,
+                theAdditionalParams            = theAdditionalParams
+            )
+           
+            
+        elif theGroupAction == 'Copy':
+            return ModelDDvlPloneTool_Refactor().fGroupAction_CutOrCopy( 
+                theTimeProfilingResults        = theTimeProfilingResults,
+                theModelDDvlPloneTool          = self,
+                theModelDDvlPloneTool_Retrieval= aModelDDvlPloneTool_Retrieval,
+                theContainerObject             = theContainerObject, 
+                theGroupUIDs                   = theGroupUIDs,
+                theIsCut                       = False,
+                theAdditionalParams            = theAdditionalParams
+            )
+            
+        # ACV 20090930 Handled by the standard Plone manage_paste, implemented in all non-abstract types
+        #elif theGroupAction == 'Paste':
+            #return self.fPaste( 
+                #theTimeProfilingResults        = theTimeProfilingResults,
+                #theContainerObject             = theContainerObject, 
+                #theGroupUIDs                   = theGroupUIDs,
+                #theAdditionalParams            = theAdditionalParams
+            #)
+            
+            
+        elif theGroupAction == 'Delete':
+            # ACV 20090930 Handled by a specific view MDDEliminarVarios
+            pass
+        
+   
+        return None
+    
+        
+        
+        
     
     
     security.declareProtected( permissions.AddPortalContent, 'fPaste')
@@ -1029,6 +1218,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
         theTimeProfilingResults     =None,
         theContainerObject          =None, 
         theObjectsToPaste           =None,
+        theIsMoveOperation          =False,
         theAdditionalParams         =None):
         """Paste into an element the elements previously copied (references held in the clipboard internet browser cookie), and all its contents, reproducing between the copied elements the relations between the original elements.        
         
@@ -1046,6 +1236,7 @@ class ModelDDvlPloneTool(UniqueObject, PropertyManager, SimpleItem.SimpleItem, A
             theModelDDvlPloneTool_Mutators = ModelDDvlPloneTool_Mutators(),
             theContainerObject             = theContainerObject, 
             theObjectsToPaste              = theObjectsToPaste,
+            theIsMoveOperation             = theIsMoveOperation,
             theMDDCopyTypeConfigs          = someMDDCopyTypeConfigs, 
             thePloneCopyTypeConfigs        = somePloneCopyTypeConfigs, 
             theMappingConfigs              = someMappingConfigs, 

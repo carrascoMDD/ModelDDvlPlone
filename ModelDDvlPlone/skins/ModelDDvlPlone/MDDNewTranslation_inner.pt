@@ -1,0 +1,216 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDNewTranslation_inner.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tImportInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        
+        <tal:block tal:define=" pTrue                    python: True;
+                                pFalse                   python: False;
+                                pPagina                  string:Tabular;
+                                pPaginaAnteriorPosterior string:Tabular;
+                                pShowTrees               pFalse;
+								pUploadedFile					request/form/theUploadedFile			| python: None;                                
+                                pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+ 
+			<tal:block tal:define="
+				pPermiteAbandonarEliminar   pTrue;
+				pShowOrHideTrees            pFalse; 
+				pMostrarAnteriorPosterior   pFalse">
+				<metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+			</tal:block>
+                    
+			<tal:block tal:condition="not: pUploadedFile" >
+				<form name="MDDImportUploadFile" method="post" enctype="multipart/form-data">
+				
+					<br>
+					<br>
+    			    <h2>
+						<font color="red"><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_page_title">Import content-</tal:block></strong></font>
+					</h2>
+    			    <br/>
+    			    <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_selectFile">Select a .zip archive with an XML file and optionally binary content files-</p>
+    			    <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_mayTakeLongToExecute">The import process may take a long time to execute. Your browser or intermediate proxies may time-out.-</p>
+                    <br/>			    
+						
+     			    <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Import_action_fichero_label">Archive (.zip) to import-</strong></p>
+					
+					<input name="theUploadedFile" type="file" />
+					
+					<br/>
+					<br/>
+						
+					<input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />                                                        
+				</form>
+			</tal:block>
+				
+                            
+            <tal:block tal:condition="pUploadedFile" >
+			
+				<tal:block tal:define="
+					global pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+					pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+					unosArgs python: {
+						'theTimeProfilingResults' :pProfilingResults,
+						'theContainerObject'       :here, 
+						'theUploadedFile'         :pUploadedFile,
+						'theAdditionalParams'     :None, }; 
+					pExportReport python: here.ModelDDvlPlone_tool.fImport( **unosArgs)" >
+				</tal:block>
+
+			</tal:block>
+		
+        </tal:block>
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+      
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    <div metal:define-macro="tFilasIncludedElement" >
+        <tal:block tal:define="global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even')" />
+        <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]">                        
+            <tal:block tal:define="ERES      pDeleteImpactReport/here" >
+                <tal:block tal:repeat="unColumnName pColumnNames" >
+                    <td align="left" valign="baseline" >
+                        <tal:block tal:condition="python: ( unColumnName == 'title') or ( unColumnName.lower().find('title') >= 0) or not ( 'title' in pColumnNames) and  (unColumnName == pColumnNames[ 0])" >  
+                            <a href="#" title="#"
+                                    tal:define="unTitle python: '%s %s %s %s %s (%s)' % ( 
+                                        here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
+                                        ERES[ 'type_translations'][ 'translated_archetype_name'],
+                                        ERES[ 'values_by_name'][ unColumnName][ 'uvalue'], 
+                                        not ( ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 
+                                        not ( ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) or '',
+                                        ERES[ 'type_translations'][ 'translated_type_description'])"
+                                    tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
+                                    class="state-visible" > 
+                                    
+    
+                                    <h4>
+                                        <tal:block tal:condition="pIndentLevel" tal:repeat="dummy python: range( pIndentLevel)" tal:replace="structure pIndent" />
+                                        <img src="#" tal:attributes="src python: '%s/%s' % ( here.portal_url(), ERES[ 'content_icon']);
+                                            alt python: ERES[ 'values_by_name'][ unColumnName][ 'uvalue'];
+                                            title unTitle"  
+                                            alt="#" title="#" id="icon-elemento" />
+                                        <span  class="state-visible" tal:content="python: ERES[ 'values_by_name'][ unColumnName][ 'uvalue']" />
+                                    </h4>
+                            </a>
+                        </tal:block>
+                        <tal:block tal:condition="python: not (( unColumnName == 'title') or ( unColumnName.lower().find('title') >= 0) or not ( 'title' in pColumnNames) and  (unColumnName == pColumnNames[ 0]))" >
+                            <span tal:content="python: ERES[ 'values_by_name'].get( unColumnName, {}).get('uvalue', '')" />
+                        </tal:block>
+                    </td>
+                </tal:block>
+                <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
+            </tal:block>      
+        </tr>
+    
+        <tal:block tal:condition="python: pDeleteImpactReport.has_key( 'included')"
+            tal:repeat="unIndexElemento python: range( len( pDeleteImpactReport[ 'included']))" >
+            <tal:block tal:define="pDeleteImpactReport python: pDeleteImpactReport[ 'included'][ unIndexElemento];
+                pIndentLevel python: pIndentLevel + 1">                     
+                <metal:block metal:use-macro="here/Eliminar_inner/macros/tFilasIncludedElement" />   
+            </tal:block>
+        </tal:block>
+
+        <tal:block tal:condition="python: pDeleteImpactReport.has_key( 'plone')"
+            tal:repeat="unIndexElemento python: range( len( pDeleteImpactReport[ 'plone']))" >
+            <tal:block tal:define="pDeleteImpactReport python: pDeleteImpactReport[ 'plone'][ unIndexElemento];
+                pIndentLevel python: pIndentLevel + 1">                     
+                <metal:block metal:use-macro="here/Eliminar_inner/macros/tFilasIncludedElement" />   
+            </tal:block>
+        </tal:block>
+        
+    </div>    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div metal:define-macro="tFilasRelatedElement" >
+        <tal:block tal:define="global unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even')" />
+        <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]"
+            tal:repeat="ERES python: pDeleteImpactReport[ 'related']" >                        
+            <tal:block tal:repeat="unColumnName pColumnNames" >
+                <td align="left" valign="baseline" >
+                    <tal:block tal:condition="python: ( unColumnName == 'title') or ( unColumnName.lower().find('title') >= 0) or not ( 'title' in pColumnNames) and  (unColumnName == pColumnNames[ 0])" >  
+                        <a href="#" title="#"
+                                tal:define="unTitle python: '%s %s %s %s %s (%s)' % ( 
+                                    here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
+                                    ERES[ 'type_translations'][ 'translated_archetype_name'],
+                                    ERES[ 'values_by_name'][ unColumnName][ 'uvalue'], 
+                                    not ( ( unColumnName == 'title') and ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) and '', 
+                                    not ( ( unColumnName == 'description') and ERES[ 'values_by_name'].get( 'description', {}).get( 'uvalue', '')) and '',
+                                    ERES[ 'type_translations'][ 'translated_type_description'])"
+                                tal:attributes="href python: '%s/Tabular' % (ERES[ 'url']); title unTitle"                                                                            
+                                class="state-visible" > 
+                                
+
+                                <h4>
+                                    <img src="#" tal:attributes="src python: '%s/%s' % ( here.portal_url(), ERES[ 'content_icon']);
+                                        alt python: ERES[ 'values_by_name'][ unColumnName][ 'uvalue'];
+                                        title unTitle"  
+                                        alt="#" title="#" id="icon-elemento" />
+                                    <span  class="state-visible" tal:content="python: ERES[ 'values_by_name'][ unColumnName][ 'uvalue']" />
+                                </h4>
+                        </a>
+                    </tal:block>
+                    <tal:block tal:condition="python: not (( unColumnName == 'title') or ( unColumnName.lower().find('title') >= 0) or not ( 'title' in pColumnNames) and  (unColumnName == pColumnNames[ 0]))" >
+                        <span tal:content="python: ERES[ 'values_by_name'].get( unColumnName, {}).get('uvalue', '')" />
+                    </tal:block>
+                </td>
+            </tal:block>
+            <tal tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
+        </tr>
+        
+    
+        
+    </div>    
+   
+    
+    
+</body>
+</html>
+    

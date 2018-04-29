@@ -68,7 +68,7 @@ class ModelDDvlPloneTool_Import:
 
     
     
-    security.declarePrivate( 'fTraversalAdditionalParams')    
+    security.declarePrivate( 'fTraversalTargetAdditionalParams')    
     def fTraversalTargetAdditionalParams( self,):
         unosParams = {
             'Do_Not_Translate' : True,
@@ -78,7 +78,7 @@ class ModelDDvlPloneTool_Import:
     
     
     
-    security.declarePrivate( 'fTraversalAdditionalParams')    
+    security.declarePrivate( 'fTraversalSourcesAdditionalParams')    
     def fTraversalSourcesAdditionalParams( self,):
         unosParams = {
             'Do_Not_Translate' : True,
@@ -92,6 +92,7 @@ class ModelDDvlPloneTool_Import:
     def fNewVoidImportContext( self,):
         unContext = {
             'container_object':         None,
+            'container_object_result':  None,
             'uploaded_file':            None,
             'objects_to_paste':         [],
             'ModelDDvlPloneTool_Retrieval': None,
@@ -114,7 +115,8 @@ class ModelDDvlPloneTool_Import:
             'zip_file':                 None,
             'zip_buffer':               None,
             'xml_document':             None,
-            'xml_root':                 [ ],
+            'xml_encoding':             '',
+            'xml_roots':                [ ],
             'images_imported':          [ ],
             'files_imported':           [ ],
         }
@@ -182,7 +184,7 @@ class ModelDDvlPloneTool_Import:
                 })
                 return unImportReport
             
-            unImportContext[ 'uploaded_file'] = theContainerObject
+            unImportContext[ 'uploaded_file'] = theUploadedFile
             
             
             if not theMDDImportTypeConfigs:
@@ -269,9 +271,11 @@ class ModelDDvlPloneTool_Import:
             
             
             # ##############################################################################
-            """Find the first .xml file in the zip archive, or fail.
+            """Find the first .xml file in the tree of files of the zip archive, or fail.
             
             """      
+            someXMLFileNamesAndPathsLength = [ ]
+            
             unXMLPostfix = '.%s' % cXMLFilePostfix.lower()
             anXMLFullFileName = ''                
             anXMLBaseName = ''                
@@ -283,10 +287,19 @@ class ModelDDvlPloneTool_Import:
                     aBaseNameLower = aBaseName.lower()
                     aBaseNamePostfix = os.path.splitext(  aBaseNameLower)[ 1]
                     if aBaseNamePostfix == unXMLPostfix:
-                        anXMLFullFileName = aFullFileName
                         anXMLBaseName     = aBaseName
-                        break
-                    
+                        someXMLFileNamesAndPathsLength.append( [ aFullFileName, len( aFullFileName.split( '/'))])
+
+            if not someXMLFileNamesAndPathsLength:
+                unImportReport.update( { 
+                    'success':      False,
+                    'status':       cImportStatus_Error_Parameter_UploadedFile_ZipWithoutXMLFile,
+                })
+                return unImportReport
+                        
+            someSortedXMLFileNamesAndPathsLength = sorted( someXMLFileNamesAndPathsLength, lambda aObj, otherObj: cmp( aObj[1], otherObj[ 1]))
+            anXMLFullFileName = someSortedXMLFileNamesAndPathsLength[ 0][ 0]
+               
             if not anXMLFullFileName:
                 unImportReport.update( { 
                     'success':      False,
@@ -319,27 +332,34 @@ class ModelDDvlPloneTool_Import:
                 return unImportReport
             
             
-            # ##############################################################################
-            """Decode the contents of .xml file into unicode, or fail.
+            ## ##############################################################################
+            #"""Decode the contents of .xml file into unicode, or fail.
             
-            """      
-            unUnicodeXMLBuffer = u''
-            try:
-                unUnicodeXMLBuffer = unXMLBuffer.decode( cXMLEncodingUTF8)
-            except UnicodeDecodeError:
-                None
+            #"""      
+            #unUnicodeXMLBuffer = u''
+            #try:
+                #unUnicodeXMLBuffer = unXMLBuffer.decode( cXMLEncodingUTF8)
+            #except UnicodeDecodeError:
+                #None
                 
-            if len( unUnicodeXMLBuffer) < 1:
-                unImportReport.update( { 
-                    'success':      False,
-                    'status':       cImportStatus_Error_DecodingXMLFileContents,
-                    'filename':     anXMLFullFileName,
-                })
-                return unImportReport
+            #if len( unUnicodeXMLBuffer) < 1:
+                #unImportReport.update( { 
+                    #'success':      False,
+                    #'status':       cImportStatus_Error_DecodingXMLFileContents,
+                    #'filename':     anXMLFullFileName,
+                #})
+                #return unImportReport
                 
             
+            ## ##############################################################################
+            #"""Parse unicode contents of .xml file as an XML DOM tree, or fail.
+            
+            #"""  
+            
+            
+            
             # ##############################################################################
-            """Parse unicode contents of .xml file as an XML DOM tree, or fail.
+            """Parse encoded contents of .xml file as an XML DOM tree, or fail. The values are encoded as specified in the top meta-element of the xml file.
             
             """      
             unXMLDocument = None
@@ -355,6 +375,30 @@ class ModelDDvlPloneTool_Import:
                     'filename':     anXMLFullFileName,
                 })
                 return unImportReport
+            unImportContext[ 'xml_document'] = unXMLDocument
+            
+            unXMLEncoding = unXMLDocument.encoding
+            if not unXMLEncoding:
+                #unImportReport.update( { 
+                    #'success':      False,
+                    #'status':       cImportStatus_Error_NoXMLEncoding,
+                    #'filename':     anXMLFullFileName,
+                #})
+                #return unImportReport
+                unXMLEncoding = cDefaultEncodingForXMLImport
+            
+            unImportContext[ 'xml_encoding'] = unXMLEncoding
+               
+            if not ( unXMLEncoding in cAllEncodingNames):
+                unImportReport.update( { 
+                    'success':      False,
+                    'status':       cImportStatus_Error_XMLEncodingUnknown,
+                    'filename':     anXMLFullFileName,
+                })
+                return unImportReport
+            
+           
+         
             
             unosXMLRootElements = unXMLDocument.childNodes
             if not unosXMLRootElements:
@@ -365,10 +409,12 @@ class ModelDDvlPloneTool_Import:
                 })
                 return unImportReport
             
+            unImportContext[ 'xml_roots'] = unosXMLRootElements
                 
             
+            
             # ##############################################################################
-            """Retrieve container object.
+            """Retrieve original object result.
             
             """      
             unContainerObjecResult = self.fRetrieveContainer( 
@@ -382,14 +428,17 @@ class ModelDDvlPloneTool_Import:
                     'status':       cImportStatus_Error_Internal_NoContainerRetrieved,
                 })
                 return unImportReport
+            
+            unImportContext[ 'container_object_result'] = unContainerObjecResult
     
+            
             unAllowImport = unContainerObjecResult.get( 'allow_import', True)
             if not unAllowImport:
                 unImportReport.update( { 
                     'success':      False,
                     'status':       cImportStatus_Error_Import_NotAllowedInElement,
                 })
-                return unRefactorReport
+                return unImportReport
             
             unContainerReadPermission = unContainerObjecResult.get( 'read_permission', False)
             if not unContainerReadPermission:
@@ -418,6 +467,7 @@ class ModelDDvlPloneTool_Import:
                 unZipFile, 
                 otherFileNames,
                 unXMLDocument,
+                unXMLEncoding,
                 unosXMLRootElements,
                 theContainerObject, 
                 unContainerObjecResult, 

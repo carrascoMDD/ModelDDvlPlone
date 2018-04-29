@@ -36,7 +36,18 @@ import sys
 import traceback
 import logging
 
+from OFS     import Moniker        
+
+
+from marshal import loads, dumps
+from urllib import quote, unquote
+from zlib import compress, decompress
+
 from AccessControl import ClassSecurityInfo
+
+from App.Dialogs import MessageDialog
+
+from webdav.Lockable import ResourceLockedError
 
 
 from ModelDDvlPloneTool_Refactor_Constants import *
@@ -60,18 +71,18 @@ class ModelDDvlPloneTool_Refactor:
 
     
     
+    # ACV 20091001 Unused. Removed.
+    #security.declarePrivate( 'fTraversalTargetAdditionalParams')    
+    #def fTraversalTargetAdditionalParams( self,):
+        #unosParams = {
+            #'Do_Not_Translate' : True,
+            #'Retrieve_Minimal_Related_Results': True,
+        #}
+        #return unosParams
     
-    security.declarePrivate( 'fTraversalAdditionalParams')    
-    def fTraversalTargetAdditionalParams( self,):
-        unosParams = {
-            'Do_Not_Translate' : True,
-            'Retrieve_Minimal_Related_Results': True,
-        }
-        return unosParams
     
     
-    
-    security.declarePrivate( 'fTraversalAdditionalParams')    
+    security.declarePrivate( 'fTraversalSourcesAdditionalParams')    
     def fTraversalSourcesAdditionalParams( self,):
         unosParams = {
             'Do_Not_Translate' : True,
@@ -86,6 +97,7 @@ class ModelDDvlPloneTool_Refactor:
         unContext = {
             'container_object':         None,
             'objects_to_paste':         [],
+            'is_move_operation':        False,
             'ModelDDvlPloneTool_Retrieval': None,
             'ModelDDvlPloneTool_Mutators': None,
             'checked_permissions_cache': None,
@@ -122,11 +134,152 @@ class ModelDDvlPloneTool_Refactor:
         return unInforme
     
     
+    
+    
+    security.declarePrivate( 'fGroupAction_CutOrCopy')
+    def fGroupAction_CutOrCopy( self,
+        theTimeProfilingResults     =None,
+        theModelDDvlPloneTool      = None,
+        theModelDDvlPloneTool_Retrieval= None,
+        theContainerObject          =None, 
+        theGroupUIDs                =[],
+        theIsCut                    =False,
+        theAdditionalParams         =None):
+        """Prepare for Cut or Copy the elements given their UIDs, by setting a cookie in the HTTP request response including references ( monikers) for the selected elements, and whether the operation is a move (cut) or not (just copy).        
 
+        """
+        if not theModelDDvlPloneTool_Retrieval:
+            return CopyError, 'Internal Parameter missing theModelDDvlPloneTool_Retrieval'
+        
+        if not theGroupUIDs:
+            return self.fExceptionDialog_NoItemsSpecified( theModelDDvlPloneTool, theContainerObject)
+        
+        unasGroupUIDs = theGroupUIDs
+        if not ( unasGroupUIDs.__class__.__name__ in [ 'list', 'tuple', 'set']):
+            unasGroupUIDs = [ unasGroupUIDs, ]
+                
+        unosMonikers = [ ]
+        
+        for unaUID in unasGroupUIDs:
+            unElemento = theModelDDvlPloneTool_Retrieval.fElementoPorUID( unaUID, theContainerObject)
+            if unElemento:
+            
+                if unElemento.wl_isLocked():
+                    raise ResourceLockedError, 'Object "%s" is locked via WebDAV' % '/'.join( unElemento.getPhysicalPath())
+    
+                if not unElemento.cb_isMoveable():
+                    raise CopyError, self.fExceptionDialog_MoveNotSupported( theModelDDvlPloneTool, theContainerObject) 
+                
+                unMoniker = Moniker.Moniker( unElemento)
+                
+                unosMonikers.append( unMoniker.dump())
+                
+        unIsMoveClipboardParameter = ( theIsCut and 1) or 0
+        
+        unClipBoardContent = ( unIsMoveClipboardParameter, unosMonikers) 
+        
+        unClipBoardCookieContent = self.fClipboardEncode( unClipBoardContent)
+        
+        aRequest = None
+        try:
+            aRequest = theContainerObject.REQUEST
+        except:
+            None
+        if ( aRequest == None):
+            return True
+        
+        aResponse =  aRequest.response
+        if aResponse:
+            aResponse.setCookie('__cp', unClipBoardCookieContent, path='%s' % self.fPathForCookie( aRequest))
+        aRequest['__cp'] = unClipBoardCookieContent
+    
+        return True
+        
+        
     
     
     
+    
+    
+        
+    
+    security.declarePrivate( 'fPathForCookie')
+    def fPathForCookie( self, theRequest):
+        if not theRequest:
+            return '/'
+        
+        # Return a "path" value for use in a cookie that refers
+        # to the root of the Zope object space.
+        return theRequest.get( 'BASEPATH1', '') or "/"
+        
+        
+        
+    security.declarePrivate( 'fClipboardEncode')
+    def fClipboardEncode( self, theData):
+        return quote( compress( dumps( theData), 9))        
+        
+    
+    
+    
+    security.declarePrivate( 'fExceptionDialog_NoItemsSpecified')
+    def fExceptionDialog_NoItemsSpecified( self, theModelDDvlPloneTool, theContextualElement):
+        
+        aMessageDialog =MessageDialog(
+            title    = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'No items specified','No items specified'),
+            message  = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'You must select one or more items to perform this operation.', 'You must select one or more items to perform this operation.'),
+            action ='Tabular'
+        )    
+        return aMessageDialog
+    
+    
+    
+    
+    security.declarePrivate( 'fExceptionDialog_MoveNotSupported')
+    def fExceptionDialog_MoveNotSupported( self, theModelDDvlPloneTool, theContextualElement):
+        
+        aMessageDialog =MessageDialog(
+            title    = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'Move not supported','Move not supported'),
+            message  = theModelDDvlPloneTool.fTranslateI18N( theContextualElement, 'plone', 'Object can not be moved: %s', 'Object can not be moved: %s') % '/'.join( theContextualElement.getPhysicalPath()),
+            action ='Tabular'
+        )    
+        return aMessageDialog
+        
 
+    # From Zope/lib/python/OFS/CopySupport.py  class CopyContainer
+    #
+    #def manage_cutObjects(self, ids=None, REQUEST=None):
+        #"""Put a reference to the objects named in ids in the clip board"""
+        #if ids is None and REQUEST is not None:
+            #return eNoItemsSpecified
+        #elif ids is None:
+            #raise ValueError, 'ids must be specified'
+
+        #if type(ids) is type(''):
+            #ids=[ids]
+        #oblist=[]
+        #for id in ids:
+            #ob=self._getOb(id)
+
+            #if ob.wl_isLocked():
+                #raise ResourceLockedError, 'Object "%s" is locked via WebDAV' % ob.getId()
+
+            #if not ob.cb_isMoveable():
+                #raise CopyError, eNotSupported % escape(id)
+            #m=Moniker.Moniker(ob)
+            #oblist.append(m.dump())
+        #cp=(1, oblist)
+        #cp=_cb_encode(cp)
+        #if REQUEST is not None:
+            #resp=REQUEST['RESPONSE']
+            #resp.setCookie('__cp', cp, path='%s' % cookie_path(REQUEST))
+            #REQUEST['__cp'] = cp
+            #return self.manage_main(self, REQUEST)
+        #return cp
+        
+        
+        
+        
+        
     security.declarePrivate( 'fPaste')
     def fPaste( self,
         theTimeProfilingResults     =None,
@@ -134,6 +287,7 @@ class ModelDDvlPloneTool_Refactor:
         theModelDDvlPloneTool_Mutators= None,
         theContainerObject          =None, 
         theObjectsToPaste           =[],
+        theIsMoveOperation          =False,
         theMDDCopyTypeConfigs       =None, 
         thePloneCopyTypeConfigs     =None, 
         theMappingConfigs           =None, 
@@ -147,6 +301,8 @@ class ModelDDvlPloneTool_Refactor:
             unPasteContext = self.fNewVoidPasteContext()
             unPasteReport  = unPasteContext.get( 'report', {})
             
+            unPasteContext[ 'is_move_operation'] = ( theIsMoveOperation and True) or False
+             
             if ( theContainerObject == None):
                 unPasteReport.update( { 
                     'success':      False,
@@ -215,7 +371,7 @@ class ModelDDvlPloneTool_Refactor:
                 
             
             # ##############################################################################
-            """Retrieve container object.
+            """Retrieve original object result.
             
             """      
             unContainerObjecResult = self.fRetrieveContainer( 
@@ -258,6 +414,7 @@ class ModelDDvlPloneTool_Refactor:
             someSources = self.fRetrieveSourceElements( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 thePasteContext             =unPasteContext,
+                theCheckDeletePermission   =theIsMoveOperation,
             )
             
             if not someSources:
@@ -269,6 +426,7 @@ class ModelDDvlPloneTool_Refactor:
     
             
             unRefactor = MDDRefactor_Paste( 
+                theIsMoveOperation,
                 someSources, 
                 theContainerObject, 
                 unContainerObjecResult, 
@@ -329,7 +487,8 @@ class ModelDDvlPloneTool_Refactor:
     security.declarePrivate( 'fRetrieveSourceElements')
     def fRetrieveSourceElements( self,
         theTimeProfilingResults     =None,
-        thePasteContext             =None):
+        thePasteContext             =None,
+        theCheckDeletePermission    =False):
         """Retrieve a tree of traversal information from each element to be pasted .
         
         """
@@ -352,6 +511,7 @@ class ModelDDvlPloneTool_Refactor:
                     theTimeProfilingResults,
                     thePasteContext,
                     unSourceObject,
+                    theCheckDeletePermission,
                 )
                 if unSourceResult and not  ( unSourceResult.get( 'object', None) == None) and ( unSourceResult.get( 'read_permission', False) == True):
                     someSourcesResults.append( unSourceResult)
@@ -366,7 +526,8 @@ class ModelDDvlPloneTool_Refactor:
     def fRetrieveSource_MDD( self,
         theTimeProfilingResults     =None,
         thePasteContext             =None,
-        theSourceObject             =None):
+        theSourceObject             =None,
+        theCheckDeletePermission    =False):
         """
         
         """
@@ -390,6 +551,10 @@ class ModelDDvlPloneTool_Refactor:
             
             unCheckedPermissionsCache = thePasteContext.get( 'checked_permissions_cache', None)
             
+            unasWritePermissions = [ ]
+            if theCheckDeletePermission:
+                unasWritePermissions.append( 'delete')
+            
             unElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     = theTimeProfilingResults,
                 theElement                  = theSourceObject, 
@@ -399,7 +564,7 @@ class ModelDDvlPloneTool_Refactor:
                 theAllTypeConfigs           = allCopyTypeConfigs, 
                 theViewName                 = '', 
                 theRetrievalExtents         = [ 'tree', ],
-                theWritePermissions         =[],
+                theWritePermissions         = unasWritePermissions,
                 theFeatureFilters           =None, 
                 theInstanceFilters          =None,
                 theTranslationsCaches       =None,

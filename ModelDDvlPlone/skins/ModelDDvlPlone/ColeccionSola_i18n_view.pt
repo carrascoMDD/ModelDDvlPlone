@@ -42,7 +42,7 @@
             pPermiteOrdenarElementos          pPermiteOrdenarElementos  | pTrue;
             pPermiteOrdenarElementos          python: pPermiteOrdenarElementos and SRES[ 'read_permission'] and SRES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'];         
             pPermiteEliminarElementos         pPermiteEliminarElementos | pTrue;
-            pPermiteEliminarElementos         python: pPermiteEliminarElementos and SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'] and not ( TRAVRES['traversal_config'].has_key( 'no_ui_changes') and TRAVRES['traversal_config'][ 'no_ui_changes'] == True) "
+            pPermiteEliminarElementos         python: pPermiteEliminarElementos and SRES[ 'read_permission'] and SRES[ 'write_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'] and not ( TRAVRES['traversal_config'].has_key( 'no_ui_changes') and TRAVRES['traversal_config'][ 'no_ui_changes'] == True) "
             tal:condition="python: TRAVRES and SRES" >
                          
             <tal:block tal:condition="pSiempre | TRAVRES/elements">

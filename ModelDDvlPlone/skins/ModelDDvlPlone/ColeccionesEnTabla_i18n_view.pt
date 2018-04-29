@@ -42,7 +42,7 @@
             pPermiteCrearColecciones            pPermiteCrearColecciones | pTrue;
             pPermiteCrearColecciones            python: ( pPermiteCrearColecciones and SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'add_permission'] and SRES[ 'add_collection_permission'] and TRAVRES[ 'read_permission'] and TRAVRES[ 'write_permission'] and ( not TRAVRES[ 'max_multiplicity_reached']));
             pPermiteEliminarColecciones         pPermiteEliminarColecciones | pTrue;
-            pPermiteEliminarColecciones         python: ( pPermiteEliminarColecciones and SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and TRAVRES[ 'read_permission']  and TRAVRES[ 'write_permission'])"
+            pPermiteEliminarColecciones         python: ( pPermiteEliminarColecciones and SRES[ 'read_permission'] and SRES[ 'write_permission']  and TRAVRES[ 'read_permission']  and TRAVRES[ 'write_permission'])"
             tal:condition="python: TRAVRES and SRES" >
                          
             <tal:block tal:condition="pSiempre | TRAVRES/elements">
@@ -95,7 +95,8 @@
                     <br/>
                 </tal:block>
                 
-                <tal:block tal:define="PARENT_SRES SRES; PARENT_TRAVRES TRAVRES"
+                <tal:block tal:define="PARENT_SRES SRES; PARENT_TRAVRES TRAVRES;
+                    pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')"
                     tal:repeat="SRES TRAVRES/elements">
                     
                     <table width="100%%" cellspacing="0" cellpadding="0" frame="void">
@@ -135,7 +136,7 @@
                             <td align="left" valign="baseline">
                                 <h3 tal:condition="python: not ( SRES[ 'values_by_name'][ 'title'][ 'uvalue'] == SRES[ 'archetype_name'])"> 
                                     <a name="#" href="#" title="#"
-                                        tal:define="unTitulo python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"
+                                        tal:define="unTitulo python: u'%s %s %s' % ( pNavegarALabel, SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                         tal:attributes="name python: 'elemento-%s' % (SRES[ 'UID']);
                                                     title python: unTitulo;
                                                     href python: u'%s/%s' % ( SRES[ 'url'], pPagina)">
@@ -145,7 +146,7 @@
                                 <h3 tal:condition="python: SRES[ 'values_by_name'][ 'title'][ 'uvalue'] == SRES[ 'archetype_name']"> 
 
                                     <a  name="#" href="#" title="#"
-                                        tal:define="unTitulo python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'] )"
+                                        tal:define="unTitulo python: u'%s %s %s' % (pNavegarALabel, SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'] )"
                                         tal:attributes="name python: 'elemento-%s' % (SRES[ 'UID']);
                                                     title python: unTitulo;
                                                     href python: u'%s/%s' % ( SRES[ 'url'], pPagina)">
@@ -175,7 +176,7 @@
                                 </a>
                             </td>  
                             
-                            <td width="120"  align="right" valign="baseline" tal:condition="pPermiteEliminarColecciones">                                
+                            <td width="120" align="right" valign="baseline" tal:condition="python: pPermiteEliminarColecciones  and SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] ">                                
                                 <a href="#" title="#"
                                     tal:define="unTituloAccion python: u'%s %s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_eliminar_action_label', 'Eliminar'), SRES[ 'type_translations'][ 'translated_archetype_name'], SRES[ 'values_by_name'][ 'title'][ 'uvalue'])"
                                     tal:attributes="title python: unTituloAccion;

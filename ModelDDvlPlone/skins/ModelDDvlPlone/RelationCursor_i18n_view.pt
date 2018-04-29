@@ -98,6 +98,7 @@
      global pCurrentElement nothing;
             pMostrarAnteriorPosterior pTrue;
             pAllowTextualAndTabular pTrue;
+            pAllowRefrescar pTrue;
             TRAVRES python: SRES[ 'traversals_by_name'].get( pRelationCursorName, None)"
             tal:condition="python: TRAVRES and ( TRAVRES[ 'traversal_kind'] == 'relation')" >
 
@@ -147,7 +148,8 @@
                     pShowOrHideTrees pTrue; 
                     pMostrarAnteriorPosterior pTrue;
                     dummy python:  RELRES.update( { 'cursor': pCurrentElement[ 'cursor'], 'owner_element': SRES, 'container_element': SRES, });
-                    SRES RELRES"
+                    SRES RELRES;
+                    pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')"
                     tal:condition="python: SRES" >
                 
                     <h1>
@@ -159,7 +161,7 @@
                             tal:attributes="href python: '%s/Tabular' % pCurrentElement[ 'url']; title unTitle"                                                                            
                             class="state-visible" 
                             tal:define="unTitle python: '%s %s %s %s (%s)' % ( 
-                                here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
+                                pNavegarALabel, 
                                 SRES[ 'type_translations'][ 'translated_archetype_name'],
                                 SRES[ 'values_by_name'][ 'title'][ 'uvalue'], 
                                 SRES[ 'values_by_name'][ 'description'][ 'uvalue'], 

@@ -1,4 +1,8 @@
 <tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: Tabular.pt
+#
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
@@ -33,7 +37,8 @@
     <metal:main fill-slot="main">
     <tal:main-macro metal:define-macro="main"
         tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero" >
-
+        
+        
         <div metal:use-macro="here/document_actions/macros/document_actions">
             Document actions (print, sendto etc)
         </div>

@@ -56,7 +56,10 @@
             pPermiteModificarElementos          pPermiteEditarElementos | pPermiteOrdenarElementos | pPermiteDesenlazarElementos" 
             tal:condition="python: TRAVRES and SRES" >
                          
-            <tal:block tal:condition="pSiempre | TRAVRES/elements">
+            <tal:block 
+                tal:define="unIndexClassFila python: 0; global unasClasesFilas  python: ('odd','even');
+                    pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')"
+                tal:condition="pSiempre | TRAVRES/elements">
             
                 
                 <tal:block tal:condition="not: pExcludeHeader">
@@ -163,7 +166,7 @@
                                         <tal:block tal:condition="python: ( unColumnName == 'title') or ( unColumnName.lower().find('title') >= 0) or not ( 'title' in TRAVRES[ 'column_names']) and  (unColumnName == TRAVRES[ 'column_names'][ 0])" >  
                                             <a href="#" title="#"
                                                 tal:define="unTitle python: '%s %s %s %s %s (%s)' % ( 
-                                                    here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
+                                                    pNavegarALabel, 
                                                     ERES[ 'type_translations'][ 'translated_archetype_name'],
                                                     ERES[ 'values_by_name'].get( 'unColumnName', {}).get( 'uvalue', ''), 
                                                     ( not ( unColumnName == 'title') and  ERES[ 'values_by_name'].get( 'title', {}).get( 'uvalue', '')) or '', 

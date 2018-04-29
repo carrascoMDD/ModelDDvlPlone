@@ -141,6 +141,13 @@ class ModelDDvlPloneTool_Mutators_Plone:
             if not ( unResultadoContenedor[ 'read_permission'] and unResultadoContenedor[ 'write_permission'] and unElementResult[ 'read_permission'] and unElementResult[ 'write_permission']):
                 anActionReport = { 'effect': 'error', 'failure': 'no_delete_permission', }
                            
+                
+            unContenedor = aq_parent( aq_inner( unTargetElement))
+            if unContenedor:
+                self.pSetAudit_Modification( unContenedor)       
+            
+            self.pSetAudit_Deletion( unTargetElement)  
+                            
             theContainerElement.manage_delObjects( [ unaIdToDelete, ])
                 
             anActionReport = { 'effect': 'deleted', 'parent_traversal_name': unTraversalName, }
@@ -259,6 +266,8 @@ class ModelDDvlPloneTool_Mutators_Plone:
                 
                 theContainerElement.moveObjectsByDelta( [ unResultToMove[ 'id'], ], unDelta)
 
+                self.pSetAudit_Modification( theContainerElement)   
+                
             return self
             
        

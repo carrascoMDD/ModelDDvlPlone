@@ -36,6 +36,8 @@
             pFalse                            python: False; 
             pPagina                           pPagina          | string:;
             pAllowTextualAndTabular           pAllowTextualAndTabular | pFalse;
+            pPaginaRefrescar                  pPaginaRefrescar | pPagina;
+            pAllowRefrescar                   pAllowRefrescar | pAllowTextualAndTabular;
             pShowOrHideTrees                  pFalse;
             pShowTrees                        pShowTrees       | pFalse;
             pPermiteEditar                    pPermiteEditar   | pFalse;
@@ -131,8 +133,24 @@
                     <td>&nbsp;&nbsp;</td> 
                     
                     
-                    <td align="right" colspan="3" tal:condition="python: pPermiteEditar or pPermiteAbandonarEditar or pPermiteAbandonarEliminar or pPermiteAbandonarCrear or pPermiteAbandonarEnlazar or pPermiteEliminar or pShowOrHideTrees or pAllowTextualAndTabular">
+                    <td align="left" colspan="3" tal:condition="python: pPermiteEditar or pPermiteAbandonarEditar or pPermiteAbandonarEliminar or pPermiteAbandonarCrear or pPermiteAbandonarEnlazar or pPermiteEliminar or pShowOrHideTrees or pAllowTextualAndTabular or pAllowRefrescar">
 
+
+                        <tal:block tal:condition="pAllowRefrescar">
+                            <tal:block tal:condition="python: pPaginaRefrescar in [ 'Tabular', 'Textual', 'General', 'TextualRest', 'Editar', 'Eliminar', 'Enlazar']">      
+                                <tal:block tal:define="global unaHref python: '%s/%s' % ( SRES[ 'url'], pPaginaRefrescar,);
+                                    aRefreshLabel python:  here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-')" >
+                                    <a href="#" title="#"  tal:attributes="href unaHref; title aRefreshLabel" >
+                                        <img src="#" alt="#" title="#" 
+                                            tal:attributes="src string:${portal_url}/refrescar.gif; alt aRefreshLabel; title aRefreshLabel" 
+                                            id="icon-refrescar" />
+                                        <span tal:content="aRefreshLabel" />        
+                                    </a>
+                                </tal:block>                                    
+                                &nbsp;
+                                &nbsp;
+                            </tal:block>
+                        </tal:block>
 
                         <tal:block tal:condition="pAllowTextualAndTabular">
                             <tal:block tal:condition="python: pPagina == 'Tabular'">      
@@ -289,7 +307,7 @@
                     </td>               
                     
                     
-                    <td align="right" valign="baseline" tal:condition="python: not ( pMostrarAnteriorPosterior and SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
+                    <td align="left" valign="baseline" tal:condition="python: not ( pMostrarAnteriorPosterior and SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
                         <font color="White">
                             <img src="#" tal:attributes="
                                             src string:${portal_url}/blank_icon.gif"  
@@ -326,6 +344,9 @@
                                 i18n:attributes="alt ModelDDvlPlone_iraultimo_action_label; title ModelDDvlPlone_iraultimo_action_label" />
                         </font>
                     </td>
+
+                    <td>&nbsp;&nbsp;</td> 
+                    
                     <td align="right" valign="baseline" tal:condition="python: ( pMostrarAnteriorPosterior and SRES[ 'cursor'] and ( SRES[ 'cursor'][ 'elements_count'] > 1) and ( SRES[ 'cursor'][ 'previous_element'] or SRES[ 'cursor'][ 'next_element']))">
                          <tal:block tal:condition="python: SRES[ 'cursor'] and SRES[ 'cursor'][ 'first_element'] and not (SRES[ 'cursor'][ 'first_element'][ 'object'] == SRES[ 'object'])" >                            
                             <tal:block tal:condition="pRelationCursorName">
@@ -463,7 +484,7 @@
             </table>
 
             <tal:block tal:condition="SRES/type_translations/translated_type_description" >
-               <p class="formHelp" colspan="3" align="left"  tal:content="SRES/type_translations/translated_type_description" />
+               <p class="formHelp"  align="left"  tal:content="SRES/type_translations/translated_type_description" />
             </tal:block>
             
             <p tal:condition="SRES/values_by_name/description/uvalue" >

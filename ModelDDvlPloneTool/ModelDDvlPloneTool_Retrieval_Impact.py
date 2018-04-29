@@ -44,6 +44,179 @@ class ModelDDvlPloneTool_Retrieval_Impact:
     """
     security = ClassSecurityInfo()
 
+                
+    security.declarePrivate( 'fNewVoidDeleteImpactReport')
+    def fNewVoidDeleteImpactReport(self ,):
+        aReport = {
+            'here':                     None,
+            'included':                 [], # reports
+            'related':                  [], # elements
+            'parent_traversal_name':    '',
+            'plone':                    [],
+            'delete_permission':        False,
+            'column_names':             [],
+            'column_translations':      {},
+            'seconds_now':              0,
+        }                
+        return aReport
+    
+
+    security.declarePrivate( 'fNewVoidDeleteManyImpactReports')
+    def fNewVoidDeleteManyImpactReports(self ,):
+        aReport = {
+            'container_result':          None,
+            'impact_reports':            [], 
+            'delete_permission':         False,
+            'column_names':              [],
+            'column_translations':       {},
+            'seconds_now':               0,
+        }                
+        return aReport
+    
+
+     
+
+    security.declarePrivate( 'fDeleteManyImpactReports')
+    def fDeleteManyImpactReports(self , 
+        theTimeProfilingResults =None,
+        theContainerElement     =None,
+        theGroupUIDs            =[],
+        theAdditionalParams     =None):
+        """Retrieve a report of the impact of deleting an element, including all elements that will be related (contained elements) and elements that will be affected (related elements).
+        
+        """
+ 
+        if not ( theTimeProfilingResults == None):
+            self.pProfilingStart( 'fDeleteManyImpactReports', theTimeProfilingResults)
+
+        try:
+            
+            aDeleteManyImpactReports = self.fNewVoidDeleteManyImpactReports()
+            
+            if ( theContainerElement == None):
+                return aDeleteManyImpactReports
+            
+            
+            aSecondsNow = self.getSecondsNow()
+            aDeleteManyImpactReports[ 'seconds_now'] = aSecondsNow
+            
+            
+            unContainerElementResult = self.fRetrieveTypeConfig( 
+                theTimeProfilingResults     =theTimeProfilingResults,
+                theElement                  =theContainerElement, 
+                theParent                   =None,
+                theParentTraversalName      ='',
+                theTypeConfig               =None, 
+                theAllTypeConfigs           =None, 
+                theViewName                 ='', 
+                theRetrievalExtents         =[ 'traversals', 'owner', 'cursor',],
+                theWritePermissions         =[ ],
+                theFeatureFilters           ={ 'attrs': [ 'title', 'description'], 'aggregations': [], 'relations': [], }, 
+                theInstanceFilters          =None,
+                theTranslationsCaches       =None,
+                theCheckedPermissionsCache  =None,
+                theAdditionalParams         =theAdditionalParams                
+            )
+            if unContainerElementResult:  
+                aDeleteManyImpactReports[ 'container_result'] = unContainerElementResult
+                
+            
+            allIncludedElements = []
+            allRelatedElements  = []
+            allRelatedResults   = []
+            unCanDeleteHolder   = [ True ]
+            
+            someDefaultColumnNames        = [ 'title', 'description', ]
+            someDefaultColumnTranslations = self.getTranslationsForDefaultAttributes( theContainerElement)
+            
+            aDeleteManyImpactReports[ 'column_names']        = someDefaultColumnNames
+            aDeleteManyImpactReports[ 'column_translations'] = someDefaultColumnTranslations
+                        
+            if not theGroupUIDs:
+                return aDeleteManyImpactReports
+            
+            someGroupUIDs = theGroupUIDs
+            if not ( someGroupUIDs.__class__.__name__ in [ 'list', 'tuple', 'set']):
+                someGroupUIDs = [ someGroupUIDs, ]
+            
+            someElementsToDelete = [ ]
+            
+            for anElementUID in someGroupUIDs:
+                unElementToDelete = self.fElementoPorUID( anElementUID, theContainerElement)
+                if not ( unElementToDelete == None):
+                    someElementsToDelete.append( unElementToDelete)
+                    
+            if not someElementsToDelete:
+                return aDeleteManyImpactReports
+            
+            
+            for unElementToDelete in someElementsToDelete:
+                              
+                unElementToDeleteResult = self.fRetrieveTypeConfig( 
+                    theTimeProfilingResults     =theTimeProfilingResults,
+                    theElement                  =unElementToDelete, 
+                    theParent                   =None,
+                    theParentTraversalName      ='',
+                    theTypeConfig               =None, 
+                    theAllTypeConfigs           =None, 
+                    theViewName                 ='', 
+                    theRetrievalExtents         =[ 'traversals', 'tree', 'owner', 'cursor', ],
+                    theWritePermissions         =[ 'object', 'attrs', 'aggregations', 'relations', 'delete',],
+                    theFeatureFilters           ={ 'attrs': [ 'title', 'description'], }, 
+                    theInstanceFilters          =None,
+                    theTranslationsCaches       =None,
+                    theCheckedPermissionsCache  =None,
+                    theAdditionalParams         =theAdditionalParams                
+                )
+                if unElementToDeleteResult:
+
+                    aReport = self.fBuildDeleteImpactReport_AggregatedPass( 
+                        theTimeProfilingResults,
+                        unElementToDeleteResult, 
+                        allIncludedElements, 
+                        allRelatedElements, 
+                        allRelatedResults, 
+                        unCanDeleteHolder, 
+                        theAdditionalParams
+                    )
+                    if aReport:
+                        aReport[ 'delete_permission'] = unCanDeleteHolder[ 0] and aReport[ 'here'][ 'delete_permission'] and \
+                               aReport[ 'here'][ 'owner_element'][ 'read_permission'] and aReport[ 'here'][ 'owner_element'][ 'write_permission']  and \
+                               aReport[ 'here'][ 'cursor'][ 'traversal_result'][ 'read_permission'] and aReport[ 'here'][ 'cursor'][ 'traversal_result'][ 'write_permission']
+                        aReport[ 'related'] = allRelatedResults
+                        aReport[ 'column_names'] = someDefaultColumnNames
+                        aReport[ 'column_translations'] = someDefaultColumnTranslations
+                        aReport[ 'seconds_now'] = aSecondsNow
+        
+                        self.pBuildDeleteImpactReport_RelatedPass(
+                            theTimeProfilingResults, 
+                            unElementToDeleteResult, 
+                            allIncludedElements, 
+                            allRelatedElements, 
+                            allRelatedResults, 
+                            unCanDeleteHolder, 
+                            theAdditionalParams
+                        )
+                        
+                        aDeleteManyImpactReports[ 'impact_reports'].append( aReport)
+
+            aDeleteManyImpactReports[ 'delete_permission'] = True
+            someImpactReports = aDeleteManyImpactReports[ 'impact_reports']
+            for anImpactReport in someImpactReports:
+                if not anImpactReport.get( 'delete_permission', False):
+                    aDeleteManyImpactReports[ 'delete_permission'] = False
+                    break
+
+            return aDeleteManyImpactReports
+        
+        finally:
+            if not ( theTimeProfilingResults == None):
+                self.pProfilingEnd( 'fDeleteManyImpactReports', theTimeProfilingResults)
+
+
+                
+                
+
 
 
     security.declarePrivate( 'fDeleteImpactReport')
@@ -145,6 +318,9 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                 return None
     
             unElement = theRootResult[ 'object']
+            if not unElement:
+                return None
+            
             if unElement in theAllIncludedElements:
                 return None
             
@@ -155,12 +331,13 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                     theCanDeleteHolder[ 0] = False    
             
             someIncludedReports = []
-            aReport = {
+            aReport = self.fNewVoidDeleteImpactReport()
+            aReport.update( {
                 'here':                     theRootResult,
                 'included':                 someIncludedReports,
                 'parent_traversal_name':    (theRootResult.get( 'cursor', {}) or {}).get( 'traversal_name', ''),
                 'plone':                    [],
-            }                
+            })
     
             someObjectValues = unElement.objectValues()
             someObjectValuesPendingToReport = someObjectValues[:]
@@ -269,7 +446,7 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                 
         try:
 
-            if ( theContainerElement == None) or not theElements or not theContainerReport:
+            if ( theContainerElement == None) or ( not theElements) or ( not theContainerReport):
                 return self
                 
             someArchetypeClassNames = []
@@ -331,12 +508,13 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                     if theCanDeleteHolder[ 0] and not ( aResult[ 'write_permission'] and  aResult[ 'delete_permission']):
                         theCanDeleteHolder[ 0] = False    
 
-                    aReport = {
+                    aReport = self.fNewVoidDeleteImpactReport()
+                    aReport.update( {
                         'here':                     aResult,
                         'included':                 [],
                         'parent_traversal_name':    '',
                         'plone':                    []
-                    }                
+                    })                
                     theContainerReport[ 'included'].append( aReport)
                     theAllIncludedElements.append( aKnownArchetypeObjectPendingToReport)
 
@@ -361,12 +539,13 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                     if theCanDeleteHolder[ 0] and not ( aResult[ 'write_permission'] and  aResult[ 'delete_permission']):
                         theCanDeleteHolder[ 0] = False    
 
-                    aReport = {
+                    aReport = self.fNewVoidDeleteImpactReport()
+                    aReport.update( {
                         'here':                     aResult,
                         'included':                 [],
                         'parent_traversal_name':    aSubItemsParameter[ 'traversal_name'],
                         'plone':                    []
-                    }                
+                    })            
                     theContainerReport[ 'plone'].append( aReport)
                     theAllIncludedElements.append( aKnownPloneObjectPendingToReport)
                          
@@ -390,12 +569,13 @@ class ModelDDvlPloneTool_Retrieval_Impact:
                     if theCanDeleteHolder[ 0] and not ( aResult[ 'write_permission'] and  aResult[ 'delete_permission']):
                         theCanDeleteHolder[ 0] = False    
 
-                    aReport = {
+                    aReport = self.fNewVoidDeleteImpactReport()
+                    aReport.update( {
                         'here':                     aResult,
                         'included':                 [],
                         'parent_traversal_name':    '',
                         'plone':                    []
-                    }                
+                    })              
                     theContainerReport[ 'plone'].append( aReport)
                     theAllIncludedElements.append( aUnknownPloneObjectPendingToReport)
                 
@@ -435,17 +615,19 @@ class ModelDDvlPloneTool_Retrieval_Impact:
             someTraversalResults = theRootResult[ 'traversals']
             for unTraversalResult in someTraversalResults:
                 if unTraversalResult[ 'traversal_kind'] == 'relation':
+                    
+                    if not unTraversalResult.get( 'computed', False):
                             
-                    someRelatedElementResults = unTraversalResult[ 'elements']
-                    for unRelatedElementResult in someRelatedElementResults:
-                        unRelatedElement = unRelatedElementResult[ 'object']
-                        if not ( unRelatedElement in theAllRelatedElements) and not ( unRelatedElement in theAllIncludedElements):
-                            if theCanDeleteHolder[ 0]:
-                                if not ( unRelatedElementResult[ 'read_permission'] and unRelatedElementResult[ 'write_permission']): # ACVOJO 20090210 and unRelatedElementResult[ 'delete_permission']):
-                                    theCanDeleteHolder[ 0] = False 
-                        
-                            theAllRelatedResults.append( unRelatedElementResult) 
-                            theAllRelatedElements.append( unRelatedElement) 
+                        someRelatedElementResults = unTraversalResult[ 'elements']
+                        for unRelatedElementResult in someRelatedElementResults:
+                            unRelatedElement = unRelatedElementResult[ 'object']
+                            if not ( unRelatedElement in theAllRelatedElements) and not ( unRelatedElement in theAllIncludedElements):
+                                if theCanDeleteHolder[ 0]:
+                                    if not ( unRelatedElementResult[ 'read_permission'] and unRelatedElementResult[ 'write_permission']): # ACVOJO 20090210 and unRelatedElementResult[ 'delete_permission']):
+                                        theCanDeleteHolder[ 0] = False 
+                            
+                                theAllRelatedResults.append( unRelatedElementResult) 
+                                theAllRelatedElements.append( unRelatedElement) 
 
         finally:
             if not ( theTimeProfilingResults == None):

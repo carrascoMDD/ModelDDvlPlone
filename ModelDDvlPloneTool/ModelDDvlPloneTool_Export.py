@@ -125,6 +125,22 @@ class ModelDDvlPloneTool_Export:
             return unExportReport
             
         unExportContext[ 'object'] = theObject
+        
+        
+        
+        unAllowExport = True
+        try:
+            unAllowExport = theObject.fAllowExport()
+        except:
+            None            
+        if not unAllowExport:
+            unExportReport.update( { 
+                'success':      False,
+                'status':       cExportStatus_Error_Export_NotAllowedInElement,
+            })
+            return unExportReport
+
+        
 
         if not theAllExportTypeConfigs:
             unExportReport.update( { 
@@ -347,7 +363,7 @@ class ModelDDvlPloneTool_Export:
     security.declarePrivate( 'fPathRelativeToRoot')
     def fPathRelativeToRoot( self, theElement, theRootElement, theAdditionalPathStep=''):
         
-        if not theElement or not theRootElement:
+        if ( theElement == None) or ( theRootElement == None):
             return []
     
             
@@ -913,9 +929,10 @@ class ModelDDvlPloneTool_Export:
                             someRelatedItemsOfRightType = [ ]
                             if someRelatedItems:
                                 for aRelatedItem in someRelatedItems:
-                                    aRelatedItemMetaType = aRelatedItem.meta_type
-                                    if aRelatedItemMetaType in someAcceptedPortalTypes:
-                                        someRelatedItemsOfRightType.append( aRelatedItem)
+                                    if not ( aRelatedItem == None):
+                                        aRelatedItemMetaType = aRelatedItem.meta_type
+                                        if aRelatedItemMetaType in someAcceptedPortalTypes:
+                                            someRelatedItemsOfRightType.append( aRelatedItem)
                                     
                                 
                             if someRelatedItemsOfRightType:

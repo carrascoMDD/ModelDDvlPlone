@@ -92,7 +92,8 @@
                            
     
     
-                            <tr tal:repeat="unElemento TRAVRES/elements"
+                            <tr tal:define="pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')"
+                                tal:repeat="unElemento TRAVRES/elements"
                                 class="#" tal:attributes="class python: unasClasesFilas[unIndexClassFila % 2]">
                                 <td tal:condition="python: pPermiteOrdenarElementos or pPermiteEditarElementos or pPermiteEliminarElementos" align="center">
                                     <tal:block tal:condition="python: pPermiteEliminarElementos and unElemento[ 'write_permission'] and unElemento[ 'delete_permission']">
@@ -160,7 +161,7 @@
                                            <a name="#" href="#" title="#"
                                                tal:define="
                                                    unTitle python: '%s %s %s (%s)' % ( 
-                                                   here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a'), 
+                                                   pNavegarALabel, 
                                                    unElemento[ 'type_translations'][ 'translated_archetype_name'],
                                                    unElemento[ 'values_by_name'][ 'title'][ 'uvalue'], 
                                                    unElemento[ 'type_translations'][ 'translated_type_description'])"                          

@@ -35,7 +35,7 @@
 
         <tal:block tal:define="global pPagina string:Tabular" />
      
-        <tal:block tal:define="pPermiteEditar python: False; pPermiteEliminar python: False; pShowOrHideTrees python: False; pMostarAnteriorPosterior python: not here.getEsRaiz()">
+        <tal:block tal:define="pPermiteEditar python: False; pPermiteEliminar python: False; pShowOrHideTrees python: False; pMostrarAnteriorPosterior python: not here.getEsRaiz()">
             <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
         </tal:block>
         <br/>     

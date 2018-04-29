@@ -35,8 +35,25 @@
         <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
  
  
+        <tal:block tal:define="
+            pForm request/form;
+            pGroupAction         python: pForm.get( 'theGroupAction');
+            pGroupUIDs           python: pForm.get( 'theUIDs');
+            pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+            pProfilingResults    python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+            unosArgs python: {
+            'theTimeProfilingResults' :pProfilingResults,
+            'theContainerObject'      :here, 
+            'theGroupAction'          :pGroupAction,
+            'theGroupUIDs'            :pGroupUIDs,
+            'theAdditionalParams'     :None, }; 
+            pChangeReports python: here.ModelDDvlPlone_tool.fGroupAction( **unosArgs)" />
  
-         <tal:block tal:define="pContainerElement nocall: here">
+        
+
+        
+ 
+        <tal:block tal:define="pContainerElement nocall: here">
             <metal:block metal:use-macro="here/MoverElementos_i18n_view/macros/tMoverElementos_i18n" />   
         </tal:block>
         
@@ -122,7 +139,9 @@
                 pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
                 pShowOrHideTrees pTrue; 
                 pMostrarAnteriorPosterior pTrue;
-                pAllowTextualAndTabular pTrue" >
+                pAllowTextualAndTabular pTrue;
+                pAllowRefrescar pTrue;
+                pPaginaRefrescar string:Tabular" >
 
  
 <tal:block tal:replace="nothing">  
@@ -140,6 +159,8 @@
                 <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
 
                 <metal:block metal:use-macro="here/TabularFeatures_i18n_view/macros/tTabularFeatures_i18n" />
+
+
 
                 <metal:block metal:use-macro="here/ColeccionEnTabla_ElementosPlone_i18n_view/macros/tColeccionesEnTabla_ElementosPlone_i18n" />
 

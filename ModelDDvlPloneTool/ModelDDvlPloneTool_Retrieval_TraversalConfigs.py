@@ -68,7 +68,26 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
         
 
        
+      
+    security.declarePrivate( 'hasTypeConfig')
+    def hasTypeConfig(self, theContextElement, theTypeName, theAllTypeConfigs=None, theConfigName=""):   
+        
+        anAllTypeConfigs = theAllTypeConfigs
+        if not anAllTypeConfigs:
+            if ( theContextElement == None):
+                return []
+            anAllTypeConfigs = self.getAllTypeConfigs( theContextElement)
+            
+        if not anAllTypeConfigs:
+            return None
+
+        
+        unHasTypeConfig = anAllTypeConfigs.has_key( theTypeName)
+        return unHasTypeConfig
        
+    
+    
+    
         
     security.declarePrivate( 'getTypeConfig')
     def getTypeConfig(self, theContextElement, theTypeName, theAllTypeConfigs=None, theConfigName=""):   

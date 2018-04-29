@@ -1,0 +1,532 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDNewVersion_inner.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+    
+    
+    
+    
+    <div metal:define-macro="tNewVersionInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        
+        <tal:block tal:define="global unasClasesFilas  python: ('odd','even');
+                                pTrue                    python: True;
+                                pFalse                   python: False;
+                                pPagina                  string:Tabular;
+                                pPaginaAnteriorPosterior string:Tabular;
+                                pShowTrees               pFalse;
+                                pNewVersionName          request/form/theNewVersionName    | string:;                                
+                                pNewVersionComment       request/form/theNewVersionComment | string:;                                
+                                pNewTitle                request/form/theNewTitle          | string:;                                
+                                pNewId                   request/form/theNewId             | string:; 
+                                pNewVersionContainer     request/theNewVersionContainer    | string:; 
+                         global pShowEditor              python: not( pNewVersionName and pNewVersionComment and pNewTitle and pNewId and ( pNewVersionContainer in [ 'Parent', 'Clipboard', 'Site', ]));                                
+                         global pErrorMessage            string:;       
+                                pStartTime python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                                
+            <tal:block tal:condition="python: pNewVersionName and pNewVersionComment and pNewTitle and pNewId and ( pNewVersionContainer in [ 'Parent', 'Clipboard', 'Site', ])" >
+            
+                <tal:block tal:define="
+                    global pRetrievalStartTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                    unosArgs python: {
+                        'theTimeProfilingResults' :pProfilingResults,
+                        'theOriginalObject'       :here, 
+                        'theNewVersionContainerKind'  :pNewVersionContainer, 
+                        'theNewVersionName'       :pNewVersionName,
+                        'theNewVersionComment'    :pNewVersionComment,
+                        'theNewTitle'             :pNewTitle,
+                        'theNewId'                :pNewId,
+                        'theAdditionalParams'     :None, }; 
+                    pNewVersionReport python: here.ModelDDvlPlone_tool.fNewVersion( **unosArgs)" >
+                    
+                    <tal:block tal:condition="not: pNewVersionReport/success" >
+                        <tal:block tal:define="global pShowEditor pTrue; 
+                            global pErrorMessage python: 'Error creating new version %s' % pNewVersionReport.get( 'status', '')" />
+                    </tal:block>
+                    <tal:block tal:condition="pNewVersionReport/success" >
+                        <tal:block tal:define="pNewVersionElement python: pNewVersionReport.get( 'new_version_element', None)" >
+                            <tal:block tal:condition="not: pNewVersionElement" >
+                                <tal:block tal:define="global pShowEditor pTrue; 
+                                global pErrorMessage python: 'New version element not found %s' % pNewVersionReport.get( 'status', '')" />                                
+                            </tal:block>
+                            <tal:block tal:condition="pNewVersionElement" >
+                                <tal:block tal:define="dummy python:request.response.redirect( '%s/Tabular' % pNewVersionElement.absolute_url())" />
+                            </tal:block>
+                        </tal:block>
+                    </tal:block>
+                </tal:block>
+            </tal:block>
+            
+            
+            
+            
+            <tal:block tal:condition="pShowEditor" >
+ 
+                <tal:block tal:define="
+                    pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                    pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                    unosArgs python: {
+                        'theTimeProfilingResults' :pProfilingResults,
+                        'theVersionedElement'     :here,
+                        'theAdditionalParams'     :None, };
+                    pAllVersionsReport      python: here.ModelDDvlPlone_tool.fRetrieveAllVersions( **unosArgs);
+                    pRetrievalEndTime       python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
+                    
+                    <tal:block tal:condition="not: pAllVersionsReport/success" >
+                        <tal:block tal:condition="pErrorMessage" tal:content="pErrorMessage" />
+                        <br/>
+                        Error in fRetrieveAllVersions
+                        <br/>                    
+                    </tal:block>
+                    
+                    
+                    <tal:block tal:condition="pAllVersionsReport/success" >
+                    
+                        <tal:block tal:define="
+                            pOriginalVersionInfo    pAllVersionsReport/original_version_info;
+                            SRES                    pAllVersionsReport/versioned_element_result;
+                            pColumnNames            pAllVersionsReport/column_names;
+                            pColumnTranslations     pAllVersionsReport/column_translations;
+                            pAlowVersion            python: ( SRES and pAllVersionsReport[ 'allow_version']) or False;
+                            pIsRequiredParameter    python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_IsRequiredParameter', 'Is Required-')" >
+                    
+                            <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   
+                    
+                                            
+                            <tal:block tal:define="
+                                pShowOrHideTrees            pFalse; 
+                                pMostrarAnteriorPosterior   pFalse">
+                                <metal:block metal:use-macro="here/CabeceraEnTabla_i18n_view/macros/tCabeceraEnTabla_i18n" />   
+                            </tal:block>
+                                  
+                            
+                            
+                            <p tal:condition="pErrorMessage" >
+                                <font size="3"  color="red"><strong><tal:block tal:content="pErrorMessage" /></strong></font>
+                            </p>
+                            <br/>
+                            
+                            <tal:block tal:define="pVersionInfos               python:  [ pOriginalVersionInfo,];
+                                                   pDrillDownPrevious          pFalse;
+                                                   pDrillDownNext              pFalse;
+                                                   pPreviousOrNext             string:;
+                                                   pPreviousOrNextTranslated   string:" >
+                                <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tTablaVersionActual" />   
+                            </tal:block>
+                            
+                            
+                            <tal:block tal:define="pVersionInfos pOriginalVersionInfo/previous_versioning_infos;
+                                       pDrillDownPrevious pTrue;
+                                       pDrillDownNext    pFalse;
+                                       pPreviousOrNext string:Previous;
+                                       pPreviousOrNextTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Previous_Versions_section', 'Previous Versions-')" >
+                                <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tTablaVersiones" />   
+                            </tal:block>
+
+
+                            
+                            
+                            <tal:block tal:define="pVersionInfos pOriginalVersionInfo/next_versioning_infos;
+                                       pDrillDownPrevious pFalse;
+                                       pDrillDownNext    pTrue;
+                                       pPreviousOrNext string:Previous;
+                                       pPreviousOrNextTranslated python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Next_Versions_section', 'Next Versions-')" >
+                               <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tTablaVersiones" />   
+                            </tal:block>
+
+
+                             
+                            <form name="MDDNewVersionDataEntry" method="post" 
+                                tal:define="pNewTitle python: pNewTitle or pAllVersionsReport.get( 'new_version_title','');
+                                            pNewId    python: pNewId    or pAllVersionsReport.get( 'new_version_id','')">
+                            
+                                
+                                <br>
+
+                                <h2>
+                                    <font ><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_page_title">New Version-</tal:block></strong></font>
+                                </h2>
+                                <br/>
+                                <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_mayTakeLongToExecute">The New Version creation process may take a long time to execute. Your browser or intermediate proxies may time-out.-</p>
+                                <br/>                
+                
+                                    
+                                <h3>
+                                    <font ><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_section_title">Container for New Version-</tal:block></strong></font>
+                                </h3>
+                                <br/>
+                                <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_section_help">The New Version shall be created inside the specified container. It may be a Folder previously copied by the user into the clipboard (), or the Folder or Plone Site container of the original version.-</p>
+                                <p  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_ChooseOther_help">if you want to create the new Version inside another element, please navigate to the Folder  and "copy" it into the clipboard, then request again the creation of the new version.-</p>
+                                <br/>                
+                                
+                                <tal:block tal:condition="python: not( pAllVersionsReport.get( 'parent_container_report', {}).get( 'allowed', False) or pAllVersionsReport.get( 'clipboard_container_report', {}).get( 'allowed', False) or pAllVersionsReport.get( 'site_container_report', {}).get( 'allowed', False))" >
+                                    <p i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_ThereIsNoContainer">There is no Container available for New the Version. Please copy the desired container Folder into the CLIPBOARD-</p>
+                                    <br/>                
+                                 </tal:block>    
+                         
+                                <font tal:condition="not: pNewVersionContainer" color="red"><strong tal:content="pIsRequiredParameter"/></font>
+                                <br/>
+                                <table width="100%%" id="#"  class="listing" summary="#"  
+                                    tal:attributes="id python: 'cid_MDDContainer';summary string: Container for New Version" >
+                                    <thead>
+                                        <tr>
+                                            <th class="nosort" align="left" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_Select_label">Select-</th>
+                                            <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'title', {}).get( 'translated_label', 'title')" />
+                                            <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'id', {}).get( 'translated_label', 'id')" />
+                                            <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'path', {}).get( 'translated_label', 'path')" />
+                                            <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'description', {}).get( 'translated_label', 'description')" />
+                                        </tr>
+                                    </thead>
+                                    <tbody >
+                                    
+                                        <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]"
+                                            tal:define="pCandidateContainerReport pAllVersionsReport/parent_container_report;
+                                                global unIndexClassFila python: unIndexClassFila + 1">
+                                            <tal:block tal:condition="pCandidateContainerReport">
+                                                <td class="nosort" align="left" >
+                                                
+                                                    <input name="theNewVersionContainer_UID_Parent" type="hidden" disabled value="#" tal:attributes="value pCandidateContainerReport/UID"/>
+                                                        
+                                                    <tal:block tal:condition="pCandidateContainerReport/allowed" >
+                                                        <tal:block tal:condition="python: ( pNewVersionContainer == 'Parent')" >
+                                                            <input type="radio" class="noborder"  value="Parent"  checked="checked" name="theNewVersionContainer" id="theNewVersionContainer_Parent" 
+                                                                onclick="#" tal:attributes="onclick python: 'document.getElementById(%ctheNewTitle%c).value = %c%s%c%cdocument.getElementById(%ctheNewId%c).value = %c%s%c%cdocument.getElementById(%ctheTitlesToAvoid%c).value = %c%s%c%cdocument.getElementById(%ctheIdsToAvoid%c).value = %c%s%c%creturn true%c' % ( 34, 34, 34, pCandidateContainerReport.get( 'new_title', ''),34,59,    34, 34, 34, pCandidateContainerReport.get( 'new_id', ''),34,59,  34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_titles', [])),34,59,      34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_ids', [])),34,59,   59,)"/>                                            
+                                                        </tal:block>
+                                                        <tal:block tal:condition="python: not ( pNewVersionContainer == 'Parent')" >
+                                                            <input type="radio" class="noborder"  value="Parent"  name="theNewVersionContainer" id="theNewVersionContainer_Parent" 
+                                                                onclick="#" tal:attributes="onclick python: 'document.getElementById(%ctheNewTitle%c).value = %c%s%c%cdocument.getElementById(%ctheNewId%c).value = %c%s%c%cdocument.getElementById(%ctheTitlesToAvoid%c).value = %c%s%c%cdocument.getElementById(%ctheIdsToAvoid%c).value = %c%s%c%creturn true%c' % ( 34, 34, 34, pCandidateContainerReport.get( 'new_title', ''),34,59,    34, 34, 34, pCandidateContainerReport.get( 'new_id', ''),34,59,  34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_titles', [])),34,59,      34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_ids', [])),34,59,   59,)"/>                                            
+                                                        </tal:block>
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_Parent">Parent-</span>
+                                                    </tal:block>
+                                                    <tal:block tal:condition="not: pCandidateContainerReport/allowed" >
+                                                        <input type="radio" class="noborder"  value="Parent"  disabled name="theNewVersionContainer" id="theNewVersionContainer_Parent" />                                            
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_Parent">Parent-</span>
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NotAllowed">Not Allowed-</span>
+                                                    </tal:block>
+                                                </td>
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'title', '')" />
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'id', '')" />
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'path', '')" />
+                                                <td class="nosort" align="left" tal:content="python: ' '.join( pCandidateContainerReport.get( 'description', '').splitlines())" />
+                                            </tal:block>
+                                            <tal:block tal:condition="not: pCandidateContainerReport">
+                                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NotAllowed">Not Allowed-</span>
+                                            </tal:block>                                            
+                                        </tr>
+
+
+                                        <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]"
+                                            tal:define="pCandidateContainerReport pAllVersionsReport/clipboard_container_report;
+                                                    global unIndexClassFila python: unIndexClassFila + 1">
+                                            <tal:block tal:condition="pCandidateContainerReport">
+                                                <td class="nosort" align="left" >
+                                                
+                                                    <input name="theNewVersionContainer_UID_Clipboard" type="hidden"  disabled value="#" tal:attributes="value pCandidateContainerReport/UID"/>
+                                                        
+                                                    <tal:block tal:condition="pCandidateContainerReport/allowed" >
+                                                        <tal:block tal:condition="python: ( pNewVersionContainer == 'Clipboard')" >
+                                                            <input type="radio" class="noborder"  value="Clipboard"  checked="checked" name="theNewVersionContainer" id="theNewVersionContainer_Clipboard" 
+                                                                onclick="#" tal:attributes="onclick python: 'document.getElementById(%ctheNewTitle%c).value = %c%s%c%cdocument.getElementById(%ctheNewId%c).value = %c%s%c%cdocument.getElementById(%ctheTitlesToAvoid%c).value = %c%s%c%cdocument.getElementById(%ctheIdsToAvoid%c).value = %c%s%c%creturn true%c' % ( 34, 34, 34, pCandidateContainerReport.get( 'new_title', ''),34,59,    34, 34, 34, pCandidateContainerReport.get( 'new_id', ''),34,59,  34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_titles', [])),34,59,      34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_ids', [])),34,59,   59,)"/>                                            
+                                                        </tal:block>
+                                                        <tal:block tal:condition="python: not ( pNewVersionContainer == 'Clipboard')" >
+                                                            <input type="radio" class="noborder"  value="Clipboard"  name="theNewVersionContainer" id="theNewVersionContainer_Clipboard" 
+                                                                onclick="#" tal:attributes="onclick python: 'document.getElementById(%ctheNewTitle%c).value = %c%s%c%cdocument.getElementById(%ctheNewId%c).value = %c%s%c%cdocument.getElementById(%ctheTitlesToAvoid%c).value = %c%s%c%cdocument.getElementById(%ctheIdsToAvoid%c).value = %c%s%c%creturn true%c' % ( 34, 34, 34, pCandidateContainerReport.get( 'new_title', ''),34,59,    34, 34, 34, pCandidateContainerReport.get( 'new_id', ''),34,59,  34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_titles', [])),34,59,      34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_ids', [])),34,59,   59,)"/>                                            
+                                                        </tal:block>
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_Clipboard">Clipboard-</span>
+                                                    </tal:block>
+                                                    <tal:block tal:condition="not: pCandidateContainerReport/allowed" >
+                                                        <input type="radio" class="noborder"  value="Clipboard"  disabled name="theNewVersionContainer" id="theNewVersionContainer_Clipboard" />                                            
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_Clipboard">Clipboard-</span>
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NotAllowed">Not Allowed-</span>
+                                                    </tal:block>
+                                                </td>
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'title', '')" />
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'id', '')" />
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'path', '')" />
+                                                <td class="nosort" align="left" tal:content="python: ' '.join( pCandidateContainerReport.get( 'description', '').splitlines())" />
+                                            </tal:block>
+                                            <tal:block tal:condition="not: pCandidateContainerReport">
+                                                <td class="nosort" align="left" colspan="5">
+                                                        <input type="radio" class="noborder"  value="Clipboard"  disabled name="theNewVersionContainer" id="theNewVersionContainer_Clipboard" />                                            
+                                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_Clipboard">Clipboard-</span>
+                                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NotAllowed">Not Allowed-</span>
+                                                </td>
+                                            </tal:block>                                            
+                                        </tr>
+                                        
+                                        
+
+                                        <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]"
+                                            tal:define="pCandidateContainerReport pAllVersionsReport/site_container_report;
+                                                    global unIndexClassFila python: unIndexClassFila + 1">
+                                            <tal:block tal:condition="pCandidateContainerReport">
+                                                <td class="nosort" align="left" >
+                                                
+                                                    <input name="theNewVersionContainer_UID_Site" type="hidden"  disabled  value="#" tal:attributes="value pCandidateContainerReport/UID"/>
+                                                        
+                                                    <tal:block tal:condition="pCandidateContainerReport/allowed" >
+                                                        <tal:block tal:condition="python: ( pNewVersionContainer == 'Site')" >
+                                                            <input type="radio" class="noborder"  value="Site"  checked="checked" name="theNewVersionContainer" id="theNewVersionContainer_Site" 
+                                                                onclick="#" tal:attributes="onclick python: 'document.getElementById(%ctheNewTitle%c).value = %c%s%c%cdocument.getElementById(%ctheNewId%c).value = %c%s%c%cdocument.getElementById(%ctheTitlesToAvoid%c).value = %c%s%c%cdocument.getElementById(%ctheIdsToAvoid%c).value = %c%s%c%creturn true%c' % ( 34, 34, 34, pCandidateContainerReport.get( 'new_title', ''),34,59,    34, 34, 34, pCandidateContainerReport.get( 'new_id', ''),34,59,  34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_titles', [])),34,59,      34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_ids', [])),34,59,   59,)"/>                                            
+                                                        </tal:block>
+                                                        <tal:block tal:condition="python: not ( pNewVersionContainer == 'Site')" >
+                                                            <input type="radio" class="noborder"  value="Site"  name="theNewVersionContainer" id="theNewVersionContainer_Site" 
+                                                                onclick="#" tal:attributes="onclick python: 'document.getElementById(%ctheNewTitle%c).value = %c%s%c%cdocument.getElementById(%ctheNewId%c).value = %c%s%c%cdocument.getElementById(%ctheTitlesToAvoid%c).value = %c%s%c%cdocument.getElementById(%ctheIdsToAvoid%c).value = %c%s%c%creturn true%c' % ( 34, 34, 34, pCandidateContainerReport.get( 'new_title', ''),34,59,    34, 34, 34, pCandidateContainerReport.get( 'new_id', ''),34,59,  34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_titles', [])),34,59,      34, 34, 34, ', '.join( pCandidateContainerReport.get( 'children_ids', [])),34,59,   59,)"/>                                            
+                                                        </tal:block>
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_Site">Site-</span>
+                                                    </tal:block>
+                                                    <tal:block tal:condition="not: pCandidateContainerReport/allowed" >
+                                                        <input type="radio" class="noborder"  value="Site"  disabled name="theNewVersionContainer" id="theNewVersionContainer_Site" />                                            
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Container_Site">Site-</span>
+                                                        <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NotAllowed">Not Allowed-</span>
+                                                    </tal:block>
+                                                </td>
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'title', '')" />
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'id', '')" />
+                                                <td class="nosort" align="left" tal:content="python: pCandidateContainerReport.get( 'path', '')" />
+                                                <td class="nosort" align="left" tal:content="python: ' '.join( pCandidateContainerReport.get( 'description', '').splitlines())" />
+                                            </tal:block>
+                                            <tal:block tal:condition="not: pCandidateContainerReport">
+                                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NotAllowed">Not Allowed-</span>
+                                            </tal:block>                                            
+                                        </tr>
+                                                                                
+                                    </tbody>
+                                </table>
+                                
+                                
+                                
+                                
+                                
+                                <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_newversion_label">New Version name-</strong></p>
+                                <p  class="formhelp"  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_enterVersionName">Enter unique a name for the new Version to Create.-</p>
+                                <font tal:condition="not: pNewVersionName" color="red"><strong tal:content="pIsRequiredParameter"/></font>
+                                <input name="theNewVersionName" id="theNewVersionName" type="text" value="#" tal:attributes="value pNewVersionName" style="font-size: 10pt;"  size="80" maxlength="256" />
+                                <br/>
+                                <br/>
+                                    
+                                <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_newversioncomment_label">Version comment for new Version-</strong></p>
+                                <p  class="formhelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_enterVersionComment">Enter a comment explaining the reason and for the new Version to Create, and who should ellaborate on it.-</p>
+                                <font tal:condition="not: pNewVersionComment" color="red"><strong tal:content="pIsRequiredParameter"/></font>
+                                <textarea name="theNewVersionComment" id="theNewVersionComment" type="text" style="font-size: 12pt;" cols="60"  rows="4"  tal:content="python: ' '.join( pNewVersionComment.splitlines())"  />
+                                <br/>
+                                <br/>
+                                    
+                                <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_newtitle_label">Title for new Version-</strong></p>
+                                <p  class="formhelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_enterTitle">Enter a Title for the new Version to Create, similar to the original, but reflecting this version number and/or goal.-</p>
+                                <font tal:condition="not: pNewTitle" color="red"><strong tal:content="pIsRequiredParameter"/></font>
+                                <input name="theNewTitle" id="theNewTitle" type="text" value="#" tal:attributes="value pNewTitle" style="font-size: 10pt;"  size="80" maxlength="256"/>
+                                <br/>
+                                <br/>
+                                <p><strong i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_newid_label">Id for new Version-</strong></p>
+                                <p  class="formhelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_action_enterId">Enter an Id for the new Version to Create, similar to the original, but reflecting this version number and/or goal.-</p>
+                                <font tal:condition="not: pNewId" color="red"><strong tal:content="pIsRequiredParameter"/></font>
+                                <input name="theNewId"  id="theNewId" type="text" value="#" tal:attributes="value pNewId"  style="font-size: 10pt;"  size="80" maxlength="256"/>
+                                <br/>
+                                <br/>
+                                
+                                <input class="context" name="form_submit"  type="submit"  value="Save"  i18n:domain="plone" i18n:attributes="value label_save" />                                                        
+                                <br/>                            
+                                <br/>                            
+                            </form>
+                            
+                            <p  class="formhelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Titles_toAvoid">You can not use any of the following titles:-</p>
+                            <textarea readonly name="theTitlesToAvoid" id="theTitlesToAvoid" type="text" style="font-size: 8pt;" cols="60"  rows="4"><tal:block 
+                                tal:define="pContainerReport python: (( pNewVersionContainer == 'Parent') and pAllVersionsReport.get( 'parent_container_report', {})) or (( pNewVersionContainer == 'Clipboard') and pAllVersionsReport.get( 'clipboard_container_report', {})) or (( pNewVersionContainer == 'Site') and pAllVersionsReport.get( 'site_container_report', {}))"
+                                tal:condition="python: pContainerReport and pContainerReport.get( 'allowed', False)"
+                                tal:content="python: ', '.join( pContainerReport.get( 'children_titles', []))" /></textarea>
+                            <br/>                            
+                            <p  class="formhelp" i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_NewVersion_Ids_toAvoid">You can not use any of the following ids:-</p>
+                            <textarea readonly name="theIdsToAvoid" id="theIdsToAvoid" type="text" style="font-size: 8pt;" cols="60"  rows="4"><tal:block 
+                                tal:define="pContainerReport python: (( pNewVersionContainer == 'Parent') and pAllVersionsReport.get( 'parent_container_report', {})) or (( pNewVersionContainer == 'Clipboard') and pAllVersionsReport.get( 'clipboard_container_report', {})) or (( pNewVersionContainer == 'Site') and pAllVersionsReport.get( 'site_container_report', {}))"
+                                tal:condition="python: pContainerReport and pContainerReport.get( 'allowed', False)"
+                                tal:content="python: ', '.join( pContainerReport.get( 'children_ids', []))" /></textarea>
+                            <br/>                            
+                            
+       
+                        </tal:block>
+                    </tal:block>
+                          
+                </tal:block>
+            </tal:block>
+                
+        
+        </tal:block>
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+      
+    </div>
+    
+    
+
+    <div metal:define-macro="tTablaVersionActual" >
+        <br>
+        <h2>
+            <font ><strong><tal:block  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_OriginalVersion_section">Original Version-</tal:block></strong></font>
+        </h2>
+       
+        <table width="100%%" id="#"  class="listing" summary="#"  
+            tal:attributes="id python: 'cid_MDDVersionOriginal';summary string: This Version ${SRES/values_by_name/title/uvalue} " >
+                
+            <thead>
+                <tr>
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'version', {}).get( 'translated_label', 'version')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'title', {}).get( 'translated_label', 'title')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'id', {}).get( 'translated_label', 'id')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'path', {}).get( 'translated_label', 'path')" />
+                </tr>
+            </thead>
+            <tbody tal:define="pIndent python: ('&nbsp%c' % 59) * 4; pIndentLevel python: 0; global unIndexClassFila python: 0;">
+            
+                <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tFilasVersion" />   
+                                       
+            </tbody>
+
+        </table>
+        <br/>
+    </div>
+    
+    
+        
+      
+    
+    <div metal:define-macro="tTablaVersiones" >
+        <br>
+        <h2>
+            <font ><strong><tal:block tal:content="pPreviousOrNextTranslated"/></strong></font>
+        </h2>
+        <br/>
+       
+        <table width="100%%" id="#"  class="listing" summary="#"  
+            tal:attributes="id python: 'cid_MDDVersiones%s' % pPreviousOrNext;summary string: ${pPreviousOrNext} Versions ${SRES/values_by_name/title/uvalue} " >
+                
+            <thead>
+                <tr>
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'version', {}).get( 'translated_label', 'version')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'title', {}).get( 'translated_label', 'title')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'id', {}).get( 'translated_label', 'id')" />
+                    <th class="nosort" align="left" tal:content="python: pColumnTranslations.get( 'path', {}).get( 'translated_label', 'path')" />
+                </tr>
+            </thead>
+            <tbody tal:define="pIndent python: (('&nbsp%c' % 59) * 4); pIndentLevel python: 0; global unIndexClassFila python: 0;">
+            
+                <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tFilasVersion" />   
+                                       
+            </tbody>
+
+        </table>
+        <br/>
+    </div>
+    
+    
+    
+    
+    
+
+        
+    <div metal:define-macro="tFilasVersion" >
+        <tal:block tal:define=" 
+            
+            pNavegarALabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here,  'ModelDDvlPlone', 'ModelDDvlPlone_navegara_action_label', 'Navegar a')">
+            
+            <tal:block tal:repeat="pVersionInfo pVersionInfos">         
+                <tal:block tal:condition="pVersionInfo/success"  >
+                    <tr class="#" tal:attributes="class python: unasClasesFilas[ unIndexClassFila % 2]" >
+                        <td class="nosort" align="left" 
+                            tal:define="pTitle python: pVersionInfo.get( 'title', ''); pVersion python: pVersionInfo.get( 'version', '')">
+                            <a  name="#" href="#" title="#"
+                                    tal:define="
+                                        unTitle python: '%s %s version %s' % ( pNavegarALabel, pTitle, pVersion)"
+                                    tal:attributes="
+                                        name string:elemento-${pVersionInfo/UID};
+                                        href python: '%s/Tabular' % (pVersionInfo[ 'url']); 
+                                        title unTitle"                                                                            
+                                    class="state-visible" > 
+                                    <h4>
+                                        <span tal:condition="pIndentLevel" tal:replace="structure python: pIndent * pIndentLevel" />
+                                        <span class="state-visible" tal:content="pVersionInfo/version" />
+                                    </h4>
+                            </a>
+                        </td>      
+                        <td class="nosort" align="left" tal:define="pTitle python: pVersionInfo.get( 'title', ''); pVersion python: pVersionInfo.get( 'version', '')" >
+                            <a  name="#" href="#" title="#"
+                                    tal:define="
+                                        unTitle python: '%s %s version %s' % ( pNavegarALabel, pTitle, pVersion)"
+                                    tal:attributes="
+                                        name string:elemento-${pVersionInfo/UID};
+                                        href python: '%s/Tabular' % (pVersionInfo[ 'url']); 
+                                        title unTitle"                                                                            
+                                    class="state-visible" > 
+                                    <h4>
+                                        <span class="state-visible" tal:content="pTitle" />
+                                    </h4>
+                            </a>
+                        </td>
+                        <td class="nosort" align="left" tal:content="python: pVersionInfo.get( 'id', '')" />
+                        <td class="nosort" align="left" tal:content="python: pVersionInfo.get( 'path', '')" />
+                        <tal:block tal:define="global  unIndexClassFila   python: unIndexClassFila + 1" />
+                    </tr>
+                    
+                    <tal:block tal:define="pIndentLevel python: pIndentLevel + 1" tal:condition="pDrillDownPrevious">
+                        <tal:block tal:define="pVersionInfos pVersionInfo/previous_versioning_infos;
+                                pDrillDownPrevious pTrue;
+                                pDrillDownNext    pFalse" >
+
+                            <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tFilasVersion" />   
+                        </tal:block>      
+                    </tal:block>
+                    
+                    <tal:block tal:define="pIndentLevel python: pIndentLevel + 1" tal:condition="pDrillDownNext">
+                        <tal:block tal:define="pVersionInfos pVersionInfo/next_versioning_infos;
+                               pDrillDownPrevious   pFalse;
+                               pDrillDownNext pTrue" >
+
+                            <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tFilasVersion" />   
+                        </tal:block>      
+                    </tal:block>
+                    
+                    
+                </tal:block>
+            </tal:block>      
+        
+        </tal:block>
+
+    </div>    
+            
+        
+     
+    
+</body>
+</html>
+    

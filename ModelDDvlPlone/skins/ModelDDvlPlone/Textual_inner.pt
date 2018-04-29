@@ -89,7 +89,9 @@
             pPermiteEliminar python: SRES[ 'read_permission'] and SRES[ 'write_permission'] and SRES[ 'delete_permission'] and SRES[ 'container_element'][ 'read_permission'] and SRES[ 'container_element'][ 'write_permission']; 
             pShowOrHideTrees pTrue; 
             pMostrarAnteriorPosterior pTrue;
-            pAllowTextualAndTabular pTrue" > 
+            pAllowTextualAndTabular pTrue;
+            pAllowRefrescar pTrue;
+            pPaginaRefrescar string:Textual" > 
 <tal:block tal:replace="nothing">  
             <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProfilingResults_HTML" />
 

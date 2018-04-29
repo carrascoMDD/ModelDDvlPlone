@@ -1,11 +1,147 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
+|
+|
+
+
+
+version 1.0.0.3
+---------------
 
 |
 |
 
 
+**RESOLVED**
+
+|
+|
+
+ADMI03 Uninstall ModelDDvlPlone Plone Product
+
+AUDI 00 Automatically support element fields for creation/modificaton/deletion user and date  and active state
+
+Error Derived  composite strings in the Textual view does not convert its element strings to Unicode
+
+Error when importing .zip with more than one .xml file (SUC 16)
+
+META 01v2 Type metaattribute factory_enablers with arguments
+
+META 02 Type metaattribute fields_order&lt;#&gt; range extended from 1-6 to 0-10
+
+META 03 Type metaattribute to disable the edition of the id for a type
+
+Paste does not override paste target element  always creates contained elements (SUC 11 Paste)
+
+Shall not present Delete links for elements with any nested content without Delete permission
+
+SUC 06change Do not report as affected the elements related only thorugh derived relations
+
+SUC 06extension02 Delete MULTIPLE elements
+
+SUC 11extension01 Merge collections on Paste an identical copy of an element as contents of other element
+
+SUC 12 Duplicate a root element and its contents
+
+SUC 16v02 Import onto an element a Zipped archive with ENCODED XML file and binary contents
+
+SUC 19 Edit and change an element id
+
+SUC 19v2 Make harder for the user to Rename element  changing id
+
+SUC 19v3 Edition of the id shall not be allowed for certain types
+
+SUC 22 Create a new version of a Model Instance
+
+SUC 24 Move elements to a different container
+
+SUC 24zextension01 Select multiple elements to Copy or Move elements to a different container
+
+USEX 07 Add to Tabular view a link to refresh the view
+
+USEX 08 Conflicting default Plone actions must be intercepted  aliased  or disabled
+
+
+|
+|
+
+**KNOWN BUGS**
+
+
+Change view to Tabular from menu displays Textual view instead
+
+Reflective method invocation should not retrieve the callable method with []
+
+Unhandled Exception when creating of an element by selecting a plone factory action from the object menu 
+
+
+|
+|
+
+
+**POSTPONED**
+
+SUC 21 Create Translation of a Model Instance into a new Language
+
+Avoid deriving ids from titles resulting in reserved names like id  description  role  ...
+
+SUC 06v2 Delete element - plug-in reponsibility on elements to contribute to the delete impact report 
+
+Change view to Tabular from menu displays Textual view instead
+
+PROC 01 Document the model Driven architecture supported by the f
+
+Reflective method invocation should not retrieve the callable method with []
+
+SECU 01 Protect invocation of templates that are not top-leve views
+
+SUC 07 Z extension01 Link as related element found Filtering and searching list of elements candidates to be related
+
+SUC 11 zextension03 Add HTTP request response notes with result of Paste
+
+SUC 11extension02 ACCELERATED Paste an identical copy of an element as contents of other element
+
+SUC 11v2 Trigger and react to Plone copy events when Pasting or Transforming elements or Duplicating roots
+
+SUC 15 zextension01 Add versions to Export
+
+SUC 16 zextension01 Report progress while  Importing a Zipped archive
+
+SUC 16 zextension02 Merge first collections and override default names
+
+SUC 16 zextension03 Present report after Import
+
+SUC 17 Filter and search list of elements candidates to be related
+
+SUC 18 Report the progress of an import process
+
+SUC 22refinement01 Create a new version of a CANONICAL LANGUAGE Model Instance
+
+SUC 23 Translate Most Recent Version of a non-canonical language translation
+
+SUC 25 Paste clipboard references as related with an element through a specific relation
+
+SUC11x4 Display clipboard contents before Paste an identical copy of an element as contents of other element
+
+Unhandled Exception when creating of an element by selecting a plone factory action from the object menu 
+
+USEX 03 When in the linking related elements page  the cursor links shall also navigate to the linking page of the sibling element on the same relation
+
+USEX 04 Add to Tabular view a menu to scroll to specific section of the view
+
+USEX 05 Textual view Do not display titles of collections aggregated in an element  if there is only one collection of the kind and the collecton title is standard
+
+USEX 06 Report component versions and build in all pages
+
+
+|
+|
+
+------------------------------
+
+|
+|
 
 
 version 1.0.0.2

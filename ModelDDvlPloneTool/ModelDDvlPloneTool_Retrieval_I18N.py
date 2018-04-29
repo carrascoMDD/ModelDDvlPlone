@@ -490,6 +490,28 @@ class ModelDDvlPloneTool_Retrieval_I18N:
     def getTranslationsForDefaultAttributes(self, theContextualObject):
         unosAttributeTranslations = {}
         
+
+        unI18NDomain        = 'ModelDDvlPlone'
+        unaLabel            = 'id'
+        unActualLabelMsgId  = 'ModelDDvlPlone_id_label'
+        unTranslatedLabel   = self.fTranslateI18N( unI18NDomain, unActualLabelMsgId, unaLabel, theContextualObject)
+        unaDescription      = ''
+        unActualDescriptionMsgId = 'ModelDDvlPlone_id_help'
+        unTranslatedDescription   = self.fTranslateI18N( unI18NDomain, unActualDescriptionMsgId, unTranslatedLabel, theContextualObject)
+        unAttributeTranslationResult = self.fNewVoidAttributeTranslationResult( )
+        unAttributeTranslationResult.update( {
+            'label':                        unaLabel,
+            'description' :                 unaDescription, 
+            'translated_label':             unTranslatedLabel, 
+            'translated_label_msgid':       unActualLabelMsgId, 
+            'translated_description':       unTranslatedDescription, 
+            'translated_description_msgid': unActualDescriptionMsgId, 
+            'translated_label_and_value':   unTranslatedLabel,
+            'i18ndomain':                   unI18NDomain,            
+        } )
+        unosAttributeTranslations[ unAttributeTranslationResult[ 'label']] = unAttributeTranslationResult
+        
+        
         unI18NDomain        = 'ModelDDvlPlone'
         unaLabel            = 'title'
         unActualLabelMsgId  = 'ModelDDvlPlone_titulo_label'
@@ -550,6 +572,27 @@ class ModelDDvlPloneTool_Retrieval_I18N:
         unosAttributeTranslations[ unAttributeTranslationResult[ 'label']] = unAttributeTranslationResult
 
 
+        unI18NDomain        = 'ModelDDvlPlone'
+        unaLabel            = 'path'
+        unActualLabelMsgId  = 'ModelDDvlPlone_path_label'
+        unTranslatedLabel   = self.fTranslateI18N( unI18NDomain, unActualLabelMsgId, unaLabel, theContextualObject)
+        unaDescription      = ''
+        unActualDescriptionMsgId = 'ModelDDvlPlone_path_help'
+        unTranslatedDescription   = self.fTranslateI18N( unI18NDomain, unActualDescriptionMsgId, unTranslatedLabel, theContextualObject)
+        unAttributeTranslationResult = self.fNewVoidAttributeTranslationResult( )
+        unAttributeTranslationResult.update( {
+            'label':                        unaLabel,
+            'description' :                 unaDescription, 
+            'translated_label':             unTranslatedLabel, 
+            'translated_label_msgid':       unActualLabelMsgId, 
+            'translated_description':       unTranslatedDescription, 
+            'translated_description_msgid': unActualDescriptionMsgId, 
+            'translated_label_and_value':   unTranslatedLabel,
+            'i18ndomain':                   unI18NDomain,            
+        } )
+        unosAttributeTranslations[ unAttributeTranslationResult[ 'label']] = unAttributeTranslationResult
+        
+
         return unosAttributeTranslations 
 
     
@@ -558,6 +601,26 @@ class ModelDDvlPloneTool_Retrieval_I18N:
 
     
 
+    security.declarePrivate( 'getTranslationsForObjectAttribute')
+    def pUpdateTranslationsForObjectAttribute(self, theModelDDvlPloneTool_Retrieval, theAttributeTranslations, theObject, theAttributeName):
+        
+        if not theModelDDvlPloneTool_Retrieval:
+            return self
+
+        if not theAttributeTranslations:
+            return self
+        
+        anAttributeTranslations = theModelDDvlPloneTool_Retrieval.getTranslationsForObjectAttribute( theObject, theAttributeName)
+        if not anAttributeTranslations:
+            return self
+            
+        theAttributeTranslations[ anAttributeTranslations[ 'label']] = anAttributeTranslations
+    
+        return self
+    
+    
+        
+        
     security.declarePrivate( 'getTranslationsForObjectAttribute')
     def getTranslationsForObjectAttribute(self, theObject, theAttributeName):
        

@@ -36,6 +36,8 @@ import sys
 import traceback
 import logging
 
+import transaction
+
 from StringIO  import StringIO
 from cStringIO import StringIO   as clsFastStringIO
 
@@ -471,6 +473,7 @@ class MDDRefactor_Paste ( MDDRefactor):
     
     """
     def __init__( self, 
+        theIsMoveOperation,
         theSourceElementResults, 
         theTargetRoot, 
         theTargetRootResult, 
@@ -478,6 +481,7 @@ class MDDRefactor_Paste ( MDDRefactor):
         theMappingConfigs):
         
         unInitialContextParms = {
+            'is_move_operation':        ( theIsMoveOperation and True) or False,
             'source_element_results':   theSourceElementResults,
             'target_root':              theTargetRoot,
             'target_root_result':       theTargetRootResult,
@@ -587,45 +591,7 @@ class MDDRefactor_Paste_SourceInfoMgr_TraversalResult ( MDDRefactor_Role_SourceI
     
     
 
-    #def fGetPloneId( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #unaId = thePloneElement.getId()
-        #return unaId
-    
-    
-    
 
-    #def fGetPloneUID( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #unaUID = ''
-        #try:
-            #unaUID = thePloneElement.UID()
-        #except:
-            #None
-            
-        #return unaUID
-   
-    
-    
-    #def fGetPloneTitle( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #unTitle = thePloneElement.Title()
-        #return unTitle
-    
-    
-    
-    #def fGetPloneContentType( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #unContentType = thePloneElement.getContentType()
-        #return unContentType
        
     
     def fOwnerPath( self, theSourceElementResult):
@@ -645,52 +611,6 @@ class MDDRefactor_Paste_SourceInfoMgr_TraversalResult ( MDDRefactor_Role_SourceI
         return unRootPath
     
     
-    #def fGetPloneFieldValue( self, thePloneElement, theAttributeName, theAttributeType=''):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement== None):
-            #return None
-    
-        #if ( not theAttributeName):
-            #return None
-    
-        #unFieldValue = None
-        
-        ##if theAttributeName.lower() == 'description':
-            ##unFieldValue = thePloneElement.Description()
-            ##return unFieldValue
-        
-        #unSchema = None
-        #try:
-            #unSchema = thePloneElement.schema
-        #except:
-            #None
-        #if not unSchema:
-            #return unFieldValue
-        
-        #if not unSchema.has_key( theAttributeName):
-            #return unFieldValue
-        
-        #unField  = unSchema[ theAttributeName]
-        #if not unField:
-            #return unFieldValue
-        
-        
-        #if unField.type == 'text':
-            #try:
-                #unFieldValue = unField.getRaw( thePloneElement)
-            #except:
-                #None   
-                
-        #else:   
-            #unAccessor = unField.getAccessor( thePloneElement)
-            #if not unAccessor:
-                #return unFieldValue
-            
-            #try:
-                #unFieldValue = unAccessor( )
-            #except:
-                #None           
-            
-        #return unFieldValue
     
     
     
@@ -755,36 +675,38 @@ class MDDRefactor_Paste_SourceInfoMgr_TraversalResult ( MDDRefactor_Role_SourceI
     
     
     
-            
     
-    #def fPloneObjects( self, theSourceElementResult, theAcceptedSourceTypes):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSourceElementResult):
-            #return []
+    
+    
+    def fDeleteSource( self, theSourceElementResult):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSourceElementResult):
+            return False
         
-        #unosPloneObjects = theSourceElementResult.get( 'plone_objects', [])
-        #if not unosPloneObjects:
-            #return unosPloneObjects
+        unDeletePermission = theSourceElementResult.get( 'delete_permission', None)
+        if not unDeletePermission:
+            return False
         
-        #if not theAcceptedSourceTypes:
-            #return unosPloneObjects
+        unSourceObject = theSourceElementResult.get( 'object', None)
+        if ( unSourceObject == None):
+            return False
         
-        #someAcceptedObjects = [ ]
+        unSourceId = theSourceElementResult.get( 'id', '')
+        if not unSourceId:
+            return False
+        
+        unContenedorSource = aq_parent( aq_inner( unSourceObject))
+        if unContenedorSource == None:
+            return False
+        
+        # ModelDDvlPloneTool_Mutators().pSetAudit_Modification( unContenedor)       
 
-        #for unPloneObject in unosPloneObjects:
-            #unMetaType = ''
-            #try:
-                #unMetaType = unPloneObject.meta_type                
-            #except:
-                #None
-            #if unMetaType and ( unMetaType in theAcceptedSourceTypes):
-                #someAcceptedObjects.append( unPloneObject)
-            
-        #return someAcceptedObjects
+        unContenedorSource.manage_delObjects( [ unSourceId, ])
+        
+        return True
+        
     
     
-            
-        
-        
+    
         
     
 class MDDRefactor_Paste_SourceMetaInfoMgr_TraversalResult ( MDDRefactor_Role_SourceMetaInfoMgr):
@@ -804,6 +726,17 @@ class MDDRefactor_Paste_SourceMetaInfoMgr_TraversalResult ( MDDRefactor_Role_Sou
         return unTypeName
     
     
+    def fGetArchetypeName( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if not theSource:
+            return ''
+        
+        unArchetypeName = theSource.get( 'archetype_name', '')
+        return unArchetypeName
+    
+         
 
     def fPloneTypeName( self, thePloneElement):
         if not self.vInitialized or not self.vRefactor.vInitialized:
@@ -838,38 +771,8 @@ class MDDRefactor_Paste_SourceMetaInfoMgr_TraversalResult ( MDDRefactor_Role_Sou
     
     
     
-    
-    #def fPlonePortalType( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return ''
-        
-        #if ( thePloneElement == None):
-            #return ''
-        
-        #unArchetypeName = self.fPloneArchetypeName( thePloneElement)
-        #if not unArchetypeName:
-            #return ''
-        
-        #if unArchetypeName == 'Page':
-            #return 'Document'
-            
-        #return unArchetypeName
-    
-    
-    def fPlonePortalType( self, thePloneElement):
-        if not self.vInitialized or not self.vRefactor.vInitialized:
-            return ''
-        
-        if ( thePloneElement == None):
-            return ''
-        
-        unPortalType = ''
-        try:
-            unPortalType = thePloneElement.portal_type
-        except:
-            None
-            
-        return unPortalType
+
+ 
         
     
     
@@ -1067,6 +970,8 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
         if not unTargetRootResult:
             return False
         
+        
+        
         return True
       
     
@@ -1184,211 +1089,23 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
         unCreatedElement.manage_fixupOwnershipAfterAdd()
         
         ModelDDvlPloneTool_Mutators().pSetElementPermissions( unCreatedElement)
-        
+                
         return unCreatedElement
     
     
-        
-        
     
-     
-    
-    #def fCreatePloneElement( self, theSource, theTarget, theArchetypeNameToCreate, ):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return None
-
-        #if not theTarget or ( not theArchetypeNameToCreate) or ( theSource == None):
-            #return None
         
-        #unSourceId    = self.vRefactor.vSourceInfoMgr.fGetPloneId( theSource)
-        #if not unSourceId:
-            #return None
+    def fUniqueAggregatedTitle(self, theTarget, theTitle):
+        if ( not theTitle) or ( theTarget == None):
+            return ''
         
-        #unSourceTitle = self.vRefactor.vSourceInfoMgr.fGetPloneTitle( theSource)
-        #if not unSourceTitle:
-            #return None
+        unosExistingAggregatedElements = theTarget.objectValues()
         
-        #unosExistingAggregatedElements = theTarget.objectValues()
+        unosExistingTitles = [ unElement.Title() for unElement in unosExistingAggregatedElements]
+        unNewTitle = self.fUniqueStringWithCounter( theTitle, unosExistingTitles)
         
-        #unosExistingIds    = [ unElement.getId() for unElement in unosExistingAggregatedElements]
-        #unosExistingTitles = [ unElement.Title() for unElement in unosExistingAggregatedElements]
-        
-        #unNewTargetId    = self.fUniqueStringWithCounter( unSourceId,    unosExistingIds)
-        #if not unNewTargetId:
-            #return None
-        #unNewTargetTitle = self.fUniqueStringWithCounter( unSourceTitle, unosExistingTitles)
-        #if not unNewTargetTitle:
-            #return None
-        
-        #aPloneTool = getToolByName( theTarget, 'plone_utils', None)
-        #if aPloneTool  and  shasattr( aPloneTool, 'normalizeString'):
-            #unNewTargetId = aPloneTool.normalizeString( unNewTargetId)
-        
-        #anAttrsDict = {  'title': unNewTargetTitle, }
-        
-        #unCreatedId = None
-        #try:
-            #unCreatedId = theTarget.invokeFactory( theArchetypeNameToCreate, unNewTargetId, **anAttrsDict)
-        #except:
-            #None
-        #if not unCreatedId:
-            #return None
-        
-        ## ACV 20090917 Raises exception  when invoking on the element method manage_permission from pSetElementPermissions
-        ##              Raises ValueError, ( "The permission <em>%s</em> is invalid." % escape(permission_to_manage))
-        ##
-        ##unCreatedElement = None
-        ##try:
-            ##unCreatedElement = theTarget._getOb( unCreatedId)
-        ##except:
-            ##None
-            
-        #unosExistingAggregatedElementsAfterCreation = theTarget.objectValues()
-        #unCreatedElement = None
-        #for unElement in unosExistingAggregatedElementsAfterCreation:
-            #unId = unElement.getId()
-            #if unId == unCreatedId:
-                #unCreatedElement = unElement
-                #break
-            
-        #if ( unCreatedElement == None):
-            #return None
-        
-        #unCreatedElement.manage_fixupOwnershipAfterAdd()
-        
-        #ModelDDvlPloneTool_Mutators().pSetElementPermissions( unCreatedElement, [ permissions.ListFolderContents, permissions.AddPortalContent, permissions.AddPortalFolders, ], )
-        
-        #unCreatedPloneType = self.vRefactor.vSourceMetaInfoMgr.fPloneTypeName( unCreatedElement)
-        
-        
-        #if unCreatedPloneType == 'ATDocument':
-            #try:
-                #unaDescription = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'description', 'string') 
-                #if unaDescription:
-                    #self.fSetPloneFieldValue( unCreatedElement, 'description', unaDescription)
-            #except:
-                #None
-        
-            ##try:
-                ##unContentType = self.vRefactor.vSourceInfoMgr.fGetPloneContentType( theSource)
-                ##if unContentType:
-                    ##self.fSetPloneContentType( unCreatedElement, unContentType)
-            ##except:
-                ##None
-                   
-            #try:
-                #unText = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'text', 'text',)
-                #if unText:
-                    #self.fSetPloneFieldValue( unCreatedElement, 'text', unText)
-            #except:
-                #None
-            
-            #try:
-                #unContentType = self.vRefactor.vSourceInfoMgr.fGetPloneContentType( theSource)
-                #if unContentType:
-                    #self.fSetPloneContentType( unCreatedElement, unContentType)
-            #except:
-                #None
-                
-        #elif unCreatedPloneType == 'ATFile':
-            #try:
-                #unaDescription = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'description', 'string',) 
-                #if unaDescription:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'description', unaDescription)
-            #except:
-                #None
-                
-            #try: 
-                #unFile = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'file', 'file',) 
-                #if unFile:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'file', unFile)
-            #except:
-                #None
-        
-            #try:
-                #unContentType = self.vRefactor.vSourceInfoMgr.fGetPloneContentType( theSource)
-                #if unContentType:
-                    #self.fSetPloneContentType( unCreatedElement, unContentType)
-            #except:
-                #None
-                
-        #elif unCreatedPloneType == 'ATImage':
-            #try:
-                #unaDescription = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'description', 'string',) 
-                #if unaDescription:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'description', unaDescription)
-            #except:
-                #None
-                
-            #try: 
-                #unaImage = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'image', 'file',) 
-                #if unaImage:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'image', unaImage)
-            #except:
-                #None
-        
-              
-        #elif unCreatedPloneType == 'ATNewsItem':
-            #try:
-                #unaDescription = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'description', 'string',) 
-                #if unaDescription:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'description', unaDescription)
-            #except:
-                #None
-                
-            ##try:
-                ##unContentType = self.vRefactor.vSourceInfoMgr.fGetPloneContentType( theSource)
-                ##if unContentType:
-                    ##self.fSetPloneContentType( unCreatedElement, unContentType)
-            ##except:
-                ##None
- 
-            #try:
-                #unText = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'text', 'text')
-                #if unText:
-                    #self.fSetPloneFieldValue( unCreatedElement, 'text', unText)
-            #except:
-                #None
-            
-            #try:
-                #unContentType = self.vRefactor.vSourceInfoMgr.fGetPloneContentType( theSource)
-                #if unContentType:
-                    #self.fSetPloneContentType( unCreatedElement, unContentType)
-            #except:
-                #None
-
-            #try: 
-                #unaImage = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'image', 'file',) 
-                #if unaImage:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'image', unaImage)
-            #except:
-                #None
-                
-            #try:
-                #unImageCaption = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'imageCaption', 'string',)
-                #if unImageCaption:
-                    #self.fSetPloneFieldValue( unCreatedElement, 'imageCaption', unImageCaption)
-            #except:
-                #None
-                
-        #elif unCreatedPloneType == 'ATLink':
-            #try:
-                #unaDescription = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'description', 'string',) 
-                #if unaDescription:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'description', unaDescription)
-            #except:
-                #None
-        
-            #try:
-                #unaRemoteUrl = self.vRefactor.vSourceInfoMgr.fGetPloneFieldValue( theSource, 'remoteUrl', 'string',)
-                #if unaRemoteUrl:
-                    #self.vRefactor.vTargetInfoMgr.fSetPloneFieldValue( unCreatedElement, 'remoteUrl', unaRemoteUrl)
-            #except:
-                #None
-                
-                
-        
-        #return unCreatedElement
+        return unNewTitle
+                 
     
     
     
@@ -1594,57 +1311,12 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
         return True
     
 
-    #def fSetPloneContentType( self, theTarget, thePloneContentType, ):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return False
-        
-        #if ( not theTarget):
-            #return False
-
-        #theTarget.setContentType( thePloneContentType)
-        
-        #return True
-    
-    
-        
-    #def fSetPloneFieldValue( self, theTarget, theAttributeName, theValueToSet, ):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return False
-        
-        #if ( not theTarget) or ( not theAttributeName):
-            #return False
-        
-        #unSchema = None
-        #try:
-            #unSchema = theTarget.schema
-        #except:
-            #None
-        #if not unSchema:
-            #return False
-        
-        #if not unSchema.has_key( theAttributeName):
-            #return False
-        
-        #unField  = unSchema[ theAttributeName]
-        #if not unField:
-            #return False
-        
-        #unMutator = unField.getMutator( theTarget)
-        #if not unMutator:
-            #return False
-        
-        #try:
-            #unMutator( theValueToSet)
-        #except:
-            #return False
-            
-        #return True    
     
     
     def fGetUID( self, theElement):
         if not self.vInitialized or not self.vRefactor.vInitialized:
             return ''
-        if not theElement:
+        if ( theElement == None):
             return ''
         
         unaUID = ''
@@ -1716,10 +1388,34 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
     
     
     
+    
+    def fRootPath( self, theElement):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        unRaiz = theElement.getRaiz()
+        if unRaiz == None:
+            return ''
+        
+        unRootPath = ''    
+        try:
+            unRootPath         = unRaiz.fPhysicalPathString()
+        except:
+            None
+        if not unRootPath:
+            try:
+                unRootPath     = '/'.join( unRaiz.getPhysicalPath())
+            except:
+                None
+        return unRootPath
+      
+    
+        
+    
     def fOwnerPath( self, theElement):
         if not self.vInitialized or not self.vRefactor.vInitialized:
             return ''
-        if not theElement:
+        if ( theElement == None):
             return ''
     
         unOwner = theElement.getContenedor()
@@ -1753,7 +1449,7 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
     def fPhysicalPathString( self, theElement):
         if not self.vInitialized or not self.vRefactor.vInitialized:
             return None
-        if not theElement:
+        if ( theElement == None):
             return None
     
         unPathString = ''
@@ -1842,6 +1538,47 @@ class MDDRefactor_Paste_TargetInfoMgr_MDDElement ( MDDRefactor_Role_TargetInfoMg
             
         return None
             
+ 
+    
+    
+    
+    def fCollectionToMergeWith( self, theTargetElement, theTypeToCreate, theSourceResult):
+        """Return First Sub Element Of Type, With Title Or Default Title. Also return whether to Override its Title .
+        
+        """
+        unSourceTitle         = self.vRefactor.vSourceInfoMgr.fGetTitle( theSourceResult)
+        unSourceArchetypeName = self.vRefactor.vSourceMetaInfoMgr.fGetArchetypeName( theSourceResult)
+        
+        unSourceHasDefaultTitle = unSourceTitle == unSourceArchetypeName
+        
+        someSubElements =  theTargetElement.objectValues( theTypeToCreate)
+        if not someSubElements:
+            return ( None, False, )
+        
+        unosSubElementsMatching = [ ]
+        
+        for unSubElement in someSubElements:
+            
+            unSubElementTitle = unSubElement.Title()
+            
+            if unSubElementTitle == unSourceTitle:
+                return ( unSubElement, False, )
+                
+            else:
+                unSubElementArchetypeName = ''
+                try:
+                    unSubElementArchetypeName = unSubElement.archetype_name
+                except:
+                    None
+                if unSubElementTitle == unSubElementArchetypeName:
+                    return ( unSubElement, True, )
+                 
+        if unSourceHasDefaultTitle:
+            return ( someSubElements[ 0], False, ) 
+                
+        return ( None, False, )
+    
+    
     
     
 class MDDRefactor_Paste_TargetMetaInfoMgr_MDDElement ( MDDRefactor_Role_TargetMetaInfoMgr):
@@ -2441,23 +2178,6 @@ class MDDRefactor_Paste_MapperMetaInfoMgr_ConvertTypes ( MDDRefactor_Role_Mapper
         
         
         
-    #def fExistMappingFromSourceTypeToTargetType( self, theSourceType, theTargetType, ):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return False
-        
-        #if not theSourceType or not theTargetType:
-            #return False
-        
-        #someMappingConfigs = self.vRefactor.fGetContextParam( 'mapping_configs')
-        #if not someMappingConfigs:
-            #return False
-        
-        #for aMappingConfig in someMappingConfigs:
-            #if aMappingConfig:
-                #somePortalTypes = aMappingConfig.get( 'portal_types', [])
-                #aIsAbstract = aMappingConfig.get( 'abstract', False)
-                #if somePortalTypes and ( not aIsAbstract) and ( theSourceType in somePortalTypes) and  ( theTargetType in somePortalTypes):
-                    #return True
         
                 
                 
@@ -2540,79 +2260,8 @@ class MDDRefactor_Paste_MapperMetaInfoMgr_ConvertTypes ( MDDRefactor_Role_Mapper
         
         
         
-        
-    def fTargetTypeMappingByType( self, theTargetType, ):
-        if not self.vInitialized or not self.vRefactor.vInitialized:
-            return {}
-        
-        if not theTargetType:
-            return {}
-        
-        unTargetTypeMapping = self.vMappingsByTargetTypeMap.get( theTargetType, None)
-        if unTargetTypeMapping == None:
-            
-            unTargetTypeMapping = self.fDeriveTargetTypeMapping( theTargetType)
-            
-            if not unTargetTypeMapping:
-                unTargetTypeMapping = {}
-                
-            self.vMappingsByTargetTypeMap[ theTargetType] = unTargetTypeMapping
- 
-            return unTargetTypeMapping
-        
-        
-        
-        
-    def fDeriveTargetTypeMapping( self, theTargetType, ):
-        if not self.vInitialized or not self.vRefactor.vInitialized:
-            return {}
-        
-        if not theTargetType:
-            return {}
-        
-        unTargetTypeMapping = { }
-        
-        someMappingConfigs = self.vRefactor.fGetContextParam( 'mapping_configs')
-        if not someMappingConfigs:
-            return {}
-        
-        for aMappingConfig in someMappingConfigs:
-            if aMappingConfig:
-                somePortalTypes = aMappingConfig.get( 'portal_types', [])
-                if somePortalTypes:
-                    someSameFeatures   = aMappingConfig.get( 'same_features',   [])
-                    someMappedFeatures = aMappingConfig.get( 'mapped_features', [])
-                
             
        
-       
-    #def fTargetTypeFromSourceToAggregateIn( self, theSource, theTarget, ):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return ''
-        
-        #if not theSource or not theTarget:
-            #return ''
-        
-        #unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( theSource)
-        #if not unSourceType:        
-            #return ''
-        
-        #unTargetType = self.vRefactor.vTargetMetaInfoMgr.fTypeName( theTarget)
-        #if not unTargetType:
-            #return ''
-        
-        #unosAggregatedTypes = self.vRefactor.vTargetMetaInfoMgr.fAggregatedTypes( unTargetType)
-        #if not unosAggregatedTypes:
-            #return ''
-        
-        
-        #"""StraightCopy : same type, if allowed. Else, lookup mappings.
-        
-        #"""
-        #if unSourceType in unosAggregatedTypes:
-            #return unSourceType
-        
-        #return ''
     
     
     
@@ -2912,6 +2561,9 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
     
     
     
+    # MDDRefactor_Paste_Walker also invokes fRefactor_IntoRoot, rather than forcing fRefactor_RootAggregations
+    # as now MDDRefactor_Paste_Walker also invokes fRefactor_IntoRoot, rather than forcing fRefactor_RootAggregations
+    #
     def fRefactor( self,):
         if not self.vInitialized or not self.vRefactor.vInitialized:
             return { 'success': False, }
@@ -2935,10 +2587,14 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
         if not self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'write_permission'):
             return  { 'success': False, }
         
-        aVoid = self.fRefactor_RootAggregations( unosSourceRoots, unTargetRoot)
+        aVoid = self.fRefactor_IntoRoot( unosSourceRoots, unTargetRoot)
         
-        #aVoid = self.fRefactor_RootPloneElements( unosSourceRootPloneElements, unTargetRoot)
+        #aVoid = self.fRefactor_RootAggregations( unosSourceRoots, unTargetRoot)
         
+        unIsMoveOperation =  self.vRefactor.fGetContextParam( 'is_move_operation')
+        if unIsMoveOperation:
+            aVoid = self.fRefactor_Moves()
+                
         aVoid = self.fRefactor_Relations( )
         
         return { 'success': True, }
@@ -2946,7 +2602,123 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
     
     
     
+
     
+    
+    # ACV 20090922 Moved here from MDDRefactor_Import_Walker, 
+    #
+    def fRefactor_IntoRoot( self, theSourceRoots, theTargetRoot):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+    
+        if not theSourceRoots or ( theTargetRoot == None):
+            return None
+        
+        unTargetRootType = self.vRefactor.vTargetMetaInfoMgr.fTypeName( theTargetRoot)
+        if not unTargetRootType:
+            return None
+
+        unTargetRootTitle = self.vRefactor.vTargetInfoMgr.fGetTitle( theTargetRoot)
+        if not unTargetRootTitle:
+            return None
+        
+        unTargetRootResult = self.vRefactor.vTargetInfoMgr.fGetTargetRootResult() 
+        if not unTargetRootResult:
+            return None
+        
+        unTargetRootTypeConfig =  self.vRefactor.vTargetMetaInfoMgr.fTypeConfig( theTargetRoot)     
+        if not unTargetRootTypeConfig:
+            return None
+        
+        unRefactorStack = self.vRefactor.fGetContextParam( 'stack')  
+        if not unRefactorStack:
+            return None
+        
+        someSourcesMappedToSameTypeAsTargetRoot     = [ ]
+        someSourcesMappedToAggregationsInTargetRoot = [ ]
+        
+        for unSourceRoot in theSourceRoots:
+            if self.vRefactor.vSourceInfoMgr.fIsSourceOk( unSourceRoot):
+                
+                if self.vRefactor.vSourceInfoMgr.fIsSourceReadable( unSourceRoot):
+                    
+                    unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( unSourceRoot)
+                    if unSourceType:
+                        
+                        if ( unSourceType == unTargetRootType):
+                            someSourcesMappedToSameTypeAsTargetRoot.append( unSourceRoot)
+                            continue
+                        
+                        unMappedType = self.vRefactor.vMapperMetaInfoMgr.fFirstMappedTypeFromSourceTypeToTargetType( unSourceType, unTargetRootType)
+                        if unMappedType:
+                            
+                            if unMappedType == unTargetRootType:
+                                someSourcesMappedToSameTypeAsTargetRoot.append( unSourceRoot)
+                                continue
+                        
+                        unMappingTargetAggregationConfigAndType = self.vRefactor.vMapperMetaInfoMgr.fMappingAndTargetAggregationConfigAndTypeToAggregateSourceIn( unSourceRoot, theTargetRoot)
+                        if unMappingTargetAggregationConfigAndType and len( unMappingTargetAggregationConfigAndType) > 2:
+                            unaTargetAggregationConfig = unMappingTargetAggregationConfigAndType[ 1]
+                            unTypeToCreate             = unMappingTargetAggregationConfigAndType[ 2]
+                            
+                            if unaTargetAggregationConfig and unTypeToCreate:
+                                someSourcesMappedToAggregationsInTargetRoot.append( unSourceRoot)
+                                continue
+                        
+        if ( not someSourcesMappedToSameTypeAsTargetRoot) and ( not someSourcesMappedToAggregationsInTargetRoot):
+            return None
+        
+        if ( not someSourcesMappedToSameTypeAsTargetRoot):
+            return self.fRefactor_RootAggregations( someSourcesMappedToAggregationsInTargetRoot, theTargetRoot)
+        
+        
+        
+        unTargetRootParent =  aq_parent( aq_inner( theTargetRoot))
+        unosExistingRootSiblings = unTargetRootParent.objectValues()
+        
+        unosExistingRootSiblingsTitles = [ ]
+        
+        for anExistingRootSibling in unosExistingRootSiblings:                
+            unTitle = ''
+            try:
+                unTitle = anExistingRootSibling.Title()
+            except:
+                None
+            if unTitle:
+                unosExistingRootSiblingsTitles.append( unTitle)
+        
+                
+                
+        for unSourceRoot in someSourcesMappedToSameTypeAsTargetRoot:
+        
+            unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( unSourceRoot)
+            if unSourceType:
+                
+                if ( unSourceType == unTargetRootType):
+                    unMapping = []
+                else:
+                    unMapping = self.vRefactor.vMapperMetaInfoMgr.fCompileMappingFromSourceTypeToMappedType( unSourceType, unTargetRootType, )
+                
+                unSourceRootTitle = self.vRefactor.vSourceInfoMgr.fGetTitle( unSourceRoot)
+                
+                if not ( unSourceRootTitle == unTargetRootTitle):
+                    unNewTargetRootTitle = self.vRefactor.vTargetInfoMgr.fUniqueStringWithCounter( unSourceRootTitle, unosExistingRootSiblingsTitles)
+                    if unNewTargetRootTitle:
+                        theTargetRoot.setTitle( unNewTargetRootTitle)
+                        theTargetRoot.reindexObject( )
+                
+                    
+                self.vRefactor.vMapperInfoMgr.pRegisterSourceToTargetCorrespondence( unSourceRoot, theTargetRoot, unMapping)
+        
+                unRefactorFrame = unRefactorStack.fAddRootStackFrame( self, unSourceRoot, theTargetRoot, unTargetRootTypeConfig, unMapping)
+                if unRefactorFrame:
+                    try:
+                        self.fRefactor_Frame( unRefactorFrame)
+                    finally:
+                        unRefactorStack.fPopStackFrame()
+                                          
+        return self
+        
     
     
     def fRefactor_RootAggregations( self, theSourceRoots, theTargetRoot):
@@ -2964,10 +2736,6 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
             return None
         
         if not self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'traverse_permission'):
-            return None
-        
-        if not( self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_collection_permission') or \
-           self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_permission')):
             return None
 
         unRefactorStack = self.vRefactor.fGetContextParam( 'stack')  
@@ -2988,15 +2756,46 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                         
                         if unaTargetAggregationConfig and unTypeToCreate:
                             
+                            unContainsCollections = self.vRefactor.vTargetMetaInfoMgr.fGetAggregationConfigContainsCollections( unaTargetAggregationConfig)
+                            
                             unAddingPermitted = False
-                            if self.vRefactor.vTargetMetaInfoMgr.fGetAggregationConfigContainsCollections( unaTargetAggregationConfig):
+                            if unContainsCollections:
                                 
                                 if self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_collection_permission'):
                                     unAddingPermitted = True
                             else:
                                 if self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_permission'):
                                     unAddingPermitted = True
+                                    
+
+                            if unContainsCollections:
                                 
+                                unaCollectionToMergeWith, aOverrideTitle = self.vRefactor.vTargetInfoMgr.fCollectionToMergeWith( theTargetRoot, unTypeToCreate, unSourceRoot)
+                                
+                                if unaCollectionToMergeWith:
+                                         
+                                    if aOverrideTitle:
+                                        unSourceRootTitle = self.vRefactor.vSourceInfoMgr.fGetTitle( unSourceRoot)
+                                        
+                                        unNewTargetTitle = self.vRefactor.vTargetInfoMgr.fUniqueAggregatedTitle( theTargetRoot, unSourceRootTitle)
+                                        if unNewTargetTitle:
+                                            unaCollectionToMergeWith.setTitle( unNewTargetTitle)
+                                        
+                                    unaCollectionType       = self.vRefactor.vTargetMetaInfoMgr.fTypeName( unaCollectionToMergeWith)
+                                    unaCollectionTypeConfig = self.vRefactor.vTargetMetaInfoMgr.fTypeConfigForType( unaCollectionType)
+                                    
+                                    self.vRefactor.vMapperInfoMgr.pRegisterSourceToTargetCorrespondence( unSourceRoot, unaCollectionToMergeWith, unMapping)
+                                    
+                                    unRefactorFrame = unRefactorStack.fAddRootStackFrame( self, unSourceRoot, unaCollectionToMergeWith, unaCollectionTypeConfig, unMapping)
+                                    if unRefactorFrame:
+                                        try:
+                                            self.fRefactor_Frame( unRefactorFrame)
+                                        finally:
+                                            unRefactorStack.fPopStackFrame()
+                                        
+                                        continue
+                                        
+                                    
                             if unAddingPermitted:
                                 
                                 unaTargetAggregationName = self.vRefactor.vTargetMetaInfoMgr.fAggregationNameFromTraversalConfig( unaTargetAggregationConfig)
@@ -3025,41 +2824,6 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
     
         
     
-    
-   
-    #def fRefactor_RootPloneElements( self, theSourceRootPloneElements, theTargetRoot):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return None
-    
-        #if not theSourceRootPloneElements:
-            #return self
-        
-        #if theTargetRoot == None:
-            #return None
-
-        #unTargetRootResult = self.vRefactor.vTargetInfoMgr.fGetTargetRootResult() 
-        #if not unTargetRootResult:
-            #return None
-        
-        #if not self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'traverse_permission'):
-            #return None
-        
-        #if not( self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_collection_permission') or \
-           #self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_permission')):
-            #return None
-
-        #for unSourcePloneObject in theSourceRootPloneElements:
-            
-            #unPloneFactoryName = self.vRefactor.vSourceMetaInfoMgr.fPlonePortalType( unSourcePloneObject)
-            #if unPloneFactoryName:
-            
-                #unCreatedPloneElement = self.vRefactor.vTargetInfoMgr.fCreatePloneElement( unSourcePloneObject, theTargetRoot, unPloneFactoryName, )
-                #if unCreatedPloneElement:
-                    
-                    #self.vRefactor.vMapperInfoMgr.pRegisterPloneSourceToTargetCorrespondence( unSourcePloneObject, unCreatedPloneElement,)
-        #return self
-    
-        
                     
                     
                     
@@ -3125,6 +2889,38 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
                                         
                                         if unTypeToCreate:
                                         
+                                            unContainsCollections = self.vRefactor.vTargetMetaInfoMgr.fGetAggregationConfigContainsCollections( anAggregationTraversalConfig)
+
+                                            if unContainsCollections:
+                                                
+                                                unaCollectionToMergeWith, aOverrideTitle = self.vRefactor.vTargetInfoMgr.fCollectionToMergeWith( theRefactorFrame.vTarget, unTypeToCreate, unAggregatedSource)
+                                                
+                                                if unaCollectionToMergeWith:
+                                                    
+                                                    if aOverrideTitle:
+                                                        unAggregatedSourceTitle = self.vRefactor.vSourceInfoMgr.fGetTitle( unAggregatedSource)
+                                                        
+                                                        unNewTargetTitle = self.vRefactor.vTargetInfoMgr.fUniqueAggregatedTitle( theRefactorFrame.vTarget, unAggregatedSourceTitle)
+                                                        if unNewTargetTitle:
+                                                            unaCollectionToMergeWith.setTitle( unNewTargetTitle)
+
+                                    
+                                                    unaCollectionType       = self.vRefactor.vTargetMetaInfoMgr.fTypeName( unaCollectionToMergeWith)
+                                                    unaCollectionTypeConfig = self.vRefactor.vTargetMetaInfoMgr.fTypeConfigForType( unaCollectionType)
+                                                    
+                                                    self.vRefactor.vMapperInfoMgr.pRegisterSourceToTargetCorrespondence( unAggregatedSource, unaCollectionToMergeWith, unMapping)
+                                                    
+                                                    unRefactorFrame = unRefactorStack.fAddRootStackFrame( self, unAggregatedSource, unaCollectionToMergeWith, unaCollectionTypeConfig, unMapping)
+                                                    if unRefactorFrame:
+                                                        try:
+                                                            self.fRefactor_Frame( unRefactorFrame)
+                                                        finally:
+                                                            unRefactorStack.fPopStackFrame()
+                                                        
+                                                        continue
+                                            
+                                            
+                                            
                                             unCreatedElementTypeConfig = self.vRefactor.vTargetMetaInfoMgr.fTypeConfigForTypeFromAggregationTraversalConfig( unTypeToCreate, anAggregationTraversalConfig, )
                                             if unCreatedElementTypeConfig:
                                                 
@@ -3145,6 +2941,83 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
     
     
     
+    
+    
+                        
+    def fRefactor_Moves( self, ):
+        """Delete source objects that have been copied and have the same root path as the target.
+        If target root is same as source root or is under source root, then move is not possible (removing the source would remove the copies, too, loosing information).
+        if source root is under target root, then move is possible.
+        If there is no parent-child relationship between elements, then move is possible.
+        
+        """
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+        
+        unIsMoveOperation =  self.vRefactor.fGetContextParam( 'is_move_operation')
+        if not unIsMoveOperation:
+            return None
+        
+        unTargetRoot = self.vRefactor.vTargetInfoMgr.fGetTargetRoot()
+        if ( unTargetRoot == None):
+            return None
+
+        unTargetRootPath = self.vRefactor.vTargetInfoMgr.fRootPath( unTargetRoot)
+                
+            
+        unosTargets = self.vRefactor.vMapperInfoMgr.fGetTargets()
+        if not unosTargets:
+            return self
+        
+        for unTarget in unosTargets:
+            
+            unosSources = self.vRefactor.vMapperInfoMgr.fGetSourcesForTarget( unTarget)
+            
+            for unSource in unosSources:
+                
+                if not unSource in unosTargets:
+                    
+                    unSourcePath = self.vRefactor.vSourceInfoMgr.fGetPath( unSource)
+                    
+                    if not self.fPathIsSameOrParentPathOf( unSourcePath, unTargetRootPath):
+                        
+                        self.vRefactor.vSourceInfoMgr.fDeleteSource( unSource)
+                    
+        return self        
+                         
+    
+    
+    
+        
+    
+    def fPathIsSameOrParentPathOf( self, theParentPath, theChildPath):
+        if theParentPath == theChildPath:
+            return True
+        
+        unosParentPathSteps = theParentPath.split( '/')
+        unosChildPathSteps = theChildPath.split( '/')
+        
+        unNumParentPathSteps = len( unosParentPathSteps)
+        
+        if unNumParentPathSteps > len( unosChildPathSteps):
+            return False
+        
+        for unPathIndex in range( unNumParentPathSteps):
+            
+            unParentStep = unosParentPathSteps[ unPathIndex]
+            unChildStep  = unosChildPathSteps[ unPathIndex]
+        
+            if not ( unParentStep == unChildStep):
+                return False
+            
+        return True
+    
+    
+    
+    
+    
+
+    
                         
     def fRefactor_Relations( self, ):
         """
@@ -3157,12 +3030,8 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
         if ( unTargetRoot == None):
             return None
 
-        unTargetRootPath = ''
-        try:
-            unTargetRootPath = unTargetRoot.fPathDelRaiz()
-        except:
-            None
-            
+
+        unTargetRootPath = self.vRefactor.vTargetInfoMgr.fRootPath( unTargetRoot)
         
         unosTargets = self.vRefactor.vMapperInfoMgr.fGetTargets()
         if not unosTargets:
@@ -3274,45 +3143,7 @@ class MDDRefactor_Paste_Walker ( MDDRefactor_Role_Walker):
         return self        
                          
     
-        
-    
-
-    
-    
-    
-    #def fRefactor_Frame_PloneContent( self, theRefactorFrame):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return None
-    
-        #if not theRefactorFrame or not theRefactorFrame.fIsFrameOk():
-            #return None
-        
-        #unosSourcePloneObjects = self.vRefactor.vSourceInfoMgr.fPloneObjects( theRefactorFrame.vSource, [],)
-        #if not unosSourcePloneObjects:
-            #return None
-        
-        #unRefactorStack = self.vRefactor.fGetContextParam( 'stack')  
-        #if not unRefactorStack:
-            #return None
-        
-        #for unSourcePloneObject in unosSourcePloneObjects:
             
-            #unPloneArchetypeNameToCreate = self.vRefactor.vSourceMetaInfoMgr.fPlonePortalType( unSourcePloneObject)
-            #if unPloneArchetypeNameToCreate:
-            
-                #unCreatedPloneElement = self.vRefactor.vTargetInfoMgr.fCreatePloneElement( unSourcePloneObject, theRefactorFrame.vTarget, unPloneArchetypeNameToCreate, )
-                #if unCreatedPloneElement:
-                    
-                    #self.vRefactor.vMapperInfoMgr.pRegisterPloneSourceToTargetCorrespondence( unSourcePloneObject, unCreatedPloneElement,)
-        #return self
-    
-    
-            
-    
-    
-    
-    
-    
     
     
     
@@ -3437,11 +3268,1270 @@ class MDDRefactor_Paste_Walker_Stack_Frame:
     
     
     
+
     
+# ######################################################
+# NEW VERSION refactoring
+# ######################################################
+    
+
+
+            
+class MDDRefactor_NewVersion ( MDDRefactor):
+    """Agent to perform a new version refactoring.
+    
+    """
+
+
+    def __init__( self, 
+
+        theOriginalRoot, 
+        theNewVersionRoot,
+        theNewVersionRootResult,
+        theNewVersionName,
+        theNewVersionComment,
+        theTargetMDDTypeConfigs, 
+        theTargetPloneTypeConfigs, 
+        theTargetAllTypeConfigs):
+        
+        unInitialContextParms = {
+            'original_root':            theOriginalRoot,
+            'target_root':              theNewVersionRoot,
+            'target_root_result':       theNewVersionRootResult,
+            'new_version_name':         theNewVersionName,
+            'new_version_comment':      theNewVersionComment,
+            'target_mdd_type_configs':  theTargetMDDTypeConfigs,
+            'target_plone_type_configs':theTargetPloneTypeConfigs,
+            'target_all_type_configs':  theTargetAllTypeConfigs,
+        }
+        
+        MDDRefactor.__init__(
+            self,
+            unInitialContextParms,
+            MDDRefactor_NewVersion_SourceInfoMgr_MDDElements(), 
+            MDDRefactor_NewVersion_SourceMetaInfoMgr_MDDElements(), 
+            MDDRefactor_Paste_TargetInfoMgr_MDDElement(), 
+            MDDRefactor_Paste_TargetMetaInfoMgr_MDDElement(), 
+            MDDRefactor_NewVersion_MapperInfoMgr_NoConversion(), 
+            MDDRefactor_NewVersion_MapperMetaInfoMgr_NoConversion(), 
+            MDDRefactor_NewVersion_Walker(), 
+        )
+    
+        
+
+
+        
+    
+class MDDRefactor_NewVersion_SourceMetaInfoMgr_MDDElements ( MDDRefactor_Role_SourceMetaInfoMgr):
+    """
+    
+    """
+    
+
+    def fTypeName( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if not theSource:
+            return ''
+        
+        unTypeName = theSource.meta_type
+        return unTypeName
+    
+    
+    def fGetArchetypeName( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if not theSource:
+            return ''
+        
+        unArchetypeName = theSource.archetype_name
+        return unArchetypeName
+    
+         
+
+    def fPloneTypeName( self, thePloneElement):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if ( thePloneElement == None):
+            return ''
+        
+        unMetaType = ''
+        try:
+            unMetaType = thePloneElement.meta_type
+        except:
+            None
+            
+        return unMetaType
+    
+    
+    def fPloneArchetypeName( self, thePloneElement):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if ( thePloneElement == None):
+            return ''
+        
+        unArchetype = ''
+        try:
+            unArchetype = thePloneElement.archetype_name
+        except:
+            None
+            
+        return unArchetype
     
     
     
 
+ 
+        
+    
+    
+    def fTypeConfig( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        
+        if not theSource:
+            return {}
+        
+        unTypeName = self.fTypeName( theSource)
+        if not unTypeName:
+            return {}
+        
+        unTypeConfig = self.fTypeConfigForType( unTypeName, theTypeConfigName)
+        return unTypeConfig
+    
+    
+    
+    
+    def fAggregationNamesFromSource( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return []
+        
+        if not theSource:
+            return []
+        
+        unTypeConfig = self.fTypeConfig( theSource)
+        if not unTypeConfig:
+            return []
+       
+        unasTraversalConfigs = unTypeConfig.get( 'traversals', [])
+        if not unasTraversalConfigs:
+            return []
+        
+        unasAggregationNames = [ ]
+        
+        for unaTraversalConfig in unasTraversalConfigs:
+            unAggregationName = unaTraversalConfig.get( 'aggregation_name', '')
+            if unAggregationName and not ( unAggregationName in unasAggregationNames):
+                unasAggregationNames.append( unAggregationName)
+                
+        return unasAggregationNames
+    
+    
+    
+    
+    def fHasAggregationNamed( self, theSource, theAggregationName):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return False
+        
+        if not theSource or not theAggregationName:
+            return False
+        
+        unTypeConfig = self.fTypeConfig( theSource)
+        if not unTypeConfig:
+            return False
+       
+        unasTraversalConfigs = unTypeConfig.get( 'traversals', [])
+        if not unasTraversalConfigs:
+            return False
+                
+        for unaTraversalConfig in unasTraversalConfigs:
+            unAggregationName = unaTraversalConfig.get( 'aggregation_name', '')
+            if unAggregationName and ( unAggregationName == theAggregationName):
+                return True
+                
+        return False
+    
+    
+    
+    def fHasRelationNamed( self, theSource, theRelationName):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return False
+        
+        if not theSource or not theRelationName:
+            return False
+        
+        unTypeConfig = self.fTypeConfig( theSource)
+        if not unTypeConfig:
+            return False
+       
+        unasTraversalConfigs = unTypeConfig.get( 'traversals', [])
+        if not unasTraversalConfigs:
+            return False
+                
+        for unaTraversalConfig in unasTraversalConfigs:
+            unRelationName = unaTraversalConfig.get( 'relation_name', '')
+            if unRelationName and ( unRelationName == theRelationName):
+                return True
+                
+        return False
+
+    
+       
+    def fHasTraversalNamed( self, theSource, theTraversalName):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return False
+        
+        if not theSource or not theTraversalName:
+            return False
+        
+        unTypeConfig = self.fTypeConfig( theSource)
+        if not unTypeConfig:
+            return False
+       
+        unasTraversalConfigs = unTypeConfig.get( 'traversals', [])
+        if not unasTraversalConfigs:
+            return False
+                
+        for unaTraversalConfig in unasTraversalConfigs:
+            unAggregationName = unaTraversalConfig.get( 'aggregation_name', '')
+            if unAggregationName and ( unAggregationName == theTraversalName):
+                return True
+            
+            unRelationName = unaTraversalConfig.get( 'relation_name', '')
+            if unRelationName and ( unRelationName == theTraversalName):
+                return True
+                
+        return False
+
+    
+    
+    
+    
+    def fRelationNamesFromSource( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return []
+        
+        if not theSource:
+            return []
+        
+        unTypeConfig = self.fTypeConfig( theSource)
+        if not unTypeConfig:
+            return []
+       
+        unasTraversalConfigs = unTypeConfig.get( 'traversals', [])
+        if not unasTraversalConfigs:
+            return []
+        
+        unasRelationNames = [ ]
+        
+        for unaTraversalConfig in unasTraversalConfigs:
+            unRelationName = unaTraversalConfig.get( 'relation_name', '')
+            if unRelationName and not ( unRelationName in unasRelationNames):
+                unasRelationNames.append( unRelationName)
+                
+        return unasRelationNames
+    
+    
+    
+    
+    def fAttributeTypeInSource( self, theSource, theAttributeName):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if not theSource or not theAttributeName:
+            return ''
+        
+        unTypeConfig = self.fTypeConfig( theSource)
+        if not unTypeConfig:
+            return ''
+       
+        unosAttributeConfigs = unTypeConfig.get( 'attrs', [])
+        if not unosAttributeConfigs:
+            return ''
+     
+        for unAttributeConfig in unosAttributeConfigs:
+            
+            unAttributeName = unAttributeConfig.get( 'attribute_name', '')
+            if unAttributeName and ( unAttributeName == theAttributeName):
+                
+                unAttributeType = unAttributeConfig.get( 'type', '')
+                return unAttributeType
+            
+        return ''
+                        
+        
+    
+    
+
+    
+    
+    
+    
+class MDDRefactor_NewVersion_SourceInfoMgr_MDDElements( MDDRefactor_Role_SourceInfoMgr):
+    """
+    
+    """
+    def fInitInRefactor( self, theRefactor):
+        if not MDDRefactor_Role_SourceInfoMgr.fInitInRefactor( self, theRefactor,):
+            return False
+        
+        if not self.vRefactor.fGetContextParam( 'original_root',):
+            return False
+
+        # ACV 20091003 Should not be necessary. Copied from the XML flavor.
+        #aSiteEncoding = aPloneUtilsTool.getSiteEncoding()
+        #if not aSiteEncoding:
+            #aSiteEncoding = cEncodingUTF8
+        
+        #self.vRefactor.pSetContextParam( 'site_encoding', aSiteEncoding)
+        
+        return True
+    
+
+
+    # ACV 20091003 Should not be necessary. Copied from the XML flavor.
+    #def fGetSiteEncoding( self,):
+        #if not self.vInitialized or not self.vRefactor.vInitialized:
+            #return None
+        
+        #aSiteEncoding = self.vRefactor.fGetContextParam( 'site_encoding',)
+        #return aSiteEncoding
+    
+    
+    
+    
+    def fGetSourceRoots( self,):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+        
+        unOriginalElement = self.vRefactor.fGetContextParam( 'original_root',) 
+        if not unOriginalElement:
+            return None
+        
+        unosSourceElements = [ unOriginalElement,]
+        
+        unosPloneTypeNames = cPloneTypes.keys()
+        
+        unosNonPloneElements = [ ]
+        
+        for unSourceElement in unosSourceElements:
+            unTypeName = self.vRefactor.vSourceMetaInfoMgr.fTypeName( unSourceElement)
+            if not ( unTypeName in unosPloneTypeNames):
+                unosNonPloneElements.append( unSourceElement)
+                
+        return unosNonPloneElements
+
+    
+
+    
+    
+    
+    def fIsSourceReadable( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return False
+        if ( theSource == None):
+            return False
+    
+        return True
+    
+    
+    
+    
+    def fIsSourceOk( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not theSource:
+            return False
+        
+        allTypeConfigs = self.vRefactor.fGetContextParam( 'target_all_type_configs',)
+        if not allTypeConfigs:
+            return False
+        
+        
+        unSourceType = None
+        try:
+            unSourceType = theSource.meta_type
+        except:
+            None
+            
+        if not unSourceType:
+            return False
+        
+        if not allTypeConfigs.has_key( unSourceType):
+            return False
+        
+        return True
+    
+    
+
+     
+     
+    
+    # ACV 20091003 Should not be necessary. Copied from the XML flavor.
+    #def fFromUnicodeToSystemEncoding( self, theXMLString,):
+        
+        #if not theXMLString:
+            #return ''
+        
+        #if isinstance( theXMLString, unicode):
+            #unStringUnicode = theXMLString
+            
+        #else:
+            
+            #unStringUnicode = None
+            #try:
+                #unStringUnicode = theXMLString.decode( cEncodingUTF8, errors=cEncodingErrorHandleMode_Strict)
+            #except UnicodeDecodeError:
+                #None
+        
+            #if not unStringUnicode:
+                #return None
+ 
+        #unSiteEncoding = self.fGetSiteEncoding()
+        #if not unSiteEncoding:
+            #unSiteEncoding = cEncodingUTF8
+        
+        #unStringEncoded  = None
+        #try:
+            #unStringEncoded = unStringUnicode.encode( unSiteEncoding, cEncodingErrorHandleMode_Strict)      
+        #except UnicodeEncodeError:
+            #None
+                
+        #if not unStringEncoded:
+            #return None
+        
+        #return unStringEncoded
+    
+    
+    
+    
+    
+    def fGetId( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
+            return ''
+        
+        unaId = theSource.getId()
+        return unaId
+        
+    
+    
+    def fGetUID( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
+            return ''
+        
+        if theSource.meta_type in cPloneSiteMetaTypes:
+            return cFakeUIDForPloneSite
+        
+        unaUID = theSource.UID()
+        return unaUID    
+    
+    
+    
+    def fGetPath( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
+            return ''
+        
+        unPath = '/'.join( theSource.getPhysicalPath())
+        return unPath    
+     
+    
+    def fGetTitle( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
+            return ''
+        
+        unTitle = theSource.Title()
+        return unTitle    
+    
+    
+    
+    
+    def fOwnerPath( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
+            return ''        
+        unPropietario = None
+        try:
+            unPropietario = theSource.getPropietario()
+        except:
+            None
+        if not unPropietario:
+            return ''
+        
+        unPropietarioPath = '/'.join( unPropietario.getRaiz().getPhysicalPath())
+        return unPropietarioPath
+    
+    
+    
+    def fRootPath( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
+            return ''
+        unRootPath = '/'.join( theSource.getRaiz().getPhysicalPath())
+        return unRootPath
+    
+    
+    
+    def fGetAttributeValue( self, theSource, theAttributeName, theAttributeType):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
+            return None
+    
+        if ( not theAttributeName) or ( not theAttributeType):
+            return None
+        
+        if theAttributeName.lower() == 'title':
+            return self.fGetTitle( theSource)
+        elif theAttributeName.lower() == 'id':
+            return self.fGetId( theSource)
+        elif theAttributeName.lower() == 'path':
+            return self.fGetPath( theSource)
+        elif theAttributeName.lower() == 'uid':
+            return self.fGetUID( theSource)
+
+        unSchema = None
+        try:
+            unSchema = theSource.schema
+        except:
+            None
+        if not unSchema:
+            return None
+        
+        if not unSchema.has_key( theAttributeName):
+            return None
+        
+        unField  = unSchema[ theAttributeName]
+        if not unField:
+            return None
+        
+        unAccessor = unField.getAccessor( theSource)
+        if not unAccessor:
+            return None
+        
+        unAttributeValue = None
+        try:
+            unAttributeValue = unAccessor( )
+        except:
+            return None
+ 
+        
+        return unAttributeValue
+
+            
+    
+    
+    
+    def fGetTraversalValues( self, theSource, theTraversalName, theAcceptedSourceTypes):
+        if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource) or ( not theTraversalName):
+            return []
+        
+
+        unSchema = None
+        try:
+            unSchema = theSource.schema
+        except:
+            None
+        if not unSchema:
+            return None
+        
+        if not unSchema.has_key( theTraversalName):
+            return None
+        
+        unField  = unSchema[ theTraversalName]
+        if not unField:
+            return None
+        
+        unAccessor = unField.getAccessor( theSource)
+        if not unAccessor:
+            return None
+        
+        unosRetrievedElements = None
+        try:
+            unosRetrievedElements = unAccessor()
+        except:
+            return None
+ 
+        return unosRetrievedElements
+
+        
+
+    
+    
+           
+
+class MDDRefactor_NewVersion_TargetInfoMgr_MDDElement ( MDDRefactor_Paste_TargetInfoMgr_MDDElement):
+    """
+    
+    """
+    def fInitInRefactor( self, theRefactor):
+        if not MDDRefactor_Paste_TargetInfoMgr_MDDElement.fInitInRefactor( self, theRefactor,):
+            return False
+        
+        unNewVersionName = self.vRefactor.fGetContextParam( 'new_version_name',) 
+        if not unNewVersionName:
+            return False
+        
+        return True
+      
+    
+    
+
+    
+    
+    def fCreateAggregatedElement( self, theSource, theTarget, theMetaTypeToCreate, ):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+    
+        unCreatedElement = MDDRefactor_Paste_TargetInfoMgr_MDDElement.fCreateAggregatedElement( self, theSource, theTarget, theMetaTypeToCreate, )
+        if ( unCreatedElement == None):
+            return None
+        
+        # ACV 200091003 Only the roots have version name
+        #unNewVersionName = self.vRefactor.fGetContextParam( 'new_version_name',) 
+        #if not unNewVersionName:
+            #return unCreatedElement
+        
+        #unCreatedElement.setVersionInterna( unNewVersionName)
+        
+        #unNewVersionComment = self.vRefactor.fGetContextParam( 'new_version_comment',) 
+        #if not unNewVersionComment :
+            #return unCreatedElement
+        #unCreatedElement.setComentarioVersionInterna( unNewVersionComment )
+        
+        return unCreatedElement
+    
+    
+    
+    
+                        
+    
+class MDDRefactor_NewVersion_MapperInfoMgr_NoConversion ( MDDRefactor_Role_MapperInfoMgr):
+    """
+    
+    """   
+    def __init__( self, ):
+
+        MDDRefactor_Role_MapperInfoMgr.__init__( self)
+        
+        self.vSourcesForTargetsMap = { }
+        self.vTargetsForSourcesMap = { }
+        self.vMappingsForTargets   = { }
+        
+        
+        
+
+    def fInitInRefactor( self, theRefactor):
+        if not MDDRefactor_Role_MapperInfoMgr.fInitInRefactor( self, theRefactor,):
+            return False
+
+        unOriginalRoot = theRefactor.fGetContextParam( 'original_root')
+        if not unOriginalRoot:
+            return False
+        
+        unosLinkFields = None
+        try:
+            unosLinkFields = unOriginalRoot.versioning_link_fields
+        except:
+            None
+        if ( not unosLinkFields) or ( len( unosLinkFields) < 2):
+            return False
+        
+        unPreviousVersionsFieldName = unosLinkFields[ 0]
+        unNextVersionsFieldName     = unosLinkFields[ 1]
+        
+        if not unPreviousVersionsFieldName or not unNextVersionsFieldName:
+            return False
+        
+        unSchema = unOriginalRoot.schema
+        
+        if not unSchema.has_key( unPreviousVersionsFieldName) or not unSchema.has_key( unNextVersionsFieldName):
+            return False
+
+        unPreviousVersionsField = unSchema[ unPreviousVersionsFieldName]
+        if ( not unPreviousVersionsField) or not ( unPreviousVersionsField.__class__.__name__ == 'RelationField'):
+            return False
+        
+        unNextVersionsField = unSchema[ unNextVersionsFieldName]
+        if ( not unNextVersionsField) or not ( unNextVersionsField.__class__.__name__ == 'RelationField'):
+            return False
+        
+        unPreviousVersionsRelationName = ''
+        try:
+            unPreviousVersionsRelationName = unPreviousVersionsField.relationship
+        except:
+            None
+        if not unPreviousVersionsRelationName:
+            return False
+        theRefactor.pSetContextParam( 'previous_relation', unPreviousVersionsRelationName)        
+        
+        unNextVersionsRelationName = ''
+        try:
+            unNextVersionsRelationName = unNextVersionsField.relationship
+        except:
+            None
+        if not unNextVersionsRelationName:
+            return False
+        theRefactor.pSetContextParam( 'next_relation', unNextVersionsRelationName)        
+        
+        aRelationsLibrary = getToolByName( unOriginalRoot, RELATIONS_LIBRARY)        
+        if not aRelationsLibrary:
+            return False
+        
+        theRefactor.pSetContextParam( 'relations_library', aRelationsLibrary)      
+        
+        theRefactor.pSetContextParam( 'inter_version_uid_fields_cache', { })        
+
+        theRefactor.pSetContextParam( 'change_counter_fields_cache', { })        
+
+        theRefactor.pSetContextParam( 'sources_counters_fields_cache', { })        
+                            
+        return True
+    
+                
+    
+    def fMapValue( self, theSourceValue, theSourceType, theTargetType):
+        
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+      
+        return theSourceValue
+    
+    
+    
+
+     
+    
+    def pRegisterSourceToTargetCorrespondence( self, theSource, theTarget, theMapping):
+        
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return self
+        
+        if ( not theSource) or ( not theTarget):
+            return self
+     
+        unSourceUID = self.vRefactor.vSourceInfoMgr.fGetUID( theSource)
+        if not unSourceUID:
+            return self
+        
+        unTargetUID = self.vRefactor.vTargetInfoMgr.fGetUID( theTarget)
+        if not unTargetUID:
+            return self
+        
+        unosTargetForSource = self.vTargetsForSourcesMap.get( unSourceUID, None)
+        if unosTargetForSource == None:
+            unosTargetForSource = [ set(), [], ]
+            self.vTargetsForSourcesMap[ unSourceUID] = unosTargetForSource
+            
+        unosTargetUIDs = unosTargetForSource[ 0]
+        if not ( unTargetUID in unosTargetUIDs):
+            unosTargetUIDs.add( unTargetUID)
+            unosTargetForSource[ 1].append( theTarget)
+        
+        unosSourceForTarget = self.vSourcesForTargetsMap.get( unTargetUID, None)
+        if unosSourceForTarget == None:
+            unosSourceForTarget = [ set(), [], ]
+            self.vSourcesForTargetsMap[ unTargetUID] = unosSourceForTarget
+            
+        unosSourceUIDs = unosSourceForTarget[ 0]
+        if not ( unSourceUID in unosSourceUIDs):
+            unosSourceUIDs.add( unSourceUID)
+            unosSourceForTarget[ 1].append( theSource)
+            
+        self.vMappingsForTargets[ unTargetUID] = theMapping
+        
+        
+        
+        
+        # #######################################
+        """ Link new version with its previous.
+        
+        """      
+        unPreviousVersionsRelationName = self.vRefactor.fGetContextParam( 'previous_relation')        
+        if unPreviousVersionsRelationName:
+            aRelationsLibrary = self.vRefactor.fGetContextParam( 'relations_library')        
+            if aRelationsLibrary:
+                try:
+                    gRelationsProcessor.process( aRelationsLibrary, connect=[( unTargetUID, unSourceUID, unPreviousVersionsRelationName ), ], disconnect=[])
+                except:
+                    None
+            
+            
+            
+        # #######################################
+        """ Set new version to the same inter version uid as the original.
+        
+        """
+        unInterVersionFieldsCache = self.vRefactor.fGetContextParam( 'inter_version_uid_fields_cache',)  
+        
+        unTypeName = self.vRefactor.vSourceMetaInfoMgr.fTypeName( theSource)
+        
+        unInterVersionField = unInterVersionFieldsCache.get( unTypeName, None)
+        if not unInterVersionField:
+            unInterVersionFieldName = ''
+            try:
+                unInterVersionFieldName = theSource.inter_version_field
+            except:
+                None
+            if unInterVersionFieldName:
+                unSchema = None
+                try:
+                    unSchema = theSource.schema
+                except:
+                    None
+                if unSchema and unSchema.has_key( unInterVersionFieldName):
+                    unInterVersionField = unSchema[ unInterVersionFieldName]
+                    if unInterVersionField:
+                        unInterVersionFieldsCache[ unTypeName] = unInterVersionField
+                        
+        if unInterVersionField:
+            unSourceAccessor = unInterVersionField.getAccessor( theSource)
+            unSourceInterVersionUID = unSourceAccessor()
+            if not unSourceInterVersionUID:
+                unSourceInterVersionUID = theSource.UID()
+                # ACV OJO 20091003 We are writing on the source, while creating a new version: 
+                # may not be a good idea: we did not even check for write access to the source
+                #unSourceMutator = unInterVersionField.getMutator( theSource)
+                #unSourceMutator( unSourceInterVersionUID)
+            
+            unTargetMutator = unInterVersionField.getMutator( theTarget)
+            unTargetMutator( unSourceInterVersionUID)
+            #logging.getLogger( 'ModelDDvlPlone').info( 'target %s  unSourceInterVersionUID %s' % ( '/'.join( theTarget.getPhysicalPath()), unSourceInterVersionUID, ))
+            
+            
+            
+           
+        # #######################################
+        """ Record in the new version the source change counter.
+        
+        """
+        unSourceChangeCounter = 0
+        
+        unChangeCounterFieldsCache = self.vRefactor.fGetContextParam( 'change_counter_fields_cache',)  
+        unChangeCounterField = unChangeCounterFieldsCache.get( unTypeName, None)
+        if not unChangeCounterField:
+            unChangeCounterFieldName = ''
+            try:
+                unChangeCounterFieldName = theSource.change_counter_field
+            except:
+                None
+            if unChangeCounterFieldName:
+                unSchema = None
+                try:
+                    unSchema = theSource.schema
+                except:
+                    None
+                if unSchema and unSchema.has_key( unChangeCounterFieldName):
+                    unChangeCounterField = unSchema[ unChangeCounterFieldName]
+                    if unChangeCounterField:
+                        unChangeCounterFieldsCache[ unTypeName] = unChangeCounterField
+                        
+        if unChangeCounterField:
+            unSourceAccessor = unChangeCounterField.getAccessor( theSource)
+            unSourceChangeCounter = unSourceAccessor()
+            if not unSourceChangeCounter:
+                unSourceChangeCounter = 0
+            
+        unTargetSourcesCounters = { }
+                
+        unSourcesCountersFieldsCache = self.vRefactor.fGetContextParam( 'sources_counters_fields_cache',)  
+        unSourcesCountersField = unSourcesCountersFieldsCache.get( unTypeName, None)
+        if not unSourcesCountersField:
+            unSourcesCountersFieldName = ''
+            try:
+                unSourcesCountersFieldName = theSource.sources_counters_field
+            except:
+                None
+            if unSourcesCountersFieldName:
+                unSchema = None
+                try:
+                    unSchema = theSource.schema
+                except:
+                    None
+                if unSchema and unSchema.has_key( unSourcesCountersFieldName):
+                    unSourcesCountersField = unSchema[ unSourcesCountersFieldName]
+                    if unSourcesCountersField:
+                        unSourcesCountersFieldsCache[ unTypeName] = unSourcesCountersField
+                        
+        if unSourcesCountersField:
+            unTargetAccessor = unSourcesCountersField.getAccessor( theTarget)
+            unTargetSourcesCountersString = unTargetAccessor()
+            if unTargetSourcesCountersString:   
+                try:
+                    unTargetSourcesCounters = eval( unTargetSourcesCountersString)
+                except:
+                    None
+                if not unTargetSourcesCounters:
+                    unTargetSourcesCounters = { }
+                    if not ( unTargetSourcesCounters.__class__.__name__ == 'dict'):
+                        unTargetSourcesCounters = { }
+            
+            unTargetSourcesCounters[ unSourceUID] = unSourceChangeCounter
+        
+            unNewTargetSourcesCountersString = repr( unTargetSourcesCounters)    
+            unTargetMutator = unSourcesCountersField.getMutator( theTarget)
+            try:
+                unTargetMutator( unNewTargetSourcesCountersString)
+            except:
+                None
+            #logging.getLogger( 'ModelDDvlPlone').info( 'target %s  SET unNewTargetSourcesCountersString %s' % ( '/'.join( theTarget.getPhysicalPath()), unNewTargetSourcesCountersString, ))
+            #logging.getLogger( 'ModelDDvlPlone').info( 'target %s  GET unNewTargetSourcesCountersString %s' % ( '/'.join( theTarget.getPhysicalPath()), unTargetAccessor(), ))
+            #logging.getLogger( 'ModelDDvlPlone').info( 'target %s  getContadoresDeFuentes() %s' % ( '/'.join( theTarget.getPhysicalPath()), theTarget.getContadoresDeFuentes(), ))
+
+            #transaction.commit()
+            
+        return self
+    
+    
+    
+    
+    def fGetMappingForTarget( self, theTarget):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return {}
+        
+        if not theTarget:
+            return {}
+        
+        if not self.vMappingsForTargets:
+            return {}
+
+        unTargetUID = self.vRefactor.vTargetInfoMgr.fGetUID( theTarget)
+        if not unTargetUID:
+            return {}
+        
+        unMapping = self.vMappingsForTargets.get( unTargetUID, {})
+        
+        return unMapping
+        
+        
+    def fGetTargets( self, ):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+        
+        todosUIDsAndTargets = self.vTargetsForSourcesMap.values()
+        if not todosUIDsAndTargets:
+            return []
+        
+        todosTargets = []
+        for unosUIDsAndTargets in todosUIDsAndTargets:
+            unosTargets = unosUIDsAndTargets[ 1]
+            if unosTargets:
+                todosTargets += unosTargets
+                
+        return todosTargets
+    
+    
+    
+    
+    def fGetSourcesForTarget( self, theTarget):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+
+        if not theTarget:
+            return None
+        
+        unTargetUID = self.vRefactor.vTargetInfoMgr.fGetUID( theTarget)
+        if not unTargetUID:
+            return None
+        
+        unosUIDsAndSources = self.vSourcesForTargetsMap.get( unTargetUID, None)
+        if not unosUIDsAndSources:
+            return None
+        
+        unosSources = unosUIDsAndSources[ 1]
+        return unosSources
+    
+    
+    
+        
+    def fGetTargetsForSource( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+
+        if not theSource:
+            return None
+        
+        unSourceUID = self.vRefactor.vSourceInfoMgr.fGetUID( theSource)
+        if not unSourceUID:
+            return None
+        
+        unosUIDsAndTargets = self.vTargetsForSourcesMap.get( unSourceUID, None)
+        if not unosUIDsAndTargets:
+            return None
+        
+        unosTargets = unosUIDsAndTargets[ 1]
+        return unosTargets
+    
+        
+    
+  
+
+
+    def pRegisterPloneSourceToTargetCorrespondence( self, theSource, theTarget,):
+        
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return self
+        
+        if ( not theSource) or ( not theTarget):
+            return self
+     
+        unSourceUID = self.vRefactor.vSourceInfoMgr.fGetPloneUID( theSource)
+        if not unSourceUID:
+            return self
+        
+        unTargetUID = self.vRefactor.vTargetInfoMgr.fGetPloneUID( theTarget)
+        if not unTargetUID:
+            return self
+        
+        unosTargetForSource = self.vTargetsForSourcesMap.get( unSourceUID, None)
+        if unosTargetForSource == None:
+            unosTargetForSource = [ set(), [], ]
+            self.vTargetsForSourcesMap[ unSourceUID] = unosTargetForSource
+            
+        unosTargetUIDs = unosTargetForSource[ 0]
+        if not ( unTargetUID in unosTargetUIDs):
+            unosTargetUIDs.add( unTargetUID)
+            unosTargetForSource[ 1].append( theTarget)
+        
+        unosSourceForTarget = self.vSourcesForTargetsMap.get( unTargetUID, None)
+        if unosSourceForTarget == None:
+            unosSourceForTarget = [ set(), [], ]
+            self.vSourcesForTargetsMap[ unTargetUID] = unosSourceForTarget
+            
+        unosSourceUIDs = unosSourceForTarget[ 0]
+        if not ( unSourceUID in unosSourceUIDs):
+            unosSourceUIDs.add( unSourceUID)
+            unosSourceForTarget[ 1].append( theSource)
+            
+        self.vMappingsForTargets[ unTargetUID] = None
+        
+        return self
+    
+    
+    
+    
+    
+    
+    
+    
+    
+class MDDRefactor_NewVersion_Walker ( MDDRefactor_Paste_Walker):
+    """
+    
+    """
+    
+    
+    
+    def fInitInRefactor( self, theRefactor):
+        return MDDRefactor_Paste_Walker.fInitInRefactor( self, theRefactor,)
+
+       
+    
+    
+    
+
+    
+    
+    
+    
+    
+class MDDRefactor_NewVersion_MapperMetaInfoMgr_NoConversion ( MDDRefactor_Role_MapperMetaInfoMgr):
+    """
+    
+    """   
+    def __init__( self, ):
+
+        MDDRefactor_Role_MapperMetaInfoMgr.__init__( self)
+        
+        self.vMappingsByTargetTypeMap = { }
+        
+        
+    
+        
+        
+                
+                
+    def fFirstMappedTypeFromSourceTypeToTargetType( self, theSourceType, theTargetType, ):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if not theSourceType or not theTargetType:
+            return ''
+        
+        return theSourceType
+    
+    
+    
+                 
+                
+    def fCompileMappingFromSourceTypeToMappedType( self, theSourceType, theMappedType, ):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return {}
+        
+        return {}
+        
+
+    
+    def fTargetAggregationConfigAndTypeToAggregateSourceIn( self, theSource, theTarget, ):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return []
+        
+        if not theSource or not theTarget:
+            return []
+        
+        unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( theSource)
+        if not unSourceType:        
+            return []
+        
+        unTargetType = self.vRefactor.vTargetMetaInfoMgr.fTypeName( theTarget)
+        if not unTargetType:
+            return []
+        
+        unasAggregationsWithType = self.vRefactor.vTargetMetaInfoMgr.fAggregationConfigsWithType( unTargetType, unSourceType)
+        if not unasAggregationsWithType:
+            return []
+        
+        return [ unasAggregationsWithType[ 0], unSourceType, ]
+    
+    
+    
+    
+    def fMappingAndTargetAggregationConfigAndTypeToAggregateSourceIn( self, theSource, theTarget, ):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return []
+        
+        if not theSource or not theTarget:
+            return []
+        
+        unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( theSource)
+        if not unSourceType:        
+            return []
+        
+        unTargetType = self.vRefactor.vTargetMetaInfoMgr.fTypeName( theTarget)
+        if not unTargetType:
+            return []
+        
+        unosAggregatedTypes = self.vRefactor.vTargetMetaInfoMgr.fAggregatedTypes( unTargetType)
+        
+        if unSourceType in unosAggregatedTypes:
+            unasAggregationsWithType = self.vRefactor.vTargetMetaInfoMgr.fAggregationConfigsWithType( unTargetType, unSourceType)
+            if unasAggregationsWithType:
+                return [ None, unasAggregationsWithType[ 0], unSourceType, ]
+            
+        return []
+    
+    
+    
+   
+       
+    def fSourceAttributeNameAndTypeForTargetNameAndType( self, theSource, theNameAndTypeToPopulate, theMapping):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return []
+
+        return theNameAndTypeToPopulate
+        
+
+    
+    
+    def fMappedTraversalNameFromSourceForTargetAggregationName( self, theSource, theAggregationName, theMapping):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+
+        return theAggregationName
+
+   
+    def fMappedTraversalNameFromSourceForTargetRelationName( self, theSource, theRelationName, theMapping,):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+
+        return theRelationName
+
+
+    
+    
+    def fMappingAndTargetTypeFromSourceAndAllowedTypes( self, theSource, theAllowedTypes):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return []
+
+        if not theSource or not theAllowedTypes:
+            return []
+        
+        unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( theSource)
+        if not unSourceType:    
+            return []
+
+        return [ None, unSourceType, ]
+
+    
+    
+            
+    
+    def fTargetTypeFromSourceForTargetAggregationTraversalConfig( self, theSource, theTraversalConfig,):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+
+        if not theSource or not theTraversalConfig:
+            return ''
+        
+        unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( theSource)
+        return unSourceType
+        
+    
+    
+    
+    def fTargetTypeFromSourceForTargetRelationTraversalConfig( self, theSource, theTraversalConfig,):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+
+        if not theSource or not theTraversalConfig:
+            return ''
+        
+        unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( theSource)
+        if not unSourceType:        
+            return ''
+        
+        unosAggregatedTypes = self.vRefactor.vTargetMetaInfoMgr.fRelatedTypesFromTraversalConfig( theTraversalConfig)
+        if not unosAggregatedTypes:
+            return ''
+        
+        if unSourceType in unosAggregatedTypes:
+            return unSourceType
+        
+        return ''
+        
+                       
+    def fTraversalNameFromSourceForTargetRelationConfig( self, theSource, theTraversalConfig):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+
+        if not theSource or not theTraversalConfig:
+            return None
+        
+        """StraightCopy : expression is same aggregation name, if source has it
+        
+        """
+        unTargetRelationName = self.vRefactor.vTargetMetaInfoMgr.fRelationNameFromTraversalConfig( theTraversalConfig)
+        someSourceRelationNames = self.vRefactor.vSourceMetaInfoMgr.fRelationNamesFromSource( theSource)
+        
+        if unTargetRelationName in someSourceRelationNames:
+            return unTargetRelationName
+        
+        return ''
+       
+    
+    
+       
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 # ######################################################
@@ -3459,6 +4549,7 @@ class MDDRefactor_Import ( MDDRefactor):
         theZIPFile, 
         theFileNames, 
         theXMLDocument,
+        theXMLEncoding,
         theXMLRootElements,
         theTargetRoot, 
         theTargetRootResult, 
@@ -3471,6 +4562,7 @@ class MDDRefactor_Import ( MDDRefactor):
             'zip_file':                 theZIPFile,
             'file_names':               theFileNames,
             'xml_document':             theXMLDocument,
+            'xml_encoding':             theXMLEncoding,            
             'xml_root_elements':        theXMLRootElements,
             'target_root':              theTargetRoot,
             'target_root_result':       theTargetRootResult,
@@ -3511,10 +4603,33 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
         
         if not self.vRefactor.fGetContextParam( 'xml_root_elements',):
             return False
+
+        unTargetRoot = self.vRefactor.fGetContextParam( 'target_root',)
+        if ( unTargetRoot == None):
+            return False
         
+        aPloneUtilsTool = getToolByName( unTargetRoot, 'plone_utils', None)
+        if ( aPloneUtilsTool == None):
+            return False
+        
+        aSiteEncoding = aPloneUtilsTool.getSiteEncoding()
+        if not aSiteEncoding:
+            aSiteEncoding = cEncodingUTF8
+        
+        self.vRefactor.pSetContextParam( 'site_encoding', aSiteEncoding)
         return True
     
 
+    
+    def fGetSiteEncoding( self,):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return None
+        
+        aSiteEncoding = self.vRefactor.fGetContextParam( 'site_encoding',)
+        return aSiteEncoding
+    
+    
+    
     
     def fGetSourceRoots( self,):
         if not self.vInitialized or not self.vRefactor.vInitialized:
@@ -3535,46 +4650,6 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
     
 
     
-    #def fGetSourcePloneElements( self,):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return None
-        #unosSourceElements = self.vRefactor.fGetContextParam( 'xml_root_elements',) 
-        
-        #unosPloneTypeNames = cPloneTypes.keys()
-        
-        #unosPloneElements = [ ]
-        
-        #for unSourceElement in unosSourceElements:
-            #unTypeName = self.vRefactor.vSourceMetaInfoMgr.fTypeName( unSourceElement)
-            #if unTypeName in unosPloneTypeNames:
-                #unosPloneElements.append( unSourceElement)
-                
-        #return unosPloneElements
-
-    
-    
-    #def fPloneObjects( self, theSource, theAcceptedSourceTypes):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
-            #return []
-        
-        #unosPloneTypeNames = cPloneTypes.keys()
-        
-        #unosPloneObjects = [ ]
-        
-        #unosChildNodes = theSource.childNodes
-        #if not unosChildNodes:
-            #return unosPloneObjects
-        
-        #for unChildNode in unosChildNodes:
-            #unNodeName = unChildNode.nodeName
-            #if unNodeName and not ( unNodeName == cXMLElementName_CommentText):
-                                
-                #if ( unNodeName in unosPloneTypeNames) and (( not theAcceptedSourceTypes) or ( unNodeName in theAcceptedSourceTypes)):
-                    #unosPloneObjects.append( unSourceElement)
-
-        #return unosPloneObjects
-    
-    
     
     
     def fIsSourceReadable( self, theSource):
@@ -3584,6 +4659,8 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
             return False
     
         return True
+    
+    
     
     
     def fIsSourceOk( self, theSource):
@@ -3601,13 +4678,69 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
         return True
     
     
+
+     
+     
+    
+    def fFromUnicodeToSystemEncoding( self, theXMLString,):
+        
+        if not theXMLString:
+            return ''
+        
+        if isinstance( theXMLString, unicode):
+            unStringUnicode = theXMLString
+            
+        else:
+            
+            unStringUnicode = None
+            try:
+                unStringUnicode = theXMLString.decode( cEncodingUTF8, errors=cEncodingErrorHandleMode_Strict)
+            except UnicodeDecodeError:
+                None
+        
+            if not unStringUnicode:
+                return None
+ 
+        unSiteEncoding = self.fGetSiteEncoding()
+        if not unSiteEncoding:
+            unSiteEncoding = cEncodingUTF8
+        
+        unStringEncoded  = None
+        try:
+            unStringEncoded = unStringUnicode.encode( unSiteEncoding, cEncodingErrorHandleMode_Strict)      
+        except UnicodeEncodeError:
+            None
+                
+        if not unStringEncoded:
+            return None
+        
+        return unStringEncoded
+    
+    
+    
+    
     
     def fGetId( self, theSource):
         if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
             return ''
         
         unaId = theSource.getAttribute( cXMLAttributeName_PloneId)
-        return unaId
+        if unaId:
+            unEncoded = self.fFromUnicodeToSystemEncoding( unaId, )
+            return unEncoded
+        
+        unPath = self.fGetPath( theSource)
+        if not unPath:
+            return ''
+        
+        unosPathSteps = unPath.split( '/')
+        if not unosPathSteps:
+            return ''
+        
+        unaId = unosPathSteps[-1:][ 0]
+        
+        unEncoded = self.fFromUnicodeToSystemEncoding( unaId, )
+        return unEncoded
         
     
     
@@ -3616,16 +4749,18 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
             return ''
         
         unaUID = theSource.getAttribute( cXMLAttributeName_PloneUID)
-        return unaUID
+        unEncoded = self.fFromUnicodeToSystemEncoding( unaUID, )
+        return unEncoded    
+    
     
     
     def fGetPath( self, theSource):
         if not self.vInitialized or not self.vRefactor.vInitialized or not self.fIsSourceOk( theSource):
             return ''
         
-        unaUID = theSource.getAttribute( cXMLAttributeName_PlonePath)
-        return unaUID
-    
+        unPath = theSource.getAttribute( cXMLAttributeName_PlonePath)
+        unEncoded = self.fFromUnicodeToSystemEncoding( unPath, )
+        return unEncoded    
      
     
     def fGetTitle( self, theSource):
@@ -3633,45 +4768,10 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
             return ''
         
         unTitle = theSource.getAttribute( cXMLAttributeName_PloneTitle)
-        return unTitle
+        unEncoded = self.fFromUnicodeToSystemEncoding( unTitle, )
+        return unEncoded    
     
     
-    
-    
-
-
-    #def fGetPloneId( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #return self.fGetId( thePloneElement)
-    
-    
-    
-
-    #def fGetPloneUID( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #return self.fGetUID( thePloneElement)
-   
-    
-    
-    #def fGetPloneTitle( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #return self.fGetTitle( thePloneElement)
-    
-    
-    
-    #def fGetPloneContentType( self, thePloneElement):
-        #if not self.vInitialized or not self.vRefactor.vInitialized or ( thePloneElement == None):
-            #return ''
-        
-        #unContentType = self.fGetAttributeValue( 'content_type')
-        #return unContentType
-           
     
     
     def fOwnerPath( self, theSource):
@@ -3705,7 +4805,8 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
         elif theAttributeName.lower() == 'uid':
             return self.fGetUID( theSource)
             
-        
+        unSchema = theSource.schema
+        un
         unosChildNodes = theSource.childNodes
         if not unosChildNodes:
             return None
@@ -3762,15 +4863,17 @@ class MDDRefactor_Import_SourceInfoMgr_XMLElements( MDDRefactor_Role_SourceInfoM
                         unAttrValue = unAttrValue.replace( '\r',' ')
                         unAttrValue = unAttrValue.replace( '\n',' ')
                         unAttrValue = unAttrValue.strip()
-                        
+                        unAttrValue = self.fFromUnicodeToSystemEncoding( unAttrValue, )
                     
                     elif unAttributeType in [ 'text', ]:
                         unAttrValue = unAttrValue.replace( '\r\n','\n')
                         unAttrValue = unAttrValue.replace( '\r','\n')
                         unAttrValue = unAttrValue.strip()
+                        unAttrValue = self.fFromUnicodeToSystemEncoding( unAttrValue, )
                         
                     
                     elif unAttributeType == 'selection':
+                        unAttrValue = self.fFromUnicodeToSystemEncoding( unAttrValue, )
                         pass
                     
                     
@@ -3940,8 +5043,19 @@ class MDDRefactor_Import_SourceMetaInfoMgr_XMLElements( MDDRefactor_Role_SourceM
         return unTypeName
     
     
+    def fGetArchetypeName( self, theSource):
+        if not self.vInitialized or not self.vRefactor.vInitialized:
+            return ''
+        
+        if not theSource:
+            return ''
+        
+        unArchetypeName = theSource.nodeName
+        return unArchetypeName
+    
+    
 
-
+    
     def fPloneTypeName( self, thePloneElement):
         if not self.vInitialized or not self.vRefactor.vInitialized:
             return ''
@@ -4141,7 +5255,7 @@ class MDDRefactor_Import_SourceMetaInfoMgr_XMLElements( MDDRefactor_Role_SourceM
         return False
 
     
-    
+     
     
     
     def fRelationNamesFromSource( self, theSource):
@@ -4213,197 +5327,9 @@ class MDDRefactor_Import_Walker ( MDDRefactor_Paste_Walker):
     
     def fInitInRefactor( self, theRefactor):
         return MDDRefactor_Paste_Walker.fInitInRefactor( self, theRefactor,)
-    
-    
-    
-    
-    
-    
-    def fRefactor( self,):
-        if not self.vInitialized or not self.vRefactor.vInitialized:
-            return  { 'success': False, }
 
-        unosSourceRoots             = self.vRefactor.vSourceInfoMgr.fGetSourceRoots()
-        
-        if not unosSourceRoots :
-            return  { 'success': False, }
-        
-        unTargetRoot = self.vRefactor.vTargetInfoMgr.fGetTargetRoot()
-        if ( unTargetRoot == None):
-            return  { 'success': False, }
-        
-        unTargetRootResult = self.vRefactor.vTargetInfoMgr.fGetTargetRootResult()
-        if ( unTargetRootResult == None):
-            return  { 'success': False, }
-        
-        if not self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'read_permission'):
-            return  { 'success': False, }
-        
-        if not self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'write_permission'):
-            return  { 'success': False, }
-        
-        aVoid = self.fRefactor_IntoRoot( unosSourceRoots, unTargetRoot)
-        
-        aVoid = self.fRefactor_Relations( )
-        
-        return { 'success': True, }
-           
-    
-    
-    
-    
-    
-
-    
-    
-    
-    def fRefactor_IntoRoot( self, theSourceRoots, theTargetRoot):
-        if not self.vInitialized or not self.vRefactor.vInitialized:
-            return None
-    
-        if not theSourceRoots or ( theTargetRoot == None):
-            return None
-        
-        unTargetRootType = self.vRefactor.vTargetMetaInfoMgr.fTypeName( theTargetRoot)
-        if not unTargetRootType:
-            return None
-
-        unTargetRootTitle = self.vRefactor.vTargetInfoMgr.fGetTitle( theTargetRoot)
-        if not unTargetRootTitle:
-            return None
-        
-        unTargetRootResult = self.vRefactor.vTargetInfoMgr.fGetTargetRootResult() 
-        if not unTargetRootResult:
-            return None
-        
-        unTargetRootTypeConfig =  self.vRefactor.vTargetMetaInfoMgr.fTypeConfig( theTargetRoot)     
-        if not unTargetRootTypeConfig:
-            return None
-        
-        unRefactorStack = self.vRefactor.fGetContextParam( 'stack')  
-        if not unRefactorStack:
-            return None
-        
-        someSourcesMappedToSameTypeAsTargetRoot     = [ ]
-        someSourcesMappedToAggregationsInTargetRoot = [ ]
-        
-        for unSourceRoot in theSourceRoots:
-            if self.vRefactor.vSourceInfoMgr.fIsSourceOk( unSourceRoot):
-                
-                if self.vRefactor.vSourceInfoMgr.fIsSourceReadable( unSourceRoot):
-                    
-                    unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( unSourceRoot)
-                    if unSourceType:
-                        
-                        if ( unSourceType == unTargetRootType):
-                            someSourcesMappedToSameTypeAsTargetRoot.append( unSourceRoot)
-                            continue
-                        
-                        unMappedType = self.vRefactor.vMapperMetaInfoMgr.fFirstMappedTypeFromSourceTypeToTargetType( unSourceType, unTargetRootType)
-                        if unMappedType:
-                            
-                            if unMappedType == unTargetRootType:
-                                someSourcesMappedToSameTypeAsTargetRoot.append( unSourceRoot)
-                                continue
-                        
-                        unMappingTargetAggregationConfigAndType = self.vRefactor.vMapperMetaInfoMgr.fMappingAndTargetAggregationConfigAndTypeToAggregateSourceIn( unSourceRoot, theTargetRoot)
-                        if unMappingTargetAggregationConfigAndType and len( unMappingTargetAggregationConfigAndType) > 2:
-                            unaTargetAggregationConfig = unMappingTargetAggregationConfigAndType[ 1]
-                            unTypeToCreate             = unMappingTargetAggregationConfigAndType[ 2]
-                            
-                            if unaTargetAggregationConfig and unTypeToCreate:
-                                someSourcesMappedToAggregationsInTargetRoot.append( unSourceRoot)
-                                continue
-                        
-        if ( not someSourcesMappedToSameTypeAsTargetRoot) and ( not someSourcesMappedToAggregationsInTargetRoot):
-            return None
-        
-        if ( not someSourcesMappedToSameTypeAsTargetRoot):
-            return self.fRefactor_RootAggregations( someSourcesMappedToAggregationsInTargetRoot, theTargetRoot)
-        
-        
-        
-        unTargetRootParent =  aq_parent( aq_inner( theTargetRoot))
-        unosExistingRootSiblings = unTargetRootParent.objectValues()
-        
-        unosExistingRootSiblingsTitles = [ ]
-        
-        for anExistingRootSibling in unosExistingRootSiblings:                
-            unTitle = ''
-            try:
-                unTitle = anExistingRootSibling.Title()
-            except:
-                None
-            if unTitle:
-                unosExistingRootSiblingsTitles.append( unTitle)
-        
-                
-                
-        for unSourceRoot in someSourcesMappedToSameTypeAsTargetRoot:
-        
-            unSourceType = self.vRefactor.vSourceMetaInfoMgr.fTypeName( unSourceRoot)
-            if unSourceType:
-                
-                if ( unSourceType == unTargetRootType):
-                    unMapping = []
-                else:
-                    unMapping = self.vRefactor.vMapperMetaInfoMgr.fCompileMappingFromSourceTypeToMappedType( unSourceType, unTargetRootType, )
-                
-                unSourceRootTitle = self.vRefactor.vSourceInfoMgr.fGetTitle( unSourceRoot)
-                
-                if not ( unSourceRootTitle == unTargetRootTitle):
-                    unNewTargetRootTitle = self.vRefactor.vTargetInfoMgr.fUniqueStringWithCounter( unSourceRootTitle, unosExistingRootSiblingsTitles)
-                    if unNewTargetRootTitle:
-                        theTargetRoot.setTitle( unNewTargetRootTitle)
-                        theTargetRoot.reindexObject( )
-                
-                    
-                self.vRefactor.vMapperInfoMgr.pRegisterSourceToTargetCorrespondence( unSourceRoot, theTargetRoot, unMapping)
-        
-                unRefactorFrame = unRefactorStack.fAddRootStackFrame( self, unSourceRoot, theTargetRoot, unTargetRootTypeConfig, unMapping)
-                if unRefactorFrame:
-                    try:
-                        self.fRefactor_Frame( unRefactorFrame)
-                    finally:
-                        unRefactorStack.fPopStackFrame()
-                                          
-        return self
     
             
     
-    
-    
-    #def fRefactor_IntoRootPloneElements( self, theSourceRootPloneElements, theTargetRoot):
-        #if not self.vInitialized or not self.vRefactor.vInitialized:
-            #return None
-    
-    
-        #if not theSourceRootPloneElements:
-            #return self
-        
-        #if theTargetRoot == None:
-            #return None
-
-        #unTargetRootResult = self.vRefactor.vTargetInfoMgr.fGetTargetRootResult() 
-        #if not unTargetRootResult:
-            #return None
-        
-        #if not self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'traverse_permission'):
-            #return None
-        
-        #if not( self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_collection_permission') or \
-           #self.vRefactor.vTargetInfoMgr.fGetPermissionFromElementResult( unTargetRootResult, 'add_permission')):
-            #return None
-
-        #for unSourcePloneObject in theSourceRootPloneElements:
-            
-            #unPloneFactoryName = self.vRefactor.vSourceMetaInfoMgr.fPlonePortalType( unSourcePloneObject)
-            #if unPloneFactoryName:
-            
-                #unCreatedPloneElement = self.vRefactor.vTargetInfoMgr.fCreatePloneElement( unSourcePloneObject, theTargetRoot, unPloneFactoryName, )
-                #if unCreatedPloneElement:
-                    
-                    #self.vRefactor.vMapperInfoMgr.pRegisterPloneSourceToTargetCorrespondence( unSourcePloneObject, unCreatedPloneElement,)
-        #return self
     
     

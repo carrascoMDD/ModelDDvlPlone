@@ -1,7 +1,7 @@
 <tal:block replace="nothing">
 # -*- coding: utf-8 -*-
 #
-# File: Crear.pt
+# File: MDDNewVersion.pt
 #
 # Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
 #
@@ -34,28 +34,28 @@
 <body>
 
     <metal:main fill-slot="main">
+    
     <tal:main-macro metal:define-macro="main"
         tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero" >
 
-        <div metal:use-macro="here/document_actions/macros/document_actions">
+         <div metal:use-macro="here/document_actions/macros/document_actions">
             Document actions (print, sendto etc)
         </div>
 
-        <h1 tal:content="object_title" class="documentFirstHeading">
+        <h1 tal:content="here/Title" class="documentFirstHeading">
           Title or id
         </h1>
 
         <div metal:use-macro="here/document_byline/macros/byline">
           Get the byline - contains details about author and modification date.
         </div>
-
-        <metal:block metal:use-macro="here/Crear_inner/macros/tCrearInner" />
-
+            
+        <metal:block metal:use-macro="here/MDDNewVersion_inner/macros/tNewVersionInner" />
+            
         <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
- 
+                            
     </tal:main-macro>
 </metal:main>
 
 </body>
 </html>
-
