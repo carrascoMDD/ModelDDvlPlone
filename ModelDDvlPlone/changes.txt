@@ -1,0 +1,61 @@
+Hola Mario,
+
+He producido una nueva version del producto Plone
+
+gvSIG-i18n  y el que lo soporta ModelDDvlPlone,
+
+corrigiendo los errores detectado.
+
+Lo enviare empaquetado la semana que viene,
+
+para que lo instales.
+
+Saludos:
+
+Errores corregidos:
+
+- en Firefox en la pagina de traducciones,
+
+  la respuesta al traducir una cadena con caracteres "lejos" del ascii,
+
+  se mostraba como galimatias (aunque estaba correctamente guardada)
+
+  error causado porque Firefox ya no envia el header accept-charset.
+
+  Corregido haciendo que el servidor establezca el charset de la respuesta a utf-8,
+
+  aun cuando la request no especifique accept-charset.
+
+- en Chrome y Opera
+
+  los iconos de acciones se mostraban en pagina separada
+
+  error causado porque la propiedad de estilo  "display" de la clase TRA...Display
+
+  en Chrome con valor "run-in"
+
+  se comporta de forma diferente que en Firefox. En Chrome debe ser "inline".
+
+  Corregido haciendo que servidor proporcione deficion de clase diferente
+
+  cuando el navegador sea Chrome o Opera o Safari.
+
+- en Chrome y Opera
+
+  Error en la pagina de Traducciones,
+
+  las filas de idiomas de referencia no tienen las columnas alineadas
+
+  con las del idioma principal.
+
+  Error producido porque Chrome y Opera no soportan la propiedad de td rowspan.
+
+  Corregido evitando el uso de td rowspan.
+
+ACV
+
++34 608 792 428
+
++49 157 8484 6999
+
+

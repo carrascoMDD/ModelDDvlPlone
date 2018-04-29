@@ -2,7 +2,7 @@
 #
 # File: MDDPresentationTabular.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -438,26 +438,6 @@ def MDDPresentationTabular(
                 break
 
 
-
-
-        # ACV 20100611 Now done in MDDInteractionTabular such that translations are available to render clipboard and action results.
-        ## #################################################################
-        #"""Retrieve localizations for internationalized strings.
-
-        #"""
-        #if theRdCtxt.fGP( 'theUITranslations', None) == None:
-            
-            #if not cExtensionsForbidden:
-                #anOk, aGo = _fMCtx( True, aRdCtxt, 'MDDExtension_InitUITranslations_Before')(  aRdCtxt)
-                #if not aGo:
-                    #break
-            #anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDInit_UITranslations_Tabular')(          aRdCtxt)
-            #if not aGo:
-                #break
-            #if not cExtensionsForbidden:
-                #anOk, aGo = _fMCtx( True, aRdCtxt, 'MDDExtension_InitUITranslations_After')(   aRdCtxt)
-                #if not aGo:
-                    #break
 
 
 
@@ -2627,13 +2607,10 @@ def _MDDRender_Tabular_Cabecera_OwnerAndContainer( theRdCtxt):
         )
 
         theRdCtxt.pOS( u"""
-                       <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
                        <a id="cid_MDDLink_Propietario"  class="state-visible" title="%(unTituloEnlace)s " 
                        href="%(OWNER-url)sTabular/%(theExtraLinkHrefParams)s#hidMDDElemento_%(SRES-UID)s_title"  >
-                       <img src="%(portal_url)s/propietario.gif" title="%(unTituloEnlace)s" alt="%(OWNER-title)s" id="icon-owner" />
-                       <img src="%(portal_url)s/%(OWNER_icon)s"  title="%(unTituloEnlace)s" alt="%(OWNER-title)s" id="icon-owner" />
-                       <!-- <span>%(OWNER-title)s</span> -->
-                       </a></td></tr></tbody></table>
+                       <img src="%(portal_url)s/propietario.gif" title="%(unTituloEnlace)s" alt="%(OWNER-title)s" id="icon-owner" /><img 
+                           src="%(portal_url)s/%(OWNER_icon)s"  title="%(unTituloEnlace)s" alt="%(OWNER-title)s" id="icon-owner" /></a>
                        """ % {
                                'unTituloEnlace':              fCGIE( unTituloEnlace),
                                'portal_url':                  aSRES[ 'portal_url'],
@@ -2660,13 +2637,10 @@ def _MDDRender_Tabular_Cabecera_OwnerAndContainer( theRdCtxt):
 
         theRdCtxt.pOS( u"""
                        &emsp;
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center"> 
                        <a id="cid_MDDLink_Contenedor"  class="state-visible" title="%(unTituloEnlace)s " 
                        href="%(OWNER-url)sTabular/%(theExtraLinkHrefParams)s#hidMDDElemento_%(SRES-UID)s_title"  >
                        <img src="%(portal_url)s/contenedor.gif" title="%(unTituloEnlace)s" alt="%(OWNER-title)s" id="icon-owner" />
-                       <img src="%(portal_url)s/%(OWNER_icon)s"  title="%(unTituloEnlace)s" alt="%(OWNER-title)s" id="icon-owner" />
-                       <!-- <span>%(OWNER-title)s</span> -->
-                       </a></td></tr></tbody></table>
+                       <img src="%(portal_url)s/%(OWNER_icon)s"  title="%(unTituloEnlace)s" alt="%(OWNER-title)s" id="icon-owner" /></a>
                        """ % {
                                'unTituloEnlace':              fCGIE( unTituloEnlace),
                                'portal_url':                  aSRES[ 'portal_url'],
@@ -2704,13 +2678,10 @@ def _MDDRender_Tabular_Cabecera_Refresh( theRdCtxt):
 
     theRdCtxt.pOS( u"""
                    &emsp;
-                   <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
                    <a id="cid_MDDLink_Refresh"  class="state-visible" title="%(unTituloEnlace)s " 
                    href="%(SRES-url)sTabular/%(theExtraLinkHrefParams)s"  >
                    <img src="%(portal_url)s/refrescar.gif" alt="%(ModelDDvlPlone_refrescar_action_label)s" title="%(ModelDDvlPlone_refrescar_action_label)s" 
-                   id="icon-refrescar" />
-                   <!-- <span>%(ModelDDvlPlone_refrescar_action_label)s</span> -->
-                   </a></td></tr></tbody></table>
+                   id="icon-refrescar" /></a>
                    """ % {
                            'unTituloEnlace':              fCGIE( unTituloEnlace),
                            'portal_url':                  aSRES[ 'portal_url'],
@@ -2749,13 +2720,10 @@ def _MDDRender_Tabular_Cabecera_Textual( theRdCtxt):
 
     theRdCtxt.pOS( u"""
                    &emsp;
-                   <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
                    <a id="cid_MDDLink_Refresh"  class="state-visible" title="%(unTituloEnlace)s " 
                    href="%(SRES-url)sTextual/%(theExtraLinkHrefParams)s"  >
                    <img src="%(portal_url)s/textual.gif" alt="%(ModelDDvlPlone_textual_action_label)s" title="%(ModelDDvlPlone_textual_action_label)s" 
-                   id="icon-refrescar" />
-                   <!-- <span>%(ModelDDvlPlone_textual_action_label)s</span> -->
-                   </a></td></tr></tbody></table>
+                   id="icon-refrescar" /></a>
                    """ % {
                            'unTituloEnlace':              fCGIE( unTituloEnlace),
                            'portal_url':                  aSRES[ 'portal_url'],
@@ -2833,15 +2801,20 @@ def _MDDRender_Tabular_Relation_Cabecera( theRdCtxt):
     theRdCtxt.pOS( u"""
                    <span class="state-visible" id="hidMDDTraversal_%(traversal_name)s_title" >%(traversal_label)s</span>
                    </a>
+                    &emsp;
+                    <font size="2"><strong>            
+                     [#
+                     %(num_elements)d
+                     ]<strong>
+                    </font>                  
                    <font size=1">            
                    &emsp;
                    &emsp;
-                   <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr>
-                   <td id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" valign="top" align="left">
-                   <a title="%(ModelDDvlPlone_Tabular_Sections)s"
+                   <a id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" title="%(ModelDDvlPlone_Tabular_Sections)s"
                    onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                    <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                    """ % {
+                           'num_elements':                   len( aTRAVRES.get( 'elements', [])),
                            'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                            'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
                            'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),
@@ -2867,8 +2840,6 @@ def _MDDRender_Tabular_Relation_Cabecera( theRdCtxt):
 
     theRdCtxt.pOS( u"""
                    </a>
-                   </td>
-                   </tr></tbody></table>
                    </font>            
                    </h2>
                    <p class="formHelp">%(traversal_description)s</p>
@@ -3218,10 +3189,8 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
         if not ( aCursor and ( aCursor[ 'elements_count'] > 1) and (  aCursor[ 'previous_element'] or aCursor[ 'next_element'])):
             return [ False, True,]    
 
-        theRdCtxt.pOS( u"""
+        theRdCtxt.pOS( u"""<span id="cid_MDDSiblingsMenu_Holder"></span>
                        &emsp;
-                       <table   style="display: inline" cellspacing="0" cellpadding="0" frame="void"  ><tbody><tr>
-                       <td  id="cid_MDDSiblingsMenu_Holder" valign="center" >
                        """)
 
         aRelationCursorName = theRdCtxt.fGP( 'theRelationCursorName', '')
@@ -3229,7 +3198,6 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
 
 
         theRdCtxt.pOS( u"""
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
         if aCursor[ 'first_element'] and not ( aCursor[ 'element_index'] == 1) and not ( aCursor[ 'element_index'] == 2):
             unTituloEnlace = u'%s %s %s %s' % ( 
@@ -3255,9 +3223,7 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_First"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/primero.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-first" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/primero.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-first" /></a>
                            """ % {
                                    'unTituloEnlace':              fCGIE( unTituloEnlace),
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3272,9 +3238,7 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
                                })
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
                        &ensp;
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3303,9 +3267,7 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_Previous"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/anterior.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-previous" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/anterior.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-previous" /></a>
                            """ % {
                                    'unTituloEnlace':              unTituloEnlace,
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3320,8 +3282,6 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
                                })
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3363,8 +3323,6 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
         #})
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
-                       <table cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3393,9 +3351,7 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_Previous"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/siguiente.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-next" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/siguiente.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-next" /></a>
                            """ % {
                                    'unTituloEnlace':              fCGIE( unTituloEnlace),
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3411,9 +3367,7 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
 
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
                        &ensp;
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3442,9 +3396,7 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_last"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/ultimo.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-last" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/ultimo.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-last" /></a>
                            """ % {
                                    'unTituloEnlace':              fCGIE( unTituloEnlace),
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3459,8 +3411,6 @@ def _MDDRender_Tabular_Cabecera_Cursor( theRdCtxt):
                                })
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
-                       </td></tr></tbody></table>
                        """)    
 
 
@@ -3514,8 +3464,7 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
 
         theRdCtxt.pOS( u"""
                        &emsp;
-                       <table   style="display: inline" cellspacing="0" cellpadding="0" frame="void"  ><tbody><tr>
-                       <td  id="cid_MDDSiblingsMenu_Holder" valign="center" >
+                       <span  id="cid_MDDSiblingsMenu_Holder"></span>
                        """)
 
         aRelationCursorName = theRdCtxt.fGP( 'theRelationCursorName', '')
@@ -3523,7 +3472,6 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
 
 
         theRdCtxt.pOS( u"""
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
         if aCursor[ 'first_element'] and not ( aCursor[ 'element_index'] == 1) and not ( aCursor[ 'element_index'] == 2):
             unTituloEnlace = u'%s %s %s %s' % ( 
@@ -3549,9 +3497,7 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_First"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/primero.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-first" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/primero.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-first" /></a>
                            """ % {
                                    'unTituloEnlace':              fCGIE( unTituloEnlace),
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3566,9 +3512,7 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
                                })
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
                        &ensp;
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3597,9 +3541,7 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_Previous"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/anterior.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-previous" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/anterior.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-previous" /></a>
                            """ % {
                                    'unTituloEnlace':              unTituloEnlace,
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3614,8 +3556,6 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
                                })
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3657,8 +3597,6 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
         #})
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
-                       <table cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3687,9 +3625,7 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_Previous"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/siguiente.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-next" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/siguiente.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-next" /></a>
                            """ % {
                                    'unTituloEnlace':              fCGIE( unTituloEnlace),
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3705,9 +3641,7 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
 
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
                        &ensp;
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr><td valign="center">
                        """)
 
 
@@ -3736,9 +3670,7 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
             theRdCtxt.pOS( u"""
                            <a id="cid_MDDLink_last"  class="state-visible" title="%(unTituloEnlace)s " 
                            href="%(aLinkHREF)s"  >
-                           <img src="%(portal_url)s/ultimo.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-last" />
-                           <!-- <span>%(ELEMENT-title)s</span> -->
-                           </a>
+                           <img src="%(portal_url)s/ultimo.gif" title="%(unTituloEnlace)s" alt="%(ELEMENT-title)s" id="icon-last" /></a>
                            """ % {
                                    'unTituloEnlace':              fCGIE( unTituloEnlace),
                                    'portal_url':                  aSRES[ 'portal_url'],
@@ -3753,8 +3685,6 @@ def _MDDRender_Tabular_Relation_Cabecera_Cursor( theRdCtxt):
                                })
 
         theRdCtxt.pOS( u"""
-                       </td></tr></tbody></table>
-                       </td></tr></tbody></table>
                        """)    
 
 
@@ -3787,9 +3717,7 @@ def _MDDRender_Tabular_Cabecera_SectionsMenu_Anchor( theRdCtxt):
                    &emsp;
                    &emsp;
                    <font size="1">
-                   <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr>
-                   <td id="cid_MDDTOC_Holder" valign="top" align="left" >
-                   <a style="cursor: pointer" title="Sections-"
+                   <a id="cid_MDDTOC_Holder" style="cursor: pointer" title="Sections-"
                    onclick="document.getElementById( 'cid_MDDTOC_Holder').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated'); return true;">
                    <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                    """ % {
@@ -3812,8 +3740,6 @@ def _MDDRender_Tabular_Cabecera_SectionsMenu_Anchor( theRdCtxt):
 
     theRdCtxt.pOS( u"""
                    </a>
-                   </td>
-                   </tr></tbody></table>
                    </font>  
                    """ % {
                            'portal_url':                        aSRES[ 'portal_url'],
@@ -3854,11 +3780,10 @@ def _MDDRender_Tabular_Cabecera_ChangeActions( theRdCtxt):
 
         theRdCtxt.pOS( u"""
                        &emsp;
-                       <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
                        <a id="cid_MDDActionLink_Editar"  class="state-visible" title="%(unTituloEnlace)s " 
                        href="%(SRES-url)sEditar/%(theExtraLinkHrefParams)s"  >
                        <img src="%(portal_url)s/edit.gif" alt="%(ModelDDvlPlone_editar_action_label)s" title="%(ModelDDvlPlone_editar_action_label)s" 
-                       id="icon-edit" />
+                       id="icon-edit" /></a>
                        """ % {
                                'unTituloEnlace':              fCGIE( unTituloEnlace),
                                'portal_url':                  aSRES[ 'portal_url'],
@@ -3869,16 +3794,16 @@ def _MDDRender_Tabular_Cabecera_ChangeActions( theRdCtxt):
                                'ModelDDvlPlone_editar_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_editar_action_label'),
                            })
 
-        if aPREFS_PRES.get( 'DisplayActionLabels', False):
-            theRdCtxt.pOS( u"""
-                           <span>%(ModelDDvlPlone_editar_action_label)s</span>
-                           """ % {
-                                   'ModelDDvlPlone_editar_action_label':    theRdCtxt.fUITr( 'ModelDDvlPlone_editar_action_label',),
-                               })
+        #if aPREFS_PRES.get( 'DisplayActionLabels', False):
+            #theRdCtxt.pOS( u"""
+                           #<span>%(ModelDDvlPlone_editar_action_label)s</span>
+                           #""" % {
+                                   #'ModelDDvlPlone_editar_action_label':    theRdCtxt.fUITr( 'ModelDDvlPlone_editar_action_label',),
+                               #})
 
-        theRdCtxt.pOS( u"""
-                       </a></td></tr></tbody></table>
-                       """ )
+        #theRdCtxt.pOS( u"""
+                       #</a>
+                       #""" )
 
 
 
@@ -3897,11 +3822,10 @@ def _MDDRender_Tabular_Cabecera_ChangeActions( theRdCtxt):
 
         theRdCtxt.pOS( u"""
                        &emsp;
-                       <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
                        <a id="cid_MDDActionLink_Eliminar"  class="state-visible" title="%(unTituloEnlace)s " 
                        href="%(SRES-url)sEliminar/%(theExtraLinkHrefParams)s"  >
                        <img src="%(portal_url)s/delete_icon.gif" alt="%(ModelDDvlPlone_eliminar_action_label)s" title="%(ModelDDvlPlone_eliminar_action_label)s" 
-                       id="icon-delete" />
+                       id="icon-delete" /></a>
                        """ % {
                                'unTituloEnlace':              fCGIE( unTituloEnlace),
                                'portal_url':                  aSRES[ 'portal_url'],
@@ -3913,16 +3837,16 @@ def _MDDRender_Tabular_Cabecera_ChangeActions( theRdCtxt):
                            })
 
 
-        if aPREFS_PRES.get( 'DisplayActionLabels', False):
-            theRdCtxt.pOS( u"""
-                           <span>%(ModelDDvlPlone_editar_action_label)s</span>
-                           """ % {
-                                   'ModelDDvlPlone_editar_action_label':    theRdCtxt.fUITr( 'ModelDDvlPlone_editar_action_label',),
-                               })
+        #if aPREFS_PRES.get( 'DisplayActionLabels', False):
+            #theRdCtxt.pOS( u"""
+                           #<span>%(ModelDDvlPlone_editar_action_label)s</span>
+                           #""" % {
+                                   #'ModelDDvlPlone_editar_action_label':    theRdCtxt.fUITr( 'ModelDDvlPlone_editar_action_label',),
+                               #})
 
-        theRdCtxt.pOS( u"""
-                       </a></td></tr></tbody></table>
-                       """)
+        #theRdCtxt.pOS( u"""
+                       #</a>
+                       #""")
 
     return [ True, True,]
 
@@ -3958,11 +3882,10 @@ def _MDDRender_Tabular_Cabecera_ClipboardActions( theRdCtxt):
 
         theRdCtxt.pOS( u"""
                        &emsp;
-                       <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
                        <a id="cid_MDDActionLink_Copy"  class="state-visible" title="%(unTituloEnlace)s " 
                        href="%(SRES-url)sobject_copy"  >
                        <img src="%(portal_url)s/copy_icon.gif" alt="%(Copy)s" title="%(Copy)s" 
-                       id="icon-edit" />
+                       id="icon-edit" /></a>
                        """ % {
                                'unTituloEnlace':              fCGIE( unTituloEnlace),
                                'portal_url':                  aSRES[ 'portal_url'],
@@ -3974,16 +3897,16 @@ def _MDDRender_Tabular_Cabecera_ClipboardActions( theRdCtxt):
                            })
 
 
-        if aPREFS_PRES.get( 'DisplayActionLabels', False):
-            theRdCtxt.pOS( u"""
-                           <span>%(Copy)s</span>
-                           """ % {
-                                   'Copy':    theRdCtxt.fUITr( 'Copy',),
-                               })
+        #if aPREFS_PRES.get( 'DisplayActionLabels', False):
+            #theRdCtxt.pOS( u"""
+                           #<span>%(Copy)s</span>
+                           #""" % {
+                                   #'Copy':    theRdCtxt.fUITr( 'Copy',),
+                               #})
 
-        theRdCtxt.pOS( u"""
-                       </a></td></tr></tbody></table>
-                       """)
+        #theRdCtxt.pOS( u"""
+                       #</a>
+                       #""")
 
 
     unPermitePegar = aSRES[ 'read_permission'] and aSRES[ 'write_permission'] and aSRES[ 'allow_paste']    
@@ -4005,11 +3928,10 @@ def _MDDRender_Tabular_Cabecera_ClipboardActions( theRdCtxt):
 
                 theRdCtxt.pOS( u"""
                                &emsp;
-                               <table  cellspacing="0" cellpadding="0" frame="void"  style="display: inline" ><tbody><tr><td valign="center">
                                <a id="cid_MDDActionLink_Eliminar"  class="state-visible" title="%(unTituloEnlace)s " 
                                href="%(SRES-url)sobject_paste"  >
                                <img src="%(portal_url)s/paste_icon.gif" alt="%(Paste)s" title="%(Paste)s" 
-                               id="icon-delete" />
+                               id="icon-delete" /></a>
                                """ % {
                                        'unTituloEnlace':              fCGIE( unTituloEnlace),
                                        'portal_url':                  aSRES[ 'portal_url'],
@@ -4020,17 +3942,17 @@ def _MDDRender_Tabular_Cabecera_ClipboardActions( theRdCtxt):
                                        'Paste': theRdCtxt.fUITr( 'Paste'),
                                    })
 
-                if aPREFS_PRES.get( 'DisplayActionLabels', False):
-                    theRdCtxt.pOS( u"""
-                                   <span>%(Paste)s</span>
-                                   """ % {
-                                           'Paste':    theRdCtxt.fUITr( 'Paste'),
-                                       })
+                #if aPREFS_PRES.get( 'DisplayActionLabels', False):
+                    #theRdCtxt.pOS( u"""
+                                   #<span>%(Paste)s</span>
+                                   #""" % {
+                                           #'Paste':    theRdCtxt.fUITr( 'Paste'),
+                                       #})
 
 
-                theRdCtxt.pOS( u"""
-                               </a></td></tr></tbody></table>
-                               """ )
+                #theRdCtxt.pOS( u"""
+                               #</a>
+                               #""" )
 
     return [ True, True,]
 
@@ -4073,7 +3995,7 @@ def _MDDRender_Tabular_Values( theRdCtxt):
 
     if not aExcludeID:
         theRdCtxt.pOS( u"""
-                       <tr id="hidMDDValues_Row_id" class="%(RowClass)s" 
+                       <tr id="hidMDDValues_Row_id" class="%(RowClass)s" >
                        <td align="left">
                        <strong id="hidMDDValores_Row_id_label">%(ModelDDvlPlone_id_label)s</strong>
                        &emsp;
@@ -4204,9 +4126,7 @@ def _MDDRender_Tabular_Texts( theRdCtxt):
                                <span   id="hidMDDTexto_%(attribute_name)s_help" class="formHelp">%(attribute_description)s</span>  
                                &emsp;
                                &emsp;
-                               <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr>
-                               <td id="cid_MDDTOC_Holder_Texto_%(attribute_name)s" valign="top" align="left">
-                               <a    title="%(ModelDDvlPlone_Tabular_Sections)s"
+                               <a id="cid_MDDTOC_Holder_Texto_%(attribute_name)s"    title="%(ModelDDvlPlone_Tabular_Sections)s"
                                onclick="
                                document.getElementById( 'cid_MDDTOC_Holder_Texto_%(attribute_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); 
                                replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');">
@@ -4239,8 +4159,6 @@ def _MDDRender_Tabular_Texts( theRdCtxt):
 
                 theRdCtxt.pOS( u"""
                                </a>
-                               </td>
-                               </tr></tbody></table>
                                </th>
                                </tr>
                                </thead>
@@ -4574,15 +4492,24 @@ def _MDDRender_Tabular_SinColeccionEnTabla( theRdCtxt):
         theRdCtxt.pOS( u"""
                        <h2 id="hidMDDTraversal_%(traversal_name)s_label" >
                        %(traversal_label)s
+                       &emsp;
+                       <font size="2"><strong>            
+                        [#
+                        %(num_elements)d
+                        ]<strong>
+                       </font>
                        <font size=1">            
                        &emsp;
                        &emsp;
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr>
-                       <td id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" valign="top" align="left">
-                       <a title="%(ModelDDvlPlone_Tabular_Sections)s"
-                       onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
-                       <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
+                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" >
+                            <tbody>
+                                <tr>
+                                    <td id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" valign="top" align="left">
+                                        <a title="%(ModelDDvlPlone_Tabular_Sections)s"
+                                        onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
+                                        <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                        """ % {
+                               'num_elements':                     len( someElements),
                                'portal_url':                       aSRES[ 'portal_url'],
                                'ModelDDvlPlone_Tabular_Sections':  theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                                'traversal_name':                   fCGIE( aTRAVRES[ 'traversal_name']),        
@@ -4673,6 +4600,12 @@ def _MDDRender_Tabular_ColeccionesEnTabla( theRdCtxt):
     theRdCtxt.pOS( u"""
                    <h2 id="hidMDDTraversal_%(traversal_name)s_label" >
                    %(traversal_label)s
+                    &emsp;
+                    <font size="2"><strong>            
+                     [#
+                     %(num_elements)d
+                     ]<strong>
+                    </font>
                    <font size=1">
                    &emsp;
                    &emsp;
@@ -4682,6 +4615,7 @@ def _MDDRender_Tabular_ColeccionesEnTabla( theRdCtxt):
                    onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                    <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                    """ % {
+                           'num_elements':                       len( someElements),
                            'portal_url':                         aSRES[ 'portal_url'],
                            'ModelDDvlPlone_Tabular_Sections':    theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                            'traversal_name':                     fCGIE( aTRAVRES[ 'traversal_name']),        
@@ -5042,6 +4976,12 @@ def _MDDRender_Tabular_ColeccionEnTabla_Header( theRdCtxt):
                    title="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(SRES-title)s" />
                    <span id="hidMDDElemento_%(SRES-UID)s_title" class="state-visible">%(Element-title)s</span>
                    </a>
+                    &emsp;
+                    <font size="2"><strong>            
+                     [#
+                     %(num_elements)d
+                     ]<strong>
+                    </font>
                    <font size=1" style="font-weight: normal;">            
                    &emsp;
                    &emsp;
@@ -5051,6 +4991,8 @@ def _MDDRender_Tabular_ColeccionEnTabla_Header( theRdCtxt):
                    onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s_%(SRES-id)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                    <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                    """ % {
+                            'num_elements':                       len( aSRES.get( 'traversals', [ { 'elements': 0,},])[0].get( 'elements', [])),
+                            
                            'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
                            'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
@@ -7044,6 +6986,12 @@ def _MDDRender_Tabular_ReferenciasEnTabla( theRdCtxt):
         theRdCtxt.pOS( u"""
                        <span class="state-visible" id="hidMDDTraversal_%(traversal_name)s_title" >%(traversal_label)s</span>
                        </a>
+                    &emsp;
+                    <font size="2"><strong>            
+                     [#
+                     %(num_elements)d
+                     ]<strong>
+                    </font>                  
                        <font size=1">            
                        &emsp;
                        &emsp;
@@ -7053,6 +7001,7 @@ def _MDDRender_Tabular_ReferenciasEnTabla( theRdCtxt):
                        onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                        <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                        """ % {
+                               'num_elements':               unNumElements,
                                'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                                'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
                                'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),

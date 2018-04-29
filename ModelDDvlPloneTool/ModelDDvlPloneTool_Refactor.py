@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Refactor.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -57,13 +57,11 @@ from Products.CMFCore.utils import getToolByName
 
 from ModelDDvlPloneTool_Refactor_Constants      import *
 
-from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
 
 from ModelDDvlPloneTool_Profiling               import ModelDDvlPloneTool_Profiling
 
-from MDD_RefactorComponents                     import MDDRefactor_Paste
 
-from ModelDDvlPloneToolSupport               import fPrettyPrint
+from ModelDDvlPloneToolSupport                  import fPrettyPrint
 
 
 
@@ -337,16 +335,37 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
             'status':                   '',
             'condition':                None,
             'exception':                '',
-            'num_elements_pasted':      0,
-            'num_mdd_elements_pasted':  0,
-            'num_plone_elements_pasted': 0,
-            'num_elements_failed':      0,
-            'num_mdd_elements_failed':  0,
-            'num_plone_elements_failed': 0,
-            'num_elements_bypassed':      0,
-            'num_mdd_elements_bypassed':  0,
+
+            'num_elements_expected':       0,
+            'num_mdd_elements_expected':   0,
+            'num_plone_elements_expected': 0,
+            'num_attributes_expected':     0,
+            'num_links_expected':          0,
+            
+            'num_elements_pasted':         0,
+            'num_mdd_elements_pasted':     0,
+            'num_plone_elements_pasted':   0,
+            'num_attributes_pasted':       0,
+            'num_links_pasted':            0,
+            
+            'num_elements_failed':         0,
+            'num_mdd_elements_failed':     0,
+            'num_plone_elements_failed':   0,
+            'num_attributes_failed':       0,
+            'num_links_failed':            0,
+            
+            'num_elements_bypassed':       0,
+            'num_mdd_elements_bypassed':   0,
             'num_plone_elements_bypassed': 0,
-            'error_reports':            [ ],
+            'num_attributes_bypassed':     0,
+            'num_links_bypassed':          0,
+            
+            'num_elements_imported_by_type':      { },            
+            
+            'impacted_objects_UIDs':       [ ],
+            
+            'error_reports':               [ ],
+            
         }
         return unInforme
     
@@ -621,6 +640,9 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
         
         """
         
+        from MDDRefactor_Paste                  import MDDRefactor_Paste
+        
+        
         if not ( theTimeProfilingResults == None):
             self.pProfilingStart( 'fPaste', theTimeProfilingResults)
                       
@@ -631,8 +653,10 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                 # ##############################################################################
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
-                """      
-                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
+                """   
+                aModelDDvlPloneTool_Transactions = theModelDDvlPloneTool.fModelDDvlPloneTool_Transactions( theContainerObject)
+                if not ( aModelDDvlPloneTool_Transactions == None):
+                    aModelDDvlPloneTool_Transactions.fTransaction_Savepoint( theOptimistic=True)
                 
                 unPasteContext = self.fNewVoidPasteContext()
                 unPasteReport  = unPasteContext.get( 'report', {})
@@ -830,7 +854,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point.
                 
                 """      
-                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
+                aModelDDvlPloneTool_Transactions.fTransaction_Savepoint( theOptimistic=True)
                 
                 unHuboRefactorException  = False
                 unHuboException  = False
@@ -884,11 +908,12 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                     'num_attributes_bypassed':     unRefactor.vNumAttributesBypassed,
                     'num_links_bypassed':          unRefactor.vNumLinksBypassed,
                     'impacted_objects_UIDs':       unRefactor.vImpactedObjectUIDs,
+                    'num_elements_imported_by_type': unRefactor.vNumElementsPastedByType,
                 })
                 unPasteReport[ 'error_reports'].extend( unRefactor.vErrorReports )
                         
                 
-                ModelDDvlPloneTool_Transactions().fTransaction_Commit()
+                aModelDDvlPloneTool_Transactions.fTransaction_Commit()
                 if cLogPasteResults:
                     logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fPaste\n%s' % ( self.__class__.__name__, fPrettyPrint( [ unPasteReport, ])))
                     

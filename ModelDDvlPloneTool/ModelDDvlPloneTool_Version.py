@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Version.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -55,7 +55,7 @@ from ModelDDvlPloneTool_ImportExport_Constants import *
 from ModelDDvlPloneTool_Transactions           import ModelDDvlPloneTool_Transactions
 from ModelDDvlPloneTool_Retrieval              import ModelDDvlPloneTool_Retrieval
 from ModelDDvlPloneTool_Profiling              import ModelDDvlPloneTool_Profiling
-from MDD_RefactorComponents                    import MDDRefactor_NewVersion
+from MDDRefactor_NewVersion                    import MDDRefactor_NewVersion
 
 from ModelDDvlPloneToolSupport               import fPrettyPrint
 
@@ -341,6 +341,9 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
         
         if not theVersioningInfo:
             return self
+        
+        if theModelDDvlPloneTool_Retrieval == None:
+            return self        
 
         unVersionedElement = theVersioningInfo.get( 'element', None)
         if ( unVersionedElement == None):
@@ -353,10 +356,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             unAlreadyVisited = { }
             
         
-        unModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool_Retrieval
-        if not unModelDDvlPloneTool_Retrieval:
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
-        
+         
         
         unInterVersionUIDFieldsCache = theInterVersionUIDFieldsCache
         if ( unInterVersionUIDFieldsCache == None):
@@ -387,24 +387,24 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
         
         
         unId        = unVersionedElement.getId()
-        theVersioningInfo[ 'id']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unId, unVersionedElement)
+        theVersioningInfo[ 'id']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unId, unVersionedElement)
         
         unaURL = unVersionedElement.absolute_url()
         if not ( unaURL[-1:] == '/'):
             unaURL = '%s/' % unaURL                
-        theVersioningInfo[ 'url'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaURL, unVersionedElement)
+        theVersioningInfo[ 'url'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaURL, unVersionedElement)
          
         unaUID = unVersionedElement.UID()
-        theVersioningInfo[ 'UID'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaUID, unVersionedElement)
+        theVersioningInfo[ 'UID'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaUID, unVersionedElement)
          
         unTitle        = unVersionedElement.Title()
-        theVersioningInfo[ 'title']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unTitle, unVersionedElement)
+        theVersioningInfo[ 'title']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unTitle, unVersionedElement)
         
         unaDescription = unVersionedElement.Description()
-        theVersioningInfo[ 'description'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unaDescription, unVersionedElement)
+        theVersioningInfo[ 'description'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unaDescription, unVersionedElement)
         
         unPath        = '/'.join( unVersionedElement.getPhysicalPath())
-        theVersioningInfo[ 'path']       = unModelDDvlPloneTool_Retrieval.fAsUnicode( unPath, unVersionedElement)
+        theVersioningInfo[ 'path']       = theModelDDvlPloneTool_Retrieval.fAsUnicode( unPath, unVersionedElement)
         
         unInterVersionUID    = None
         unVersionName        = None
@@ -447,7 +447,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unInterVersionUID == None):
-                theVersioningInfo[ 'inter_version_uid'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unInterVersionUID, unVersionedElement)
+                theVersioningInfo[ 'inter_version_uid'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unInterVersionUID, unVersionedElement)
             
                     
         
@@ -479,7 +479,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unVersionName == None):
-                theVersioningInfo[ 'version'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionName, unVersionedElement)
+                theVersioningInfo[ 'version'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionName, unVersionedElement)
                 if not ( theAllVersionsByName == None):
                     if theAllVersionsByName.has_key( unVersionName):
                         raise "Duplicate_Version_Name"
@@ -510,7 +510,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
             except:
                 None
             if not ( unVersionComment == None):
-                theVersioningInfo[ 'version_comment'] = unModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionComment, unVersionedElement)
+                theVersioningInfo[ 'version_comment'] = theModelDDvlPloneTool_Retrieval.fAsUnicode( unVersionComment, unVersionedElement)
         
         
             
@@ -595,7 +595,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                             
                             self.pRetrieveVersionInfo_Inner( 
                                 theTimeProfilingResults             =theTimeProfilingResults,
-                                theModelDDvlPloneTool_Retrieval     =unModelDDvlPloneTool_Retrieval,
+                                theModelDDvlPloneTool_Retrieval     =theModelDDvlPloneTool_Retrieval,
                                 theRetrievePreviousVersions         =theRecurse,
                                 theRetrieveNextVersions             =False,
                                 theRecurse                          =theRecurse,
@@ -653,7 +653,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                             
                             self.pRetrieveVersionInfo_Inner( 
                                 theTimeProfilingResults             =theTimeProfilingResults,
-                                theModelDDvlPloneTool_Retrieval     =unModelDDvlPloneTool_Retrieval,
+                                theModelDDvlPloneTool_Retrieval     =theModelDDvlPloneTool_Retrieval,
                                 theRetrievePreviousVersions         =False,
                                 theRetrieveNextVersions             =theRecurse,
                                 theRecurse                          =theRecurse,

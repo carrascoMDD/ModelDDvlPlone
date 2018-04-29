@@ -1,0 +1,139 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDFlushCachedTemplatesSelected.pt
+#
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#
+</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+    lang="en"
+    metal:use-macro="here/main_template/macros/master"
+    i18n:domain="plone">
+<body>
+
+	<metal:main fill-slot="main">
+		<tal:main-macro metal:define-macro="main"
+			tal:define="text string:Copyright 2008, 2009, 2010 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+			global pStartTime       pStartTime | python: here.MDDModelDDvlPlone_tool.fMillisecondsNow()" >
+	
+		<div metal:use-macro="here/document_actions/macros/document_actions">
+			Document actions (print, sendto etc)
+		</div>
+	
+		<h1 tal:content="object_title" class="documentFirstHeading">
+			Title or id
+		</h1>
+	
+		<div metal:use-macro="here/document_byline/macros/byline">
+			Get the byline - contains details about author and modification date.
+		</div>
+	
+		<tal:block tal:define="		
+			pCacheName                   request/theCacheName                   | string:;
+			pProjectName                 request/theProjectName                 | string:;
+			pLanguage                    request/theLanguage                    | string:;
+			pRoot                        request/theRoot                        | string:;
+			pFlushCacheCode              request/theFlushCacheCode              | string:12341234;  
+			pFlushDiskCache              request/theFlushDiskCache              | string:;" >
+			
+			<p>
+				<a class="state-visible" id="cid_backToElement" href="#" tal:attributes="href python: '%s/' % here.absolute_url()">
+					<font size="3">
+						<strong tal:content="python: u'%s %s' % (
+							here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
+							here.MDDModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
+					</font>
+				</a>
+				
+				&emsp;&emsp;
+				<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus' % here.absolute_url()" >
+					<font size="2">
+						<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+					</font>
+				</a>        
+				
+				&emsp;&emsp;
+				<a class="state-visible" id="cid_CacheDiagnostics_Link" href="#" tal:attributes="href python: '%s/MDDCacheDiagnostics' % here.absolute_url()">
+					<font size="2">
+						<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheDiagnostics_action_label', 'Cache Diagnostics-',)" />
+					</font>
+				</a>
+				
+				&emsp;&emsp;
+				<a class="state-visible" id="cid_CacheDiagnostics_Link" href="#" tal:attributes="href python: '%s/MDDInspectCache?theCacheName=%s' % ( here.absolute_url(), pCacheName,)">
+					<font size="2">
+						<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_InspectCache_action_label', 'Inspect Cache-',)" />
+					</font>
+				</a>
+			</p>
+		
+							
+			
+			<tal:block tal:condition="not: pProjectName">
+				<p>
+					<font size="2" color="red" >
+						<strong tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NoProjectNameToFlush', 'Missing Project name to Flush-',)" />
+					</font>
+					<br/>
+					<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_ChooseAProjectToFlushInCacheInspectionPage', 'Choose a Project to Flush in the Cache Inspection page-',)" />
+					<br/>
+					<span tal:content="python: here.MDDModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_FlushTheWholeCacheFromStatusPage', 'Alternatively, Flush the whole Cache from the Cache Status page-',)" />
+				</p>
+				<br/>
+			</tal:block>
+			
+			<tal:block tal:condition="pProjectName">
+				<tal:block tal:condition="python: pFlushCacheCode">
+					<tal:block tal:define="aNumberFlushedEntries python: here.MDDModelDDvlPlone_tool.fFlushCachedTemplatesSelected( 
+						here, 
+						theCacheName   =pCacheName,
+						theProjectName =pProjectName, 
+						theLanguage    =pLanguage, 
+						theRoot        =pRoot, 
+						theFlushDiskCache=pFlushDiskCache,
+						)" >
+						<font size="3">
+							<bold>
+								<p tal:condition="python: aNumberFlushedEntries" tal:content="python: 'SUCCESS: FLUSHED from Memory %s %d Entries from Cache %s, in Project %s, Language %s, and Root %s' % ( (( pFlushDiskCache and 'and DISK') or ''), aNumberFlushedEntries, pCacheName, pProjectName, pLanguage, pRoot, )" />
+								<p tal:condition="python: not aNumberFlushedEntries" tal:content="python: 'FAILURE: NOT Flushed from Memory %s %d Entries from Cache %s Entries from Project %s, Language %s, and Root %s' % ( (( pFlushDiskCache and 'and DISK') or ''), aNumberFlushedEntries, pCacheName, pProjectName, pLanguage, pRoot, )" />
+							</bold>
+						</font>
+					</tal:block>
+				</tal:block>
+				<tal:block tal:condition="not: pFlushCacheCode">
+					<p tal:content="python: 'Parameters missing to Flush Cache Entry'" />
+				</tal:block>
+		
+			</tal:block>
+				
+		
+		</tal:block>
+	</tal:main-macro>
+</metal:main>
+
+</body>
+</html>
+

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# File: ModelDDvlPloneMutators.py
+# File: ModelDDvlPloneTool_Mutators.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -76,6 +76,9 @@ from ModelDDvlPloneTool_Retrieval               import cChangeLogFieldNameField
 
 from ModelDDvlPloneTool_Profiling               import ModelDDvlPloneTool_Profiling
 from ModelDDvlPloneTool_Retrieval               import ModelDDvlPloneTool_Retrieval
+
+from ModelDDvlPloneTool_Mutators_Constants      import *
+
 from ModelDDvlPloneTool_Mutators_Plone          import ModelDDvlPloneTool_Mutators_Plone
 from ModelDDvlPloneTool_Mutators_Plone          import cModificationKind_DeletePloneSubElement, cModificationKind_DeletePloneSubElement_abbr
 from ModelDDvlPloneTool_Mutators_Plone          import cModificationKind_MovePloneSubObject,    cModificationKind_MovePloneSubObject_abbr
@@ -83,256 +86,6 @@ from ModelDDvlPloneTool_Mutators_Plone          import cModificationKind_MovePlo
 from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
 
 from ModelDDvlPloneToolSupport                  import fEvalString,  fReprAsString, fSecondsNow 
-
-
-
-
-
-
-# #############################################
-"""Configuraton value should be in ModelDDvlPloneTool Preferences.
-
-"""
-cMaxChangeMillisDifference_ForSameEntries = 60 * 1000 # ACV OJO in debug. For runtime make it 100 ms
-
-
-
-
-
-
-# #############################################
-"""Token symbols for change entries representation, abbreviated and long.
-
-"""
-
-cModificationKind_ChangeValues         = 'Change Values'
-cModificationKind_MoveSubObject        = 'Move Sub Object'
-cModificationKind_MoveReferencedObject = 'Move Referenced Object'
-cModificationKind_Link                 = 'Link'
-cModificationKind_Unlink               = 'Unlink'
-cModificationKind_DeleteSubElement     = 'Delete SubElement'
-cModificationKind_Delete               = 'Delete'
-cModificationKind_CreateSubElement     = 'Create SubElement'
-cModificationKind_Create               = 'Create'
-cModificationKind_Process              = 'Process'
-
-cModificationKinds = [
-    cModificationKind_ChangeValues,
-    cModificationKind_MoveSubObject,
-    cModificationKind_MoveReferencedObject,
-    cModificationKind_Link,
-    cModificationKind_Unlink,
-    cModificationKind_DeleteSubElement,
-    cModificationKind_Delete,
-    cModificationKind_CreateSubElement,
-    cModificationKind_Create,
-    cModificationKind_DeletePloneSubElement,
-    cModificationKind_Process,
-]
-
-
-
-cModificationKind_ChangeValues_abbr         = 'chg'
-cModificationKind_MoveSubObject_abbr        = 'mvs'
-cModificationKind_MoveReferencedObject_abbr = 'mvr'
-cModificationKind_Link_abbr                 = 'lnk'
-cModificationKind_Unlink_abbr               = 'uln'
-cModificationKind_DeleteSubElement_abbr     = 'des'
-cModificationKind_Delete_abbr               = 'del'
-cModificationKind_CreateSubElement_abbr     = 'crs'
-cModificationKind_Create_abbr               = 'cre'
-cModificationKind_MovePloneSubObject_abbr   = 'mvp'
-cModificationKind_Process_abbr              = 'pro'
-
-cModificationKinds_Abbreviated = [
-    cModificationKind_ChangeValues_abbr,
-    cModificationKind_MoveSubObject_abbr,
-    cModificationKind_MoveReferencedObject_abbr,
-    cModificationKind_Link_abbr,
-    cModificationKind_Unlink_abbr,
-    cModificationKind_DeleteSubElement_abbr,
-    cModificationKind_Delete_abbr,
-    cModificationKind_CreateSubElement_abbr,
-    cModificationKind_Create_abbr,
-    cModificationKind_MovePloneSubObject_abbr,
-    cModificationKind_Process_abbr,
-]
-
-
-
-cModificationKinds_AbbreviationsByName = {
-    cModificationKind_ChangeValues:            cModificationKind_ChangeValues_abbr,
-    cModificationKind_MoveSubObject:           cModificationKind_MoveSubObject_abbr,
-    cModificationKind_MoveReferencedObject:    cModificationKind_MoveReferencedObject_abbr,
-    cModificationKind_Link:                    cModificationKind_Link_abbr,
-    cModificationKind_Unlink:                  cModificationKind_Unlink_abbr,
-    cModificationKind_DeleteSubElement:        cModificationKind_DeleteSubElement_abbr,
-    cModificationKind_Delete:                  cModificationKind_Delete_abbr,
-    cModificationKind_CreateSubElement:        cModificationKind_CreateSubElement_abbr,
-    cModificationKind_Create:                  cModificationKind_Create_abbr,
-    cModificationKind_DeletePloneSubElement:   cModificationKind_DeletePloneSubElement_abbr,
-    cModificationKind_MovePloneSubObject:      cModificationKind_MovePloneSubObject_abbr,
-    cModificationKind_Process:                 cModificationKind_Process_abbr,
-    
-}
-
-cModificationKinds_ByAbbreviation = dict( [ ( anAbbr, aKind) for aKind, anAbbr in cModificationKinds_AbbreviationsByName.items()])
-
-
-#cChangeDetails_Temp_TransactionObject = 'tran'
-
-    
-cChangeDetails_ChangeKind              = 'kind'
-cChangeDetails_UserId                  = 'user'
-cChangeDetails_ChangeDate              = 'ms'
-cChangeDetails_Details                 = 'dets'
-cChangeDetails_ChangeCounter           = 'ctr'
-cChangeDetails_NewFieldValue           = 'newv'
-cChangeDetails_FieldChanges            = 'flds'
-cChangeDetails_Relation                = 'rel'
-cChangeDetails_TargetPath              = 'tpath'
-cChangeDetails_TargetUID               = 'tuid'
-cChangeDetails_TargetTitle             = 'ttit'
-cChangeDetails_NewElementTitle         = 'ntit'
-cChangeDetails_NewElementId            = 'nid'
-cChangeDetails_NewElementUID           = 'nuid'
-cChangeDetails_NewElementMetaType      = 'nmt'
-cChangeDetails_NewElementArchetypeName = 'nar'
-cChangeDetails_DeletedElementTitle     = 'dtit'
-cChangeDetails_DeletedElementId        = 'did'
-cChangeDetails_DeletedElementPath      = 'dph'
-cChangeDetails_DeletedElementUID       = 'duid'
-cChangeDetails_DeletedElementMetaType  = 'dty'
-cChangeDetails_DeletedElementArchetypeName='dar'
-cChangeDetails_MovedElementTitle       = 'mtit'
-cChangeDetails_MovedElementId          = 'mid'
-cChangeDetails_MovedElementPath        = 'mph'
-cChangeDetails_MovedElementUID         = 'muid'
-cChangeDetails_MovedElementMetaType    = 'mty'
-cChangeDetails_MovedElementArchetypeName='mar'
-cChangeDetails_IncludedDeleted         = 'dele'
-cChangeDetails_Position                = 'pos'
-cChangeDetails_Delta                   = 'delta'
-cChangeDetails_TraversalName           = 'trav'
-cChangeDetails_ProcessName             = 'proc'
-cChangeDetails_ProcessParameters       = 'parms'
-
-
-cChangeDetails_keys = [
-    cChangeDetails_ChangeKind,
-    cChangeDetails_UserId,
-    cChangeDetails_ChangeDate,
-    cChangeDetails_Details,
-    cChangeDetails_ChangeCounter,
-    cChangeDetails_NewFieldValue, 
-    cChangeDetails_FieldChanges,  
-    cChangeDetails_Relation,      
-    cChangeDetails_TargetPath,    
-    cChangeDetails_TargetTitle,     
-    cChangeDetails_TargetUID,     
-    cChangeDetails_NewElementTitle,   
-    cChangeDetails_NewElementId,   
-    cChangeDetails_NewElementUID,
-    cChangeDetails_NewElementMetaType,
-    cChangeDetails_NewElementArchetypeName,
-    cChangeDetails_DeletedElementTitle,        
-    cChangeDetails_DeletedElementId,        
-    cChangeDetails_DeletedElementPath,      
-    cChangeDetails_DeletedElementUID,       
-    cChangeDetails_DeletedElementMetaType,  
-    cChangeDetails_DeletedElementArchetypeName,   
-    cChangeDetails_MovedElementTitle,        
-    cChangeDetails_MovedElementId,        
-    cChangeDetails_MovedElementPath,      
-    cChangeDetails_MovedElementUID,       
-    cChangeDetails_MovedElementMetaType,  
-    cChangeDetails_MovedElementArchetypeName,   
-    cChangeDetails_IncludedDeleted,
-    cChangeDetails_Position,
-    cChangeDetails_Delta,
-    cChangeDetails_TraversalName,
-    cChangeDetails_ProcessName,
-    cChangeDetails_ProcessParameters,
-]
-
-
-cChangeDetails_ChangeKind_long                        = 'Kind'
-cChangeDetails_UserId_long                            = 'User Id'
-cChangeDetails_ChangeDate_long                        = 'Date'
-cChangeDetails_Details_long                           = 'Details'
-cChangeDetails_ChangeCounter_long                     = 'Counter'
-cChangeDetails_NewFieldValue_long                     = 'New Field Value' 
-cChangeDetails_FieldChanges_long                      = 'Field Changes'  
-cChangeDetails_Relation_long                          = 'Relation'      
-cChangeDetails_TargetPath_long                        = 'Target Path'    
-cChangeDetails_TargetTitle_long                       = 'Target Title'     
-cChangeDetails_TargetUID_long                         = 'Target UID'     
-cChangeDetails_NewElementTitle_long                   = 'New Element Title'   
-cChangeDetails_NewElementId_long                      = 'New Element Id'   
-cChangeDetails_NewElementUID_long                     = 'New Element UID'
-cChangeDetails_NewElementMetaType_long                = 'New Element MetaType'
-cChangeDetails_NewElementArchetypeName_long           = 'New Element ArchetypeName'
-cChangeDetails_DeletedElementTitle_long               = 'Deleted Element Title'        
-cChangeDetails_DeletedElementId_long                  = 'Deleted Element Id'        
-cChangeDetails_DeletedElementPath_long                = 'Deleted Element Path'      
-cChangeDetails_DeletedElementUID_long                 = 'Deleted Element UID'       
-cChangeDetails_DeletedElementMetaType_long            = 'Deleted Element MetaType'  
-cChangeDetails_DeletedElementArchetypeName_long       = 'Deleted Element ArchetypeName'   
-cChangeDetails_MovedElementTitle_long                 = 'Moved Element Title'        
-cChangeDetails_MovedElementId_long                    = 'Moved Element Id'        
-cChangeDetails_MovedElementPath_long                  = 'Moved Element Path'      
-cChangeDetails_MovedElementUID_long                   = 'Moved Element UID'       
-cChangeDetails_MovedElementMetaType_long              = 'Moved Element MetaType'  
-cChangeDetails_MovedElementArchetypeName_long         = 'Moved Element ArchetypeName'   
-cChangeDetails_IncludedDeleted_long                   = 'Included Deleted'
-cChangeDetails_Position_long                          = 'Position'
-cChangeDetails_Delta_long                             = 'Delta'
-cChangeDetails_TraversalName_long                     = 'Traversal Name'
-cChangeDetails_ProcessName_long                       = 'Process Name'
-cChangeDetails_ProcessParameters_long                 = 'Process Parameters'
-    
-    
-
-cChangeDetails_long_byAbbreviation = {    
-    cChangeDetails_ChangeKind:                      cChangeDetails_ChangeKind_long,                  
-    cChangeDetails_UserId:                          cChangeDetails_UserId_long,                      
-    cChangeDetails_ChangeDate:                      cChangeDetails_ChangeDate_long,                  
-    cChangeDetails_Details:                         cChangeDetails_Details_long,                     
-    cChangeDetails_ChangeCounter:                   cChangeDetails_ChangeCounter_long,               
-    cChangeDetails_NewFieldValue:                   cChangeDetails_NewFieldValue_long,               
-    cChangeDetails_FieldChanges:                    cChangeDetails_FieldChanges_long,                
-    cChangeDetails_Relation:                        cChangeDetails_Relation_long,                    
-    cChangeDetails_TargetPath:                      cChangeDetails_TargetPath_long,                  
-    cChangeDetails_TargetTitle:                     cChangeDetails_TargetTitle_long,                   
-    cChangeDetails_TargetUID:                       cChangeDetails_TargetUID_long,                   
-    cChangeDetails_NewElementTitle:                 cChangeDetails_NewElementTitle_long,                
-    cChangeDetails_NewElementId:                    cChangeDetails_NewElementId_long,                
-    cChangeDetails_NewElementUID:                   cChangeDetails_NewElementUID_long,               
-    cChangeDetails_NewElementMetaType:              cChangeDetails_NewElementMetaType_long,          
-    cChangeDetails_NewElementArchetypeName:         cChangeDetails_NewElementArchetypeName_long,     
-    cChangeDetails_DeletedElementTitle:             cChangeDetails_DeletedElementTitle_long,            
-    cChangeDetails_DeletedElementId:                cChangeDetails_DeletedElementId_long,            
-    cChangeDetails_DeletedElementPath:              cChangeDetails_DeletedElementPath_long,          
-    cChangeDetails_DeletedElementUID:               cChangeDetails_DeletedElementUID_long,           
-    cChangeDetails_DeletedElementMetaType:          cChangeDetails_DeletedElementMetaType_long,      
-    cChangeDetails_DeletedElementArchetypeName:     cChangeDetails_DeletedElementArchetypeName_long, 
-    cChangeDetails_MovedElementTitle:               cChangeDetails_MovedElementTitle_long,              
-    cChangeDetails_MovedElementId:                  cChangeDetails_MovedElementId_long,              
-    cChangeDetails_MovedElementPath:                cChangeDetails_MovedElementPath_long,            
-    cChangeDetails_MovedElementUID:                 cChangeDetails_MovedElementUID_long,             
-    cChangeDetails_MovedElementMetaType:            cChangeDetails_MovedElementMetaType_long,        
-    cChangeDetails_MovedElementArchetypeName:       cChangeDetails_MovedElementArchetypeName_long,   
-    cChangeDetails_IncludedDeleted:                 cChangeDetails_IncludedDeleted_long,             
-    cChangeDetails_Position:                        cChangeDetails_Position_long,                    
-    cChangeDetails_Delta:                           cChangeDetails_Delta_long,                       
-    cChangeDetails_TraversalName:                   cChangeDetails_TraversalName_long,    
-    cChangeDetails_ProcessName:                     cChangeDetails_ProcessName_long,
-    cChangeDetails_ProcessParameters:               cChangeDetails_ProcessParameters_long,
-}    
-        
-    
-
-
 
 
 
@@ -360,7 +113,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     
     security.declarePrivate( 'pImpactChangeValuesIntoReport')
-    def pImpactChangeValuesIntoReport( self, theChangedElement, theChangeReport):
+    def pImpactChangeValuesIntoReport( self, theModelDDvlPloneTool_Retrieval, theChangedElement, theChangeReport):
 
         if theChangeReport == None:
             return self
@@ -501,11 +254,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
                             
                 if aMustImpactAllRelatedContainerAndOwners:
-                    
-                    aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()                
-                    
+                                        
                     for aRelatedUID in allRelatedUIDs:
-                        aRelatedElement = aModelDDvlPloneTool_Retrieval.fElementoPorUID( aRelatedUID, theChangedElement)
+                        aRelatedElement = theModelDDvlPloneTool_Retrieval.fElementoPorUID( aRelatedUID, theChangedElement)
                         if not ( aRelatedElement == None):
                             
                             unVoid = self.fImpactChangedContenedorYPropietario_IntoReport( aRelatedElement, theChangeReport)
@@ -702,6 +453,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
     security.declarePrivate( 'fChangeValues')
     def fChangeValues(self , 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,
         theElement              =None, 
         theNewValuesDict        =None,
@@ -717,7 +469,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             someFieldReports    = aReport.get( 'field_reports')
             aFieldReportsByName = aReport.get( 'field_reports_by_name')
 
-            if ( theElement == None) or not theNewValuesDict:
+            if ( theModelDDvlPloneTool == None) or ( theElement == None) or not theNewValuesDict:
                 return None
 
     
@@ -738,8 +490,15 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     unosPosiblesNombresAtributos.append( otroNombreAtributo)
                 else:
                     unosPosiblesNombresAtributos.append( unNombreAtributo)
-                          
-            unResult = ModelDDvlPloneTool_Retrieval().fRetrieveTypeConfig( 
+             
+                    
+                    
+                    
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theElement)
+            if aModelDDvlPloneTool_Retrieval == None:
+                return None
+            
+            unResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theElement, 
                 theParent                   =None,
@@ -831,7 +590,6 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                             
                             if unCurrentId:
                             
-                                aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
                                 unCurrentIdResult = aModelDDvlPloneTool_Retrieval.fNewVoidValueResult()
                                 unCurrentIdResult.update({ 
                                     'attribute_name':           'id', 
@@ -1094,7 +852,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 
             if unAnyAttributeChanged:
                 
-                self.pImpactChangeValuesIntoReport( theElement, aReport)
+                self.pImpactChangeValuesIntoReport( aModelDDvlPloneTool_Retrieval, theElement, aReport)
                 
                 self.pSetAudit_Modification( theElement, cModificationKind_ChangeValues, aReport)       
                 
@@ -1140,6 +898,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     security.declarePrivate( 'fMoveSubObject')
     def fMoveSubObject(self , 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,
         theContainerElement     =None,  
         theTraversalName        =None, 
@@ -1157,10 +916,13 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
             aMoveReport = self.fNewVoidMoveSubObjectReport()
             
-            if ( theContainerElement == None)  or not  theTraversalName or not theMovedObjectId or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
+            if ( theModelDDvlPloneTool == None) or ( theContainerElement == None)  or ( not  theTraversalName)  or ( not theMovedObjectId)  or ( not theMoveDirection) or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
                 return aMoveReport
                         
-            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContainerElement)
+            if aModelDDvlPloneTool_Retrieval == None:
+                return aMoveReport
+            
             unResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theContainerElement, 
@@ -1361,6 +1123,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
   
     security.declarePrivate( 'fMoveReferencedObject')
     def fMoveReferencedObject(self , 
+        theModelDDvlPloneTool   =None,
         theTimeProfilingResults =None,
         theSourceElement        =None,  
         theReferenceFieldName   =None, 
@@ -1375,10 +1138,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
             aMoveReport = self.fNewVoidMoveReferencedObjectReport()
             
-            if not theSourceElement or not  theReferenceFieldName or not theMovedReferenceUID or not theMoveDirection or not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
+            if ( theModelDDvlPloneTool == None) or ( theSourceElement == None)  or ( not  theReferenceFieldName) or (not theMovedReferenceUID) or ( not theMoveDirection) or  not ( theMoveDirection.lower() in ['up', 'down', 'top', 'bottom', ]):
                 return aMoveReport
             
-            aModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theSourceElement)
             unResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theSourceElement, 
@@ -1588,6 +1351,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
     security.declarePrivate( 'fLinkToUIDReferenceFieldNamed')
     def fLinkToUIDReferenceFieldNamed(self , 
+        theModelDDvlPloneTool   = None,
         theTimeProfilingResults =None,
         theSourceElement        =None, 
         theReferenceFieldName   =None, 
@@ -1603,7 +1367,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
         try:
     
-            if not theSourceElement or not theReferenceFieldName or not theTargetUID:
+            if ( theModelDDvlPloneTool == None) or ( theSourceElement == None) or not theReferenceFieldName or not theTargetUID:
                 return None
       
             aReport = self.fNewVoidLinkReport()
@@ -1612,6 +1376,12 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             someLinkReports         = aReport[ 'link_reports']
             aFieldReportsByName     = {}
      
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContainerElement)
+            if aModelDDvlPloneTool_Retrieval == None:
+                aReportForObject = { 'effect': 'error', 'failure': 'no_fModelDDvlPloneTool_Retrieval',}
+                someSourceObjectReports.append( aReportForObject)
+                return aReport
+                
             
             unSchema = theSourceElement.schema
             if not unSchema.has_key( theReferenceFieldName):
@@ -1648,11 +1418,11 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             except:
                 None
 
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
-            unTranslationsCaches        = unModelDDvlPloneTool_Retrieval.fCreateTranslationsCaches()
-            unCheckedPermissionsCache   = unModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
+
+            unTranslationsCaches        = aModelDDvlPloneTool_Retrieval.fCreateTranslationsCaches()
+            unCheckedPermissionsCache   = aModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
                 
-            unSourceElementResult = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            unSourceElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theSourceElement, 
                 theParent                   =None,
@@ -1690,7 +1460,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someSourceObjectReports.append( aReportForObject)
                 return aReport
          
-            unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unSourceElementResult, [ 'traversals', 'values',])
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unSourceElementResult, [ 'traversals', 'values',])
 
             unaSourceTraversalResult = unSourceElementResult[ 'traversals_by_name'].get( theReferenceFieldName, {})
             if not unaSourceTraversalResult:
@@ -1714,7 +1484,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if unInverseRelationFieldName:
                 unLimitToRelations.append( unInverseRelationFieldName)
                 
-            unTargetElement = unModelDDvlPloneTool_Retrieval.fElementoPorUID( theTargetUID, theSourceElement)
+            unTargetElement = aModelDDvlPloneTool_Retrieval.fElementoPorUID( theTargetUID, theSourceElement)
             if not unTargetElement:
                 aReportForObject = { 'effect': 'error', 'failure': 'get_by_uid_failure', }
                 someTargetObjectReports.append( aReportForObject)
@@ -1730,7 +1500,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someTargetObjectReports.append( aReportForObject)
                 return aReport                            
                         
-            unTargetElementResult = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            unTargetElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =unTargetElement, 
                 theParent                   =None,
@@ -1760,7 +1530,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
             if unInverseRelationFieldName:
                 
-                unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unTargetElementResult, [ 'traversals','values',])
+                aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unTargetElementResult, [ 'traversals','values',])
 
                 unaTargetTraversalResult = unTargetElementResult[ 'traversals_by_name'].get( unInverseRelationFieldName, {})
                 if not unaTargetTraversalResult:
@@ -1977,11 +1747,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             except:
                 None
 
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
-            unTranslationsCaches        = unModelDDvlPloneTool_Retrieval.fCreateTranslationsCaches()
-            unCheckedPermissionsCache   = unModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
+            unTranslationsCaches        = aModelDDvlPloneTool_Retrieval.fCreateTranslationsCaches()
+            unCheckedPermissionsCache   = aModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
 
-            unSourceElementResult = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            unSourceElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theSourceElement, 
                 theParent                   =None,
@@ -2019,7 +1788,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someSourceObjectReports.append( aReportForObject)
                 return aReport
          
-            unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unSourceElementResult, [ 'traversals','values',])
+            aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unSourceElementResult, [ 'traversals','values',])
             
             unaSourceTraversalResult = unSourceElementResult[ 'traversals_by_name'].get( theReferenceFieldName, {})
             if not unaSourceTraversalResult:
@@ -2033,7 +1802,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if unInverseRelationFieldName:
                 unLimitToRelations.append( unInverseRelationFieldName)
 
-            unTargetElement = unModelDDvlPloneTool_Retrieval.fElementoPorUID( theTargetUID, theSourceElement)
+            unTargetElement = aModelDDvlPloneTool_Retrieval.fElementoPorUID( theTargetUID, theSourceElement)
             if not unTargetElement:
                 aReportForObject = { 'effect': 'error', 'failure': 'get_by_uid_failure', }
                 someTargetObjectReports.append( aReportForObject)
@@ -2044,7 +1813,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 someTargetObjectReports.append( aReportForObject)
                 return aReport                            
                         
-            unTargetElementResult = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            unTargetElementResult = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =unTargetElement, 
                 theParent                   =None,
@@ -2077,7 +1846,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 return aReport
 
             if unInverseRelationFieldName:
-                unModelDDvlPloneTool_Retrieval.pBuildResultDicts( unTargetElementResult, [ 'traversals','values',])
+                aModelDDvlPloneTool_Retrieval.pBuildResultDicts( unTargetElementResult, [ 'traversals','values',])
                 
                 unaTargetTraversalResult = unTargetElementResult[ 'traversals_by_name'].get( unInverseRelationFieldName, {})
                 if not unaTargetTraversalResult:
@@ -2203,8 +1972,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     security.declarePrivate( 'fCrearElementoDeTipo')
     def fCrearElementoDeTipo(self, 
+        theModelDDvlPloneTool   = None,
         theTimeProfilingResults =None,
-        theContainerElement      =None, 
+        theContainerElement     =None, 
         theTypeName             ='', 
         theId                   =None,
         theTitle                ='', 
@@ -2225,10 +1995,17 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
 
             aReport = self.fNewVoidCreateElementReport()
 
-            if ( theContainerElement == None)  or not  theTypeName or not theTitle:
+            if ( theModelDDvlPloneTool == None) or ( theContainerElement == None)  or not  theTypeName or not theTitle:
                 aReport.update( { 'effect': 'error', 'failure': 'required_parameters_missing', })
-                return aReport     
+                return aReport    
+
                 
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContainerElement)
+            if aModelDDvlPloneTool_Retrieval == None:
+                aReport.update( { 'effect': 'error', 'failure': 'no_fModelDDvlPloneTool_Retrieval', })
+                return aReport    
+
+            
             unTranslationService = theTranslationService
             if not unTranslationService:
                 try:
@@ -2244,11 +2021,12 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if unTranslationService:
                 unaDescription = unTranslationService.encode( unaDescription)
             
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
-            unTranslationsCaches = unModelDDvlPloneTool_Retrieval.fCreateTranslationsCaches()
-            unCheckedPermissionsCache = unModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
+            
+            
+            unTranslationsCaches      = aModelDDvlPloneTool_Retrieval.fCreateTranslationsCaches()
+            unCheckedPermissionsCache = aModelDDvlPloneTool_Retrieval.fCreateCheckedPermissionsCache()
                         
-            unResultadoContenedor = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            unResultadoContenedor = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =theContainerElement, 
                 theParent                   =None,
@@ -2401,7 +2179,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             self.pSetElementPermissions( unElementoEnContenedor)
             
             
-            #unNuevoResultadoContenedor = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            #unNuevoResultadoContenedor = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 #theTimeProfilingResults     =theTimeProfilingResults,
                 #theElement                  =theContainerElement, 
                 #theParent                   =None,
@@ -2439,7 +2217,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             
             self.pImpactCreateIntoReport( theContainerElement, aNewObject, aReport)            
                         
-            unResultadoNuevoElemento = unModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
+            unResultadoNuevoElemento = aModelDDvlPloneTool_Retrieval.fRetrieveTypeConfig( 
                 theTimeProfilingResults     =theTimeProfilingResults,
                 theElement                  =aNewObject, 
                 theParent                   =None,
@@ -2655,7 +2433,10 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 aDeleteReport.update( { 'effect': 'error', 'failure': 'No theModelDDvlPloneTool', })
                 return aDeleteReport                 
 
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theElement)
+            if aModelDDvlPloneTool_Retrieval == None:
+                aDeleteReport.update( { 'effect': 'error', 'failure': 'No fModelDDvlPloneTool_Retrieval', })
+                return aDeleteReport                 
                         
             unSecondsNow = fSecondsNow()            
             if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theElement)):
@@ -2666,12 +2447,12 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                 aDeleteReport.update( { 'effect': 'error', 'failure': 'required_parameters_missing', })
                 return aDeleteReport     
                 
-            unTargetElement = unModelDDvlPloneTool_Retrieval.fElementoPorUID( theUIDToDelete, theElement)
+            unTargetElement = aModelDDvlPloneTool_Retrieval.fElementoPorUID( theUIDToDelete, theElement)
             if not unTargetElement:
                 aDeleteReport.update( { 'effect': 'error', 'failure': 'get_by_uid_failure', })
                 return aDeleteReport    
 
-            unElementDeleteImpactReport = unModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
+            unElementDeleteImpactReport = aModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
                 theModelDDvlPloneTool   =theModelDDvlPloneTool,
                 theTimeProfilingResults =theTimeProfilingResults,
                 theElement              =unTargetElement,
@@ -2700,7 +2481,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                     
             
             
-            self.pImpactDeleteImpactReportIntoReport( unTargetElement, unElementDeleteImpactReport, aDeleteReport)
+            self.pImpactDeleteImpactReportIntoReport( aModelDDvlPloneTool_Retrieval, unTargetElement, unElementDeleteImpactReport, aDeleteReport)
             
             aDeleteReport.update( { 
                 'effect':                'deleted', 
@@ -2731,12 +2512,12 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
    
     
     security.declarePrivate( 'pImpactDeleteImpactReportIntoReport')
-    def pImpactDeleteImpactReportIntoReport( self, theElement, theElementDeleteImpactReport, theDeleteReport):
+    def pImpactDeleteImpactReportIntoReport( self, theModelDDvlPloneTool_Retrieval, theElement, theElementDeleteImpactReport, theDeleteReport):
  
-        if ( theElement == None) or ( not theElementDeleteImpactReport) or ( not theDeleteReport):
+        if ( theModelDDvlPloneTool_Retrieval == None) or ( theElement == None) or ( not theElementDeleteImpactReport) or ( not theDeleteReport):
             return self
     
-        unosElementsToBeDeleted, unosRelatedElements = ModelDDvlPloneTool_Retrieval().fObjectsToDeleteAndRelated_FromImpactReport( theElementDeleteImpactReport)
+        unosElementsToBeDeleted, unosRelatedElements = theModelDDvlPloneTool_Retrieval.fObjectsToDeleteAndRelated_FromImpactReport( theElementDeleteImpactReport)
         
         
         unosImpactedObjectsUIDs = theDeleteReport[ 'impacted_objects_UIDs']
@@ -2817,7 +2598,9 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             if theModelDDvlPloneTool == None:
                 return [  { 'effect': 'error', 'failure': 'No theModelDDvlPloneTool', }, ]
 
-            unModelDDvlPloneTool_Retrieval = ModelDDvlPloneTool_Retrieval()
+            aModelDDvlPloneTool_Retrieval = theModelDDvlPloneTool.fModelDDvlPloneTool_Retrieval( theContainerElement)
+            if aModelDDvlPloneTool_Retrieval == None:
+                return [  { 'effect': 'error', 'failure': 'No fModelDDvlPloneTool_Retrieval', }, ]
             
             unSecondsNow = fSecondsNow()            
             if not(  (unSecondsNow >= theRequestSeconds) and ( unSecondsNow - theRequestSeconds) < theModelDDvlPloneTool.fSecondsToReviewAndDelete( theContainerElement)):
@@ -2849,7 +2632,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
             for anUIDIndex in range( unNumUIDsToDelete):
                 anElementUID = someUIDsToDelete[  anUIDIndex]
                 anElementId  = someIdsToDelete[   anUIDIndex]
-                unElementToDelete = unModelDDvlPloneTool_Retrieval.fElementoPorUID( anElementUID, theContainerElement)
+                unElementToDelete = aModelDDvlPloneTool_Retrieval.fElementoPorUID( anElementUID, theContainerElement)
                 if ( unElementToDelete == None):
                     someElementDeleteReports.append( { 'effect': 'error', 'failure': 'get_by_uid_failure', 'uid': anElementUID, 'id': anElementId},)
                 else:
@@ -2870,7 +2653,7 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
                               
                 aDeleteReport = self.fNewVoidDeleteElementReport()
             
-                unElementDeleteImpactReport = unModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
+                unElementDeleteImpactReport = aModelDDvlPloneTool_Retrieval.fDeleteImpactReport( 
                     theModelDDvlPloneTool   =theModelDDvlPloneTool,
                     theTimeProfilingResults =theTimeProfilingResults,
                     theElement              =unElementToDelete,
@@ -2950,21 +2733,72 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     
     
+    
+    
+    security.declarePrivate(   'fMethodNameSetPermissionsElement')
+    def fMethodNameSetPermissionsElement(self, theElement,):     
+        if ( theElement == None):
+            return ''
+        
+        aMethodName = ''
+        try:
+            aMethodName = theElement.fMethodNameSetPermissions()
+        except:
+            None
+            
+        return aMethodName
+    
+    
+    
+    
+    security.declarePrivate(   'fMethodSetPermissionsElement')
+    def fMethodSetPermissionsElement(self, theElement,):     
+        if ( theElement == None):
+            return None
+        
+        aMethodName = self.fMethodNameSetPermissionsElement( theElement,)
+        if not aMethodName:
+            return None
+        
+        aMethod = None
+        try:
+            aMethod = getattr( theElement, aMethodName)
+        except:
+            None
+            
+        return aMethod
+    
+    
+        
+    
     security.declarePrivate(   'pSetElementPermissions')
     def pSetElementPermissions(self, theElement, thePermissionsNotToSet=[],):     
         if ( theElement == None):
             return self
 
-        somePermissionsAndRoles = self.fElementPermissionsAndRolesToSetForElement( theElement)
+        aPermissionsSet = False
         
-        for aPermissionAndRoles in somePermissionsAndRoles:
-            unaPermission = aPermissionAndRoles[ 0]
-            if unaPermission:
-                unosRoles = aPermissionAndRoles[ 1]
-                if unosRoles:
-                    unAcquire = aPermissionAndRoles[ 2]
-
-                    theElement.manage_permission( unaPermission, roles=unosRoles, acquire=unAcquire)
+        aMethod = self.fMethodSetPermissionsElement( theElement)
+        if aMethod:
+            
+            try:
+                aMethod()
+                aPermissionsSet = True
+            except:
+                None
+        
+            
+        if not aPermissionsSet:
+            somePermissionsAndRoles = self.fElementPermissionsAndRolesToSetForElement( theElement)
+            
+            for aPermissionAndRoles in somePermissionsAndRoles:
+                unaPermission = aPermissionAndRoles[ 0]
+                if unaPermission:
+                    unosRoles = aPermissionAndRoles[ 1]
+                    if unosRoles:
+                        unAcquire = aPermissionAndRoles[ 2]
+    
+                        theElement.manage_permission( unaPermission, roles=unosRoles, acquire=unAcquire)
                     
         return self
     

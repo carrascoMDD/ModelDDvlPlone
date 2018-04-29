@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool_Retrieval_TraversalConfigs.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 #
 # GNU General Public License (GPL)
@@ -117,7 +117,7 @@ class ModelDDvlPloneTool_Retrieval_TraversalConfigs:
                 if someConfigsForType.has_key( 'Default'):    
                     aTypeConfig = someConfigsForType[ 'Default']
                 else:
-                    aTypeConfig =  someConfigsForType[ 0]
+                    aTypeConfig =  someConfigsForType[ sorted( someConfigsForType.keys())[ 0]]
         return aTypeConfig
 
    

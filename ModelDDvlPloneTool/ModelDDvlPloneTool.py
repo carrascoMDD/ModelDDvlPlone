@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneTool.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -65,11 +65,13 @@ from Acquisition  import aq_inner, aq_parent,aq_get
 
 
 from MDDTool_Cache          import MDDTool_Cache               
-from MDDTool_Dates          import MDDTool_Dates               
+from MDDTool_Dates          import MDDTool_Dates   
+from MDDTool_Export         import MDDTool_Export
 from MDDTool_Globals        import MDDTool_Globals             
 from MDDTool_I18N           import MDDTool_I18N                
 from MDDTool_Mutators       import MDDTool_Mutators            
 from MDDTool_Plone          import MDDTool_Plone               
+from MDDTool_Refactor       import MDDTool_Refactor              
 from MDDTool_Render         import MDDTool_Render              
 from MDDTool_Retrieval      import MDDTool_Retrieval           
 from MDDTool_Translations   import MDDTool_Translations        
@@ -111,17 +113,19 @@ cModelDDvlPloneToolPermissions = [
 
 
 class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, ActionProviderBase, \
-    MDDTool_Cache, \
-    MDDTool_Dates,  \
-    MDDTool_Globals, \
-    MDDTool_I18N,    \
-    MDDTool_Mutators,  \
+    MDDTool_Cache,    \
+    MDDTool_Dates,    \
+    MDDTool_Export,   \
+    MDDTool_Globals,  \
+    MDDTool_I18N,     \
+    MDDTool_Mutators, \
     MDDTool_Plone,    \
+    MDDTool_Refactor, \
     MDDTool_Render,   \
-    MDDTool_Retrieval,  \
+    MDDTool_Retrieval,\
     MDDTool_Translations, \
-    MDDTool_Versions,    \
-    MDDTool_X,       \
+    MDDTool_Versions, \
+    MDDTool_X,        \
     ):
     """Facade singleton object exposing services layer to the presentation layer, and delegating into a number of specialized, collaborating role realizations. 
     
@@ -270,6 +274,14 @@ class ModelDDvlPloneTool( UniqueObject, PropertyManager, SimpleItem.SimpleItem, 
         if not aClass:
             return None
         return aClass()
+    
+    
+    security.declarePrivate( 'fModelDDvlPloneTool_Transactions')
+    def fModelDDvlPloneTool_Transactions( self, theContextualObject):
+        aClass = self.fImportedModuleResolvedSymbol( theContextualObject, 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Transactions')
+        if not aClass:
+            return None
+        return aClass()    
     
     
     security.declarePrivate( 'fModelDDvlPloneTool_Translation')

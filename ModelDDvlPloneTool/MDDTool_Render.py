@@ -2,7 +2,7 @@
 #
 # File: MDDTool_Render.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -36,6 +36,14 @@ import traceback
 import logging
 
 
+from time import time
+
+try:
+    import simplejson as json
+except:
+    json=None
+    
+
 # Zope
 from OFS import SimpleItem
 from OFS.PropertyManager import PropertyManager
@@ -43,8 +51,6 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import ClassSecurityInfo
 
 from AccessControl.Permissions                 import access_contents_information   as perm_AccessContentsInformation
-
-from time import time
 
 from DateTime import DateTime
 
@@ -276,7 +282,7 @@ class MDDTool_Render:
         """Render a text presentation of a list with rich inner structure, where items appear in consecutive lines, and nested items appear indented under their containers, and alineated with their siblings.
         
         """
-        return self.fModelDDvlPloneToolSupport( theContextualObject).fPrettyPrint( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
+        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fPrettyPrint( theList, theDictKeysToExclude, theDictKeysOrder, theFindAlreadyPrinted)
 
 
     
@@ -292,7 +298,7 @@ class MDDTool_Render:
         return self.fModelDDvlPloneToolSupport( theContextualObject).fPrettyPrintProfilingResultHTML( theProfilingResult)
 
     
-    
+
     
     
     
@@ -325,3 +331,31 @@ class MDDTool_Render:
     
     
         
+        
+    # ######################################
+    """JSON interchange methods.
+    
+    """        
+       
+  
+ 
+    security.declareProtected( permissions.View,  'fJSONdumps')
+    def fJSONdumps(self, theObject):
+        if not json:
+            return ""
+        
+        aJSON=json.dumps(theObject)
+        return aJSON
+    
+
+    
+         
+    
+ 
+    security.declareProtected( permissions.View,  'fJSONloads')
+    def fJSONloads(self, theString):
+        if not json:
+            return None
+        anObject=json.loads(theString)
+        return anObject
+    

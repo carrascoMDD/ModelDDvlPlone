@@ -1,26 +1,103 @@
-Copyright (c) 2008,2009,2010 by Model Driven Development sl and Antonio Carrasco Valero
-
-GNU General Public License (GPL)
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
-02110-1301, USA.
-
-
-
 ModelDDvlPlone RELEASE NOTES
 ============================
+
+v2.1.5
+
+Extension:   ModelDDvlPloneTool machinery must try and delegate in the elements permission initialization if such exist, as identified by the result of invoking method fMethodNameSetPermissions on the element, and only initialize the elements permissions with ModelDDvlPloneTool defaults when the element does not expose permissions initialization method.
+
+---------------------------
+
+|
+|
+
+v2.1.4
+
+Fixed Bug: Creation mode of cache folder cCacheDisk_ForElements_FolderCreateMode_RootUID was 077 and now correctly is 0777.
+
+Fixed Bug: When the URL contains a port, then the actions to flush entries from memory or from memory and disc did not work. Now entries with a port in the URL are correctly flushed.
+
+Fixed Bug: Action in the Cache Status page, to flush disk cached pages for a cache, does not work. Now disk cached pages are correctly flushed.
+
+
+
+---------------------------
+
+|
+|
+
+v2.1.3
+
+Fixed Bug: Bug introduced in v2.1.1 Folder for Cached HTML erroneusly created under user's home, instead of the proper location under the Plone instance 'var' folder.
+
+
+---------------------------
+
+|
+|
+
+
+v2.1.2
+
+Presentation Tabular: Added to collection headers the cardinality of the collection (the number of elements held).
+
+---------------------------
+
+
+|
+|
+
+
+v2.1.1
+---------------------------
+Cache now properly supports different schemes (http, https), host name and domain virtualization, by rendering and caching specific pages for each different scheme//host name.domain.
+
+Do not display in rendered cached pages the host server path where the cached pages directory structure is rooted. Render just the relative path.
+
+Inspection of Caches For Elements and For Users now includes an additional selection step, to choose the root element of the elements whose cached pages shall be presented in alist. 
+
+Files of pages cached on disc are now more easily identified. Added to the paths of files for pages cached on disc, the first few characters of the root id and the element id, to facilitate identifying an element's cache files on disc.
+
+Refactored service class ModelDDvlPloneTool_Cache in a number of separate classes, in separated files, to improve separation of concern, within the Cache management responsibilities.
+
+Added service to flush the entries in a cache, for a Project, a Project and Language, or a Project, Language and Root.
+
+|
+|
+
+v2.1RC
+---------------------------
+Added year 2011 to Copyright notice.
+
+|
+|
+
+
+v2.0.2
+---------------------------
+Fix rendering Python data structures (lists and dicts) as HTML, 
+adding a new line before the first entry of a dictionary.
+NOTE that code for rendering into HTML facility is duplicated in ModelDDvlPloneTool_Retrieval_Utils.py and ModelDDvlPloneToolSupport.py.
+Added service fGetMemberInfoForUserId to retrieve information about the member including its name, home holder URL and photo URL.
+
+|
+|
+
+
+V2.x
+---------------------------
+Version of the framework compatible with the 2.x versions of applications gvSIG-i18n and gvSIG-Business Process Definition.
+Numerous changes and improvements over the 1.x versions of the framework.
+
+
+|
+|
+
+
+---------------------------
+
+|
+|
+
 
 v1.0.3 in progress
 --------------------------------------

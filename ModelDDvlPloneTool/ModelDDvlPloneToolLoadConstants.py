@@ -2,7 +2,7 @@
 #
 # File: ModelDDvlPloneToolLoadConstants.py
 #
-# Copyright (c) 2008, 2009, 2010 by Model Driven Development sl and Antonio Carrasco Valero
+# Copyright (c) 2008, 2009, 2010, 2011  by Model Driven Development sl and Antonio Carrasco Valero
 #
 # GNU General Public License (GPL)
 #
@@ -73,11 +73,13 @@ cLoadModulesSpecification = {
 
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Cache',                                 'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Dates',                                 'global_spec': {}, 'singleton_spec': {}, },
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Export',                                'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Globals',                               'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_I18N',                                  'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Mutators',                              'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Plone',                                 'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Render',                                'global_spec': {}, 'singleton_spec': {}, },
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Refactor',                              'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Retrieval',                             'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Translations',                          'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.MDDTool_Versions',                              'global_spec': {}, 'singleton_spec': {}, },
@@ -89,6 +91,7 @@ cLoadModulesSpecification = {
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_ImportExport_Constants',     'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_ToDicts_Constants',          'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_CacheConstants',             'global_spec': {}, 'singleton_spec': {}, },
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Mutators_Constants',         'global_spec': {}, 'singleton_spec': {}, },
         
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneToolSupport',                     'global_spec': {}, 'singleton_spec': {}, },
 
@@ -102,7 +105,13 @@ cLoadModulesSpecification = {
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_TraversalConfigs', 'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval_Utils',            'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Retrieval',                  'global_spec': {}, 'singleton_spec': {}, },
-        { 'module_name': 'Products.ModelDDvlPloneTool.MDD_RefactorComponents',                        'global_spec': {}, 'singleton_spec': {}, },
+        
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRefactor',                                   'global_spec': {}, 'singleton_spec': {}, },
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRefactor_Paste',                             'global_spec': {}, 'singleton_spec': {}, },
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRefactor_Import',                            'global_spec': {}, 'singleton_spec': {}, },
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRefactor_NewTranslation',                    'global_spec': {}, 'singleton_spec': {}, },
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRefactor_NewVersion',                        'global_spec': {}, 'singleton_spec': {}, },
+        
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_ToDicts',                    'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Export',                     'global_spec': {}, 'singleton_spec': {}, },
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Import',                     'global_spec': {}, 'singleton_spec': {}, },
@@ -121,7 +130,19 @@ cLoadModulesSpecification = {
             }, 
             'singleton_spec': {}, 
         },   
-        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache',                      'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRenderedTemplateCacheEntry_ElementIndependent', 'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.MDDRenderedTemplateCacheEntry_ForElement',         'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Configuration',           'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Diagnostics',             'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Disc',                    'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_EntriesAccess',           'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_EntriesFlush',            'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_GenericAccessors',        'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Render',                  'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Statistics',              'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_Status',                  'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache_VoidResults',             'global_spec': {}, 'singleton_spec': {}, },  
+        { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool_Cache',                         'global_spec': {}, 'singleton_spec': {}, },  
         { 'module_name': 'Products.ModelDDvlPloneTool.ModelDDvlPloneTool',                            
             'global_spec': {}, 
             'singleton_spec': {
