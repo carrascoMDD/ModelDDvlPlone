@@ -2733,72 +2733,21 @@ class ModelDDvlPloneTool_Mutators( ModelDDvlPloneTool_Profiling, ModelDDvlPloneT
     
     
     
-    
-    
-    security.declarePrivate(   'fMethodNameSetPermissionsElement')
-    def fMethodNameSetPermissionsElement(self, theElement,):     
-        if ( theElement == None):
-            return ''
-        
-        aMethodName = ''
-        try:
-            aMethodName = theElement.fMethodNameSetPermissions()
-        except:
-            None
-            
-        return aMethodName
-    
-    
-    
-    
-    security.declarePrivate(   'fMethodSetPermissionsElement')
-    def fMethodSetPermissionsElement(self, theElement,):     
-        if ( theElement == None):
-            return None
-        
-        aMethodName = self.fMethodNameSetPermissionsElement( theElement,)
-        if not aMethodName:
-            return None
-        
-        aMethod = None
-        try:
-            aMethod = getattr( theElement, aMethodName)
-        except:
-            None
-            
-        return aMethod
-    
-    
-        
-    
     security.declarePrivate(   'pSetElementPermissions')
     def pSetElementPermissions(self, theElement, thePermissionsNotToSet=[],):     
         if ( theElement == None):
             return self
 
-        aPermissionsSet = False
+        somePermissionsAndRoles = self.fElementPermissionsAndRolesToSetForElement( theElement)
         
-        aMethod = self.fMethodSetPermissionsElement( theElement)
-        if aMethod:
-            
-            try:
-                aMethod()
-                aPermissionsSet = True
-            except:
-                None
-        
-            
-        if not aPermissionsSet:
-            somePermissionsAndRoles = self.fElementPermissionsAndRolesToSetForElement( theElement)
-            
-            for aPermissionAndRoles in somePermissionsAndRoles:
-                unaPermission = aPermissionAndRoles[ 0]
-                if unaPermission:
-                    unosRoles = aPermissionAndRoles[ 1]
-                    if unosRoles:
-                        unAcquire = aPermissionAndRoles[ 2]
-    
-                        theElement.manage_permission( unaPermission, roles=unosRoles, acquire=unAcquire)
+        for aPermissionAndRoles in somePermissionsAndRoles:
+            unaPermission = aPermissionAndRoles[ 0]
+            if unaPermission:
+                unosRoles = aPermissionAndRoles[ 1]
+                if unosRoles:
+                    unAcquire = aPermissionAndRoles[ 2]
+
+                    theElement.manage_permission( unaPermission, roles=unosRoles, acquire=unAcquire)
                     
         return self
     

@@ -225,14 +225,14 @@ class MDDTool_Cache:
 
     
     
-    # ACV 20110222 Unused. Removed
-    #security.declareProtected( permissions.ManagePortal, 'fFlushSomeCachedTemplates')
-    #def fFlushSomeCachedTemplates(self, theContextualObject, theCacheName, theProjectNames, theFlushDiskCache=False):
-        #"""Invoked by authorized users requesting to remove some cached rendered templates, from some projects (or all if none specified), and some languages (or all if none specified) .
+    
+    security.declareProtected( permissions.ManagePortal, 'fFlushSomeCachedTemplates')
+    def fFlushSomeCachedTemplates(self, theContextualObject, theCacheName, theProjectNames, theFlushDiskCache=False):
+        """Invoked by authorized users requesting to remove some cached rendered templates, from some projects (or all if none specified), and some languages (or all if none specified) .
         
-        #"""
+        """
         
-        #return self.fModelDDvlPloneTool_Cache( theContextualObject).fFlushSomeCachedTemplates( self, theContextualObject, theCacheName, theProjectNames,theFlushDiskCache=theFlushDiskCache)
+        return self.fModelDDvlPloneTool_Cache( theContextualObject).fFlushSomeCachedTemplates( self, theContextualObject, theCacheName, theProjectNames,theFlushDiskCache=theFlushDiskCache)
 
     
     
@@ -246,17 +246,6 @@ class MDDTool_Cache:
         """
         
         return self.fModelDDvlPloneTool_Cache( theContextualObject).fFlushCachedTemplateByUniqueId( self, theContextualObject, theCacheEntryUniqueId, theFlushDiskCache=theFlushDiskCache)
-
-    
-
-
-    security.declareProtected( permissions.ManagePortal, 'fFlushCachedTemplatesSelected')
-    def fFlushCachedTemplatesSelected(self, theContextualObject, theCacheName, theProjectName, theLanguage, theRoot, theFlushDiskCache=False):
-        """Invoked by authorized users requesting invalidation of the cache entry given a ProjectName, and optionally a Language and a Root UID.
-        
-        """
-        
-        return self.fModelDDvlPloneTool_Cache( theContextualObject).fFlushCachedTemplatesSelected( self, theContextualObject, theCacheName, theProjectName, theLanguage, theRoot, theFlushDiskCache=theFlushDiskCache)
 
     
 

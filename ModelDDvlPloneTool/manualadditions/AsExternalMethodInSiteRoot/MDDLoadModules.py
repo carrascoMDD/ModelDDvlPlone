@@ -960,8 +960,7 @@ def _fLoadModules(
         return None
             
 
-    if not theLoadModulesReport[ 'error_reports']:
-        theLoadModulesReport[ 'success'] = True
+    theLoadModulesReport[ 'success'] = True
                                     
     return None
 
@@ -1394,11 +1393,11 @@ def _fReloadModule(
                 aResult[ 'thePersistentRetained'] = True
                 
                 
-    if not aResult[ 'error_reports']:            
-        aResult.update( {
-            'success': True,
-        })
-        
+                
+    aResult.update( {
+        'success': True,
+    })
+    
         
     return aResult
 

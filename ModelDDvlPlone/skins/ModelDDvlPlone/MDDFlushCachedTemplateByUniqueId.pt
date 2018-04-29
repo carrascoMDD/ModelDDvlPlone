@@ -95,7 +95,7 @@
 				<font size="3">
 					<bold>
 						<p tal:condition="aFlushResult" tal:content="python: 'SUCCESS: Cache Entry %s has been flushed from Memory %s' % ( pCacheEntryUniqueId, ( pFlushDiskCache and 'and DISK') or '',)" />
-						<p tal:condition="not: aFlushResult" tal:content="python: 'FAILURE: Cache Entry %s has NOT been flushed from Memory %s' % ( pCacheEntryUniqueId, ( pFlushDiskCache and 'and DISK') or '',)" />
+						<p tal:condition="not: aFlushResult" tal:content="python: 'SUCCESS: Cache Entry %s has NOT been flushed from Memory %s' % ( pCacheEntryUniqueId, ( pFlushDiskCache and 'and DISK') or '',)" />
 					</bold>
 				</font>
 			</tal:block>

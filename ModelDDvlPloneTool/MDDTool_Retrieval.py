@@ -168,6 +168,7 @@ class MDDTool_Retrieval:
     
     
 
+    
 
     security.declareProtected( permissions.View, 'fRetrieveTypeConfigByUID')
     def fRetrieveTypeConfigByUID(self, 
@@ -216,22 +217,6 @@ class MDDTool_Retrieval:
     
     
   
-    
-    
-
-    security.declareProtected( permissions.View, 'fNewResultForElementByUID')
-    def fNewResultForElementByUID(self,  theContextualElement=None, theUID=None,):
-        """Retrieve a result structure for an element given its UID, initialized with just the most important information and attributes.
-        
-        """
-        
-        return self.fModelDDvlPloneTool_Retrieval( theContextualElement).fNewResultForElementByUID( 
-            theTimeProfilingResults =None,
-            theContextualElement    =theContextualElement, 
-            theUID                  =theUID, 
-        )
-    
-    
     
     
     
@@ -413,25 +398,9 @@ class MDDTool_Retrieval:
  
     
     
-   
-    security.declareProtected( permissions.View, 'fGetMemberInfosForUserIds')
-    def fGetMemberInfosForUserIds(self, theContextualObject, theUserIds, theMembershipTool     =None,):
-        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fGetMemberInfosForUserIds( 
-            theContextualObject, theUserIds, theMembershipTool)
     
 
-    
-    
-   
-    security.declareProtected( permissions.View, 'fGetMemberInfoForUserId')
-    def fGetMemberInfoForUserId(self, theContextualObject, theUserId, theMembershipTool     =None,):
-        return self.fModelDDvlPloneTool_Retrieval( theContextualObject).fGetMemberInfoForUserId( 
-            theContextualObject, theUserId, theMembershipTool)
-    
 
-    
-    
-    
     
     # ######################################
     """Preferences Retrieval methods.

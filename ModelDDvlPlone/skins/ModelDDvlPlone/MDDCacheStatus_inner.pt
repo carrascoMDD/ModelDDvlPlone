@@ -183,9 +183,7 @@
         <img src="#" alt="#" title="#" 
             tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
             id="icon-refrescar" />
-		<font size="2">
-			<strong tal:content="python: aRefreshLabel" />
-		</font>
+        <strong tal:content="python: aRefreshLabel" />
     </a>
     &emsp;&emsp;&emsp;
 
@@ -295,10 +293,8 @@
                         <img src="#" alt="#" title="#" 
                             tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
                             id="icon-refrescar" />
-						<font size="2">
-							<strong tal:content="python: aRefreshLabel" />
-						</font>
-					</a>
+                        <strong tal:content="python: aRefreshLabel" />
+                    </a>
 
     </th>
     <th align="right"  class="nosort" >

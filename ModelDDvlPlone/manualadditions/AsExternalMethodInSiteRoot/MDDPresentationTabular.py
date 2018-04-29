@@ -440,6 +440,26 @@ def MDDPresentationTabular(
 
 
 
+        # ACV 20100611 Now done in MDDInteractionTabular such that translations are available to render clipboard and action results.
+        ## #################################################################
+        #"""Retrieve localizations for internationalized strings.
+
+        #"""
+        #if theRdCtxt.fGP( 'theUITranslations', None) == None:
+            
+            #if not cExtensionsForbidden:
+                #anOk, aGo = _fMCtx( True, aRdCtxt, 'MDDExtension_InitUITranslations_Before')(  aRdCtxt)
+                #if not aGo:
+                    #break
+            #anOk, aGo = _fMCtx( False, aRdCtxt, 'MDDInit_UITranslations_Tabular')(          aRdCtxt)
+            #if not aGo:
+                #break
+            #if not cExtensionsForbidden:
+                #anOk, aGo = _fMCtx( True, aRdCtxt, 'MDDExtension_InitUITranslations_After')(   aRdCtxt)
+                #if not aGo:
+                    #break
+
+
 
 
 
@@ -2813,12 +2833,6 @@ def _MDDRender_Tabular_Relation_Cabecera( theRdCtxt):
     theRdCtxt.pOS( u"""
                    <span class="state-visible" id="hidMDDTraversal_%(traversal_name)s_title" >%(traversal_label)s</span>
                    </a>
-                    &emsp;
-                    <font size="2"><strong>            
-                     [#
-                     %(num_elements)d
-                     ]<strong>
-                    </font>                  
                    <font size=1">            
                    &emsp;
                    &emsp;
@@ -2828,7 +2842,6 @@ def _MDDRender_Tabular_Relation_Cabecera( theRdCtxt):
                    onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                    <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                    """ % {
-                           'num_elements':                   len( aTRAVRES.get( 'elements', [])),
                            'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                            'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
                            'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),
@@ -4561,24 +4574,15 @@ def _MDDRender_Tabular_SinColeccionEnTabla( theRdCtxt):
         theRdCtxt.pOS( u"""
                        <h2 id="hidMDDTraversal_%(traversal_name)s_label" >
                        %(traversal_label)s
-                       &emsp;
-                       <font size="2"><strong>            
-                        [#
-                        %(num_elements)d
-                        ]<strong>
-                       </font>
                        <font size=1">            
                        &emsp;
                        &emsp;
-                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" >
-                            <tbody>
-                                <tr>
-                                    <td id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" valign="top" align="left">
-                                        <a title="%(ModelDDvlPlone_Tabular_Sections)s"
-                                        onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
-                                        <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
+                       <table  cellspacing="0" cellpadding="0" frame="void" style="display: inline" ><tbody><tr>
+                       <td id="cid_MDDTOC_Holder_Traversal_%(traversal_name)s" valign="top" align="left">
+                       <a title="%(ModelDDvlPlone_Tabular_Sections)s"
+                       onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
+                       <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                        """ % {
-                               'num_elements':                     len( someElements),
                                'portal_url':                       aSRES[ 'portal_url'],
                                'ModelDDvlPlone_Tabular_Sections':  theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                                'traversal_name':                   fCGIE( aTRAVRES[ 'traversal_name']),        
@@ -4669,12 +4673,6 @@ def _MDDRender_Tabular_ColeccionesEnTabla( theRdCtxt):
     theRdCtxt.pOS( u"""
                    <h2 id="hidMDDTraversal_%(traversal_name)s_label" >
                    %(traversal_label)s
-                    &emsp;
-                    <font size="2"><strong>            
-                     [#
-                     %(num_elements)d
-                     ]<strong>
-                    </font>
                    <font size=1">
                    &emsp;
                    &emsp;
@@ -4684,7 +4682,6 @@ def _MDDRender_Tabular_ColeccionesEnTabla( theRdCtxt):
                    onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                    <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                    """ % {
-                           'num_elements':                       len( someElements),
                            'portal_url':                         aSRES[ 'portal_url'],
                            'ModelDDvlPlone_Tabular_Sections':    theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                            'traversal_name':                     fCGIE( aTRAVRES[ 'traversal_name']),        
@@ -5045,12 +5042,6 @@ def _MDDRender_Tabular_ColeccionEnTabla_Header( theRdCtxt):
                    title="%(ModelDDvlPlone_navegara_action_label)s %(translated_archetype_name)s %(SRES-title)s" />
                    <span id="hidMDDElemento_%(SRES-UID)s_title" class="state-visible">%(Element-title)s</span>
                    </a>
-                    &emsp;
-                    <font size="2"><strong>            
-                     [#
-                     %(num_elements)d
-                     ]<strong>
-                    </font>
                    <font size=1" style="font-weight: normal;">            
                    &emsp;
                    &emsp;
@@ -5060,8 +5051,6 @@ def _MDDRender_Tabular_ColeccionEnTabla_Header( theRdCtxt):
                    onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s_%(SRES-id)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                    <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                    """ % {
-                            'num_elements':                       len( aSRES.get( 'traversals', [ { 'elements': 0,},])[0].get( 'elements', [])),
-                            
                            'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                            'theExtraLinkHrefParams':              theRdCtxt.fGP( 'theExtraLinkHrefParamsFirst'),
                            'ModelDDvlPlone_navegara_action_label':theRdCtxt.fUITr( 'ModelDDvlPlone_navegara_action_label'),
@@ -7055,12 +7044,6 @@ def _MDDRender_Tabular_ReferenciasEnTabla( theRdCtxt):
         theRdCtxt.pOS( u"""
                        <span class="state-visible" id="hidMDDTraversal_%(traversal_name)s_title" >%(traversal_label)s</span>
                        </a>
-                    &emsp;
-                    <font size="2"><strong>            
-                     [#
-                     %(num_elements)d
-                     ]<strong>
-                    </font>                  
                        <font size=1">            
                        &emsp;
                        &emsp;
@@ -7070,7 +7053,6 @@ def _MDDRender_Tabular_ReferenciasEnTabla( theRdCtxt):
                        onclick="document.getElementById( 'cid_MDDTOC_Holder_Traversal_%(traversal_name)s').appendChild( document.getElementById( 'cid_MDDSectionList_ActionsMenu')); if ( hasClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated' )) { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'deactivated', 'activated');} else { replaceClassName( document.getElementById( 'cid_MDDSectionList_ActionsMenu') ,'activated', 'deactivated')} return true;">
                        <img src="%(portal_url)s/menusecciones.gif" title="%(ModelDDvlPlone_Tabular_Sections)s" alt="%(ModelDDvlPlone_Tabular_Sections)s" id="icon-sectionsmenu" />
                        """ % {
-                               'num_elements':               unNumElements,
                                'ModelDDvlPlone_Tabular_Sections':     theRdCtxt.fUITr( 'ModelDDvlPlone_Tabular_Sections',),
                                'theExtraLinkHrefParams':                             theRdCtxt.fGP( 'theExtraLinkHrefParamsCont'),
                                'ModelDDvlPlone_recorrercursorrelacion_action_label': theRdCtxt.fUITr( 'ModelDDvlPlone_recorrercursorrelacion_action_label'),
