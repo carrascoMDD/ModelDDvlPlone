@@ -47,8 +47,11 @@ from Products.CMFCore.utils import getToolByName
 
 from AccessControl import ClassSecurityInfo
 
+
+
 from ModelDDvlPloneTool_ImportExport_Constants import *
 
+from ModelDDvlPloneToolSupport import fReprAsString
 
 
 
@@ -831,7 +834,7 @@ class ModelDDvlPloneTool_Export:
                                     'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
                                     'meta_type':    unElementMetaType,
                                     'attr':         unAttrName,
-                                    'value':        repr( unRawValue),
+                                    'value':        fReprAsString( unRawValue),
                                 })
                         
                                 
@@ -930,7 +933,7 @@ class ModelDDvlPloneTool_Export:
                                 'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
-                                'value':        repr( unImageFullFileName),
+                                'value':        fReprAsString( unImageFullFileName),
                             })
                             unValueStringEncoded = ''
                         
@@ -973,7 +976,7 @@ class ModelDDvlPloneTool_Export:
                                 'status':       cExportStatus_Error_Internal_EncodingError_AttributeValue_String,
                                 'meta_type':    unElementMetaType,
                                 'attr':         unAttrName,
-                                'value':        repr( unFileFullFileName),
+                                'value':        fReprAsString( unFileFullFileName),
                             })
                             unValueStringEncoded = ''
                         

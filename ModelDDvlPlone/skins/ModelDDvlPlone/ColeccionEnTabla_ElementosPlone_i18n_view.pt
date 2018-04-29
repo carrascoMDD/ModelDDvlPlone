@@ -91,7 +91,7 @@
                         
                        
     <tal:block tal:replace="nothing">  
-    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( here [ TRAVRES  , ], [ 'object',  'values_by_uid', 'values_by_name', 'elements_by_UID', 'elements_by_id',  'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',   'vocabulary_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
     </tal:block> 
                            
     

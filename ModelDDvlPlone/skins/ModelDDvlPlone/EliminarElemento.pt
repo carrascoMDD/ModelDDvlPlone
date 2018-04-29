@@ -36,7 +36,7 @@
             <tal:block tal:define="
                 pUIDToDelete            python: request['theUIDToDelete']; 
                 pIdToDelete             python: request['theIdToDelete']; 
-                pSecondsRequest         python: int( request['theSN']);
+                pSecondsRequest         python: int( request.get('theSN', 0));
                 pRetrievalStartTime     python: here.ModelDDvlPlone_tool.fMillisecondsNow();
                 pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
                 unosArgs python: {

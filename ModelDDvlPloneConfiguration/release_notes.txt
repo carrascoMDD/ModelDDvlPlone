@@ -1,118 +1,47 @@
 ModelDDvlPlone RELEASE NOTES
 ============================
 
-v2.1.3
-
-Fixed Bug: Bug introduced in v2.1.1 Folder for Cached HTML erroneusly created under user's home, instead of the proper location under the Plone instance 'var' folder.
-
-
----------------------------
-
 |
 |
 
 
-v2.1.2
-
-Presentation Tabular: Added to collection headers the cardinality of the collection (the number of elements held).
-
----------------------------
+version 1.0.0.8
+---------------
 
 
-|
-|
-
-
-v2.1.1
----------------------------
-Cache now properly supports different schemes (http, https), host name and domain virtualization, by rendering and caching specific pages for each different scheme//host name.domain.
-
-Do not display in rendered cached pages the host server path where the cached pages directory structure is rooted. Render just the relative path.
-
-Inspection of Caches For Elements and For Users now includes an additional selection step, to choose the root element of the elements whose cached pages shall be presented in alist. 
-
-Files of pages cached on disc are now more easily identified. Added to the paths of files for pages cached on disc, the first few characters of the root id and the element id, to facilitate identifying an element's cache files on disc.
-
-Refactored service class ModelDDvlPloneTool_Cache in a number of separate classes, in separated files, to improve separation of concern, within the Cache management responsibilities.
-
-Added service to flush the entries in a cache, for a Project, a Project and Language, or a Project, Language and Root.
-
-|
-|
-
-v2.1RC
----------------------------
-Added year 2011 to Copyright notice.
-
-|
-|
-
-
-v2.0.2
----------------------------
-Fix rendering Python data structures (lists and dicts) as HTML, 
-adding a new line before the first entry of a dictionary.
-NOTE that code for rendering into HTML facility is duplicated in ModelDDvlPloneTool_Retrieval_Utils.py and ModelDDvlPloneToolSupport.py.
-Added service fGetMemberInfoForUserId to retrieve information about the member including its name, home holder URL and photo URL.
-
-|
-|
-
-
-V2.x
----------------------------
-Version of the framework compatible with the 2.x versions of applications gvSIG-i18n and gvSIG-Business Process Definition.
-Numerous changes and improvements over the 1.x versions of the framework.
+Id  	Task Summary  	Start Date  	End Date  	Percent Complete
+631	AGIL01 Hot-Reload all ModelDDvlPloneTool modules without restarting the server	2009-12-25 04:00	  2010-01-01 04:00	100%
+563	AUDI 01 Keep a log of changes made to elements	2009-11-21 09:00	  2009-11-28 09:00	100%
+592	AUDI01 Record the history of changes in each element, including time, user, kind and scope of the change	2009-11-30 19:00	  2009-12-07 19:00	100%
+564	AUDI 02 Review the log of changes made to elements	2009-11-21 09:00	  2009-11-28 09:00	100%
+634	AUDI04 Add notes to transactions reflecting changes performed on elements, such that the details can be seen in the transcations undo user interface in Plone	2009-12-29 23:00	  2010-01-05 23:00	100%
+599	BUG: Commits a transaction for changing portal_quick_installer just by retrieving product info when USEX 06 Report component versions and build in all pages	2009-12-03 00:00	  2009-12-10 00:00	100%
+577	BUG: Deleting a Plone element NameError name 'pDeleteImpactReport' is not defined	2009-11-24 17:00	  2009-12-01 17:00	100%
+582	BUG: Does not inform about the number of Group Copied elements after a Group Copy operation on a number of selected contained elements 	2009-11-25 16:00	  2009-12-02 16:00	100%
+576	BUG: Does not invalidate cache entries of container and owner elements when SUC 26 Reorder aggregated elements by drag and drop	2009-11-24 17:00	  2009-12-01 17:00	100%
+583	BUG: Does not paste elements previously Group Copied contained elements, may be because of BUG: Does not inform about the number of Group Copied elements after a Group Copy operation on a number of selected contained element	2009-11-25 16:00	  2009-12-02 16:00	100%
+590	BUG: Error when deleting contents elements not a collection	2009-11-30 04:00	  2009-12-07 04:00	100%
+607	BUG: Reorder sub-elements page appends /Tabular to sub-elements URL in the element\'s title HTML link , which fails when the element does not support the Tabular view, as i.e. Plone elements like ATImage, etc.	2009-12-08 18:00	  2009-12-15 18:00	100%
+608	BUG: When pasting into a Business Proceess steps copied from other Business Process 	2009-12-08 18:00	  2009-12-15 18:00	100%
+578	PERF04 Avoid high number of log entries when (re)installing products using Relations, from Zope catalogs complaining about entries not found for missing relation instances	2009-11-24 17:00	  2009-12-01 17:00	100%
+544	SUC02x10 Check that no editable fields have changed in the edited element since the system delivered the edit form	2009-11-19 16:00	  2009-11-26 16:00	100%
+391	SUC11x4 Display clipboard contents before Paste an identical copy of an element as contents of other element	2009-09-28 03:00	  2009-10-05 03:00	100%
+589	SUC29 Use Case Inspect Clipboard Contents	2009-11-29 10:00	  2009-12-06 10:00	100%
+598	SUC30 Inspect the Change history of an element	2009-12-02 04:00	  2009-12-09 04:00	100%
+325	USEX 04 Add to Tabular view a menu to scroll to specific section of the view	2009-09-21 21:00	  2009-09-28 21:00	100%
+491	USEX 14 Add to Tabular and Textual views a pull-down menu to immeditely jump to any of the element siblings	2009-11-03 07:00	  2009-11-10 07:00	100%
+ 	 	 
 
 
 |
 |
 
-
----------------------------
-
-|
-|
-
-
-v1.0.3 in progress
---------------------------------------
-
-Task Id  	Task Summary  	Start Date  	End Date  	Percent Complete
-584	USEX18 After editing field values in an element editor, present the notification about attribute names changed in a block rendered as highlighted for other Zope/Plone notices, like those after copy, paste or delete elements	2009-11-25 16:00	  2009-12-02 16:00	100%
-718	BUG: Cache entries added as promised, but failed to be fulfilled, remain in the cache structures, preventing other entries to be added with the rendered content.	2010-02-24 16:00	  2010-03-03 16:00	100%
-723	BUG: does not localize boolean values from computed attributes shown as table columns in the tabular view, like IsLocked in TRAIdioma in gvSIG-i18n	2010-03-08 05:00	  2010-03-15 05:00	100%
-765	BUG: Textual view does not separate with commas (,) the boolean attributes presented (as a single paragraph with all other terminal attributes)	2010-05-31 23:00	  2010-06-07 23:00	100%
-768	ADMI05 Add facility to initialize ExternalMethods and Tool singletons of the ModelDDvlPlone framework and supported applications	2010-06-11 05:00	  2010-06-18 05:00	100%
-769	ADMI06 Render as formatted HTML the results of Verification and Initialization of the ModelDDvlPlone frameworks and supported applications	2010-06-11 05:00	  2010-06-18 05:00	100%2010-06-18 05:00	100%
-
-|
-|
-
-
-------------------------------------------
-
-v1.0.2 build 201001282200
-----------------------------------------------
-Task Id  	Task Summary  	Start Date  	End Date  	Percent Complete
-698	PERF05 Yield a fraction of processor during import, new version and new translation processes	2010-01-28 20:00	  2010-02-04 20:00	100%
-
-|
-|
-
-------------------------------------------
-
-v1.0.1 build 201001280800
 ----------------------------------------------
 
-Task Id  	Task Summary  	Start Date  	End Date  	Percent Complete
-687	BUG: Error in Unlink Element confirmation prevents completion of the unlink operation	2010-01-26 08:00	  2010-02-02 08:00	100%
-686	BUG: Named parameter error in ModelDDvlPloneTool fImport and fNewVersion	2010-01-26 08:00	  2010-02-02 08:00	100%
-
 |
 |
 
-------------------------------------------
+
 
 20091229
 

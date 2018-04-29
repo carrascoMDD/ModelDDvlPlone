@@ -28,6 +28,8 @@
 # Antonio Carrasco Valero                       carrasco@ModelDD.org
 #
 </tal:block>
+
+
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
     lang="en"
     metal:use-macro="here/main_template/macros/master"
@@ -54,16 +56,24 @@
         
             <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.pSetDefaultDisplayView( here)" />
         
-            <tal:block tal:define="global pPasteRequested python: True" >
+            <tal:block tal:define="
+                pReferenceFieldName    theReferenceFieldName | string:;
+                global pPasteRequested python: True" >
         
-                <metal:block metal:use-macro="here/Tabular_inner/macros/tTabularInner" />
-                
+                <tal:block tal:condition="not: pReferenceFieldName" >
+                    <metal:block metal:use-macro="here/MDDTabularWithActions/macros/tTabularWithActions" />
+                </tal:block>
+                <tal:block tal:condition="pReferenceFieldName" >
+                    <metal:block metal:use-macro="here/MDDTabularWithActions/macros/tTabularWithActions" />
+                </tal:block>
+
             </tal:block>
             
-            <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
 
         </tal:main-macro>
     </metal:main>
 
 </body>
 </html>
+
+

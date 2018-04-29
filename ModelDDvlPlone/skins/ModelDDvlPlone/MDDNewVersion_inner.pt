@@ -76,7 +76,7 @@
                         </tal:block>
                         <br/>
                         <br/>
-                        <a href="#" tal:attributes="href python: '%s/Tabular/' % theOriginalObject.absolute_url()" >
+                        <a href="#" tal:attributes="href python: '%s/Tabular/' % here.absolute_url()" >
                             <font size="2">
                                 <strong tal:content="python: u'%s %s' % ( here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to'), here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NewVersion_Element', 'New Version'))" />
                             </font>

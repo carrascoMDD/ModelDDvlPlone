@@ -36,8 +36,6 @@ import sys
 import traceback
 import logging
 
-import transaction
-
 
 from AccessControl import ClassSecurityInfo
 
@@ -46,20 +44,20 @@ from Acquisition  import aq_inner, aq_parent
 from Products.CMFCore            import permissions
 from AccessControl.Permissions   import access_contents_information   as perm_AccessContentsInformation
 
-from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.utils      import getToolByName
 
-from Products.Archetypes.utils import shasattr
+from Products.Archetypes.utils   import shasattr
 
-
-
-from MDD_RefactorComponents import MDDRefactor_NewVersion
-
-from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
 
 
 from ModelDDvlPloneTool_ImportExport_Constants import *
 
-from ModelDDvlPloneTool_Retrieval import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_Transactions           import ModelDDvlPloneTool_Transactions
+from ModelDDvlPloneTool_Retrieval              import ModelDDvlPloneTool_Retrieval
+from ModelDDvlPloneTool_Profiling              import ModelDDvlPloneTool_Profiling
+from MDD_RefactorComponents                    import MDDRefactor_NewVersion
+
+from ModelDDvlPloneToolSupport               import fPrettyPrint
 
 
 
@@ -1187,7 +1185,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 
                 unNewTitle          = theNewTitle.strip()
@@ -1511,7 +1509,7 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 
                 # ##############################################################################
@@ -1648,7 +1646,11 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                         unaExceptionInfo = sys.exc_info()
                         unaExceptionFormattedTraceback = '\n'.join(traceback.format_exception( *unaExceptionInfo))
                         
-                        unInformeExcepcion = 'Exception during ModelDDvlPloneTool_Refactor::fNewVersion invoking MDDRefactor_NewVersion::fRefactor\n' 
+                        unInformeExcepcion = ''
+                        if unRefactor and unRefactor.vErrorReports:
+                            unInformeExcepcion = '%s\n' % '\n'.join( [ str( unErrorReport) for unErrorReport in unRefactor.vErrorReports])
+                        
+                        unInformeExcepcion += 'Exception during ModelDDvlPloneTool_Refactor::fNewVersion invoking MDDRefactor_NewVersion::fRefactor\n' 
                         unInformeExcepcion += 'exception class %s\n' % unaExceptionInfo[1].__class__.__name__ 
                         unInformeExcepcion += 'exception message %s\n\n' % str( unaExceptionInfo[1].args)
                         unInformeExcepcion += unaExceptionFormattedTraceback   
@@ -1684,25 +1686,33 @@ class ModelDDvlPloneTool_Version( ModelDDvlPloneTool_Profiling):
                             
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
                     
-                    transaction.commit()
+                    ModelDDvlPloneTool_Transactions().fTransaction_Commit()
     
                     unNewVersionReport.update( { 
                          'success':      True,
                     })
                     
                     if cLogVersionResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fNewVersion\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewVersionReport, ])))
+                        unStringErrorReports = ''
+                        if unRefactor and unRefactor.vErrorReports:
+                            unInformeExcepcion = '%s\n' % '\n'.join( [ str( unErrorReport) for unErrorReport in unRefactor.vErrorReports])
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fNewVersion\n%s\n%s\n' % ( self.__class__.__name__, fPrettyPrint( [ unNewVersionReport, ]), unStringErrorReports))
                     
                 else:
-                    transaction.abort()
+                    ModelDDvlPloneTool_Transactions().fTransaction_Abort()
+                                    
                     
                     unNewVersionReport.update( { 
                         'success':      False,
                         'status':       cNewVersionStatus_Error_Internal_Refactor_Failed,
                     })
-                    
+
+                    unStringErrorReports = ''
+                    if unRefactor and unRefactor.vErrorReports:
+                        unInformeExcepcion = '%s\n' % '\n'.join( [ str( unErrorReport) for unErrorReport in unRefactor.vErrorReports])
+                
                     if cLogVersionResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fNewVersion\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unNewVersionReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'ABORT: %s::fNewVersion\n%s%s\n' % ( self.__class__.__name__, fPrettyPrint( [ unNewVersionReport, ]), unStringErrorReports))
                     
                 return unNewVersionReport                
                 

@@ -34,49 +34,28 @@
 <body>
 
     <metal:main fill-slot="main">
-    <tal:main-macro metal:define-macro="main"
-        tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
-        global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
-    
-        <div metal:use-macro="here/document_actions/macros/document_actions">
-            Document actions (print, sendto etc)
-        </div>
-
-        <h1 tal:content="object_title" class="documentFirstHeading">
-          Title or id
-        </h1>
-
-        <div metal:use-macro="here/document_byline/macros/byline">
-          Get the byline - contains details about author and modification date.
-        </div>
-
-        <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.pSetDefaultDisplayView( here)" />
-            
-        <tal:block tal:replace="nothing">
-            <metal:block metal:use-macro="here/Textual_inner/macros/tTextualInner" />
-        </tal:block>
+        <tal:main-macro metal:define-macro="main"
+            tal:define="text string:Copyright 2008 Model Driven Development sociedad limitada y Antonio Carrasco Valero;
+            global pStartTime       pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
         
-        <tal:block tal:define="
-            pFlushCache request/theFlushCache | string:;
-            pNoCache    request/theNoCache | string:" >
-            <tal:block tal:condition="pFlushCache">
-                <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.fFlushCachedTemplates( here)" />
-            </tal:block>
-            <tal:block tal:condition="pNoCache">
-                <metal:block metal:use-macro="here/Textual_inner/macros/tTextualInner" />
-            </tal:block>
-            <tal:block tal:condition="not: pNoCache">
-                <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplateOrCachedForElementInLanguage( here, 'Textual_NoHeaderNoFooter' )" />
-            </tal:block>
-        </tal:block>
-
-            
-        <div tal:replace="structure python: here.ModelDDvlPlone_tool.fRenderTemplate( here, '%sFooter_view' )" />
-        <br/>
-
-
-    </tal:main-macro>
-</metal:main>
+            <div metal:use-macro="here/document_actions/macros/document_actions">
+                Document actions (print, sendto etc)
+            </div>
+    
+            <h1 tal:content="object_title" class="documentFirstHeading">
+              Title or id
+            </h1>
+    
+            <div metal:use-macro="here/document_byline/macros/byline">
+              Get the byline - contains details about author and modification date.
+            </div>
+    
+            <tal:block tal:define="dummy python: here.ModelDDvlPlone_tool.pSetDefaultDisplayView( here)" />
+                
+            <metal:block metal:use-macro="here/MDDTextualWithActions/macros/tTextualWithActions" />
+    
+        </tal:main-macro>
+    </metal:main>
 
 </body>
 </html>

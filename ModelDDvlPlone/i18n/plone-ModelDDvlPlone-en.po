@@ -25,10 +25,10 @@ msgstr "Export"
 msgid "Import"
 msgstr "Import"
 
-#. Default: "Inspeccionar Cache"
+#. Default: "Cache"
 #: 
-msgid "Inspect Cache"
-msgstr "Inspect Cache"
+msgid "Cache"
+msgstr "Cache"
 
 #. Default: "Nueva Traduccion"
 #: 
@@ -67,11 +67,54 @@ msgid "Flush"
 msgstr "Flush"
 
 
+#. Default: "Vaciar Disco"
+#: 
+msgid "Flush Disk"
+msgstr "Flush Disk"
+
+
 
 #. Default: "Habilitar"
 #: 
 msgid "Enable"
 msgstr "Enable"
 
+
+#. Default: "Deshabilitar"
+#: 
+msgid "Disable"
+msgstr "Disable"
+
+
+#. Default: "Inicializar"
+#: 
+msgid "Reset"
+msgstr "Reset"
+
+
+
+
+
+
+#. Default: "Portapapeles""
+#: 
+msgid "Clipboard"
+msgstr "Clipboard"
+
+#. Default: "Activar"
+#: 
+msgid "Activate"
+msgstr "Activate"
+
+
+#. Default: "Desactivar"
+#: 
+msgid "Deactivate"
+msgstr "Deactivate"
+
+#. Default: "Cambios"
+#: 
+msgid "Changes"
+msgstr "Changes"
 
 

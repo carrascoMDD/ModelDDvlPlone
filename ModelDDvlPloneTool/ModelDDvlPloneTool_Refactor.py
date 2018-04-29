@@ -36,8 +36,6 @@ import sys
 import traceback
 import logging
 
-import transaction
-
 from Acquisition        import aq_inner, aq_parent
 
 
@@ -54,18 +52,29 @@ from App.Dialogs import MessageDialog
 
 from webdav.Lockable import ResourceLockedError
 
-
-from ModelDDvlPloneTool_Refactor_Constants import *
-
-from MDD_RefactorComponents import MDDRefactor_Paste
+from Products.CMFCore.utils import getToolByName
 
 
-from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+from ModelDDvlPloneTool_Refactor_Constants      import *
+
+from ModelDDvlPloneTool_Transactions            import ModelDDvlPloneTool_Transactions
+
+from ModelDDvlPloneTool_Profiling               import ModelDDvlPloneTool_Profiling
+
+from MDD_RefactorComponents                     import MDDRefactor_Paste
+
+from ModelDDvlPloneToolSupport               import fPrettyPrint
+
+
 
 
 
 cLogExceptions = True
 
+
+
+
+cClipboardCookieName = '__cp'
 
 
 
@@ -83,6 +92,200 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
     """
     security = ClassSecurityInfo()
 
+    
+    
+    def fNewVoidClipboardResult( self,):
+        
+        unResult = {
+            'is_move_operation':       False,
+            'num_elements':            0,
+            'num_contained_elements':  0,
+            'total_elements':          0,
+            'has_same_root_as_context':False,
+            'num_other_roots':         0,
+            'num_unsupported_roots':   0,
+            'elements_by_roots':       [],
+            'num_elements':            0,
+            'num_contained_elements':  0,
+            'total_elements':          0,
+            'portal_url':              '',
+        }
+        return unResult
+    
+    
+   
+    def fNewVoidElementsResultForOneRoot( self,):
+        
+        unResult = {
+            'is_supported_root':       False,
+            'root_path':               '',
+            'root_title':              '',
+            'root_url':                '',
+            'is_same_root_as_context': False,
+            'num_elements':            0,
+            'num_contained_elements':  0,
+            'total_elements':          0,
+            'elements':                [],
+        }
+        return unResult
+    
+    
+    
+   
+    security.declarePrivate( 'pClearClipboard')
+    def pClearClipboard(self, 
+        theModelDDvlPloneTool            =None,
+        theTimeProfilingResults          =None,
+        theContextualElement             =None, 
+        theAdditionalParams              =None):
+        
+        aRequest = None
+        try:
+            aRequest = theContextualElement.REQUEST
+        except:
+            None
+        if ( aRequest == None):
+            return self
+        
+        if aRequest.has_key( cClipboardCookieName):
+            try:
+                aRequest.form.pop( cClipboardCookieName)
+            except:
+                None
+            try:
+                aRequest.cookies.pop( cClipboardCookieName)
+            except:
+                None
+            try:
+                aRequest.other.pop( cClipboardCookieName)
+            except:
+                None
+        
+        aResponse =  aRequest.response        
+        aResponse.expireCookie(cClipboardCookieName, path='%s' % self.fPathForCookie( aRequest))
+
+        return self
+    
+    
+    
+    
+    
+        
+    
+    
+    security.declarePrivate( 'fClipboardResult')
+    def fClipboardResult(self, 
+        theModelDDvlPloneTool            =None,
+        theModelDDvlPloneTool_Retrieval  =None,
+        theTimeProfilingResults          =None,
+        theContextualElement             =None, 
+        theAdditionalParams              =None):
+    
+        unClipboardResult = self.fNewVoidClipboardResult()
+    
+        aClipboardOperation, someElementsInClipboard = self.fClipboardOperationAndElements( theModelDDvlPloneTool, theContextualElement)
+        
+        unClipboardResult[ 'is_move_operation']  = aClipboardOperation == 1
+        
+        if not someElementsInClipboard:
+            return unClipboardResult
+        
+        
+        unContextualPathDelRaiz = ''
+        try:
+            unContextualPathDelRaiz = theContextualElement.fPathDelRaiz()
+        except:
+            None
+        
+        
+        unNumElements          = 0
+        unNumContainedElements = 0
+        
+        someElementsByRoots = { }
+        
+        for anElement in someElementsInClipboard:
+            anElementResult = theModelDDvlPloneTool_Retrieval.fRetrieveElementoBasicInfoAndTranslations( 
+                theTimeProfilingResults     =theTimeProfilingResults,
+                theElement                  =anElement, 
+                theRetrievalExtents         =[ 'num_contained',],
+                theTranslationsCaches       =None, 
+                theCheckedPermissionsCache  =None, 
+                theResult                   =None,
+                theParentTraversalResult    =None,
+                theWritePermissions         =None,
+                theAdditionalParams         =theAdditionalParams)
+            
+            if anElementResult and not ( anElementResult[ 'object'] == None):
+                
+                unPathDelRaiz = anElementResult.get( 'root_path', '')
+                unResultForOneRoot = someElementsByRoots.get( unPathDelRaiz, None)
+                if unResultForOneRoot == None:
+                    unResultForOneRoot = self.fNewVoidElementsResultForOneRoot()
+                    unResultForOneRoot[ 'root_title'] = anElementResult.get( 'root_title', '')
+                    unResultForOneRoot[ 'root_url']   = anElementResult.get( 'root_url', '')
+                    unResultForOneRoot[ 'root_path']  = unPathDelRaiz
+                    unResultForOneRoot[ 'is_root_supported']  = anElementResult[ 'is_root_supported']
+                    if unPathDelRaiz == unContextualPathDelRaiz:
+                        unResultForOneRoot[ 'is_same_root_as_context'] = True
+                    someElementsByRoots[ unPathDelRaiz] = unResultForOneRoot
+                
+                unResultForOneRoot[ 'elements'].append( anElementResult)
+                
+                unResultForOneRoot[ 'num_elements']           += 1
+                unResultForOneRoot[ 'num_contained_elements'] += anElementResult.get( 'num_contained', 0)
+                unResultForOneRoot[ 'total_elements']         += 1 + anElementResult.get( 'num_contained', 0)
+                
+            
+        unThisRoot     = None
+        someOtherRoots = [ ]                
+        for unResultForOneRoot in someElementsByRoots.values():
+            unResultForOneRoot[ 'elements'] = sorted( unResultForOneRoot['elements'], lambda unR, otroR: cmp( unR.get( 'title', ''), otroR.get( 'title', '')))
+            
+            unClipboardResult[ 'num_elements']           += unResultForOneRoot[ 'num_elements']
+            unClipboardResult[ 'num_contained_elements'] += unResultForOneRoot[ 'num_contained_elements']
+            unClipboardResult[ 'total_elements']         += unResultForOneRoot[ 'total_elements']
+            
+            if unResultForOneRoot[ 'root_path'] == unContextualPathDelRaiz:
+                unClipboardResult[ 'has_same_root_as_context'] = True
+                unThisRoot = unResultForOneRoot
+            else:
+                someOtherRoots.append( unResultForOneRoot)
+                if unResultForOneRoot.get( 'is_root_supported', False):
+                    unClipboardResult[ 'num_other_roots'] += 1
+                else:
+                    unClipboardResult[ 'num_unsupported_roots'] += 1
+                    
+                
+        someSortedOtherRoots = sorted( someOtherRoots, lambda unR, otroR: cmp( unR.get( 'root_path', ''), otroR.get( 'root_path', '')))
+         
+        if unThisRoot:
+            unClipboardResult[ 'elements_by_roots'].append( unThisRoot)
+        unClipboardResult[ 'elements_by_roots'].extend( someSortedOtherRoots)
+               
+        
+        unPortalObject = None
+        unPortalURLTool = getToolByName( theContextualElement, 'portal_url')
+        if unPortalURLTool:
+            unPortalURL = ''
+            try:
+                unPortalURL = unPortalURLTool()
+            except: 
+                None
+            if unPortalURL:
+                unClipboardResult[ 'portal_url'] = unPortalURL 
+            try:
+                unPortalObject = unPortalURLTool.getPortalObject()
+            except: 
+                None
+            if not ( unPortalObject == None):
+                unClipboardResult[ 'portal_object'] = unPortalObject         
+
+        return unClipboardResult
+    
+    
+    
+    
+    
     
     
     # ACV 20091001 Unused. Removed.
@@ -211,8 +414,8 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
         
         aResponse =  aRequest.response
         if aResponse:
-            aResponse.setCookie('__cp', unClipBoardCookieContent, path='%s' % self.fPathForCookie( aRequest))
-        aRequest['__cp'] = unClipBoardCookieContent
+            aResponse.setCookie(cClipboardCookieName, unClipBoardCookieContent, path='%s' % self.fPathForCookie( aRequest))
+        aRequest[cClipboardCookieName] = unClipBoardCookieContent
     
         return len( unosMonikers)
         
@@ -295,7 +498,64 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
         return aMessageDialog
     
         
+    
+    
+    
+    
 
+    security.declarePrivate( 'fClipboardOperationAndElements')
+    def fClipboardOperationAndElements( self,        
+        theModelDDvlPloneTool            =None,
+        theContextualElement             =None,):
+        
+        aRequest = theContextualElement.REQUEST
+        if not aRequest:
+            return ( 0, [], )
+        
+        if not aRequest.has_key(cClipboardCookieName):
+            return ( 0, [], )
+            
+        aClipboard = aRequest[cClipboardCookieName]
+        
+        if aClipboard is None:
+            return ( 0, [], )
+             
+        try:
+            anOperation, someMonikerDatas = self.fClipboardDecode( aClipboard) # _cb_decode(cp)
+        except:
+            return ( 0, [], )
+
+    
+        someObjects = []
+        anApplication = theContextualElement.getPhysicalRoot()
+        for aMonikerData in someMonikerDatas:
+            aMoniker= Moniker.loadMoniker( aMonikerData)
+            anObject = None
+            try:
+                anObject = aMoniker.bind( anApplication)
+            except:
+                None
+            if not ( anObject == None):
+                someObjects.append( anObject)
+            
+        return ( anOperation, someObjects)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         
     security.declarePrivate( 'fObjectPaste')
@@ -313,42 +573,12 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
 
         aPasteReport = self.fNewVoidPasteReport()
         
-        aRequest = theContainerObject.REQUEST
-        if not aRequest:
-            return aPasteReport
-        
-        if not aRequest.has_key('__cp'):
-            return aPasteReport
-            
-        aClipboard = aRequest['__cp']
-        
-        if aClipboard is None:
-            return aPasteReport
-             
-        try:
-            anOperation, someMonikerDatas = self.fClipboardDecode( aClipboard) # _cb_decode(cp)
-        except:
-            return aPasteReport
-
     
-        someObjects = []
-        anApplication = theContainerObject.getPhysicalRoot()
-        for aMonikerData in someMonikerDatas:
-            aMoniker= Moniker.loadMoniker( aMonikerData)
-            anObject = None
-            try:
-                anObject = aMoniker.bind( anApplication)
-            except:
-                None
-            # Do not verify here
-            # self._verifyObjectPaste(ob, validate_src=op+1)
-            if not ( anObject == None):
-                someObjects.append( anObject)
-        # End of code copied from class CopyContainer
+        aClipboardOperation, someObjects = self.fClipboardOperationAndElements( theModelDDvlPloneTool, theContainerObject)
             
         someObjectsToPaste = someObjects[:]
         
-        unIsMoveOperation = anOperation == 1
+        unIsMoveOperation = aClipboardOperation == 1
         
         unPasteReport = self.fPaste( 
             theTimeProfilingResults        = theTimeProfilingResults,
@@ -401,7 +631,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 unPasteContext = self.fNewVoidPasteContext()
                 unPasteReport  = unPasteContext.get( 'report', {})
@@ -435,9 +665,6 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                 
                 unPasteContext[ 'is_move_operation'] = unIsMoveOperation
                 
-                # ACV 20091006 fixed
-                # BUG: During Cut/paste on same container: Title and Id number-postfixed to avoid duplicates (while no duplicate would be caused) SUC 24 Move elements to a different container
-                #
                 someObjectsToPaste = []
                 if not unIsMoveOperation:
                     someObjectsToPaste = theObjectsToPaste[:]
@@ -602,7 +829,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 unHuboRefactorException  = False
                 unHuboException  = False
@@ -655,13 +882,14 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                     'num_plone_elements_bypassed': unRefactor.vNumPloneElementsBypassed,
                     'num_attributes_bypassed':     unRefactor.vNumAttributesBypassed,
                     'num_links_bypassed':          unRefactor.vNumLinksBypassed,
+                    'impacted_objects_UIDs':       unRefactor.vImpactedObjectUIDs,
                 })
                 unPasteReport[ 'error_reports'].extend( unRefactor.vErrorReports )
                         
                 
-                transaction.commit()
+                ModelDDvlPloneTool_Transactions().fTransaction_Commit()
                 if cLogPasteResults:
-                    logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                    logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fPaste\n%s' % ( self.__class__.__name__, fPrettyPrint( [ unPasteReport, ])))
                     
             
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
@@ -671,7 +899,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                     })
                     
                     if cLogPasteResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED COMPLETED: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED COMPLETED: %s::fPaste\n%s' % ( self.__class__.__name__, fPrettyPrint( [ unPasteReport, ])))
                     
                 else:
                     
@@ -681,7 +909,7 @@ class ModelDDvlPloneTool_Refactor( ModelDDvlPloneTool_Profiling):
                     })
                     
                     if cLogPasteResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED WITH ERRORS during: %s::fPaste\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unPasteReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED WITH ERRORS during: %s::fPaste\n%s' % ( self.__class__.__name__, fPrettyPrint( [ unPasteReport, ])))
                     
                 return unPasteReport
             

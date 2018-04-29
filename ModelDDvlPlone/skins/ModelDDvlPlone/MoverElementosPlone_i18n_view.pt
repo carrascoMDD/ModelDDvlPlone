@@ -48,7 +48,7 @@
                         'theMovedObjectUID'       :pMovedObjectUID, 
                         'theMoveDirection'        :pMoveDirection, 
                         'theAdditionalParams'     :None, };                  
-                    aMoveResult python: here.ModelDDvlPlone_tool.pMoveSubObjectPlone( **unosArgs);
+                    aMoveResult python: here.ModelDDvlPlone_tool.fMoveSubObjectPlone( **unosArgs);
                     pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();">     
 
 <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderRetrievalTime_HTML" />   

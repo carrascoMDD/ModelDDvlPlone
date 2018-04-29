@@ -41,6 +41,8 @@ from Products.CMFCore.utils import getToolByName
 from Products.Relations.config                  import RELATIONS_LIBRARY
 
    
+from ModelDDvlPloneToolSupport          import fEvalString
+
 cElementsOfTypeTraversalName = 'ElementsOfType_TraversalName'   
 
 
@@ -103,13 +105,17 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
         if not theReferenceFieldName or not theField:
             return []
 
-        someComputedypes = []
+        someComputedTypesString = ''
         try:
-            someComputedypes = eval( theField.computed_types)
+            someComputedTypesString = theField.computed_types
         except:
-            None                    
+            None    
+        if not someComputedTypesString:
+            return []
+        
+        someComputedTypes = fEvalString( someComputedTypesString)
 
-        return someComputedypes
+        return someComputedTypes
              
  
     
@@ -460,18 +466,13 @@ class ModelDDvlPloneTool_Retrieval_Candidates:
             
             unPathDelRaiz = theElement.fPathDelRaiz()
  
-            # OJO ACV 20090609 
-            # Want to remove index getPathDelRaiz introduced by BPD, eMOF and other ModelDDvlPlone based applications
-            # and use the standard Plone index "path" instead
             if unTodosArquetipos:               
                 unaBusqueda = { 
-#                   'getPathDelRaiz' :   unPathDelRaiz,
                    'path' :              unPathDelRaiz,
                 }
             else:
                 unaBusqueda = { 
                     'meta_type'      :   someAcceptedPortalTypes,
-#                   'getPathDelRaiz' :   unPathDelRaiz,
                     'path' :             unPathDelRaiz,
                 }
      

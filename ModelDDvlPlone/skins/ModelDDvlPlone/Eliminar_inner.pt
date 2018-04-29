@@ -115,8 +115,8 @@
                             <thead>
                                 <tr>
                                     <th align="left" tal:repeat="unColumnName pColumnNames" tal:content="python: pColumnTranslations.get( unColumnName, {}).get( 'translated_label', unColumnName)" />
-                                    <th  width="120" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Type&nbsp;</th>
-                                    <th  align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_path_label">&nbsp;Path&nbsp;</th>
+                                    <th width="120" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Type&nbsp;</th>
+                                    <th align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_path_label">&nbsp;Path&nbsp;</th>
                                 </tr>
                             </thead>
                             <tbody tal:define="pIndentLevel python: 0;
@@ -142,8 +142,8 @@
                                 <thead>
                                     <tr>
                                         <th align="left" tal:repeat="unColumnName pColumnNames" tal:content="python: pColumnTranslations.get( unColumnName, {}).get( 'translated_label', unColumnName)" />
-                                        <th  width="120" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Type&nbsp;</th>
-                                        <th  align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_path_label">&nbsp;Path&nbsp;</th>
+                                        <th width="120" align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_tipo_label">&nbsp;Type&nbsp;</th>
+                                        <th align="left" i18n:domain="ModelDDvlPlone"  i18n:translate="ModelDDvlPlone_path_label">&nbsp;Path&nbsp;</th>
                                     </tr>
                                 </thead>
                                 <tbody >

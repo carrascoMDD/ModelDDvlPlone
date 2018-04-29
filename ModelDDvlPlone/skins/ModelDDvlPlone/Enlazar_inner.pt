@@ -40,6 +40,8 @@
                                  pReferenceFieldName      request/theReferenceFieldName  | python: None;
                                  pLinkUID                 request/theLinkUID  | python: None;
                                  pUnlinkUID               request/theUnlinkUID | python: None;                                
+                                 pConfirmedUnlink         request/theConfirmedUnlink | python: None;
+                                 pSecondsRequest          python: int( request.get( 'theSN', 0));
                                  pShowTrees               pFalse;
                                  global pStartTime  pStartTime | python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
 
@@ -62,6 +64,8 @@
         
                 <tal:block tal:condition="python: pLinkUID and not pUnlinkUID" 
                     tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >
+                    
+                     
                     <tal:block tal:define="
                         unosArgs python: {
                             'theTimeProfilingResults' :pProfilingResults,
@@ -82,26 +86,119 @@
                         </tal:block>                            
                     </tal:block>    
                 </tal:block>    
+                <p tal:content="python: 'pConfirmedUnlink=%s' % pConfirmedUnlink" />
                 <tal:block tal:condition="python: not pLinkUID and pUnlinkUID" 
-                    tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >            
-                    <tal:block tal:define="
-                        unosArgs python: {
-                            'theTimeProfilingResults' :pProfilingResults,
-                            'theSourceElement'        :here, 
-                            'theReferenceFieldName'   :pReferenceFieldName, 
-                            'theTargetUID'            :pUnlinkUID,
-                            'theAdditionalParams'     :None, };
-                        aUnlinkResult python: here.ModelDDvlPlone_tool.fUnlinkFromUIDReferenceFieldNamed( **unosArgs);
-                        someUnlinkReports python: aUnlinkResult.get( 'link_reports', [])"
-                        tal:condition="someUnlinkReports" >
-                        <tal:block tal:define="pUnlinkReport python: someUnlinkReports[ 0]"
-                            tal:condition="python: pUnlinkReport[ 'effect'] == 'unlinked'">
-                            <div class="portalMessage">
-                                <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_hadesenlazadoelelemento">ModelDDvlPlone_hadesenlazadoelelemento</span> 
-                                &nbsp;   
-                                <span tal:content="pUnlinkReport/target/values_by_name/title/uvalue" />
-                            </div>
-                        </tal:block>                            
+                    tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >    
+                    
+                    <tal:block tal:condition="not: pConfirmedUnlink" >
+                    
+                        <tal:block 
+                            tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None);
+                            unosArgs python: { 
+                                'theTimeProfilingResults'     :pProfilingResults,
+                                'theContextualElement'        :here, 
+                                'theUID'                      :pUnlinkUID,
+                                'theTypeConfig'               :None, 
+                                'theAllTypeConfigs'           :None, 
+                                'theViewName'                 :'Tabular', 
+                                'theRetrievalExtents'         :[ 'traversals', ],
+                                'theWritePermissions'         :[ 'object', 'relations', ],
+                                'theFeatureFilters'           :{'attrs': [ 'title', 'description',], 'aggregations': [], 'relations': [ pReferenceFieldName,],}, 
+                                'theInstanceFilters'          :None,
+                                'theTranslationsCaches'       :None,
+                                'theCheckedPermissionsCache'  :None,
+                                'theAdditionalParams'         :None, };    
+                            SRES  python: here.ModelDDvlPlone_tool.fRetrieveTypeConfigByUID( **unosArgs);
+                            pRetrievalEndTime  python: here.ModelDDvlPlone_tool.fMillisecondsNow();
+                            pPermiteDesenlazar  python: SRES[ 'read_permission'] and SRES[ 'write_permission']; 
+                            pMillisecondsNow python: here.ModelDDvlPlone_tool.fMillisecondsNow()" >
+                            
+                            <tal:block tal:condition="SRES">
+                    
+                                <h2>
+                                   <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_desenlazar_label">Unlink-</span>
+                                </h2>       
+                                <p><font size="2"><strong  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_eliminar_action_help">You are going to DELETE Plone elements below. Please, make sure you really want to delete them.-</strong></font></p>
+                         
+                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_InstructionsConfirmUnlink_help">Please, confirm unlinking of the element.</h4>
+                                <h4 i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_SecondsToUnlink_help">You must confirm within a limited interval of time. If you need additional time to review the impact, please request again the unlink operation.-</h4>
+                                
+                                <br/>
+                                <h3>
+                                    <tal:block >
+                                        <a  id="cid_MDDConfirmarEliminacion" href="#"
+                                            tal:attributes="href python: '%sEnlazar/?theReferenceFieldName=%s&theUnlinkUID=%s&theSN=%s&theConfirmedUnlink=Yes' % ( SRES[ 'url'], pReferenceFieldName, pUnlinkUID, pMillisecondsNow, )" 
+                                            title="">
+                                            <font color="Red">
+                                                <img src="#" tal:attributes="src python: here.portal_url() + '/delete_icon.gif'"  
+                                                    alt="Delete" title="Delete" id="icon-delete"
+                                                    i18n:attributes="alt ModelDDvlPlone_desenlazar_action_label; title ModelDDvlPlone_desenlazar_action_label" />
+                                                &nbsp;
+                                                <span  i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_ConfirmUnlink_action_label">Please confirm unlinking of-</span>
+                                                &nbsp;
+                                                <br/>
+                                                (                    
+                                                <img src="#" tal:attributes="src python: '%s/%s' % ( here.portal_url(), SRES['content_icon'])"  
+                                                     alt="" title="MetaType icon" id="icon-here" />
+                                                &nbsp;
+                                                <span tal:content="python: SRES['type_translations'][ 'translated_archetype_name'] "/>
+                                                )
+                                                &nbsp;
+                                                <span tal:content="SRES/values_by_name/title/uvalue" />
+                                            </font>
+                                        </a>
+                                    </tal:block>
+                                </h3>
+                                <p tal:define="pSecondstoReview python: here.ModelDDvlPlone_tool.fSecondsToReviewAndUnlink( here);
+                                    pDateTimeNow python: here.ModelDDvlPlone_tool.fMillisecondsToDateTime( pMillisecondsNow)">
+                                    <font size="2">
+                                        <strong>
+                                            <span tal:content="python: '%s %d %s ' % (
+                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_DeleteConfirmation_TimeOut_Help', 'You must confirm within the next-'),
+                                                pSecondstoReview,
+                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_seconds', 'seconds-'),
+                                            )" />
+                                            <br/>
+                                            <span tal:content="python: '%s %s' % (
+                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Deadline', 'Deadline-'),
+                                                here.ModelDDvlPlone_tool.fDateTimeAfterSeconds(  pDateTimeNow, pSecondstoReview),
+                                            )" />
+                                            <br/>
+                                            <span tal:content="python: '%s %s' % (
+                                                here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CurrentTime', 'Request Time-'),
+                                                pDateTimeNow.rfc822(),
+                                            )" />
+                                        </strong>
+                                    </font>
+                                </p>
+                                <br/>
+                            </tal:block>    
+                        </tal:block>    
+                    </tal:block>    
+                        
+                    
+                    <tal:block tal:condition="pConfirmedUnlink" 
+                        tal:define="pProfilingResults python: (pPerformanceAnalysis or {}).get( 'profiling_results', None)" >
+                    
+                        <tal:block tal:define="
+                            unosArgs python: {
+                                'theTimeProfilingResults' :pProfilingResults,
+                                'theSourceElement'        :here, 
+                                'theReferenceFieldName'   :pReferenceFieldName, 
+                                'theTargetUID'            :pUnlinkUID,
+                                'theAdditionalParams'     :None, };
+                            aUnlinkResult python: here.ModelDDvlPlone_tool.fUnlinkFromUIDReferenceFieldNamed( **unosArgs);
+                            someUnlinkReports python: aUnlinkResult.get( 'link_reports', [])"
+                            tal:condition="someUnlinkReports" >
+                            <tal:block tal:define="pUnlinkReport python: someUnlinkReports[ 0]"
+                                tal:condition="python: pUnlinkReport[ 'effect'] == 'unlinked'">
+                                <div class="portalMessage">
+                                    <span i18n:domain="ModelDDvlPlone" i18n:translate="ModelDDvlPlone_hadesenlazadoelelemento">ModelDDvlPlone_hadesenlazadoelelemento</span> 
+                                    &nbsp;   
+                                    <span tal:content="pUnlinkReport/target/values_by_name/title/uvalue" />
+                                </div>
+                            </tal:block>                            
+                        </tal:block>    
                     </tal:block>    
                 </tal:block>
         
@@ -220,7 +317,7 @@
                             <tal:block tal:define="CANDIDATES TRAVRES/candidates" >
      
     <tal:block tal:replace="nothing">  
-    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( [ CANDIDATES, ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
+    <tal:block tal:replace="structure python: here.ModelDDvlPlone_tool.fPrettyPrintHTML( here [ CANDIDATES, ], [ 'values_by_name', 'traversals_by_name', 'type_config', 'traversal_config', 'column_translations',  'column_translations', 'attribute_translations', 'vocabulary_translations', 'traversed_translations', ], here.ModelDDvlPlone_tool.fPreferredResultDictKeysOrder() )" />
     </tal:block>
                           
                                 <tal:block tal:condition="not: CANDIDATES">

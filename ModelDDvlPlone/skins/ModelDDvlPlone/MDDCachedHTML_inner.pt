@@ -1,0 +1,115 @@
+<tal:block replace="nothing">
+# -*- coding: utf-8 -*-
+#
+# File: MDDCachedHTML_inner.pt
+#
+# Copyright (c) 2008 by 2008 Model Driven Development sl and Antonio Carrasco Valero
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
+# Authors: 
+# Model Driven Development sl  Valencia (Spain) www.ModelDD.org 
+# Antonio Carrasco Valero                       carrasco@ModelDD.org
+#</tal:block>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en">
+<body>
+
+
+    <div metal:define-macro="tCachedHTMLInner" >
+        
+        <metal:block metal:use-macro="here/PerformanceAnalysis/macros/tSetupPerformanceAnalysis" />   
+
+        <tal:block tal:define=" 
+			pTrue                        python: True;
+			pFalse                       python: False;
+			pCacheEntryUniqueId      	 request/theCacheEntryUniqueId   | string:;  
+			   
+			global pStartTime  pStartTime |  python: here.ModelDDvlPlone_tool.fMillisecondsNow();" >
+			
+			<p>
+				<a class="state-visible" id="cid_backToElement" href="#" tal:attributes="href python: '%s/' % here.absolute_url()">
+					<font size="3">
+						<strong tal:content="python: u'%s %s' % (
+							here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_volver_action_label', 'Back to-',),
+							here.ModelDDvlPlone_tool.fAsUnicode( here, here.Title()))" />
+					</font>
+				</a>
+				
+				&emsp;&emsp;
+ 				<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCacheStatus/' % here.absolute_url()" >
+					<font size="2">
+						<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheStatus', 'Cache Status-',)" />
+					</font>
+				</a>        
+				
+				&emsp;&emsp;
+				<a class="state-visible" id="cid_CacheDiagnostics_Link" href="#" tal:attributes="href python: '%s/MDDCacheDiagnostics/' % here.absolute_url()">
+					<font size="2">
+						<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_CacheDiagnostics_action_label', 'Cache Diagnostics-',)" />
+					</font>
+				</a>
+			</p>
+
+					
+			<a class="state-visible" id="cid_Refresh" href="#" tal:attributes="href python: '%s/MDDCachedHTML/?theCacheEntryUniqueId=%s' % ( here.absolute_url(), pCacheEntryUniqueId,)"
+				tal:define="aRefreshLabel python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_refrescar_action_label', 'Refresh-',)" >
+				<img src="#" alt="#" title="#" 
+					tal:attributes="src python: '%s/%s' % ( here.portal_url(), 'refrescar.gif',); alt aRefreshLabel; title aRefreshLabel" 
+					id="icon-refrescar" />
+				<strong tal:content="python: aRefreshLabel" />
+			</a>
+
+				
+			 
+	 
+			<br/>
+
+			<h2>
+				<strong tal:content="python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone',  'ModelDDvlPlone_CachedHTML', 'Cached HTML')" />
+			</h2>
+	
+			<tal:block 
+				tal:define="pHTML python: here.ModelDDvlPlone_tool.fCached_HTML( here, pCacheEntryUniqueId, theAdditionalParams={})" 
+				tal:condition="pHTML" 
+				tal:replace="structure pHTML" />
+				 
+			<br/>
+								
+
+	
+			<metal:block metal:use-macro="here/PerformanceAnalysis/macros/tRenderProcessingTime_HTML" />   
+		
+        </tal:block>
+        
+      
+    </div>
+    
+    
+     
+    
+
+    
+
+	
+	
+	
+    	
+</body>
+</html>
+    

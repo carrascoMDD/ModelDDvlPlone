@@ -310,7 +310,7 @@ class ModelDDvlPloneTool_Retrieval_Permissions:
             return ''
         
         if unMember.getUserName() == 'Anonymous User':
-            unMemberId = unMember.getUserName()
+            unMemberId = 'Anonymous User'
         else:
             unMemberId = unMember.getMemberId()   
             

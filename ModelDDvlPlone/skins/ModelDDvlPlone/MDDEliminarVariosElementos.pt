@@ -54,9 +54,8 @@
                 
                 <tal:block tal:condition="python: not pDeleteManyReports" >
                     <tal:block tal:define="
-                        global  pMessageText python: '%s %s' % ( 
-                            here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_DeleteFailed', 'Delete operation Failed-'); 
-                        global pRedirectURL python: '%s/Tabular/?portal_status_message=%s#aggregation-%s' % ( here.absolute_url(), pMessageText, pDeleteReport.get( 'parent_traversal_name', ''))"
+                        global pMessageText python: here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_DeleteFailed', 'Delete operation Failed-'); 
+                        global pRedirectURL python: '%s/Tabular/?portal_status_message=%s' % ( here.absolute_url(), pMessageText,)"
                 />
                 </tal:block>
         
@@ -67,14 +66,14 @@
                             <tal:block tal:define="global pParentTraversalName python: pDeleteReport.get( 'parent_traversal_name', '')"
                                 tal:condition="pParentTraversalName" >
                                 <tal:block tal:define="
-                                    global pMessageText python: '%s; %s %d' % ( pMessageText,
+                                    global pMessageText python: '%s, %s %d' % ( pMessageText,
                                         here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumberElementsDeleted', 'Deleted elements #-'), 
                                         pDeleteReport.get( 'num_elements_to_delete', 0))" />
                             </tal:block>
                             <tal:block tal:define="global pParentTraversalName python: pDeleteReport.get( 'parent_traversal_name', '')"
                                 tal:condition="python: not pDeleteReport.get( 'parent_traversal_name', '')" >
                                 <tal:block tal:define="
-                                    global pMessageText python: '%s; %s %d' % ( pMessageText,
+                                    global pMessageText python: '%s, %s %d' % ( pMessageText,
                                         here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_NumberElementsDeleted', 'Deleted elements #-'), 
                                         pDeleteReport.get( 'num_elements_to_delete', 0))" />
                             </tal:block>
@@ -82,7 +81,7 @@
                         <tal:block tal:condition="python: not( pDeleteReport and ( pDeleteReport.get( 'effect', '').lower() == 'deleted'))" >
                             <tal:block tal:define="
                                 pDeleteReport  python: pDeleteReport or {};
-                                global pMessageText python: '%s;%s %s' % ( pMessageText,
+                                global pMessageText python: '%s,%s %s' % ( pMessageText,
                                     here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Error_DeleteFailed', 'Delete operation Failed-'), 
                                     here.ModelDDvlPlone_tool.fTranslateI18N( here, 'ModelDDvlPlone', 'ModelDDvlPlone_Failure_%s' % pDeleteReport.get( 'failure', ''), 'ModelDDvlPlone_Failure_%s-' % pDeleteReport.get( 'failure', '')),)" 
                             />

@@ -1,0 +1,686 @@
+http://localhost:8080/gvSIG/Descomprimir_zip_frontEndScript?Path=D:\dvpt\Plone251\Data\Products&ZipFileName=ModelDDploneVU_03TEXTbuild02_200808140229.zip
+
+
+
+
+
+
+https://gvsig.org/tweb/Descomprimir_zip_frontEndScript?Path=/var/lib/zope2.9/instance/testing-plone-site/Products&ZipFileName=gvSIGwhys.zip
+
+
+https://gvsig.org/tweb/Descomprimir_zip_frontEndScript?Path=/var/lib/zope2.9/instance/testing-plone-site/Products&ZipFileName=ModelDDploneVU.zip
+
+
+https://gvsig.org/tweb/Descomprimir_zip_frontEndScript?Path=/var/lib/zope2.9/instance/testing-plone-site/Products&ZipFileName=ModelDDploneVU_03TEXTbuild02_200808140229.zip
+
+
+
+Descomprimir Archivo ZIP
+Path: /var/lib/zope2.9/instance/testing-plone-site/Products
+ZipFileName: gvSIGwhys.zip
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ArquetipoConAdopcion.py', 'filename': 'gvSIGwhys/ArquetipoConAdopcion.py', 'esDirEnFilesystem': False, 'filesize': 7830L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ArquetipoReferenciable.py', 'filename': 'gvSIGwhys/ArquetipoReferenciable.py', 'esDirEnFilesystem': False, 'filesize': 6710L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Arquetipo_gvSIGwhys.py', 'filename': 'gvSIGwhys/Arquetipo_gvSIGwhys.py', 'esDirEnFilesystem': False, 'filesize': 10507L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Artefacto.py', 'filename': 'gvSIGwhys/Artefacto.py', 'esDirEnFilesystem': False, 'filesize': 11652L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionArquetipos_gvSIGwhys.py', 'filename': 'gvSIGwhys/ColeccionArquetipos_gvSIGwhys.py', 'esDirEnFilesystem': False, 'filesize': 2634L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionArtefactos.py', 'filename': 'gvSIGwhys/ColeccionArtefactos.py', 'esDirEnFilesystem': False, 'filesize': 3171L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionEntradas.py', 'filename': 'gvSIGwhys/ColeccionEntradas.py', 'esDirEnFilesystem': False, 'filesize': 3175L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionHerramientas.py', 'filename': 'gvSIGwhys/ColeccionHerramientas.py', 'esDirEnFilesystem': False, 'filesize': 3200L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionPasos.py', 'filename': 'gvSIGwhys/ColeccionPasos.py', 'esDirEnFilesystem': False, 'filesize': 3211L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionPerfiles.py', 'filename': 'gvSIGwhys/ColeccionPerfiles.py', 'esDirEnFilesystem': False, 'filesize': 3286L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionPoliticasDeNegocio.py', 'filename': 'gvSIGwhys/ColeccionPoliticasDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 3300L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionProcesosDeNegocio.py', 'filename': 'gvSIGwhys/ColeccionProcesosDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 3271L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionReglasDeNegocio.py', 'filename': 'gvSIGwhys/ColeccionReglasDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 3244L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionSalidas.py', 'filename': 'gvSIGwhys/ColeccionSalidas.py', 'esDirEnFilesystem': False, 'filesize': 3162L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionUnidadesOrganizacionales.py', 'filename': 'gvSIGwhys/ColeccionUnidadesOrganizacionales.py', 'esDirEnFilesystem': False, 'filesize': 3384L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/config.py', 'filename': 'gvSIGwhys/config.py', 'esDirEnFilesystem': False, 'filesize': 2940L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Copy (2) of Organizacion_EditableBodyConfig.py', 'filename': 'gvSIGwhys/Copy (2) of Organizacion_EditableBodyConfig.py', 'esDirEnFilesystem': False, 'filesize': 96026L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Copy of Organizacion_EditableBodyConfig.py', 'filename': 'gvSIGwhys/Copy of Organizacion_EditableBodyConfig.py', 'esDirEnFilesystem': False, 'filesize': 85875L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Decision.py', 'filename': 'gvSIGwhys/Decision.py', 'esDirEnFilesystem': False, 'filesize': 6124L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Entrada.py', 'filename': 'gvSIGwhys/Entrada.py', 'esDirEnFilesystem': False, 'filesize': 8030L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Envio.py', 'filename': 'gvSIGwhys/Envio.py', 'esDirEnFilesystem': False, 'filesize': 5156L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ExitoFinal.py', 'filename': 'gvSIGwhys/ExitoFinal.py', 'esDirEnFilesystem': False, 'filesize': 3256L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Extensions/', 'filename': 'gvSIGwhys/Extensions/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Extensions/Install.py', 'filename': 'gvSIGwhys/Extensions/Install.py', 'esDirEnFilesystem': False, 'filesize': 9231L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Extensions/__init__.py', 'filename': 'gvSIGwhys/Extensions/__init__.py', 'esDirEnFilesystem': False, 'filesize': 27L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/FracasoFinal.py', 'filename': 'gvSIGwhys/FracasoFinal.py', 'esDirEnFilesystem': False, 'filesize': 3266L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/gpl.txt', 'filename': 'gvSIGwhys/gpl.txt', 'esDirEnFilesystem': False, 'filesize': 35147L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Herramienta.py', 'filename': 'gvSIGwhys/Herramienta.py', 'esDirEnFilesystem': False, 'filesize': 8652L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/', 'filename': 'gvSIGwhys/i18n/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/generated.pot', 'filename': 'gvSIGwhys/i18n/generated.pot', 'esDirEnFilesystem': False, 'filesize': 27962L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-en.po', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-en.po', 'esDirEnFilesystem': False, 'filesize': 55814L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-en.po.bak', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-en.po.bak', 'esDirEnFilesystem': False, 'filesize': 55803L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-es.po', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-es.po', 'esDirEnFilesystem': False, 'filesize': 58375L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-es.po.bak', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-es.po.bak', 'esDirEnFilesystem': False, 'filesize': 58353L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/ModelDDploneVU-en.po', 'filename': 'gvSIGwhys/i18n/ModelDDploneVU-en.po', 'esDirEnFilesystem': False, 'filesize': 13498L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/ModelDDploneVU-es.po', 'filename': 'gvSIGwhys/i18n/ModelDDploneVU-es.po', 'esDirEnFilesystem': False, 'filesize': 15868L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion.py', 'filename': 'gvSIGwhys/Organizacion.py', 'esDirEnFilesystem': False, 'filesize': 4599L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_EditableBodyConfig.py', 'filename': 'gvSIGwhys/Organizacion_EditableBodyConfig.py', 'esDirEnFilesystem': False, 'filesize': 96026L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_EditableBodyConfig.py.bak', 'filename': 'gvSIGwhys/Organizacion_EditableBodyConfig.py.bak', 'esDirEnFilesystem': False, 'filesize': 112805L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_ejemplos.py', 'filename': 'gvSIGwhys/Organizacion_ejemplos.py', 'esDirEnFilesystem': False, 'filesize': 331592L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_ExtractorConfig.py', 'filename': 'gvSIGwhys/Organizacion_ExtractorConfig.py', 'esDirEnFilesystem': False, 'filesize': 36682L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_ExtractorConfig.py.bak', 'filename': 'gvSIGwhys/Organizacion_ExtractorConfig.py.bak', 'esDirEnFilesystem': False, 'filesize': 36681L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Participante.py', 'filename': 'gvSIGwhys/Participante.py', 'esDirEnFilesystem': False, 'filesize': 13464L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PasoGeneral.py', 'filename': 'gvSIGwhys/PasoGeneral.py', 'esDirEnFilesystem': False, 'filesize': 4500L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PasoMinimo.py', 'filename': 'gvSIGwhys/PasoMinimo.py', 'esDirEnFilesystem': False, 'filesize': 5783L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PasoSimple.py', 'filename': 'gvSIGwhys/PasoSimple.py', 'esDirEnFilesystem': False, 'filesize': 3283L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Perfil.py', 'filename': 'gvSIGwhys/Perfil.py', 'esDirEnFilesystem': False, 'filesize': 5864L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Plazo.py', 'filename': 'gvSIGwhys/Plazo.py', 'esDirEnFilesystem': False, 'filesize': 12035L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PoliticaDeNegocio.py', 'filename': 'gvSIGwhys/PoliticaDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 8827L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ProcesoDeNegocio.py', 'filename': 'gvSIGwhys/ProcesoDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 15364L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ProcesoDeNegocioSimple.py', 'filename': 'gvSIGwhys/ProcesoDeNegocioSimple.py', 'esDirEnFilesystem': False, 'filesize': 3601L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/readme.txt', 'filename': 'gvSIGwhys/readme.txt', 'esDirEnFilesystem': False, 'filesize': 509L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Recepcion.py', 'filename': 'gvSIGwhys/Recepcion.py', 'esDirEnFilesystem': False, 'filesize': 5145L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ReferenciaCualificada.py', 'filename': 'gvSIGwhys/ReferenciaCualificada.py', 'esDirEnFilesystem': False, 'filesize': 4373L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/refresh.txt', 'filename': 'gvSIGwhys/refresh.txt', 'esDirEnFilesystem': False, 'filesize': 0L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ReglaDeNegocio.py', 'filename': 'gvSIGwhys/ReglaDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 9605L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/relations.xml', 'filename': 'gvSIGwhys/relations.xml', 'esDirEnFilesystem': False, 'filesize': 113953L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Salida.py', 'filename': 'gvSIGwhys/Salida.py', 'esDirEnFilesystem': False, 'filesize': 6385L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/', 'filename': 'gvSIGwhys/skins/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/', 'filename': 'gvSIGwhys/skins/gvSIGwhys/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Anexos_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Anexos_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1439L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/artefacto.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/artefacto.gif', 'esDirEnFilesystem': False, 'filesize': 699L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Crear_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Crear_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1439L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/decision.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/decision.gif', 'esDirEnFilesystem': False, 'filesize': 208L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Editar_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Editar_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Eliminar_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Eliminar_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1445L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Enlazar_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Enlazar_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1717L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/entrada.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/entrada.gif', 'esDirEnFilesystem': False, 'filesize': 204L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/envio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/envio.gif', 'esDirEnFilesystem': False, 'filesize': 221L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/exitofinal.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/exitofinal.gif', 'esDirEnFilesystem': False, 'filesize': 1057L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/fracasofinal.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/fracasofinal.gif', 'esDirEnFilesystem': False, 'filesize': 616L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt.bak', 'filename': 'gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt.bak', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/herramienta.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/herramienta.gif', 'esDirEnFilesystem': False, 'filesize': 914L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/organizacion.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/organizacion.gif', 'esDirEnFilesystem': False, 'filesize': 1028L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/pasominimo.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/pasominimo.gif', 'esDirEnFilesystem': False, 'filesize': 907L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/pasosimple.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/pasosimple.gif', 'esDirEnFilesystem': False, 'filesize': 205L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/perfil.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/perfil.gif', 'esDirEnFilesystem': False, 'filesize': 559L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/plazo.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/plazo.gif', 'esDirEnFilesystem': False, 'filesize': 590L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/politicadenegocio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/politicadenegocio.gif', 'esDirEnFilesystem': False, 'filesize': 257L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/procesodenegocio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/procesodenegocio.gif', 'esDirEnFilesystem': False, 'filesize': 125L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/procesodenegociosimple.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/procesodenegociosimple.gif', 'esDirEnFilesystem': False, 'filesize': 125L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/readme.txt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/readme.txt', 'esDirEnFilesystem': False, 'filesize': 350L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/recepcion.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/recepcion.gif', 'esDirEnFilesystem': False, 'filesize': 222L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/referenciacualificada.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/referenciacualificada.gif', 'esDirEnFilesystem': False, 'filesize': 937L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/regladenegocio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/regladenegocio.gif', 'esDirEnFilesystem': False, 'filesize': 148L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/salida.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/salida.gif', 'esDirEnFilesystem': False, 'filesize': 203L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/subproceso.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/subproceso.gif', 'esDirEnFilesystem': False, 'filesize': 211L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1448L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt.bak', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt.bak', 'esDirEnFilesystem': False, 'filesize': 1448L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Textual_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Textual_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/unidadorganizacional.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/unidadorganizacional.gif', 'esDirEnFilesystem': False, 'filesize': 978L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/SubProceso.py', 'filename': 'gvSIGwhys/SubProceso.py', 'esDirEnFilesystem': False, 'filesize': 4309L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/UnidadOrganizacional.py', 'filename': 'gvSIGwhys/UnidadOrganizacional.py', 'esDirEnFilesystem': False, 'filesize': 3530L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/version.txt', 'filename': 'gvSIGwhys/version.txt', 'esDirEnFilesystem': False, 'filesize': 9L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/__init__.py', 'filename': 'gvSIGwhys/__init__.py', 'esDirEnFilesystem': False, 'filesize': 4815L, 'esDirEnZip': False, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/', 'filename': 'gvSIGwhys/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Descomprimir Archivo ZIP
+Path: /var/lib/zope2.9/instance/testing-plone-site/Products
+ZipFileName: gvSIGwhys.zip
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ArquetipoConAdopcion.py', 'filename': 'gvSIGwhys/ArquetipoConAdopcion.py', 'esDirEnFilesystem': False, 'filesize': 7830L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ArquetipoConAdopcion.py\r\n#\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ArquetipoReferenciable.py', 'filename': 'gvSIGwhys/ArquetipoReferenciable.py', 'esDirEnFilesystem': False, 'filesize': 6710L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ArquetipoReferenciable.py\r\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Arquetipo_gvSIGwhys.py', 'filename': 'gvSIGwhys/Arquetipo_gvSIGwhys.py', 'esDirEnFilesystem': False, 'filesize': 10507L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Arquetipo_gvSIGwhys.py\r\n#\r\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Artefacto.py', 'filename': 'gvSIGwhys/Artefacto.py', 'esDirEnFilesystem': False, 'filesize': 11652L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Artefacto.py\r\n#\r\n# Copyright', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionArquetipos_gvSIGwhys.py', 'filename': 'gvSIGwhys/ColeccionArquetipos_gvSIGwhys.py', 'esDirEnFilesystem': False, 'filesize': 2634L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionArquetipos_gvSIGwhy', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionArtefactos.py', 'filename': 'gvSIGwhys/ColeccionArtefactos.py', 'esDirEnFilesystem': False, 'filesize': 3171L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionArtefactos.py\r\n#\r\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionEntradas.py', 'filename': 'gvSIGwhys/ColeccionEntradas.py', 'esDirEnFilesystem': False, 'filesize': 3175L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionEntradas.py\r\n#\r\n# C', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionHerramientas.py', 'filename': 'gvSIGwhys/ColeccionHerramientas.py', 'esDirEnFilesystem': False, 'filesize': 3200L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionHerramientas.py\r\n#\r', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionPasos.py', 'filename': 'gvSIGwhys/ColeccionPasos.py', 'esDirEnFilesystem': False, 'filesize': 3211L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionPasos.py\r\n#\r\n# Copy', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionPerfiles.py', 'filename': 'gvSIGwhys/ColeccionPerfiles.py', 'esDirEnFilesystem': False, 'filesize': 3286L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionPerfiles.py\r\n#\r\n# C', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionPoliticasDeNegocio.py', 'filename': 'gvSIGwhys/ColeccionPoliticasDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 3300L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionPoliticasDeNegocio.', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionProcesosDeNegocio.py', 'filename': 'gvSIGwhys/ColeccionProcesosDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 3271L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionProcesosDeNegocio.p', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionReglasDeNegocio.py', 'filename': 'gvSIGwhys/ColeccionReglasDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 3244L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionReglasDeNegocio.py\r', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionSalidas.py', 'filename': 'gvSIGwhys/ColeccionSalidas.py', 'esDirEnFilesystem': False, 'filesize': 3162L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionSalidas.py\r\n#\r\n# Co', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ColeccionUnidadesOrganizacionales.py', 'filename': 'gvSIGwhys/ColeccionUnidadesOrganizacionales.py', 'esDirEnFilesystem': False, 'filesize': 3384L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionUnidadesOrganizacio', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/config.py', 'filename': 'gvSIGwhys/config.py', 'esDirEnFilesystem': False, 'filesize': 2940L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: gvSIGwhys.py\r\n#\r\n# Copyright', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Copy (2) of Organizacion_EditableBodyConfig.py', 'filename': 'gvSIGwhys/Copy (2) of Organizacion_EditableBodyConfig.py', 'esDirEnFilesystem': False, 'filesize': 96026L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion_EditableBodyCon', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Copy of Organizacion_EditableBodyConfig.py', 'filename': 'gvSIGwhys/Copy of Organizacion_EditableBodyConfig.py', 'esDirEnFilesystem': False, 'filesize': 85875L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion_EditableBodyCon', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Decision.py', 'filename': 'gvSIGwhys/Decision.py', 'esDirEnFilesystem': False, 'filesize': 6124L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Decision.py\r\n#\r\n# Copyright ', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Entrada.py', 'filename': 'gvSIGwhys/Entrada.py', 'esDirEnFilesystem': False, 'filesize': 8030L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Entrada.py\r\n#\r\n# Copyright (', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Envio.py', 'filename': 'gvSIGwhys/Envio.py', 'esDirEnFilesystem': False, 'filesize': 5156L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Envio.py\r\n#\r\n# Copyright (c)', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ExitoFinal.py', 'filename': 'gvSIGwhys/ExitoFinal.py', 'esDirEnFilesystem': False, 'filesize': 3256L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ExitoFinal.py\r\n#\r\n# Copyrigh', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Extensions/', 'filename': 'gvSIGwhys/Extensions/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Extensions/Install.py', 'filename': 'gvSIGwhys/Extensions/Install.py', 'esDirEnFilesystem': False, 'filesize': 9231L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Install.py\r\n#\r\n# Copyright (', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Extensions/__init__.py', 'filename': 'gvSIGwhys/Extensions/__init__.py', 'esDirEnFilesystem': False, 'filesize': 27L, 'esDirEnZip': False, 'data': '# make me a python module\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/FracasoFinal.py', 'filename': 'gvSIGwhys/FracasoFinal.py', 'esDirEnFilesystem': False, 'filesize': 3266L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: FracasoFinal.py\r\n#\r\n# Copyri', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/gpl.txt', 'filename': 'gvSIGwhys/gpl.txt', 'esDirEnFilesystem': False, 'filesize': 35147L, 'esDirEnZip': False, 'data': ' GNU GENERAL PUBLIC LICENSE\n ', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Herramienta.py', 'filename': 'gvSIGwhys/Herramienta.py', 'esDirEnFilesystem': False, 'filesize': 8652L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Herramienta.py\r\n#\r\n# Copyrig', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/', 'filename': 'gvSIGwhys/i18n/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/generated.pot', 'filename': 'gvSIGwhys/i18n/generated.pot', 'esDirEnFilesystem': False, 'filesize': 27962L, 'esDirEnZip': False, 'data': '# ArchGenXML generated POT File\r\n# Conselleria de Infraestructur', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-en.po', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-en.po', 'esDirEnFilesystem': False, 'filesize': 55814L, 'esDirEnZip': False, 'data': '# ArchGenXML generated POT File\r\n# Antonio Carrasco Valero\r\nmsgi', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-en.po.bak', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-en.po.bak', 'esDirEnFilesystem': False, 'filesize': 55803L, 'esDirEnZip': False, 'data': '# ArchGenXML generated POT File\r\n# Antonio Carrasco Valero\r\nmsgi', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-es.po', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-es.po', 'esDirEnFilesystem': False, 'filesize': 58375L, 'esDirEnZip': False, 'data': '# ArchGenXML generated POT File\r\n# Antonio Carrasco Valero\r\nmsgi', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/gvSIGwhys-es.po.bak', 'filename': 'gvSIGwhys/i18n/gvSIGwhys-es.po.bak', 'esDirEnFilesystem': False, 'filesize': 58353L, 'esDirEnZip': False, 'data': '# ArchGenXML generated POT File\r\n# Antonio Carrasco Valero\r\nmsgi', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/ModelDDploneVU-en.po', 'filename': 'gvSIGwhys/i18n/ModelDDploneVU-en.po', 'esDirEnFilesystem': False, 'filesize': 13498L, 'esDirEnZip': False, 'data': '# ModelDDploneVU generated POT File\r\n# Antonio Carrasco Valero\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/i18n/ModelDDploneVU-es.po', 'filename': 'gvSIGwhys/i18n/ModelDDploneVU-es.po', 'esDirEnFilesystem': False, 'filesize': 15868L, 'esDirEnZip': False, 'data': '# ModelDDploneVU generated POT File\r\n# Antonio Carrasco Valero\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion.py', 'filename': 'gvSIGwhys/Organizacion.py', 'esDirEnFilesystem': False, 'filesize': 4599L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion.py\r\n#\r\n# Copyri', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_EditableBodyConfig.py', 'filename': 'gvSIGwhys/Organizacion_EditableBodyConfig.py', 'esDirEnFilesystem': False, 'filesize': 96026L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion_EditableBodyCon', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_EditableBodyConfig.py.bak', 'filename': 'gvSIGwhys/Organizacion_EditableBodyConfig.py.bak', 'esDirEnFilesystem': False, 'filesize': 112805L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion_EditableBodyCon', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_ejemplos.py', 'filename': 'gvSIGwhys/Organizacion_ejemplos.py', 'esDirEnFilesystem': False, 'filesize': 331592L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion_ejemplos.py\r\n#\r', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_ExtractorConfig.py', 'filename': 'gvSIGwhys/Organizacion_ExtractorConfig.py', 'esDirEnFilesystem': False, 'filesize': 36682L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion_ExtractorConfig', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Organizacion_ExtractorConfig.py.bak', 'filename': 'gvSIGwhys/Organizacion_ExtractorConfig.py.bak', 'esDirEnFilesystem': False, 'filesize': 36681L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Organizacion_ExtractorConfig', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Participante.py', 'filename': 'gvSIGwhys/Participante.py', 'esDirEnFilesystem': False, 'filesize': 13464L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Participante.py\r\n#\r\n# Copyri', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PasoGeneral.py', 'filename': 'gvSIGwhys/PasoGeneral.py', 'esDirEnFilesystem': False, 'filesize': 4500L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: PasoGeneral.py\r\n#\r\n# Copyrig', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PasoMinimo.py', 'filename': 'gvSIGwhys/PasoMinimo.py', 'esDirEnFilesystem': False, 'filesize': 5783L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: PasoMinimo.py\r\n#\r\n# Copyrigh', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PasoSimple.py', 'filename': 'gvSIGwhys/PasoSimple.py', 'esDirEnFilesystem': False, 'filesize': 3283L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: PasoSimple.py\r\n#\r\n# Copyrigh', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Perfil.py', 'filename': 'gvSIGwhys/Perfil.py', 'esDirEnFilesystem': False, 'filesize': 5864L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Perfil.py\r\n#\r\n# Copyright (c', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Plazo.py', 'filename': 'gvSIGwhys/Plazo.py', 'esDirEnFilesystem': False, 'filesize': 12035L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Plazo.py\r\n#\r\n# Copyright (c)', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/PoliticaDeNegocio.py', 'filename': 'gvSIGwhys/PoliticaDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 8827L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: PoliticaDeNegocio.py\r\n#\r\n# C', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ProcesoDeNegocio.py', 'filename': 'gvSIGwhys/ProcesoDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 15364L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ProcesoDeNegocio.py\r\n#\r\n# Co', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ProcesoDeNegocioSimple.py', 'filename': 'gvSIGwhys/ProcesoDeNegocioSimple.py', 'esDirEnFilesystem': False, 'filesize': 3601L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ProcesoDeNegocioSimple.py\r\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/readme.txt', 'filename': 'gvSIGwhys/readme.txt', 'esDirEnFilesystem': False, 'filesize': 509L, 'esDirEnZip': False, 'data': '#\n# Copyright (c) 2008 by Conselleria de Infraestructuras y Tran', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Recepcion.py', 'filename': 'gvSIGwhys/Recepcion.py', 'esDirEnFilesystem': False, 'filesize': 5145L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Recepcion.py\r\n#\r\n# Copyright', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ReferenciaCualificada.py', 'filename': 'gvSIGwhys/ReferenciaCualificada.py', 'esDirEnFilesystem': False, 'filesize': 4373L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ReferenciaCualificada.py\r\n#\r', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/refresh.txt', 'filename': 'gvSIGwhys/refresh.txt', 'esDirEnFilesystem': False, 'filesize': 0L, 'esDirEnZip': False, 'data': '', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/ReglaDeNegocio.py', 'filename': 'gvSIGwhys/ReglaDeNegocio.py', 'esDirEnFilesystem': False, 'filesize': 9605L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ReglaDeNegocio.py\r\n#\r\n# Copy', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/relations.xml', 'filename': 'gvSIGwhys/relations.xml', 'esDirEnFilesystem': False, 'filesize': 113953L, 'esDirEnZip': False, 'data': '\r\n\r\n\t
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/Salida.py', 'filename': 'gvSIGwhys/Salida.py', 'esDirEnFilesystem': False, 'filesize': 6385L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Salida.py\r\n#\r\n# Copyright (c', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/', 'filename': 'gvSIGwhys/skins/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/', 'filename': 'gvSIGwhys/skins/gvSIGwhys/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Anexos_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Anexos_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1439L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/artefacto.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/artefacto.gif', 'esDirEnFilesystem': False, 'filesize': 699L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xf6\x00\x00NNN@|\xb9v\xa1\xcc\xff\x00\x94\xe8\x8d\x00\xa3\xa3\xa3\xad\xad\xad\x84\xbc\xf2\x90\xc0\xf1\xa3\xcd\xf6\xaf\xd3\xf6\xb3\xd6\xf6\xb7\xd7\xf7\xb9\xd8\xf8\xf4\xc6\x86\xc1\xc1\xc1\xc3\xc3\xc3', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Crear_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Crear_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1439L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/decision.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/decision.gif', 'esDirEnFilesystem': False, 'filesize': 208L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xc4\x00\x00NNNy\xaf\xed\x89\x89\x89\xa3\xa3\xa3\xa7\xa7\xa7\x80\xb4\xef\x99\xc6\xf6\x9d\xc8\xf6\xbf\xce\xd7\xc2\xc9\xcd\xc4\xe0\xff\xce\xe5\xff\xd8\xe3\xed\xda\xe3\xed\xdf\xee\xff\xe2\xef\xff\xe9\xf4\xff', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Editar_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Editar_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Eliminar_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Eliminar_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1445L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Enlazar_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Enlazar_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1717L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/entrada.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/entrada.gif', 'esDirEnFilesystem': False, 'filesize': 204L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xc4\x00\x00\xe2\xef\xffy\xaf\xed\x80\xb4\xef\x99\xc6\xf6\x9d\xc8\xf6\xc4\xe0\xff\xce\xe5\xff\xdf\xee\xff\xda\xe3\xed\xe9\xf4\xff\xeb\xf5\xff\xd8\xe3\xed\xbf\xce\xd7\xc2\xc9\xcd\xb2#\x03\xff\x00\x00\xff\xff\xff', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/envio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/envio.gif', 'esDirEnFilesystem': False, 'filesize': 221L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xc4\x00\x00\xec\xfc\xfc\xf4\xfc\xfc\xdf\xe0\xdf~uN\xdb\xd6\xc2\xa5\x81\x1c\x94\x80H\xec\xea\xe4\xc7\xa1?\xb4\x93<\xa8\x89C\xc3\x852\xb0t.\xb2#\x03\xff\x00\x00\xff\xff\xff\xfc\xfc\xfc', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/exitofinal.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/exitofinal.gif', 'esDirEnFilesystem': False, 'filesize': 1057L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x0f\x00\xf7\x00\x00\xff\xfe\xff\xfe\xfd\xff\x01\x00\x05\x02\x01\x06\x08\x07\x0c.-276;\xb4\xb3\xb8\xf4\xf3\xf8\xe6\xe5\xea224::<]]_\xfc\xfc\xfe\xfb\xfb\xfd\xfa\xfa\xfc\xf8\xf8\xfa', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/fracasofinal.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/fracasofinal.gif', 'esDirEnFilesystem': False, 'filesize': 616L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xe6\x00\x00\x1f\x1c\x19\xbf\x8fw\xaf\x83m\x9fwc\x8fkY@0(0$\x1e \x18\x14\xc0\xc0\xc0\x18\x14\x12\xcc\x91w\xbd\x87o\x9eq]?.&\xfe\xba\x9b\xfe\xbc\x9d\xff\xbe\x9f', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt.bak', 'filename': 'gvSIGwhys/skins/gvSIGwhys/General_view_gvSIGwhys.pt.bak', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/herramienta.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/herramienta.gif', 'esDirEnFilesystem': False, 'filesize': 914L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xf7\x00\x00\xff\xff\xff\x88\x88\x88\xcf\xd0\xcdlmo\x91\x91\x90\xc5\xc5\xc6xzx\xe7\xe7\xe7\x9a\x9c\x98\xa9\xa9\xa9VVW\xd8\xd8\xd8abaKLJ\xc0\xc0\xc0\xb2\xb4\xb0\xd0\xd0\xd0', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/organizacion.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/organizacion.gif', 'esDirEnFilesystem': False, 'filesize': 1028L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\x87\x00\x01\xa4\xa2\xa3\x04\x02\x04\x00\x00\x05\x00\x00\x01\x03\x03\x05mns\x91\x92\x95x}\x85\x88\x8d\x94\xf5\xf8\xfcK\\q\xab\xc6\xe8\xe1\xea\xf5Tl\x86Sdw\x96\x9d\xa5\x81\xb0\xdf', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/pasominimo.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/pasominimo.gif', 'esDirEnFilesystem': False, 'filesize': 907L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xf7\x00\x00NNNy\xaf\xed\x89\x89\x89\xa3\xa3\xa3\xa7\xa7\xa7\x80\xb4\xef\x99\xc6\xf6\x9d\xc8\xf6\xbf\xce\xd7\xc2\xc9\xcd\xc4\xe0\xff\xce\xe5\xff\xd8\xe3\xed\xda\xe3\xed\xdf\xee\xff\xe2\xef\xff\xe9\xf4\xff', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/pasosimple.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/pasosimple.gif', 'esDirEnFilesystem': False, 'filesize': 205L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xc4\x00\x00NNNy\xaf\xed\x89\x89\x89\xa3\xa3\xa3\xc0\xc0\xc0\x80\xb4\xef\x99\xc6\xf6\x9d\xc8\xf6\xbf\xce\xd7\xc2\xc9\xcd\xc4\xe0\xff\xce\xe5\xff\xd8\xe3\xed\xda\xe3\xed\xdf\xee\xff\xe2\xef\xff\xe9\xf4\xff', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/perfil.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/perfil.gif', 'esDirEnFilesystem': False, 'filesize': 559L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xe6\x00\x00)BJ\xef\xff\xf7\xe7\x8c!\xa5k!1\xad1\x18\x9c\x18\xde\xadZ\x10{\x10\x9c\x84cc\xbdckZ1\xd6\xadk\xbd{!\xe7\x9cJ\xb5\x94JRR9)\x941', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/plazo.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/plazo.gif', 'esDirEnFilesystem': False, 'filesize': 590L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xe6\x00\x00\x96\x8a\x8e\x97\x89\x8e\x96\x8a\x8fsp\xb8_^\xadec\xb0ec\xafih\xb3jh\xb3WX\xab]^\xaeBE\x9aUW\xbaKN\xa2MP\xa5XZ\xbaNP\xa4', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/politicadenegocio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/politicadenegocio.gif', 'esDirEnFilesystem': False, 'filesize': 257L, 'esDirEnZip': False, 'data': 'GIF89a\x14\x00\x14\x00\xc4\x00\x00\x1d>MOhsYp{s\x89\x93\x83\x9a\xa4\x91\x9f\xa5\x96\xac\xb5\x9e\xb2\xba\xa2\xb6\xbd\xaa\xbc\xc4\xb2\xc3\xca\xb9\xca\xd1\xbf\xd0\xd7\xc0\xc0\xc0\xc4\xd5\xdb\xce\xde\xe5\xd4\xe4\xea', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/procesodenegocio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/procesodenegocio.gif', 'esDirEnFilesystem': False, 'filesize': 125L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xa2\x00\x00\xfd\x02\x02\x00\x7f\x00\xff\xff\xff\xc0\xc0\xc0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x03\x00,\x00\x00\x00\x00\x10\x00\x10\x00\x00\x03B8\xba\xd0\xb0\xe3AG', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/procesodenegociosimple.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/procesodenegociosimple.gif', 'esDirEnFilesystem': False, 'filesize': 125L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xa2\x00\x00\xfd\x02\x02\x00\x7f\x00\xff\xff\xff\xc0\xc0\xc0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x03\x00,\x00\x00\x00\x00\x10\x00\x10\x00\x00\x03B8\xba\xd0\xb0\xe3AG', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/readme.txt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/readme.txt', 'esDirEnFilesystem': False, 'filesize': 350L, 'esDirEnZip': False, 'data': "Directory 'skins/gvSIGwhys':\r\n\r\nPut your templates, css and java", 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/recepcion.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/recepcion.gif', 'esDirEnFilesystem': False, 'filesize': 222L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xc4\x00\x00\xec\xfc\xfc\xf4\xfc\xfc\xdf\xe0\xdf~uN\xdb\xd6\xc2\xa5\x81\x1c\x94\x80H\xec\xea\xe4\xc7\xa1?\xb4\x93<\xa8\x89C\xc3\x852\xb0t.\xb2#\x03\xff\x00\x00\xff\xff\xff\xfc\xfc\xfc', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/referenciacualificada.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/referenciacualificada.gif', 'esDirEnFilesystem': False, 'filesize': 937L, 'esDirEnZip': False, 'data': 'GIF89a\x17\x00\x16\x00\x87\x00\x01\xf2\xf2\xf2$$$\xdb\xdb\xdb\xff\xff\xff\xfc\xfc\xfc000\xe7\xe7\xe7NNN\x8b\x8b\x8b\xbe\xbe\xbe\xb0\xb0\xb0\x1c\x1c\x1c\xef\xef\xef\xf8\xf8\xf8\xcd\xcd\xcd\x00\x00\x00\x00\x00\x00', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/regladenegocio.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/regladenegocio.gif', 'esDirEnFilesystem': False, 'filesize': 148L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xb3\x00\x00pkl\x81s|\x93\x89\x91\xef\xef\xf7\xc1\xc6\xd9\xc0\xc0\xc0\xae\xb9\xc6\xdf\xea\xf6h\x85\x9e~\x99\xad\xfc\xfc\xf4\x84\x84\x84\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/salida.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/salida.gif', 'esDirEnFilesystem': False, 'filesize': 203L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xc4\x00\x00\xe2\xef\xffy\xaf\xed\x80\xb4\xef\x99\xc6\xf6\x9d\xc8\xf6\xc4\xe0\xff\xce\xe5\xff\xdf\xee\xff\xda\xe3\xed\xe9\xf4\xff\xeb\xf5\xff\xd8\xe3\xed\xbf\xce\xd7\xc2\xc9\xcd\xb2#\x03\xff\x00\x00\xff\xff\xff', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/subproceso.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/subproceso.gif', 'esDirEnFilesystem': False, 'filesize': 211L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xc4\x00\x00NNNy\xaf\xed\x89\x89\x89\xa3\xa3\xa3\xa7\xa7\xa7\x80\xb4\xef\x99\xc6\xf6\x9d\xc8\xf6\xbf\xce\xd7\xc2\xc9\xcd\xc4\xe0\xff\xce\xe5\xff\xd8\xe3\xed\xda\xe3\xed\xdf\xee\xff\xe2\xef\xff\xe9\xf4\xff', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1448L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt.bak', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Tabular_view_gvSIGwhys.pt.bak', 'esDirEnFilesystem': False, 'filesize': 1448L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/Textual_view_gvSIGwhys.pt', 'filename': 'gvSIGwhys/skins/gvSIGwhys/Textual_view_gvSIGwhys.pt', 'esDirEnFilesystem': False, 'filesize': 1441L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by Conseller', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/skins/gvSIGwhys/unidadorganizacional.gif', 'filename': 'gvSIGwhys/skins/gvSIGwhys/unidadorganizacional.gif', 'esDirEnFilesystem': False, 'filesize': 978L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xf7\x00\x00[I2ZI4\\H1NNNm\x97\x1fv\x88T|\xa1\xc8\x93d+\x91f0\x96g=\xbbz4\x86s\\\x87t^\x95pA\x94sG\x9a{T\x8d~m', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/SubProceso.py', 'filename': 'gvSIGwhys/SubProceso.py', 'esDirEnFilesystem': False, 'filesize': 4309L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: SubProceso.py\r\n#\r\n# Copyrigh', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/UnidadOrganizacional.py', 'filename': 'gvSIGwhys/UnidadOrganizacional.py', 'esDirEnFilesystem': False, 'filesize': 3530L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: UnidadOrganizacional.py\r\n#\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/version.txt', 'filename': 'gvSIGwhys/version.txt', 'esDirEnFilesystem': False, 'filesize': 9L, 'esDirEnZip': False, 'data': '0.7TEXT\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/__init__.py', 'filename': 'gvSIGwhys/__init__.py', 'esDirEnFilesystem': False, 'filesize': 4815L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: gvSIGwhys.py\r\n#\r\n# Copyright', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/gvSIGwhys/', 'filename': 'gvSIGwhys/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Descomprimir Archivo ZIP
+Path: /var/lib/zope2.9/instance/testing-plone-site/Products
+ZipFileName: ModelDDploneVU.zip
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Arquetipo.py', 'filename': 'ModelDDploneVU/Arquetipo.py', 'esDirEnFilesystem': False, 'filesize': 3476L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Arquetipo.py\r\n#\r\n# Copyright', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ColeccionArquetipos.py', 'filename': 'ModelDDploneVU/ColeccionArquetipos.py', 'esDirEnFilesystem': False, 'filesize': 3183L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ColeccionArquetipos.py\r\n#\r\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ConContenidosPlone.py', 'filename': 'ModelDDploneVU/ConContenidosPlone.py', 'esDirEnFilesystem': False, 'filesize': 2035L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ConContenidosPlone.py\r\n#\r\n# ', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ConDescripcion.py', 'filename': 'ModelDDploneVU/ConDescripcion.py', 'esDirEnFilesystem': False, 'filesize': 1995L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ConDescripcion.py\r\n#\r\n# Copy', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ConDescripciones.py', 'filename': 'ModelDDploneVU/ConDescripciones.py', 'esDirEnFilesystem': False, 'filesize': 3040L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ConDescripciones.py\r\n#\r\n# Co', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/config.py', 'filename': 'ModelDDploneVU/config.py', 'esDirEnFilesystem': False, 'filesize': 2840L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ModelDDploneVU.py\r\n#\r\n# Copy', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Copy of ElementoGeneral_Accessors_beforeContentTypeOprimization.py', 'filename': 'ModelDDploneVU/Copy of ElementoGeneral_Accessors_beforeContentTypeOprimization.py', 'esDirEnFilesystem': False, 'filesize': 44240L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: ElementoGeneral_Accessors.py\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Dumper.py', 'filename': 'ModelDDploneVU/Dumper.py', 'esDirEnFilesystem': False, 'filesize': 38443L, 'esDirEnZip': False, 'data': '\r\n# -*- coding: utf-8 -*-\r\n#\r\n# File: ProcesoDeNegocioSimple_ope', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ElementoGeneral.py', 'filename': 'ModelDDploneVU/ElementoGeneral.py', 'esDirEnFilesystem': False, 'filesize': 4310L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ElementoGeneral.py\r\n#\r\n# Cop', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ElementoGeneral_Accessors.py', 'filename': 'ModelDDploneVU/ElementoGeneral_Accessors.py', 'esDirEnFilesystem': False, 'filesize': 54609L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: ElementoGeneral_Accessors.py\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ElementoGeneral_Bodies.py', 'filename': 'ModelDDploneVU/ElementoGeneral_Bodies.py', 'esDirEnFilesystem': False, 'filesize': 9078L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: ElementoGeneral_Bodies.py\n#\n# ', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ElementoGeneral_Extractor.py', 'filename': 'ModelDDploneVU/ElementoGeneral_Extractor.py', 'esDirEnFilesystem': False, 'filesize': 3207L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: ElementoGeneral_Extractor.py\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ElementoGeneral_Loader.py', 'filename': 'ModelDDploneVU/ElementoGeneral_Loader.py', 'esDirEnFilesystem': False, 'filesize': 2295L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: ElementoGeneral_Loader.py\n#\n# ', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ElementoGeneral_MetaInfo.py', 'filename': 'ModelDDploneVU/ElementoGeneral_MetaInfo.py', 'esDirEnFilesystem': False, 'filesize': 1913L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: ElementoGeneral_MetaInfo.py\n#\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ElementoGeneral_Tabular.py', 'filename': 'ModelDDploneVU/ElementoGeneral_Tabular.py', 'esDirEnFilesystem': False, 'filesize': 6762L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: ElementoGeneral_Tabular.py\n#\n#', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/ExcluidoDeNavegacion.py', 'filename': 'ModelDDploneVU/ExcluidoDeNavegacion.py', 'esDirEnFilesystem': False, 'filesize': 2971L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ExcluidoDeNavegacion.py\r\n#\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Extensions/', 'filename': 'ModelDDploneVU/Extensions/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Extensions/Install.py', 'filename': 'ModelDDploneVU/Extensions/Install.py', 'esDirEnFilesystem': False, 'filesize': 7832L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: Install.py\r\n#\r\n# Copyright (', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Extensions/__init__.py', 'filename': 'ModelDDploneVU/Extensions/__init__.py', 'esDirEnFilesystem': False, 'filesize': 27L, 'esDirEnZip': False, 'data': '# make me a python module\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Extractor.py', 'filename': 'ModelDDploneVU/Extractor.py', 'esDirEnFilesystem': False, 'filesize': 22150L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ProcesoDeNegocioSimple_opera', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/gpl.txt', 'filename': 'ModelDDploneVU/gpl.txt', 'esDirEnFilesystem': False, 'filesize': 35147L, 'esDirEnZip': False, 'data': ' GNU GENERAL PUBLIC LICENSE\n ', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/i18n/', 'filename': 'ModelDDploneVU/i18n/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/i18n/generated.pot', 'filename': 'ModelDDploneVU/i18n/generated.pot', 'esDirEnFilesystem': False, 'filesize': 1203L, 'esDirEnZip': False, 'data': '# ArchGenXML generated POT File\r\n# Antonio Carrasco Valero\r\nmsgi', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/i18n/ModelDDploneVU-en.po', 'filename': 'ModelDDploneVU/i18n/ModelDDploneVU-en.po', 'esDirEnFilesystem': False, 'filesize': 13498L, 'esDirEnZip': False, 'data': '# ModelDDploneVU generated POT File\r\n# Antonio Carrasco Valero\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/i18n/ModelDDploneVU-es.po', 'filename': 'ModelDDploneVU/i18n/ModelDDploneVU-es.po', 'esDirEnFilesystem': False, 'filesize': 15868L, 'esDirEnZip': False, 'data': '# ModelDDploneVU generated POT File\r\n# Antonio Carrasco Valero\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Loader.py', 'filename': 'ModelDDploneVU/Loader.py', 'esDirEnFilesystem': False, 'filesize': 16808L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\n#\n# File: Loader.py\n#\n# Copyright (c) 20', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/readme.txt', 'filename': 'ModelDDploneVU/readme.txt', 'esDirEnFilesystem': False, 'filesize': 1119L, 'esDirEnZip': False, 'data': '#\n# Copyright (c) 2008 by 2008 Model Driven Development sl and A', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/refresh.txt', 'filename': 'ModelDDploneVU/refresh.txt', 'esDirEnFilesystem': False, 'filesize': 0L, 'esDirEnZip': False, 'data': '', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/', 'filename': 'ModelDDploneVU/skins/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Anexos.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Anexos.pt', 'esDirEnFilesystem': False, 'filesize': 2035L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Anexos_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Anexos_inner.pt', 'esDirEnFilesystem': False, 'filesize': 4090L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ArbitrariosEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ArbitrariosEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 4703L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ArbolEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ArbolEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 25309L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Arbol_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Arbol_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 6931L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/blank_icon.gif', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/blank_icon.gif', 'esDirEnFilesystem': False, 'filesize': 444L, 'esDirEnZip': False, 'data': 'GIF89a\x10\x00\x10\x00\xe6\x00\x00\xc0\xc0\xc0\xf4\xf4\xed\xc3\x9b\x08\xff\xcc3\xccf\x00\xd6\xbc3\xf2\xf2\xec\xfe\xff\x7f\xf6\xf6\xf2\xd4\xd4\xc9\xe4\xe4\xd9\xf0\xef\xe8Jp\x97\xde\xde\xd6\xeb\xe8\xe0\xe6\xe3\xdb\xfc\xfc\xf9', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/CabeceraEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/CabeceraEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 7195L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/CambiarValores_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/CambiarValores_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 20263L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/CandidatosEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/CandidatosEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 19246L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ColeccionElementosPlone_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ColeccionElementosPlone_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 2550L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ColeccionEnTabla_ElementosPlone_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ColeccionEnTabla_ElementosPlone_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 12104L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ColeccionEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ColeccionEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 26036L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Coleccion_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Coleccion_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 4325L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ContenidoEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ContenidoEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 9221L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Contenido_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Contenido_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 4233L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Copy of ArbolEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Copy of ArbolEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 26928L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Copy of Tabular_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Copy of Tabular_inner.pt', 'esDirEnFilesystem': False, 'filesize': 28137L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Copy of Tabular_inner_beforeUsingElementTypeConfigFinder.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Copy of Tabular_inner_beforeUsingElementTypeConfigFinder.pt', 'esDirEnFilesystem': False, 'filesize': 28426L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Crear.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Crear.pt', 'esDirEnFilesystem': False, 'filesize': 2047L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Crear_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Crear_inner.pt', 'esDirEnFilesystem': False, 'filesize': 9504L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 16999L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Editar.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Editar.pt', 'esDirEnFilesystem': False, 'filesize': 2158L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Editar_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Editar_inner.pt', 'esDirEnFilesystem': False, 'filesize': 30975L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Eliminar.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Eliminar.pt', 'esDirEnFilesystem': False, 'filesize': 2054L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/EliminarElemento.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/EliminarElemento.pt', 'esDirEnFilesystem': False, 'filesize': 3104L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Eliminar_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Eliminar_inner.pt', 'esDirEnFilesystem': False, 'filesize': 8317L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Enlazar.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Enlazar.pt', 'esDirEnFilesystem': False, 'filesize': 2412L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Enlazar_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Enlazar_inner.pt', 'esDirEnFilesystem': False, 'filesize': 8033L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/General.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/General.pt', 'esDirEnFilesystem': False, 'filesize': 2013L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/General_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/General_inner.pt', 'esDirEnFilesystem': False, 'filesize': 1609L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Inicializar.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Inicializar.pt', 'esDirEnFilesystem': False, 'filesize': 3775L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/MoverElementosPlone_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/MoverElementosPlone_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 2963L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/MoverElementos_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/MoverElementos_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 2958L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/MoverReferencias_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/MoverReferencias_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 1980L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Popular.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Popular.pt', 'esDirEnFilesystem': False, 'filesize': 2400L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/readme.txt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/readme.txt', 'esDirEnFilesystem': False, 'filesize': 355L, 'esDirEnZip': False, 'data': "Directory 'skins/ModelDDploneVU':\r\n\r\nPut your templates, css and", 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/referenciacualificada.gif', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/referenciacualificada.gif', 'esDirEnFilesystem': False, 'filesize': 937L, 'esDirEnZip': False, 'data': 'GIF89a\x17\x00\x16\x00\x87\x00\x01\xf2\xf2\xf2$$$\xdb\xdb\xdb\xff\xff\xff\xfc\xfc\xfc000\xe7\xe7\xe7NNN\x8b\x8b\x8b\xbe\xbe\xbe\xb0\xb0\xb0\x1c\x1c\x1c\xef\xef\xef\xf8\xf8\xf8\xcd\xcd\xcd\x00\x00\x00\x00\x00\x00', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ReferenciaCualificada_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ReferenciaCualificada_view.pt', 'esDirEnFilesystem': False, 'filesize': 1733L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ReferenciaEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ReferenciaEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 6496L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ReferenciasEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ReferenciasEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 15224L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ReferenciasGenericas_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ReferenciasGenericas_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 3863L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ReferenciasPloneEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ReferenciasPloneEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 4418L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ReferenciasPlone_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ReferenciasPlone_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 2306L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Referencias_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Referencias_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 3190L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Referencia_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Referencia_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 3185L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ResText.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ResText.pt', 'esDirEnFilesystem': False, 'filesize': 1917L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Salvar.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Salvar.pt', 'esDirEnFilesystem': False, 'filesize': 1848L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Tabular.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Tabular.pt', 'esDirEnFilesystem': False, 'filesize': 2039L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Tabular_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Tabular_inner.pt', 'esDirEnFilesystem': False, 'filesize': 15046L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Tabular_inner_BeforeTree.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Tabular_inner_BeforeTree.pt', 'esDirEnFilesystem': False, 'filesize': 13014L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Tabular_view_ModelDDploneVU.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Tabular_view_ModelDDploneVU.pt', 'esDirEnFilesystem': False, 'filesize': 1418L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/TextoEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/TextoEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 3132L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Texto_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Texto_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 2234L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Textual.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Textual.pt', 'esDirEnFilesystem': False, 'filesize': 2013L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Textual_inner.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Textual_inner.pt', 'esDirEnFilesystem': False, 'filesize': 1600L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ValoresEnTabla_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ValoresEnTabla_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 4622L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/ValoresReferencias_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/ValoresReferencias_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 5455L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': True, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/skins/ModelDDploneVU/Valores_EditableBody_i18n_view.pt', 'filename': 'ModelDDploneVU/skins/ModelDDploneVU/Valores_EditableBody_i18n_view.pt', 'esDirEnFilesystem': False, 'filesize': 4035L, 'esDirEnZip': False, 'data': '\r\n# Copyright (c) 2008 by 2008 Mode', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/version.txt', 'filename': 'ModelDDploneVU/version.txt', 'esDirEnFilesystem': False, 'filesize': 9L, 'esDirEnZip': False, 'data': '0.3TEXT\r\n', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/Visitor.py', 'filename': 'ModelDDploneVU/Visitor.py', 'esDirEnFilesystem': False, 'filesize': 55897L, 'esDirEnZip': False, 'data': '\r\n# -*- coding: utf-8 -*-\r\n#\r\n# File: ProcesoDeNegocioSimple_ope', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': True, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/__init__.py', 'filename': 'ModelDDploneVU/__init__.py', 'esDirEnFilesystem': False, 'filesize': 3974L, 'esDirEnZip': False, 'data': '# -*- coding: utf-8 -*-\r\n#\r\n# File: ModelDDploneVU.py\r\n#\r\n# Copy', 'esNewDirectory': False}
+
+{'esFileEnFilesystem': False, 'kind': 'CONTENT', 'esNewFile': False, 'filepath': '/var/lib/zope2.9/instance/testing-plone-site/Products/ModelDDploneVU/', 'filename': 'ModelDDploneVU/', 'esDirEnFilesystem': True, 'filesize': 0L, 'esDirEnZip': True, 'esNewDirectory': False}
+

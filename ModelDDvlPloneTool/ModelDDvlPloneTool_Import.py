@@ -36,7 +36,6 @@ import sys
 import traceback
 import logging
 
-import transaction
 
 from StringIO import StringIO
 from cStringIO import StringIO   as clsFastStringIO
@@ -54,16 +53,18 @@ from Products.CMFCore.utils import getToolByName
 
 from AccessControl import ClassSecurityInfo
 
-from MDD_RefactorComponents import MDDRefactor_Import
 
 
 from ModelDDvlPloneTool_ImportExport_Constants import *
 
 
+from MDD_RefactorComponents                  import MDDRefactor_Import
 
-from ModelDDvlPloneTool_Profiling       import ModelDDvlPloneTool_Profiling
+from ModelDDvlPloneTool_Transactions         import ModelDDvlPloneTool_Transactions
 
+from ModelDDvlPloneTool_Profiling            import ModelDDvlPloneTool_Profiling
 
+from ModelDDvlPloneToolSupport               import fPrettyPrint
 
 cLogExceptions = True
 cLogImportResults = True
@@ -184,7 +185,7 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                 
                 unImportContext   = self.fNewVoidImportContext()
@@ -545,7 +546,7 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 """Transaction Save point before import to get a clean view on the existing object network.
                 
                 """      
-                transaction.savepoint(optimistic=True)
+                ModelDDvlPloneTool_Transactions().fTransaction_Savepoint( theOptimistic=True)
                 
                                 
                 
@@ -599,9 +600,10 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                 unImportReport[ 'error_reports'].extend( unRefactor.vErrorReports )
                  
                 
-                transaction.commit()
+                ModelDDvlPloneTool_Transactions().fTransaction_Commit()
+
                 if cLogImportResults:
-                    logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                    logging.getLogger( 'ModelDDvlPlone').info( 'COMMIT: %s::fImport\n%s' % ( self.__class__.__name__, fPrettyPrint( [ unImportReport, ])))
                     
                     
                 if ( not unHuboException) and ( not unHuboRefactorException) and unRefactorResult:
@@ -610,7 +612,7 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                          'success':      True,
                     })
                     if cLogImportResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED COMPLETED: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED COMPLETED: %s::fImport\n%s' % ( self.__class__.__name__, fPrettyPrint( [ unImportReport, ])))
                     
                 else:
                     
@@ -620,7 +622,7 @@ class ModelDDvlPloneTool_Import( ModelDDvlPloneTool_Profiling):
                     })
                     
                     if cLogImportResults:
-                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED WITH ERRORS during: %s::fImport\n%s' % ( self.__class__.__name__, theModelDDvlPloneTool.fPrettyPrint( [ unImportReport, ])))
+                        logging.getLogger( 'ModelDDvlPlone').info( 'COMMITTED WITH ERRORS during: %s::fImport\n%s' % ( self.__class__.__name__, fPrettyPrint( [ unImportReport, ])))
                     
                     
                 return unImportReport        
