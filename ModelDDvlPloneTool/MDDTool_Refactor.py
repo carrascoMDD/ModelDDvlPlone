@@ -314,7 +314,7 @@ class MDDTool_Refactor:
         unosImpactedObjectsUIDs = unPasteReport.get('impacted_objects_UIDs', [])
 
         if unosImpactedObjectsUIDs:
-            self.fModelDDvlPloneTool_Cache( theElement).pFlushCachedTemplatesForImpactedElementsUIDs( self, theElement, unosImpactedObjectsUIDs)
+            self.fModelDDvlPloneTool_Cache( theContainerObject).pFlushCachedTemplatesForImpactedElementsUIDs( self, theContainerObject, unosImpactedObjectsUIDs)
             
         return unPasteReport
         
